@@ -1,0 +1,3 @@
+[run]
+include = mystery_shopping/*
+omit = *migrations*, *tests*
