@@ -42,13 +42,14 @@ THIRD_PARTY_APPS = (
 )
 
 # Apps specific for this project go here.
+
 LOCAL_APPS = (
     'mystery_shopping.users',  # custom users app
     'mystery_shopping.companies',
     'mystery_shopping.common',
+    'mystery_shopping.tenants',
     # Your stuff: custom apps go here
 )
-
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 

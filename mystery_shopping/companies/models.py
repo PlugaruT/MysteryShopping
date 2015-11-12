@@ -1,5 +1,8 @@
 from django.db import models
 
+from mystery_shopping.common.models import City, Country, Sector
+from mystery_shopping.tenants.models import Tenant
+
 # TODO add description for classes
 
 class Industry(models.Model):
@@ -20,9 +23,9 @@ class Company(models.Model):
 
     """
     # Relations
-    industry = models.ForeignKey('Industry')
-    country = models.ForeignKey('common.Country')
-    tenant = models.ForeignKey('tenants.Tenant')
+    industry = models.ForeignKey(Industry)
+    country = models.ForeignKey(Country)
+    tenant = models.ForeignKey(Tenant)
     # type = models.ForeignKey("CompanyType")
 
     # Attributes
@@ -48,7 +51,7 @@ class Department(models.Model):
     """
     # Relations
     company = models.ForeignKey(Company)
-    tenant = models.ForeignKey('tenants.Tenant')
+    tenant = models.ForeignKey(Tenant)
 
     # Attributes
     name = models.CharField(max_length=255)
@@ -68,9 +71,9 @@ class Entity(models.Model):
     """
     # Relations
     department = models.ForeignKey(Department)
-    sector = models.ForeignKey('common.Sector', null=True)
-    city = models.ForeignKey('common.City')
-    tenant = models.ForeignKey('tenants.Tenant')
+    sector = models.ForeignKey(Sector, null=True)
+    city = models.ForeignKey(City)
+    tenant = models.ForeignKey(Tenant)
 
     # Attributes
     name = models.CharField(max_length=255)
@@ -91,7 +94,7 @@ class Section(models.Model):
     """
     # Relations
     entity = models.ForeignKey(Entity)
-    tenant = models.ForeignKey('tenants.Tenant')
+    tenant = models.ForeignKey(Tenant)
 
     # Attributes
     name = models.CharField(max_length=255)
