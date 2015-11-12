@@ -44,6 +44,8 @@ THIRD_PARTY_APPS = (
 # Apps specific for this project go here.
 LOCAL_APPS = (
     'mystery_shopping.users',  # custom users app
+    'mystery_shopping.companies',
+    'mystery_shopping.common',
     # Your stuff: custom apps go here
 )
 

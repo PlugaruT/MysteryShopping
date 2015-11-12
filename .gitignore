@@ -61,3 +61,6 @@ mystery_shopping/media/
 
 # Hitch directory
 tests/.hitch
+
+# Ignore migrations
+/migrations
