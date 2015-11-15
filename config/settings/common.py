@@ -39,6 +39,7 @@ THIRD_PARTY_APPS = (
     'allauth',  # registration
     'allauth.account',  # registration
     'allauth.socialaccount',  # registration
+    'rest_framework',
 )
 
 # Apps specific for this project go here.
@@ -48,8 +49,8 @@ LOCAL_APPS = (
     'mystery_shopping.companies',
     'mystery_shopping.common',
     'mystery_shopping.tenants',
-    # Your stuff: custom apps go here
 )
+
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 

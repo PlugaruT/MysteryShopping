@@ -63,4 +63,4 @@ mystery_shopping/media/
 tests/.hitch
 
 # Ignore migrations
-/migrations
+**/migrations/
