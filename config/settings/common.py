@@ -49,6 +49,7 @@ LOCAL_APPS = (
     'mystery_shopping.companies',
     'mystery_shopping.common',
     'mystery_shopping.tenants',
+    'mystery_shopping.questionnaires',
 )
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps

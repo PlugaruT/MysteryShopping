@@ -9,6 +9,7 @@ class Industry(models.Model):
     """
 
     """
+    # Attributes
     name = models.CharField(max_length=100)
 
     class Meta:
