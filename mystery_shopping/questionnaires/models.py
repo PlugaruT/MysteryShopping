@@ -49,18 +49,20 @@ class Questionnaire(QuestionnaireAbstract):
 
     """
     # Relations
-    script = models.ForeignKey(QuestionnaireScript,
-                               related_name='questionnaires')
+    script = models.ForeignKey(QuestionnaireScript)
+    template = models.ForeignKey(QuestionnaireTemplate)
+
+    class Meta:
+        default_related_name = 'questionnaires'
 
     def __str__(self):
         return 'Questionnaire name: %s \n%s' % (self.title, self.script)
 
 
-
-
 class QuestionnaireBlockAbstract(models.Model):
     """
     Abstract Questionnaire block for QuestionnaireBlockTemplate and QuestionnaireBlock
+
     """
     title = models.CharField(max_length=50)
     weight = models.DecimalField(max_digits=4, decimal_places=4)
@@ -69,17 +71,16 @@ class QuestionnaireBlockAbstract(models.Model):
         abstract = True
 
 
-class QuestionnaireBlockTemplate(QuestionnaireBlockAbstract):
+class QuestionnaireTemplateBlock(QuestionnaireBlockAbstract):
     """
 
     """
     # Relations
-    questionnaire = models.ForeignKey(QuestionnaireTemplate, related_name='block_templates')
-    parent_block = models.ForeignKey('self', blank=True)
+    questionnaire = models.ForeignKey(QuestionnaireTemplate, related_name='template_blocks')
+    parent_block = models.ForeignKey('self',blank=True, null=True)
 
     def __str__(self):
-        # TODO: find best representation of object
-        return 'Template Block title: %s' % (self.title)
+        return 'Template Block title: %s' % self.title
 
 
 class QuestionnaireBlock(QuestionnaireBlockAbstract):
@@ -88,38 +89,37 @@ class QuestionnaireBlock(QuestionnaireBlockAbstract):
     """
     # Relations
     questionnaire = models.ForeignKey(Questionnaire, related_name='blocks')
-    # TODO: nu apare redundanţă
-    parent_block = models.ForeignKey('self', blank=True)
+    parent_block = models.ForeignKey('self', blank=True, null=True)
 
     score = models.DecimalField(max_digits=5, decimal_places=2)
 
     def __str__(self):
-        # TODO: find best representation of object
         return 'Block title: %s' % (self.title)
+
 
 class QuestionAbstract(models.Model):
     """
     Abstract class for QuestionTemplate and Question
+
     """
     # Attributes
-    question = models.CharField(max_length=200)
-    comment = models.TextField(blank=True)
-    show_comment = models.BooleanField()
+    question_body = models.CharField(max_length=200)  # TODO: find optimal length
     type = models.TextField()
-    max_score = models.PositiveSmallIntegerField()
+    show_comment = models.BooleanField()
+    max_score = models.PositiveSmallIntegerField(null=True)
 
     class Meta:
         abstract = True
         ordering = ('question',)
 
-class QuestionTemplate(QuestionAbstract):
+
+class QuestionnaireTemplateQuestion(QuestionAbstract):
     """
 
     """
     # Relations
-    # TODO: find if you need to add _template for the following fields
-    questionnaire = models.ForeignKey(QuestionnaireTemplate)
-    block = models.ForeignKey(QuestionnaireBlockTemplate)
+    questionnaire_template = models.ForeignKey(QuestionnaireTemplate, related_name='template_questions')
+    template_block = models.ForeignKey(QuestionnaireTemplateBlock, related_name='template_block_questions')
 
     class Meta:
         default_related_name = 'question_templates'
@@ -128,12 +128,14 @@ class QuestionTemplate(QuestionAbstract):
         return 'Question template body: %s' % self.question
 
 
-class Question(QuestionAbstract):
+class QuestionnaireQuestion(QuestionAbstract):
     """
 
     """
     questionnaire = models.ForeignKey(Questionnaire)
     block = models.ForeignKey(QuestionnaireBlock)
+
+    comment = models.TextField(blank=True)
 
     class Meta:
         default_related_name = 'questions'

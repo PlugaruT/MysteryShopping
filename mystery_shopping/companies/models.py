@@ -5,6 +5,7 @@ from mystery_shopping.tenants.models import Tenant
 
 # TODO add description for classes
 
+
 class Industry(models.Model):
     """
 
@@ -14,6 +15,7 @@ class Industry(models.Model):
 
     class Meta:
         ordering = ('name',)
+        verbose_name_plural = 'industries'
 
     def __str__(self):
         return 'Name: %s' % self.name
@@ -41,6 +43,7 @@ class Company(models.Model):
     class Meta:
         ordering = ('name',)
         default_related_name = 'companies'
+        verbose_name_plural = 'companies'
 
     def __str__(self):
         return 'Name: %s, domain: %s' % (self.name, self.domain)
@@ -84,6 +87,7 @@ class Entity(models.Model):
     class Meta:
         ordering = ('department', 'name',)
         default_related_name = 'entities'
+        verbose_name_plural = 'entities'
 
     def __str__(self):
         return 'Name: %s, department: %s' % (self.name, self.department.name)

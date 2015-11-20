@@ -10,6 +10,7 @@ class Country(models.Model):
 
     class Meta:
         ordering = ('name',)
+        verbose_name_plural = 'countries'
 
     def __str__(self):
         return 'Name: %s' % self.name
@@ -44,6 +45,7 @@ class County(models.Model):
     class Meta:
         ordering = ('name',)
         default_related_name = 'counties'
+        verbose_name_plural = 'counties'
 
     def __str__(self):
         return 'Name: %s' % self.name
@@ -62,6 +64,7 @@ class City(models.Model):
     class Meta:
         ordering = ('county', 'name',)
         default_related_name = 'cities'
+        verbose_name_plural = 'cities'
 
     def __str__(self):
         return 'Name: %s, County: %s' % (self.name, self.county.name)

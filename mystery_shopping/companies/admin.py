@@ -1,3 +1,8 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import Industry, Company, Department, Entity, Section
+
+
+@admin.register(Industry, Company, Department, Entity, Section)
+class CompanyAdmin(admin.ModelAdmin):
+    pass
