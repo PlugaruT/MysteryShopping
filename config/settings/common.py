@@ -40,6 +40,7 @@ THIRD_PARTY_APPS = (
     'allauth.account',  # registration
     'allauth.socialaccount',  # registration
     'rest_framework',
+    'mptt',
 )
 
 # Apps specific for this project go here.

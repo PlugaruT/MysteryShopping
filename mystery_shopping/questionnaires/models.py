@@ -1,5 +1,7 @@
 from django.db import models
 
+from mptt.models import MPTTModel, TreeForeignKey
+
 
 class QuestionnaireScript(models.Model):
     """
@@ -13,8 +15,8 @@ class QuestionnaireScript(models.Model):
         ordering = ('title',)
 
     def __str__(self):
-        return '\nQuestionnaire script title: %s,\n' \
-               'short description: %s' % (self.title, self.description[0:50])
+        return '\nTitle: %s,\n' \
+               'description: %s' % (self.title, self.description[0:50])
 
 
 class QuestionnaireAbstract(models.Model):
@@ -36,11 +38,11 @@ class QuestionnaireTemplate(QuestionnaireAbstract):
 
     """
     # Relations
-    script = models.ForeignKey(QuestionnaireScript,
+    script = models.ForeignKey(QuestionnaireScript, null=True, blank=True,
                                related_name='template_questionnaires')
 
     def __str__(self):
-        return 'Questionnaire template name: %s \n%s' % (self.title, self.script)
+        return 'Title: %s \n%s' % (self.title, self.script)
 
 
 class Questionnaire(QuestionnaireAbstract):
@@ -49,14 +51,14 @@ class Questionnaire(QuestionnaireAbstract):
 
     """
     # Relations
-    script = models.ForeignKey(QuestionnaireScript)
+    script = models.ForeignKey(QuestionnaireScript, null=True, blank=True)
     template = models.ForeignKey(QuestionnaireTemplate)
 
     class Meta:
         default_related_name = 'questionnaires'
 
     def __str__(self):
-        return 'Questionnaire name: %s \n%s' % (self.title, self.script)
+        return 'Title: %s \n%s' % (self.title, self.script)
 
 
 class QuestionnaireBlockAbstract(models.Model):
@@ -65,36 +67,45 @@ class QuestionnaireBlockAbstract(models.Model):
 
     """
     title = models.CharField(max_length=50)
-    weight = models.DecimalField(max_digits=4, decimal_places=4)
+    weight = models.DecimalField(max_digits=5, decimal_places=4)
 
     class Meta:
         abstract = True
 
 
-class QuestionnaireTemplateBlock(QuestionnaireBlockAbstract):
+class QuestionnaireTemplateBlock(QuestionnaireBlockAbstract, MPTTModel):
     """
 
     """
     # Relations
     questionnaire = models.ForeignKey(QuestionnaireTemplate, related_name='template_blocks')
-    parent_block = models.ForeignKey('self',blank=True, null=True)
+    parent_block = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
+
+    class MPTTMeta:
+        order_insertion_by = ('title',)
+        parent_attr = 'parent_block'
 
     def __str__(self):
-        return 'Template Block title: %s' % self.title
+        return 'Title: %s' % self.title
 
 
-class QuestionnaireBlock(QuestionnaireBlockAbstract):
+class QuestionnaireBlock(QuestionnaireBlockAbstract, MPTTModel):
     """
 
     """
     # Relations
     questionnaire = models.ForeignKey(Questionnaire, related_name='blocks')
-    parent_block = models.ForeignKey('self', blank=True, null=True)
+    parent_block = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
 
+    # Attributes
     score = models.DecimalField(max_digits=5, decimal_places=2)
 
+    class MPTTMeta:
+        order_insertion_by = ('title',)
+        parent_attr = 'parent_block'
+
     def __str__(self):
-        return 'Block title: %s' % (self.title)
+        return 'Title: %s' % self.title
 
 
 class QuestionAbstract(models.Model):
@@ -106,11 +117,11 @@ class QuestionAbstract(models.Model):
     question_body = models.CharField(max_length=200)  # TODO: find optimal length
     type = models.TextField()
     show_comment = models.BooleanField()
-    max_score = models.PositiveSmallIntegerField(null=True)
+    max_score = models.PositiveSmallIntegerField(null=True, blank=True)
 
     class Meta:
         abstract = True
-        ordering = ('question',)
+        ordering = ('question_body',)
 
 
 class QuestionnaireTemplateQuestion(QuestionAbstract):
@@ -125,7 +136,7 @@ class QuestionnaireTemplateQuestion(QuestionAbstract):
         default_related_name = 'question_templates'
 
     def __str__(self):
-        return 'Question template body: %s' % self.question
+        return 'Question body: %s' % self.question_body
 
 
 class QuestionnaireQuestion(QuestionAbstract):
@@ -141,4 +152,4 @@ class QuestionnaireQuestion(QuestionAbstract):
         default_related_name = 'questions'
 
     def __str__(self):
-        return 'Question body: %s' % self.question
+        return 'Question body: %s' % self.question_body
