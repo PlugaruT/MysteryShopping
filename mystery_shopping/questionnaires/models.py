@@ -78,7 +78,7 @@ class QuestionnaireTemplateBlock(QuestionnaireBlockAbstract, MPTTModel):
 
     """
     # Relations
-    questionnaire = models.ForeignKey(QuestionnaireTemplate, related_name='template_blocks')
+    questionnaire_template = models.ForeignKey(QuestionnaireTemplate, related_name='template_blocks')
     parent_block = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
 
     class MPTTMeta:

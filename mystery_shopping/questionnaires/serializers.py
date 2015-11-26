@@ -1,8 +1,7 @@
 from rest_framework import serializers
 from rest_framework_recursive.fields import RecursiveField
 
-from .models import QuestionnaireScript, QuestionnaireTemplate, Questionnaire, QuestionnaireTemplateBlock, QuestionnaireBlock, QuestionnaireTemplateQuestion, QuestionnaireQuestion
-
+from .models import QuestionnaireScript, QuestionnaireTemplate, QuestionnaireTemplateBlock, QuestionnaireTemplateQuestion
 
 
 class QuestionnaireScriptSerializer(serializers.ModelSerializer):
@@ -12,15 +11,6 @@ class QuestionnaireScriptSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionnaireScript
         fields = ('id', 'title', 'description',)
-
-
-class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
-    """
-
-    """
-    class Meta:
-        model = QuestionnaireTemplate
-        fields = ('title', 'script', 'template_blocks',)
 
 
 class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
@@ -42,3 +32,17 @@ class QuestionnaireTemplateBlockSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionnaireTemplateBlock
         fields = ('title', 'weight', 'parent_block', 'template_block_questions', 'children')
+
+
+class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
+    """
+
+    """
+    template_blocks = QuestionnaireTemplateBlockSerializer(many=True)
+
+    class Meta:
+        model = QuestionnaireTemplate
+        fields = ('title', 'script', 'template_blocks',)
+
+    def create(self, validated_data):
+        print(validated_data)
