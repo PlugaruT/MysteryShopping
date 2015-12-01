@@ -15,8 +15,8 @@ from mystery_shopping.questionnaires.views import QuestionnaireScriptViewSet, Qu
 
 questionnaire_router = DefaultRouter()
 questionnaire_router.register(r'scripts', QuestionnaireScriptViewSet)
-questionnaire_router.register(r'temp', QuestionnaireTemplateViewSet)
-questionnaire_router.register(r'tempblocks', QuestionnaireTemplateBlockViewSet)
+questionnaire_router.register(r'templatequestionnaires', QuestionnaireTemplateViewSet)
+questionnaire_router.register(r'templateblocks', QuestionnaireTemplateBlockViewSet)
 questionnaire_router.register(r'questions', QuestionnaireTemplateQuestionViewSet)
 
 urlpatterns = [
@@ -32,7 +32,7 @@ urlpatterns = [
 
     # Your stuff: custom urls includes go here
 
-    url(r'^questionnaires/', include(questionnaire_router.urls)),
+    url(r'^api/questionnaires/', include(questionnaire_router.urls), name="api"),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

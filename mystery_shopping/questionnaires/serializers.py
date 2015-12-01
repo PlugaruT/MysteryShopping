@@ -26,9 +26,9 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
         Check if type of the question is an allowed one
 
         """
-        if value[0] == 's':
-            raise serializers.ValidationError("Value is 's'")
-        return value
+        # if value[0] == 's':
+        #     raise serializers.ValidationError("Value is 's'")
+        # return value
 
     def create(self, validated_data):
         return QuestionnaireTemplateQuestion.objects.create(**validated_data)
@@ -48,17 +48,31 @@ class QuestionnaireTemplateBlockSerializer(serializers.ModelSerializer):
     """
 
     """
-    children = RecursiveField('QuestionnaireTemplateBlockSerializer', required=False, many=True)  # Never touch again!
     template_block_questions = QuestionnaireTemplateQuestionSerializer(many=True)
+    # lft = serializers.IntegerField()
+    # rght = serializers.IntegerField()
+    # tree_id = serializers.IntegerField()
+    # level = serializers.IntegerField()
 
     class Meta:
         model = QuestionnaireTemplateBlock
         fields = '__all__'
 
     def create(self, validated_data):
-        validated_data.pop('children')
-        validated_data.pop('template_block_questions')
-        return QuestionnaireTemplateBlock.objects.create(**validated_data)
+        children = validated_data.pop('children', None)
+        template_block_questions = validated_data.pop('template_block_questions')
+
+        template_block = QuestionnaireTemplateBlock.objects.create(**validated_data)
+
+        for template_block_question in template_block_questions:
+            template_block_question['questionnaire_template'] = template_block.questionnaire_template.id
+            template_block_question['template_block'] = template_block.id
+            template_block_question_ser = QuestionnaireTemplateQuestionSerializer(data=template_block_question)
+            template_block_question_ser.is_valid(raise_exception=True)
+            print()
+            print(template_block_question_ser.validated_data)
+            template_block_question_ser.save()
+        return template_block
 
     def update(self, instance, validated_data):
         print(validated_data)
@@ -74,11 +88,22 @@ class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
     """
 
     """
-    template_blocks = QuestionnaireTemplateBlockSerializer(many=True)
+    template_blocks = QuestionnaireTemplateBlockSerializer(many=True, required=False)
 
     class Meta:
         model = QuestionnaireTemplate
-        fields = ('title', 'script', 'template_blocks',)
+        fields = ('title', 'template_blocks',)
 
     def create(self, validated_data):
         print(validated_data)
+        template_blocks = validated_data.pop('template_blocks')
+        questionnaire_template = QuestionnaireTemplate.objects.create(**validated_data)
+        for template_block in template_blocks:
+            template_block['questionnaire_template'] = questionnaire_template.id
+            template_block_ser = QuestionnaireTemplateBlockSerializer(data=template_block)
+            template_block_ser.is_valid(raise_exception=True)
+            print()
+            print(template_block_ser.validated_data)
+            # template_block_ser.save()
+            pass
+        return questionnaire_template

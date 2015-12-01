@@ -2,6 +2,8 @@ from django.db import models
 
 from mptt.models import MPTTModel, TreeForeignKey
 
+# REMINDER: don't use newline characters in the representation
+
 
 class QuestionnaireScript(models.Model):
     """
@@ -15,7 +17,7 @@ class QuestionnaireScript(models.Model):
         ordering = ('title',)
 
     def __str__(self):
-        return '\nTitle: %s,\n' \
+        return 'Title: %s,' \
                'description: %s' % (self.title, self.description[0:50])
 
 
