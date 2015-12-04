@@ -1,0 +1,24 @@
+[
+  {
+    "test_name": "s_type_question",
+    "data": {
+      "question_body": "Question#2",
+      "type": "sYes [::] 5 || No [::] 0 || NA [::] -1",
+      "show_comment": true,
+      "max_score": 5,
+      "questionnaire_template": 1,
+      "template_block": 1
+    }
+  },
+  {
+    "test_name": "t_type_question",
+    "data": {
+      "question_body": "Question#2",
+      "type": "t",
+      "show_comment": true,
+      "max_score": null,
+      "questionnaire_template": 1,
+      "template_block": 1
+    }
+  }
+]

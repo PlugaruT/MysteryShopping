@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from rest_framework_recursive.fields import RecursiveField
 
 from .models import QuestionnaireScript, QuestionnaireTemplate, QuestionnaireTemplateBlock, QuestionnaireTemplateQuestion
 
@@ -31,7 +30,8 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
 
         """
         if value[0] == 's':
-            raise serializers.ValidationError("Value is 's'")
+            pass
+            # raise serializers.ValidationError("Value is 's'")
         return value
 
     def create(self, validated_data):
@@ -53,7 +53,6 @@ class QuestionnaireTemplateBlockSerializer(serializers.ModelSerializer):
 
     """
     template_block_questions = QuestionnaireTemplateQuestionSerializer(many=True)
-    # id = serializers.IntegerField(label='ID', required=False)
     lft = serializers.IntegerField(required=False)
     rght = serializers.IntegerField(required=False)
     tree_id = serializers.IntegerField(required=False)
@@ -116,10 +115,7 @@ class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
             template_block_ser = QuestionnaireTemplateBlockSerializer(data=template_block)
             template_block_ser.is_valid(raise_exception=True)
             print(parents_id)
-            # print(template_block_ser.validated_data)
             current_block = template_block_ser.save()
-
-            # temp_parent_block = template_block_ser.id
             previous_template_block = current_block
             pass
         return questionnaire_template
