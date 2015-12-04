@@ -1,0 +1,83 @@
+[
+  {
+    "test_name": "questionnaire_with_no_blocks_and_no_script",
+    "data": {
+      "title": "Questionnaire with no blocks and no script"
+    }
+  },
+  {
+    "test_name": "questionnaire_with_nested_blocks_and_no_script",
+    "data": {
+      "title": "Questionnaire with nested blocks and no script",
+      "template_blocks": [
+          {
+              "template_block_questions": [],
+              "title": "Albert",
+              "weight": 0.9000,
+              "lft": 1,
+              "rght": 12,
+              "tree_id": 1,
+              "level": 0
+          },
+          {
+              "template_block_questions": [{
+                  "question_body": "Question#1",
+                  "type": "Yes [::] 5 || No [::] 0 || NA [::] -1",
+                  "show_comment": true,
+                  "max_score": 2
+                  },
+                  {
+                  "question_body": "Question#2",
+                  "type": "Yes [::] 5 || No [::] 0 || NA [::] -1",
+                  "show_comment": true,
+                  "max_score": 5
+                  }
+              ],
+              "title": "Bert",
+              "weight": 1.0000,
+              "lft": 2,
+              "rght": 3,
+              "tree_id": 1,
+              "level": 1
+          },
+          {
+              "template_block_questions": [],
+              "title": "Chuck",
+              "weight": 1.0000,
+              "lft": 4,
+              "rght": 11,
+              "tree_id": 1,
+              "level": 1
+ 
+          },
+          {
+              "template_block_questions": [],
+              "title": "Donna",
+              "weight": 1.0000,
+              "lft": 5,
+              "rght": 6,
+              "tree_id": 1,
+              "level": 2
+          },
+          {
+              "template_block_questions": [],
+              "title": "Eddie",
+              "weight": 1.0000,
+              "lft": 7,
+              "rght": 8,
+              "tree_id": 1,
+              "level": 2
+          },
+          {
+              "template_block_questions": [],
+              "title": "Fred",
+              "weight": 1.0000,
+              "lft": 9,
+              "rght": 10,
+              "tree_id": 1,
+              "level": 2
+          }
+        ]
+      }
+  }
+]

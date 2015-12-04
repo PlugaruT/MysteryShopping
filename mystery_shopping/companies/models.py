@@ -69,6 +69,7 @@ class Department(models.Model):
         return 'Name: %s, company: %s' % (self.name, self.company.name)
 
 
+# PoS
 class Entity(models.Model):
     """
 

@@ -53,6 +53,7 @@ class QuestionnaireTemplateBlockSerializer(serializers.ModelSerializer):
 
     """
     template_block_questions = QuestionnaireTemplateQuestionSerializer(many=True)
+    questionnaire_template = serializers.PrimaryKeyRelatedField(queryset=QuestionnaireTemplate.objects.all(), required=False)
     lft = serializers.IntegerField(required=False)
     rght = serializers.IntegerField(required=False)
     tree_id = serializers.IntegerField(required=False)
@@ -99,23 +100,22 @@ class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
         fields = ('title', 'template_blocks',)
 
     def create(self, validated_data):
-        print(validated_data)
-        template_blocks = validated_data.pop('template_blocks')
+        # print(validated_data)
+        template_blocks = validated_data.pop('template_blocks', None)
         questionnaire_template = QuestionnaireTemplate.objects.create(**validated_data)
         previous_template_block = None
         parents_id = {}
-        for template_block in template_blocks:
-            template_block['questionnaire_template'] = questionnaire_template.id
-            if template_block['lft'] == 1:
-                parents_id['level_' + str(template_block['level'])] = None
-            elif template_block['level'] > previous_template_block.level:
-                parents_id['level_' + str(template_block['level'])] = previous_template_block.id
+        if template_blocks:
+            for template_block in template_blocks:
+                template_block['questionnaire_template'] = questionnaire_template.id
+                if template_block['lft'] == 1:
+                    parents_id['level_' + str(template_block['level'])] = None
+                elif template_block['level'] > previous_template_block.level:
+                    parents_id['level_' + str(template_block['level'])] = previous_template_block.id
 
-            template_block['parent_block'] = parents_id['level_' + str(template_block['level'])]
-            template_block_ser = QuestionnaireTemplateBlockSerializer(data=template_block)
-            template_block_ser.is_valid(raise_exception=True)
-            print(parents_id)
-            current_block = template_block_ser.save()
-            previous_template_block = current_block
-            pass
+                template_block['parent_block'] = parents_id['level_' + str(template_block['level'])]
+                template_block_ser = QuestionnaireTemplateBlockSerializer(data=template_block)
+                template_block_ser.is_valid(raise_exception=True)
+                current_block = template_block_ser.save()
+                previous_template_block = current_block
         return questionnaire_template
