@@ -1,7 +1,9 @@
+from datetime import datetime
+
 from rest_framework import serializers
-from rest_framework_recursive.fields import RecursiveField
 
 from .models import QuestionnaireScript, QuestionnaireTemplate, QuestionnaireTemplateBlock, QuestionnaireTemplateQuestion
+from mystery_shopping.mystery_shopping_utils.constants import Constants
 
 
 class QuestionnaireScriptSerializer(serializers.ModelSerializer):
@@ -25,13 +27,51 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
         model = QuestionnaireTemplateQuestion
         fields = '__all__'
 
+    def single_multiple(self, to_validate):
+        results = to_validate.split(Constants.CHOICES_SPLITTER)
+        errors = []
+        for result in results:
+            answer_weight = result.split(Constants.CHOICE_BODY_VALUE_SPLITTER)
+            if answer_weight[0] == '':
+                errors.append("in answer '" + result + "' answer value is none")
+            try:
+                answer_weight[1]
+                try:
+                    int(answer_weight[1])
+                except ValueError:
+                    errors.append("in answer '" + result + "' the weight is not a number")
+            except IndexError:
+                errors.append("in answer '" + result + "' the weight does not exist")
+        return errors
+
+    def date_validator(self, to_validate):
+        error = ''
+        if len(to_validate) < 11:
+            try:
+                datetime.strptime(to_validate, Constants.DATE_VALIDATOR)
+            except ValueError:
+                error = 'the answer is not of date type'
+        else:
+            try:
+                datetime.strptime(to_validate, Constants.DATETIME_VALIDATOR)
+            except ValueError:
+                error = 'the answer is not of datetime type'
+        return error
+
     def validate_type(self, value):
         """
         Check if type of the question is an allowed one
 
         """
-        if value[0] == 's':
-            raise serializers.ValidationError("Value is 's'")
+        if value[0] in ('s', 'm'):
+            error = self.single_multiple(value[1:])
+        elif value[0] == 't':
+            error = self.date_validator(value[1:])
+        else:
+            raise serializers.ValidationError("Not a valid type")
+
+        if error:
+                raise serializers.ValidationError("Errors: {0}".format(error))
         return value
 
     def create(self, validated_data):
@@ -53,7 +93,7 @@ class QuestionnaireTemplateBlockSerializer(serializers.ModelSerializer):
 
     """
     template_block_questions = QuestionnaireTemplateQuestionSerializer(many=True)
-    # id = serializers.IntegerField(label='ID', required=False)
+    questionnaire_template = serializers.PrimaryKeyRelatedField(queryset=QuestionnaireTemplate.objects.all(), required=False)
     lft = serializers.IntegerField(required=False)
     rght = serializers.IntegerField(required=False)
     tree_id = serializers.IntegerField(required=False)
@@ -100,26 +140,22 @@ class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
         fields = ('title', 'template_blocks',)
 
     def create(self, validated_data):
-        print(validated_data)
-        template_blocks = validated_data.pop('template_blocks')
+        # print(validated_data)
+        template_blocks = validated_data.pop('template_blocks', None)
         questionnaire_template = QuestionnaireTemplate.objects.create(**validated_data)
         previous_template_block = None
         parents_id = {}
-        for template_block in template_blocks:
-            template_block['questionnaire_template'] = questionnaire_template.id
-            if template_block['lft'] == 1:
-                parents_id['level_' + str(template_block['level'])] = None
-            elif template_block['level'] > previous_template_block.level:
-                parents_id['level_' + str(template_block['level'])] = previous_template_block.id
+        if template_blocks:
+            for template_block in template_blocks:
+                template_block['questionnaire_template'] = questionnaire_template.id
+                if template_block['lft'] == 1:
+                    parents_id['level_' + str(template_block['level'])] = None
+                elif template_block['level'] > previous_template_block.level:
+                    parents_id['level_' + str(template_block['level'])] = previous_template_block.id
 
-            template_block['parent_block'] = parents_id['level_' + str(template_block['level'])]
-            template_block_ser = QuestionnaireTemplateBlockSerializer(data=template_block)
-            template_block_ser.is_valid(raise_exception=True)
-            print(parents_id)
-            # print(template_block_ser.validated_data)
-            current_block = template_block_ser.save()
-
-            # temp_parent_block = template_block_ser.id
-            previous_template_block = current_block
-            pass
+                template_block['parent_block'] = parents_id['level_' + str(template_block['level'])]
+                template_block_ser = QuestionnaireTemplateBlockSerializer(data=template_block)
+                template_block_ser.is_valid(raise_exception=True)
+                current_block = template_block_ser.save()
+                previous_template_block = current_block
         return questionnaire_template

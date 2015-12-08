@@ -38,7 +38,7 @@ class Company(models.Model):
     contact_email = models.EmailField(max_length=50)
     domain = models.CharField(verbose_name='the domain of the company on the platform', max_length=30)
     # TODO add MEDIA_ROOT for file upload
-    logo = models.ImageField()
+    logo = models.ImageField(null=True, blank=True)
 
     class Meta:
         ordering = ('name',)
@@ -60,7 +60,6 @@ class Department(models.Model):
     # Attributes
     name = models.CharField(max_length=255)
 
-
     class Meta:
         ordering = ('company', 'name',)
         default_related_name = 'departments'
@@ -69,6 +68,7 @@ class Department(models.Model):
         return 'Name: %s, company: %s' % (self.name, self.company.name)
 
 
+# PoS
 class Entity(models.Model):
     """
 

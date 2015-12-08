@@ -1,0 +1,35 @@
+[
+  {
+    "test_name": "block_with_no_questions",
+    "data": {
+      "template_block_questions": [],
+      "title": "Block with no questions",
+      "weight": "0.4000",
+      "questionnaire_template": 1,
+      "parent_block": null
+    }
+  },
+  {
+    "test_name": "block_with_2_questions",
+    "data": {
+      "template_block_questions": [
+        {
+          "question_body": "Question#1",
+          "type": "Yes [::] 5 || No [::] 0 || NA [::] -1",
+          "show_comment": true,
+          "max_score": 2
+        },
+        {
+          "question_body": "Question#2",
+          "type": "Yes [::] 5 || No [::] 0 || NA [::] -1",
+          "show_comment": true,
+          "max_score": 5
+        }
+      ],
+      "title": "Block with 2 Questions",
+      "weight": 1.0000,
+      "questionnaire_template": 2,
+      "parent_block": null
+    }
+  }
+]
