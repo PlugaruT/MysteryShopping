@@ -11,7 +11,7 @@ class IsAccountOwner(permissions.BasePermission):
         return False
 
 
-class TenantProductManager(permissions.BasePermission):
+class IsTenantProductManager(permissions.BasePermission):
     """Permission for TenantProductManager user.
     """
     def has_permission(self, request, view):
