@@ -15,13 +15,13 @@
       "template_block_questions": [
         {
           "question_body": "Question#1",
-          "type": "Yes [::] 5 || No [::] 0 || NA [::] -1",
+          "type": "sYes [::] 5 || No [::] 0 || NA [::] -1",
           "show_comment": true,
           "max_score": 2
         },
         {
           "question_body": "Question#2",
-          "type": "Yes [::] 5 || No [::] 0 || NA [::] -1",
+          "type": "mYes [::] 5 || No [::] 0 || NA [::] -1",
           "show_comment": true,
           "max_score": 5
         }

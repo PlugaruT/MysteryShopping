@@ -14,7 +14,7 @@
     "test_name": "t_type_question",
     "data": {
       "question_body": "Question#2",
-      "type": "t",
+      "type": "t1900-12-12",
       "show_comment": true,
       "max_score": null,
       "questionnaire_template": 1,

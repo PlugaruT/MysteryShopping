@@ -11,6 +11,7 @@ from django.views import defaults as default_views
 from rest_framework.routers import DefaultRouter
 
 from mystery_shopping.questionnaires.views import QuestionnaireScriptViewSet, QuestionnaireTemplateViewSet, QuestionnaireTemplateBlockViewSet, QuestionnaireTemplateQuestionViewSet
+from mystery_shopping.companies.views import CompanyViewSet, DepartmentViewSet, EntityViewSet, SectionViewSet
 
 
 questionnaire_router = DefaultRouter()
@@ -18,6 +19,12 @@ questionnaire_router.register(r'scripts', QuestionnaireScriptViewSet)
 questionnaire_router.register(r'templatequestionnaires', QuestionnaireTemplateViewSet)
 questionnaire_router.register(r'templateblocks', QuestionnaireTemplateBlockViewSet)
 questionnaire_router.register(r'questions', QuestionnaireTemplateQuestionViewSet)
+
+company_router = DefaultRouter()
+company_router.register(r'companies', CompanyViewSet)
+company_router.register(r'departments', DepartmentViewSet)
+company_router.register(r'entities', EntityViewSet)
+company_router.register(r'sections', SectionViewSet)
 
 urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name='pages/home.html'), name="home"),
@@ -33,6 +40,8 @@ urlpatterns = [
     # Your stuff: custom urls includes go here
 
     url(r'^api/questionnaires/', include(questionnaire_router.urls), name="api"),
+
+    url(r'^api/clients/', include(company_router.urls)),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
