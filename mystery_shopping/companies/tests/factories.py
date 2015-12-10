@@ -1,5 +1,5 @@
 from factory.django import DjangoModelFactory
-from factory import fuzzy, Sequence
+from factory import fuzzy, Sequence, SubFactory, PostGenerationMethodCall
 from faker import Factory
 
 from ..models import Company, Industry
@@ -11,9 +11,12 @@ from mystery_shopping.tenants.models import Tenant
 class UserFactory(DjangoModelFactory):
     class Meta:
         model = User
+        exclude = ('r_password',)
 
     username = fuzzy.FuzzyText(length=10)
-    password = '1234'
+    r_password = '1234'
+    password = PostGenerationMethodCall('set_password', r_password)
+    is_active = True
 
 
 class TenantFactory(DjangoModelFactory):
@@ -27,10 +30,16 @@ class TenantProductManagerFactory(DjangoModelFactory):
     class Meta:
         model = TenantProductManager
 
+    user = SubFactory(UserFactory)
+    tenant = SubFactory(TenantFactory)
+
 
 class TenantProjectManagerFactory(DjangoModelFactory):
     class Meta:
         model = TenantProjectManager
+
+    user = SubFactory(UserFactory)
+    tenant = SubFactory(TenantFactory)
 
 
 class CountryFactory(DjangoModelFactory):
@@ -51,9 +60,13 @@ class CompanyFactory(DjangoModelFactory):
     class Meta:
         model = Company
 
-    fake = Factory.create()
+    # fake = Factory.create()
 
-    contact_person = fake.name()
+    industry = SubFactory(IndustryFactory)
+    country = SubFactory(CountryFactory)
+    tenant = SubFactory(TenantFactory)
+
+    contact_person = "fdsafs"  # fake.name()
     contact_phone = '123'
-    contact_email = fake.email()
+    contact_email = "fdsfsfas@fasd.com"  # fake.email()
     domain = 'fsadfsf'
