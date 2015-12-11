@@ -10,6 +10,8 @@ class Project(models.Model):
 
     """
     # Relations
+    # create a shopper, add project worker.
+    # add projectmanager, lista consultanti (M2M) = special class for generics, shoppers (M2M)
     tenant = models.ForeignKey(Tenant)
     client = models.ForeignKey(Company)
     # shoppers = models.ForeignKey(Shopper, null=True)

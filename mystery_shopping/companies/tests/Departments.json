@@ -1,0 +1,43 @@
+[
+  {
+    "test_name": "entity_with_no_sections",
+    "data": {
+      "entities": [],
+      "name": "Department with no entities"
+    }
+  },
+  {
+    "test_name": "department_with_2_entities",
+    "data": {
+      "entities": [
+        {
+          "sections": [
+            {
+              "name": "Section#1"
+            },
+            {
+              "name": "Section#2"
+            }
+          ],
+          "name": "Entity within department with 2 entities #1",
+          "address": "49054 Kuvalis Row Suite 627",
+          "coordinates": "lat: 38.706863 long: -90.298205"
+        },
+        {
+          "sections": [
+            {
+              "name": "Section#3"
+            },
+            {
+              "name": "Section#4"
+            }
+          ],
+          "name": "Entity within department with 2 entities #2",
+          "address": "49054 Kuvalis Row Suite 627",
+          "coordinates": "lat: 38.706863 long: -90.298205"
+        }
+      ],
+      "name": "Department with 2 entities"
+    }
+  }
+]
