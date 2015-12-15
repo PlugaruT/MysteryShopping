@@ -2,11 +2,12 @@ import json
 
 from django.test import TestCase
 
-from .factories import QuestionnaireTemplateFactory, QuestionnaireTemplateBlockFactory
+from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFactory, QuestionnaireTemplateBlockFactory
 from ..models import QuestionnaireTemplateQuestion, QuestionnaireTemplateBlock, QuestionnaireTemplate
 from ..serializers import QuestionnaireTemplateQuestionSerializer, QuestionnaireTemplateBlockSerializer, QuestionnaireTemplateSerializer
 
 # TODO class that uses factory_boy and generates
+
 
 def _create_template_question(self, question):
     question_data = question['data']

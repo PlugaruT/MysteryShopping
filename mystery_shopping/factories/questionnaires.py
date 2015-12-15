@@ -1,6 +1,6 @@
 from factory.django import DjangoModelFactory
 
-from ..models import QuestionnaireTemplate, QuestionnaireTemplateBlock
+from mystery_shopping.questionnaires.models import QuestionnaireTemplate, QuestionnaireTemplateBlock
 
 
 class QuestionnaireTemplateFactory(DjangoModelFactory):

@@ -1,42 +1,43 @@
 import json
 
-from django.test import TestCase
 from rest_assured.testcases import ReadWriteRESTAPITestCaseMixin, BaseRESTAPITestCase
-from . import factories
-from ..models import Department, Entity, Section
-from ..serializers import DepartmentSerializer, EntitySerializer, SectionSerializer
 
+from mystery_shopping.factories.companies import DepartmentFactory, EntityFactory, SectionFactory
 
-json_data = json.load(open("mystery_shopping/companies/tests/Departments.json"))
-first = json_data[0]
 
 
 class DepartmentAPITestCase(ReadWriteRESTAPITestCaseMixin, BaseRESTAPITestCase):
 
     base_name = 'department'
-    factory_class = factories.DepartmentFactory
+    factory_class = DepartmentFactory
     update_data = {'name': "Grigory Leps"}
 
     def get_create_data(self):
+        json_data = json.load(open("mystery_shopping/companies/tests/Departments.json"))
+        first = json_data[0]
         self.data = first['data']
+        print("from department test")
+        print(self.data)
         self.data.pop('entities', None)
         self.data['company'] = self.object.company.pk
         self.data['tenant'] = self.object.tenant.pk
         return self.data
 
 
-json_data = json.load(open("mystery_shopping/companies/tests/Entities.json"))
-first = json_data[0]
 
 
 class EntityAPITestCase(ReadWriteRESTAPITestCaseMixin, BaseRESTAPITestCase):
 
     base_name = 'entity'
-    factory_class = factories.EntityFactory
+    factory_class = EntityFactory
     update_data = {'name': "Entity of Leps"}
 
     def get_create_data(self):
+        json_data = json.load(open("mystery_shopping/companies/tests/Entities.json"))
+        first = json_data[0]
         self.data = first['data']
+        print("from entity test")
+        print(self.data)
         self.data.pop('sections', None)
         self.data['department'] = self.object.department.pk
         self.data['city'] = self.object.city.pk
@@ -45,17 +46,17 @@ class EntityAPITestCase(ReadWriteRESTAPITestCaseMixin, BaseRESTAPITestCase):
         return self.data
 
 
-json_data = json.load(open("mystery_shopping/companies/tests/Sectors.json"))
-first = json_data[0]
 
 
 class SectionAPITestCase(ReadWriteRESTAPITestCaseMixin, BaseRESTAPITestCase):
 
     base_name = 'section'
-    factory_class = factories.SectionFactory
+    factory_class = SectionFactory
     update_data = {'name': "Section of Leps"}
 
     def get_create_data(self):
+        json_data = json.load(open("mystery_shopping/companies/tests/Sectors.json"))
+        first = json_data[0]
         self.data = first['data']
         self.data['entity'] = self.object.entity.pk
         self.data['tenant'] = self.object.tenant.pk

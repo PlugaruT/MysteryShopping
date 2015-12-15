@@ -3,17 +3,20 @@ from django.db import models
 from mystery_shopping.companies.models import Company, Department, Entity, Section
 from mystery_shopping.questionnaires.models import QuestionnaireScript, QuestionnaireTemplate
 from mystery_shopping.tenants.models import Tenant
+from mystery_shopping.users.models import TenantProjectManager
 
 
 class Project(models.Model):
     """
 
     """
-    # Relations
     # create a shopper, add project worker.
     # add projectmanager, lista consultanti (M2M) = special class for generics, shoppers (M2M)
+
+    # Relations
     tenant = models.ForeignKey(Tenant)
     client = models.ForeignKey(Company)
+    tenant_project_manager = models.ForeignKey(TenantProjectManager)
     # shoppers = models.ForeignKey(Shopper, null=True)
 
     # Attributes
