@@ -9,10 +9,11 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 
-from mystery_shopping.tenants.models import Tenant
 from mystery_shopping.companies.models import Company
 from mystery_shopping.companies.models import Entity
 from mystery_shopping.companies.models import Section
+from mystery_shopping.projects.models import Project
+from mystery_shopping.tenants.models import Tenant
 
 
 @python_2_unicode_compatible
@@ -32,7 +33,7 @@ class User(AbstractUser):
 class TenantUserAbstract(models.Model):
     """The abstract class for Tenant User model.
 
-    This class define the common relations and attributes for all Tenant Users.
+    This class defines the common relations and attributes for all Tenant Users.
 
     .. note:: The Tenant relation is not included here for the purpose of defining an explicit related_name
         on each Tenant User class.
@@ -134,3 +135,16 @@ class ClientEmployee(ClientUserAbstract):
 
     def __str__(self):
         return u'{} {} {}'.format(self.user, self.company, self.entity)
+
+
+class ProjectWorker(models.Model):
+    """
+    A class with a generic foreign key for setting workers for a project.
+
+    A worker can either be a Tenant Project Manager, or a Tenant Consultant
+    """
+    limit = models.Q(app_label='users', model='tenantprojectmanager') |\
+            models.Q(app_label='users', model='tenantconsultant')
+    content_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='content_type_project_workers')
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'content_object')

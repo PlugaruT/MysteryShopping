@@ -3,7 +3,7 @@ from factory import fuzzy, Sequence, SubFactory, PostGenerationMethodCall
 from faker import Factory
 
 from .tenants import TenantFactory
-from mystery_shopping.users.models import User, TenantProductManager, TenantProjectManager
+from mystery_shopping.users.models import User, TenantProductManager, TenantProjectManager, ProjectWorker
 
 
 class UserFactory(DjangoModelFactory):
@@ -31,3 +31,10 @@ class TenantProjectManagerFactory(DjangoModelFactory):
 
     user = SubFactory(UserFactory)
     tenant = SubFactory(TenantFactory)
+
+
+class ProjectWorkerTenantProjectManagerFactory(DjangoModelFactory):
+    class Meta:
+        model = ProjectWorker
+
+    content_object = SubFactory(TenantProjectManagerFactory)

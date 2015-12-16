@@ -6,7 +6,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as AuthUserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 
-from .models import User, TenantProductManager, TenantProjectManager, TenantConsultant
+from .models import User, TenantProductManager, TenantProjectManager, TenantConsultant, ProjectWorker
 
 
 class MyUserChangeForm(UserChangeForm):
@@ -38,6 +38,6 @@ class UserAdmin(AuthUserAdmin):
     add_form = MyUserCreationForm
 
 
-@admin.register(TenantProductManager, TenantProjectManager, TenantConsultant)
+@admin.register(TenantProductManager, TenantProjectManager, TenantConsultant, ProjectWorker)
 class Tenants(admin.ModelAdmin):
     pass

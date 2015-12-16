@@ -41,19 +41,13 @@ class EntitySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
-        print("inside entity")
-        print(validated_data)
         sections = validated_data.pop('sections', None)
 
         entity = Entity.objects.create(**validated_data)
 
         for section in sections:
-            print(section)
             section['entity'] = entity.id
             section['tenant'] = entity.tenant.id
-            print()
-            print(section['city'].id)
-            print()
             section['city'] = section['city'].id
             section_ser = SectionSerializer(data=section)
             section_ser.is_valid(raise_exception=True)
@@ -72,14 +66,11 @@ class DepartmentSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
-        print(validated_data)
         entities = validated_data.pop('entities', None)
 
         department = Department.objects.create(**validated_data)
 
         for entity in entities:
-            print("inside department loop")
-            print(entity)
             entity['department'] = department.id
             entity['tenant'] = department.tenant.id
             entity['city'] = entity['city'].id

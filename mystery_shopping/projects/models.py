@@ -3,7 +3,7 @@ from django.db import models
 from mystery_shopping.companies.models import Company, Department, Entity, Section
 from mystery_shopping.questionnaires.models import QuestionnaireScript, QuestionnaireTemplate
 from mystery_shopping.tenants.models import Tenant
-from mystery_shopping.users.models import TenantProjectManager
+# from mystery_shopping.users.models import TenantProjectManager
 
 
 class Project(models.Model):
@@ -16,7 +16,9 @@ class Project(models.Model):
     # Relations
     tenant = models.ForeignKey(Tenant)
     client = models.ForeignKey(Company)
-    tenant_project_manager = models.ForeignKey(TenantProjectManager)
+    # this type of import is used to avoid import circles
+    tenant_project_manager = models.ForeignKey('users.TenantProjectManager')
+    project_workers = models.ManyToManyField('users.ProjectWorker')
     # shoppers = models.ForeignKey(Shopper, null=True)
 
     # Attributes

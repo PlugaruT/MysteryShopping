@@ -1,5 +1,5 @@
 from factory.django import DjangoModelFactory
-from factory import fuzzy, Sequence, SubFactory, PostGenerationMethodCall
+from factory import fuzzy, SubFactory
 
 from mystery_shopping.common.models import Country, CountryRegion, County, City, Sector
 

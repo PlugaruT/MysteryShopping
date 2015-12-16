@@ -5,7 +5,6 @@ from rest_assured.testcases import ReadWriteRESTAPITestCaseMixin, BaseRESTAPITes
 from mystery_shopping.factories.companies import DepartmentFactory, EntityFactory, SectionFactory
 
 
-
 class DepartmentAPITestCase(ReadWriteRESTAPITestCaseMixin, BaseRESTAPITestCase):
 
     base_name = 'department'
@@ -22,8 +21,6 @@ class DepartmentAPITestCase(ReadWriteRESTAPITestCaseMixin, BaseRESTAPITestCase):
         self.data['company'] = self.object.company.pk
         self.data['tenant'] = self.object.tenant.pk
         return self.data
-
-
 
 
 class EntityAPITestCase(ReadWriteRESTAPITestCaseMixin, BaseRESTAPITestCase):
@@ -44,8 +41,6 @@ class EntityAPITestCase(ReadWriteRESTAPITestCaseMixin, BaseRESTAPITestCase):
         self.data['sector'] = self.object.sector.pk
         self.data['tenant'] = self.object.tenant.pk
         return self.data
-
-
 
 
 class SectionAPITestCase(ReadWriteRESTAPITestCaseMixin, BaseRESTAPITestCase):

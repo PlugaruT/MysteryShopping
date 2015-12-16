@@ -3,10 +3,12 @@ from __future__ import absolute_import, unicode_literals
 
 from django.core.urlresolvers import reverse
 from django.views.generic import DetailView, ListView, RedirectView, UpdateView
+from rest_framework import viewsets
 
 from braces.views import LoginRequiredMixin
 
-from .models import User
+from .models import User, ProjectWorker
+from .serializers import ProjectWorkerSerializer
 
 
 class UserDetailView(LoginRequiredMixin, DetailView):
@@ -46,3 +48,9 @@ class UserListView(LoginRequiredMixin, ListView):
     # These next two lines tell the view to index lookups by username
     slug_field = "username"
     slug_url_kwarg = "username"
+
+
+class ProjectWorkerViewSet(viewsets.ModelViewSet):
+    queryset = ProjectWorker.objects.all()
+    serializer_class = ProjectWorkerSerializer
+

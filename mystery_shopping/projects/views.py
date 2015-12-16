@@ -8,4 +8,4 @@ from mystery_shopping.users.permissions import IsTenantProjectManager
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
-    # permission_classes = (IsTenantProjectManager,)
+    permission_classes = (IsTenantProjectManager,)

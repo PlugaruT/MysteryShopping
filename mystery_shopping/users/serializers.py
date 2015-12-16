@@ -1,11 +1,22 @@
 from rest_framework import serializers
 
+from .models import User
 from .models import TenantProductManager
 from .models import TenantProjectManager
 from .models import TenantConsultant
 from .models import ClientProjectManager
 from .models import ClientManager
 from .models import ClientEmployee
+from .models import ProjectWorker
+from mystery_shopping.tenants.serializers import TenantSerializer
+
+
+class UserSerializer(serializers.ModelSerializer):
+    """Serializer class for User model
+    """
+    class Meta:
+        model = User
+        fields = '__all__'  # ('username', 'first_name', 'last_name')
 
 
 class TenantProductManagerSerializer(serializers.ModelSerializer):
@@ -19,6 +30,9 @@ class TenantProductManagerSerializer(serializers.ModelSerializer):
 class TenantProjectManagerSerializer(serializers.ModelSerializer):
     """Serializer class for TenantProjectManager user model.
     """
+    user = UserSerializer()
+    tenant = TenantSerializer()
+
     class Meta:
         model = TenantProjectManager
         fields = '__all__'
@@ -27,6 +41,9 @@ class TenantProjectManagerSerializer(serializers.ModelSerializer):
 class TenantConsultantSerializer(serializers.ModelSerializer):
     """Serializer class for TenantConsultant user model.
     """
+    user = UserSerializer()
+    tenant = TenantSerializer()
+
     class Meta:
         model = TenantConsultant
         fields = '__all__'
@@ -54,3 +71,30 @@ class ClientEmployeeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClientEmployee
         fields = '__all__'
+
+
+class ProjectWorkerSerializer(serializers.ModelSerializer):
+    """Serializer class for ProjectWorker.
+    """
+    class Meta:
+        model = ProjectWorker
+        fields = '__all__'
+
+    def to_representation(self, instance):
+        """
+        Serialize tagged objects to a simple textual representation.
+        """
+        print(instance.object_id)
+        print(instance.content_type.model)
+        if instance.content_type.model == 'tenantprojectmanager':
+            to_serialize = TenantProjectManager.objects.get(pk=instance.object_id)
+            serializer = TenantProjectManagerSerializer(to_serialize)
+        elif instance.content_type.model == 'tenantconsultant':
+            to_serialize = TenantConsultant.objects.get(pk=instance.object_id)
+            serializer = TenantConsultantSerializer(to_serialize)
+        else:
+            raise Exception('Unexpected type of tagged object')
+
+        return serializer.data
+
+
