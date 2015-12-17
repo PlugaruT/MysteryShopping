@@ -161,3 +161,17 @@ class ProjectWorker(models.Model):
     content_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='content_type_project_workers')
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'content_object')
+
+
+class PersonToAssess(models.Model):
+    """
+    A class with a generic foreign key for setting people to be evaluated for a project.
+
+    A person to assess can either be a Client Manager or a Client Employee
+    """
+    limit = models.Q(app_label='users', model='clientmanager') |\
+            models.Q(app_label='users', model='clientemployee')
+    content_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='content_type_person_to_assess')
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'content_object')
+

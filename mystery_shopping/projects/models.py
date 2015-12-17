@@ -1,9 +1,47 @@
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.db import models
 
 from mystery_shopping.companies.models import Company, Department, Entity, Section
 from mystery_shopping.questionnaires.models import QuestionnaireScript, QuestionnaireTemplate
 from mystery_shopping.tenants.models import Tenant
+# from mystery_shopping.users.models import Shopper
 # from mystery_shopping.users.models import TenantProjectManager
+
+
+class PlaceToAssess(models.Model):
+    """
+    A class with a generic foreign key for setting places to be evaluated for a project.
+
+    A person to assess can either be an Entity or a Section
+    """
+    limit = models.Q(app_label='companies', model='entity') |\
+            models.Q(app_label='companies', model='section')
+    content_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='content_type_place_to_assess')
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'content_object')
+
+
+class ResearchMethodology(models.Model):
+    """
+
+    """
+    # Relations
+    # many to many fields
+    scripts = models.ManyToManyField(QuestionnaireScript)
+    questionnaires = models.ManyToManyField(QuestionnaireTemplate)
+    places_to_assess = models.ManyToManyField(PlaceToAssess)
+    people_to_assess = models.ManyToManyField('users.PersonToAssess')
+
+    # Attributes
+    number_of_evaluations = models.PositiveSmallIntegerField()  # or number_of_calls
+    description = models.TextField(blank=True)
+    # desired_shopper_profile = models.CharField(max_length="1000")
+
+    class Meta:
+        verbose_name_plural = 'research methodologies'
+        default_related_name = 'research_methodologies'
+        ordering = ('number_of_evaluations',)
 
 
 class Project(models.Model):
@@ -18,8 +56,9 @@ class Project(models.Model):
     client = models.ForeignKey(Company)
     # this type of import is used to avoid import circles
     tenant_project_manager = models.ForeignKey('users.TenantProjectManager')
-    project_workers = models.ManyToManyField('users.ProjectWorker')
-    # shoppers = models.ManyToManyField(Shopper, null=True)
+    consultants = models.ManyToManyField('users.ProjectWorker')
+    shoppers = models.ManyToManyField('users.Shopper')
+    research_methodology = models.ForeignKey('ResearchMethodology')
 
     # Attributes
     period_start = models.DateField()
@@ -28,27 +67,3 @@ class Project(models.Model):
     class Meta:
         default_related_name = 'projects'
         ordering = ('tenant',)
-
-
-class ResearchMethodology(models.Model):
-    """
-
-    """
-    # Relations
-    # many to many fields
-    scripts = models.ForeignKey(QuestionnaireScript)
-    questionnaires = models.ForeignKey(QuestionnaireTemplate)
-    # TODO: add list of places
-    # TODO: add list of people
-    research_methodology = models.ForeignKey(Project)
-
-    # Attributes
-    number_of_evaluations = models.PositiveSmallIntegerField()  # or number_of_calls
-    description = models.TextField(blank=True)
-    # desired_shopper_profile = models.CharField(max_length="1000")
-
-    class Meta:
-        verbose_name_plural = 'research methodologies'
-        default_related_name = 'research_methodologies'
-        ordering = ('questionnaires',)
-

@@ -7,10 +7,12 @@ from rest_framework import viewsets
 
 from braces.views import LoginRequiredMixin
 
-from .models import User
+from .models import ClientEmployee
 from .models import ProjectWorker
 from .models import Shopper
 from .models import TenantProjectManager
+from .models import User
+from .serializers import ClientEmployeeSerializer
 from .serializers import ProjectWorkerSerializer
 from .serializers import ShopperSerializer
 from .serializers import TenantProjectManagerSerializer
@@ -58,6 +60,11 @@ class UserListView(LoginRequiredMixin, ListView):
 class TenantProjectManagerViewSet(viewsets.ModelViewSet):
     queryset = TenantProjectManager.objects.all()
     serializer_class = TenantProjectManagerSerializer
+
+
+class ClientEmployeeViewSet(viewsets.ModelViewSet):
+    queryset = ClientEmployee.objects.all()
+    serializer_class = ClientEmployeeSerializer
 
 
 class ShopperViewSet(viewsets.ModelViewSet):
