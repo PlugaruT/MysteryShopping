@@ -4,8 +4,6 @@ from __future__ import unicode_literals, absolute_import
 from django.contrib.auth.models import AbstractUser
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
-from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 
@@ -16,15 +14,15 @@ from mystery_shopping.projects.models import Project
 from mystery_shopping.tenants.models import Tenant
 
 
-@python_2_unicode_compatible
+# @python_2_unicode_compatible
 class User(AbstractUser):
 
     # First Name and Last Name do not cover name patterns
     # around the globe.
-    name = models.CharField(_("Name of User"), blank=True, max_length=255)
+    phone_number = models.CharField(max_length=20, null=True, blank=True)
 
     def __str__(self):
-        return self.username
+        return u"{}".format(self.username)
 
     def get_absolute_url(self):
         return reverse('users:detail', kwargs={'username': self.username})
@@ -135,6 +133,21 @@ class ClientEmployee(ClientUserAbstract):
 
     def __str__(self):
         return u'{} {} {}'.format(self.user, self.company, self.entity)
+
+
+class Shopper(models.Model):
+    """
+    A model for the Shopper user
+    """
+    # Relations
+    user = models.OneToOneField(User, related_name='shopper')
+    # Attributes
+    date_of_birth = models.DateField()
+    gender = models.CharField(max_length=1)
+    has_car = models.BooleanField(default=False)
+
+    def __str__(self):
+        return u'{}'.format(self.user.username)
 
 
 class ProjectWorker(models.Model):

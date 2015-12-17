@@ -7,8 +7,13 @@ from rest_framework import viewsets
 
 from braces.views import LoginRequiredMixin
 
-from .models import User, ProjectWorker
+from .models import User
+from .models import ProjectWorker
+from .models import Shopper
+from .models import TenantProjectManager
 from .serializers import ProjectWorkerSerializer
+from .serializers import ShopperSerializer
+from .serializers import TenantProjectManagerSerializer
 
 
 class UserDetailView(LoginRequiredMixin, DetailView):
@@ -48,6 +53,16 @@ class UserListView(LoginRequiredMixin, ListView):
     # These next two lines tell the view to index lookups by username
     slug_field = "username"
     slug_url_kwarg = "username"
+
+
+class TenantProjectManagerViewSet(viewsets.ModelViewSet):
+    queryset = TenantProjectManager.objects.all()
+    serializer_class = TenantProjectManagerSerializer
+
+
+class ShopperViewSet(viewsets.ModelViewSet):
+    queryset = Shopper.objects.all()
+    serializer_class = ShopperSerializer
 
 
 class ProjectWorkerViewSet(viewsets.ModelViewSet):

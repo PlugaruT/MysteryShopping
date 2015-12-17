@@ -1,9 +1,11 @@
+from datetime import date
+
 from factory.django import DjangoModelFactory
 from factory import fuzzy, Sequence, SubFactory, PostGenerationMethodCall
 from faker import Factory
 
 from .tenants import TenantFactory
-from mystery_shopping.users.models import User, TenantProductManager, TenantProjectManager, ProjectWorker
+from mystery_shopping.users.models import User, TenantProductManager, TenantProjectManager, ProjectWorker, Shopper
 
 
 class UserFactory(DjangoModelFactory):
@@ -38,3 +40,13 @@ class ProjectWorkerTenantProjectManagerFactory(DjangoModelFactory):
         model = ProjectWorker
 
     content_object = SubFactory(TenantProjectManagerFactory)
+
+
+class ShopperFactory(DjangoModelFactory):
+    class Meta:
+        model = Shopper
+
+    user = SubFactory(UserFactory)
+    date_of_birth = fuzzy.FuzzyDate(date(1990, 1, 12))
+    gender = 'f'
+    has_car = True

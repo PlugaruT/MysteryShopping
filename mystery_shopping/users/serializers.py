@@ -8,6 +8,7 @@ from .models import ClientProjectManager
 from .models import ClientManager
 from .models import ClientEmployee
 from .models import ProjectWorker
+from .models import Shopper
 from mystery_shopping.tenants.serializers import TenantSerializer
 
 
@@ -16,7 +17,7 @@ class UserSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = User
-        fields = '__all__'  # ('username', 'first_name', 'last_name')
+        fields = ('username', 'first_name', 'last_name')
 
 
 class TenantProductManagerSerializer(serializers.ModelSerializer):
@@ -70,6 +71,14 @@ class ClientEmployeeSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = ClientEmployee
+        fields = '__all__'
+
+
+class ShopperSerializer(serializers.ModelSerializer):
+    """Serializer class for Shopper user model.
+    """
+    class Meta:
+        model = Shopper
         fields = '__all__'
 
 

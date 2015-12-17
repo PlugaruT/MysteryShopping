@@ -11,7 +11,7 @@ class Project(models.Model):
 
     """
     # create a shopper, add project worker.
-    # add projectmanager, lista consultanti (M2M) = special class for generics, shoppers (M2M)
+    # add  shoppers (M2M)
 
     # Relations
     tenant = models.ForeignKey(Tenant)
@@ -19,7 +19,7 @@ class Project(models.Model):
     # this type of import is used to avoid import circles
     tenant_project_manager = models.ForeignKey('users.TenantProjectManager')
     project_workers = models.ManyToManyField('users.ProjectWorker')
-    # shoppers = models.ForeignKey(Shopper, null=True)
+    # shoppers = models.ManyToManyField(Shopper, null=True)
 
     # Attributes
     period_start = models.DateField()

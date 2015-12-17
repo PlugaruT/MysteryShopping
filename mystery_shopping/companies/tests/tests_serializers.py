@@ -5,6 +5,7 @@ from rest_assured.testcases import ReadWriteRESTAPITestCaseMixin, BaseRESTAPITes
 from mystery_shopping.factories.companies import DepartmentFactory, EntityFactory, SectionFactory
 
 
+# TODO write .update()
 class DepartmentAPITestCase(ReadWriteRESTAPITestCaseMixin, BaseRESTAPITestCase):
 
     base_name = 'department'
@@ -23,6 +24,7 @@ class DepartmentAPITestCase(ReadWriteRESTAPITestCaseMixin, BaseRESTAPITestCase):
         return self.data
 
 
+# TODO write .update()
 class EntityAPITestCase(ReadWriteRESTAPITestCaseMixin, BaseRESTAPITestCase):
 
     base_name = 'entity'

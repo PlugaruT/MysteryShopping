@@ -14,7 +14,11 @@ from mystery_shopping.companies.views import CompanyViewSet, DepartmentViewSet, 
 from mystery_shopping.questionnaires.views import QuestionnaireScriptViewSet, QuestionnaireTemplateViewSet, \
     QuestionnaireTemplateBlockViewSet, QuestionnaireTemplateQuestionViewSet
 from mystery_shopping.projects.views import ProjectViewSet
+
 from mystery_shopping.users.views import ProjectWorkerViewSet
+from mystery_shopping.users.views import ShopperViewSet
+from mystery_shopping.users.views import TenantProjectManagerViewSet
+
 
 
 questionnaire_router = DefaultRouter()
@@ -34,6 +38,8 @@ project_router.register(r'projects', ProjectViewSet)
 
 users_router = DefaultRouter()
 users_router.register(r'projectworkers', ProjectWorkerViewSet)
+users_router.register(r'shoppers', ShopperViewSet)
+users_router.register(r'tenantprojectmanagers', TenantProjectManagerViewSet)
 
 urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name='pages/home.html'), name="home"),
