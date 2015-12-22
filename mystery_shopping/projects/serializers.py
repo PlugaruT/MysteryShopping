@@ -32,8 +32,6 @@ class PlannedEvaluationSerializer(serializers.ModelSerializer):
         model = PlannedEvaluation
         fields = '__all__'
 
-
-
     def validate(self, attrs):
         if PlannedEvaluation.objects.filter(project=attrs['project']).count() >= self.project.research_methodology.number_of_evaluations:
             raise serializers.ValidationError('Number of evaluations is exceeded')

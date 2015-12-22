@@ -149,6 +149,7 @@ class QuestionnaireQuestion(QuestionAbstract):
     questionnaire = models.ForeignKey(Questionnaire)
     block = models.ForeignKey(QuestionnaireBlock)
 
+    answer = models.TextField()
     comment = models.TextField(blank=True)
 
     class Meta:

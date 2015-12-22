@@ -10,7 +10,7 @@ class ProjectAPITestCase(ReadWriteRESTAPITestCaseMixin, BaseRESTAPITestCase):
     factory_class = ProjectFactory
     update_date = date.today()
     # TODO check why it doesn't take a string for date update
-    update_data = {"period_start": update_date}
+    update_data = {"period_end": update_date}
 
     def get_create_data(self):
         return {

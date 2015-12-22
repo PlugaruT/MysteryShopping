@@ -6,6 +6,7 @@ from mystery_shopping.companies.models import Company, Department, Entity, Secti
 from mystery_shopping.questionnaires.models import QuestionnaireScript, QuestionnaireTemplate
 from mystery_shopping.tenants.models import Tenant
 from mystery_shopping.questionnaires.models import QuestionnaireTemplate
+from mystery_shopping.questionnaires.models import Questionnaire
 # from mystery_shopping.users.models import Shopper
 # from mystery_shopping.users.models import TenantProjectManager
 
@@ -102,5 +103,14 @@ class AccomplishedEvaluation(PlannedEvaluation):
     """
 
     """
-    
+    # Relations
+    questionnaire = models.ForeignKey(Questionnaire)
 
+    # Attributes
+    time_accomplished = models.DateTimeField()
+
+    class Meta:
+        default_related_name = 'accomplished_evaluations'
+
+    def __str__(self):
+        return '{}, time accomplished: {}'.format(self.project, str(self.time_accomplished))

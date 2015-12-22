@@ -11,8 +11,13 @@ from django.views import defaults as default_views
 from rest_framework.routers import DefaultRouter
 
 from mystery_shopping.companies.views import CompanyViewSet, DepartmentViewSet, EntityViewSet, SectionViewSet
-from mystery_shopping.questionnaires.views import QuestionnaireScriptViewSet, QuestionnaireTemplateViewSet, \
-    QuestionnaireTemplateBlockViewSet, QuestionnaireTemplateQuestionViewSet
+from mystery_shopping.questionnaires.views import QuestionnaireScriptViewSet
+from mystery_shopping.questionnaires.views import QuestionnaireViewSet
+from mystery_shopping.questionnaires.views import QuestionnaireTemplateViewSet
+from mystery_shopping.questionnaires.views import QuestionnaireTemplateBlockViewSet
+from mystery_shopping.questionnaires.views import QuestionnaireBlockViewSet
+from mystery_shopping.questionnaires.views import QuestionnaireQuestionViewSet
+from mystery_shopping.questionnaires.views import QuestionnaireTemplateQuestionViewSet
 
 from mystery_shopping.projects.views import ProjectViewSet
 from mystery_shopping.projects.views import ResearchMethodologyViewSet
@@ -26,9 +31,12 @@ from mystery_shopping.users.views import TenantProjectManagerViewSet
 
 questionnaire_router = DefaultRouter()
 questionnaire_router.register(r'scripts', QuestionnaireScriptViewSet)
+questionnaire_router.register(r'questionnaires', QuestionnaireViewSet)
 questionnaire_router.register(r'templatequestionnaires', QuestionnaireTemplateViewSet)
+questionnaire_router.register(r'blocks', QuestionnaireBlockViewSet)
 questionnaire_router.register(r'templateblocks', QuestionnaireTemplateBlockViewSet)
-questionnaire_router.register(r'questions', QuestionnaireTemplateQuestionViewSet)
+questionnaire_router.register(r'questions', QuestionnaireQuestionViewSet)
+questionnaire_router.register(r'templatequestions', QuestionnaireTemplateQuestionViewSet)
 
 company_router = DefaultRouter()
 company_router.register(r'companies', CompanyViewSet)
