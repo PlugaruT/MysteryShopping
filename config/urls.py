@@ -13,8 +13,10 @@ from rest_framework.routers import DefaultRouter
 from mystery_shopping.companies.views import CompanyViewSet, DepartmentViewSet, EntityViewSet, SectionViewSet
 from mystery_shopping.questionnaires.views import QuestionnaireScriptViewSet, QuestionnaireTemplateViewSet, \
     QuestionnaireTemplateBlockViewSet, QuestionnaireTemplateQuestionViewSet
+
 from mystery_shopping.projects.views import ProjectViewSet
 from mystery_shopping.projects.views import ResearchMethodologyViewSet
+from mystery_shopping.projects.views import PlannedEvaluationViewSet
 
 from mystery_shopping.users.views import ClientEmployeeViewSet
 from mystery_shopping.users.views import ProjectWorkerViewSet
@@ -37,6 +39,7 @@ company_router.register(r'sections', SectionViewSet)
 project_router = DefaultRouter()
 project_router.register(r'projects', ProjectViewSet)
 project_router.register(r'researchmethodologies', ResearchMethodologyViewSet)
+project_router.register(r'plannedevaluations', PlannedEvaluationViewSet)
 
 users_router = DefaultRouter()
 users_router.register(r'clientemployees', ClientEmployeeViewSet)

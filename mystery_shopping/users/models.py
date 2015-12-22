@@ -173,5 +173,4 @@ class PersonToAssess(models.Model):
             models.Q(app_label='users', model='clientemployee')
     content_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='content_type_person_to_assess')
     object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey('content_type', 'content_object')
-
+    content_object = GenericForeignKey('content_type', 'object_id')

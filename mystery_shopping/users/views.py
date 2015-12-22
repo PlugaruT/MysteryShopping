@@ -4,6 +4,7 @@ from __future__ import absolute_import, unicode_literals
 from django.core.urlresolvers import reverse
 from django.views.generic import DetailView, ListView, RedirectView, UpdateView
 from rest_framework import viewsets
+from rest_framework.decorators import detail_route
 
 from braces.views import LoginRequiredMixin
 
@@ -70,6 +71,11 @@ class ClientEmployeeViewSet(viewsets.ModelViewSet):
 class ShopperViewSet(viewsets.ModelViewSet):
     queryset = Shopper.objects.all()
     serializer_class = ShopperSerializer
+
+    # @detail_route()
+    # def questionnaires(self, request):
+    #     pass
+
 
 
 class ProjectWorkerViewSet(viewsets.ModelViewSet):

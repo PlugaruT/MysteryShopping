@@ -1,3 +1,10 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import Project
+from .models import ResearchMethodology
+from .models import PlannedEvaluation
+
+
+@admin.register(PlannedEvaluation, Project, ResearchMethodology)
+class Projects(admin.ModelAdmin):
+    pass

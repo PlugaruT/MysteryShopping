@@ -42,6 +42,7 @@ class QuestionnaireTemplate(QuestionnaireAbstract):
     # Relations
     script = models.ForeignKey(QuestionnaireScript, null=True, blank=True,
                                related_name='template_questionnaires')
+    description = models.TextField()
 
     def __str__(self):
         return 'Title: %s \n%s' % (self.title, self.script)

@@ -5,6 +5,7 @@ from django.db import models
 from mystery_shopping.companies.models import Company, Department, Entity, Section
 from mystery_shopping.questionnaires.models import QuestionnaireScript, QuestionnaireTemplate
 from mystery_shopping.tenants.models import Tenant
+from mystery_shopping.questionnaires.models import QuestionnaireTemplate
 # from mystery_shopping.users.models import Shopper
 # from mystery_shopping.users.models import TenantProjectManager
 
@@ -48,9 +49,6 @@ class Project(models.Model):
     """
 
     """
-    # create a shopper, add project worker.
-    # add  shoppers (M2M)
-
     # Relations
     tenant = models.ForeignKey(Tenant)
     client = models.ForeignKey(Company)
@@ -67,3 +65,42 @@ class Project(models.Model):
     class Meta:
         default_related_name = 'projects'
         ordering = ('tenant',)
+
+    def __str__(self):
+        return 'Project for {}'.format(self.client.name)
+
+
+class PlannedEvaluation(models.Model):
+    """
+
+    """
+    project = models.ForeignKey(Project)
+    shopper = models.ForeignKey('users.Shopper')
+    questionnaire_script = models.ForeignKey(QuestionnaireScript)
+    questionnaire_template = models.ForeignKey(QuestionnaireTemplate)
+    entity = models.ForeignKey(Entity)
+    section = models.ForeignKey(Section, null=True, blank=True)
+
+    limit = models.Q(app_label='users', model='clientmanager') | \
+            models.Q(app_label='users', model='clientemployee')
+    employee_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='employee_type', null=True, blank=True)
+    employee_id = models.PositiveIntegerField(null=True, blank=True)
+    employee_object = GenericForeignKey('employee_type', 'employee_id')
+
+    visit_choices = (('call', 'Call'),
+                     ('visit', 'Visit'),)
+    visit_type = models.CharField(max_length=6, choices=visit_choices)
+
+    class Meta:
+        default_related_name = 'planned_evaluations'
+
+    def __str__(self):
+        return '{}, shopper: {}'.format(self.project, self.shopper.user.last_name)
+
+
+class AccomplishedEvaluation(PlannedEvaluation):
+    """
+
+    """
+    
+
