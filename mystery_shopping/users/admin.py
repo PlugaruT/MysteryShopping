@@ -6,7 +6,12 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as AuthUserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 
-from .models import User, TenantProductManager, TenantProjectManager, TenantConsultant, ProjectWorker
+from .models import User
+from .models import TenantProductManager
+from .models import TenantProjectManager
+from .models import TenantConsultant
+from .models import ProjectWorker
+from .models import Shopper
 
 
 class MyUserChangeForm(UserChangeForm):
@@ -40,4 +45,8 @@ class UserAdmin(AuthUserAdmin):
 
 @admin.register(TenantProductManager, TenantProjectManager, TenantConsultant, ProjectWorker)
 class Tenants(admin.ModelAdmin):
+    pass
+
+@admin.register(Shopper)
+class Shoppers(admin.ModelAdmin):
     pass

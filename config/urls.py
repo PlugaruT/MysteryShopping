@@ -22,6 +22,7 @@ from mystery_shopping.questionnaires.views import QuestionnaireTemplateQuestionV
 from mystery_shopping.projects.views import ProjectViewSet
 from mystery_shopping.projects.views import ResearchMethodologyViewSet
 from mystery_shopping.projects.views import PlannedEvaluationViewSet
+from mystery_shopping.projects.views import AccomplishedEvaluationViewSet
 
 from mystery_shopping.users.views import ClientEmployeeViewSet
 from mystery_shopping.users.views import ProjectWorkerViewSet
@@ -48,6 +49,7 @@ project_router = DefaultRouter()
 project_router.register(r'projects', ProjectViewSet)
 project_router.register(r'researchmethodologies', ResearchMethodologyViewSet)
 project_router.register(r'plannedevaluations', PlannedEvaluationViewSet)
+project_router.register(r'accomplishedevaluations', AccomplishedEvaluationViewSet)
 
 users_router = DefaultRouter()
 users_router.register(r'clientemployees', ClientEmployeeViewSet)

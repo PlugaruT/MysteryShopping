@@ -184,8 +184,8 @@ class QuestionnaireSerializer(serializers.ModelSerializer):
     blocks = QuestionnaireTemplateBlockSerializer(many=True, required=False)
 
     class Meta:
-        model = QuestionnaireTemplate
-        fields = ('title', 'blocks',)
+        model = Questionnaire
+        fields = '__all__'  #('title', 'blocks', 'template',)
 
     def create(self, validated_data):
         # print(validated_data)
@@ -217,7 +217,7 @@ class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = QuestionnaireTemplate
-        fields = ('title', 'template_blocks',)
+        fields = '__all__'  # ('title', 'template_blocks',)
 
     def create(self, validated_data):
         # print(validated_data)

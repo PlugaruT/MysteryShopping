@@ -96,7 +96,7 @@ class PlannedEvaluation(models.Model):
         default_related_name = 'planned_evaluations'
 
     def __str__(self):
-        return '{}, shopper: {}'.format(self.project, self.shopper.user.last_name)
+        return '{}, shopper: {}'.format(self.project, self.shopper.user.username)
 
 
 class AccomplishedEvaluation(PlannedEvaluation):
