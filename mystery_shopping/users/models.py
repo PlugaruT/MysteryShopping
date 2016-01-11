@@ -144,7 +144,7 @@ class Shopper(models.Model):
     # Attributes
     date_of_birth = models.DateField()
     gender = models.CharField(max_length=1)
-    has_car = models.BooleanField(default=False)
+    has_drivers_license = models.BooleanField(default=False)
 
     def __str__(self):
         return u'{}'.format(self.user.username)

@@ -32,8 +32,8 @@ class ResearchMethodology(models.Model):
     # many to many fields
     scripts = models.ManyToManyField(QuestionnaireScript)
     questionnaires = models.ManyToManyField(QuestionnaireTemplate)
-    places_to_assess = models.ManyToManyField(PlaceToAssess)
-    people_to_assess = models.ManyToManyField('users.PersonToAssess')
+    places_to_assess = models.ManyToManyField(PlaceToAssess, blank=True)
+    people_to_assess = models.ManyToManyField('users.PersonToAssess', blank=True)
 
     # Attributes
     number_of_evaluations = models.PositiveSmallIntegerField()  # or number_of_calls
@@ -44,6 +44,10 @@ class ResearchMethodology(models.Model):
         verbose_name_plural = 'research methodologies'
         default_related_name = 'research_methodologies'
         ordering = ('number_of_evaluations',)
+
+
+    def __str__(self):
+        return 'Short description: {}, nr. of visits: {}'.format(self.description[0:50], self.number_of_evaluations)
 
 
 class Project(models.Model):
@@ -92,6 +96,8 @@ class PlannedEvaluation(models.Model):
                      ('visit', 'Visit'),)
     visit_type = models.CharField(max_length=6, choices=visit_choices)
 
+    # include deadline (maybe even hour)
+
     class Meta:
         default_related_name = 'planned_evaluations'
 
@@ -108,6 +114,8 @@ class AccomplishedEvaluation(PlannedEvaluation):
 
     # Attributes
     time_accomplished = models.DateTimeField()
+
+    # add timestamp
 
     class Meta:
         default_related_name = 'accomplished_evaluations'
