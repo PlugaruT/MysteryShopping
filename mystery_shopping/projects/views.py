@@ -33,7 +33,7 @@ class ResearchMethodologyViewSet(viewsets.ModelViewSet):
 class PlannedEvaluationViewSet(viewsets.ModelViewSet):
     queryset = PlannedEvaluation.objects.all()
     serializer_class = PlannedEvaluationSerializer
-    permission_classes = (Or(IsTenantProjectManager, IsTenantConsultant, IsShopper ),)
+    permission_classes = (Or(IsTenantProjectManager, IsTenantConsultant, IsShopper),)
 
     def get_queryset(self):
         if self.request.user.user_type in ['tenantproductmanager', 'tenantprojectmanager', 'tenantconsultant']:
@@ -47,7 +47,7 @@ class PlannedEvaluationPerShopperViewSet(viewsets.ViewSet):
     permission_classes = (HasAccessToEvaluations,)
 
     def list(self, request, shopper_pk=None):
-        queryset = PlannedEvaluation.objects.filter(shopper__user=request.user)
+        queryset = PlannedEvaluation.objects.filter(shopper__user=shopper_pk)
         serializer = PlannedEvaluationSerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -61,4 +61,25 @@ class PlannedEvaluationPerShopperViewSet(viewsets.ViewSet):
 class AccomplishedEvaluationViewSet(viewsets.ModelViewSet):
     queryset = AccomplishedEvaluation.objects.all()
     serializer_class = AccomplishedEvaluationsSerializer
-    permission_classes = (Or(IsTenantProjectManager, IsTenantConsultant),)
+    permission_classes = (Or(IsTenantProjectManager, IsTenantConsultant, IsShopper),)
+
+    def get_queryset(self):
+        if self.request.user.user_type in ['tenantproductmanager', 'tenantprojectmanager', 'tenantconsultant']:
+            return AccomplishedEvaluation.objects.all()
+        elif self.request.user.user_type is 'shopper':
+            return AccomplishedEvaluation.objects.filter(shopper__user=self.request.user)
+        return None
+
+class AccomplishedEvaluationPerShopperViewSet(viewsets.ViewSet):
+    permission_classes = (HasAccessToEvaluations,)
+
+    def list(self, request, shopper_pk=None):
+        queryset = AccomplishedEvaluation.objects.filter(shopper__user=shopper_pk)
+        serializer = AccomplishedEvaluationsSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None, shopper_pk=None):
+        accomplished_evaluation = get_object_or_404(AccomplishedEvaluation, pk=pk, shopper=shopper_pk)
+        self.check_object_permissions(request, accomplished_evaluation)
+        serializer = AccomplishedEvaluationsSerializer(accomplished_evaluation)
+        return Response(serializer.data)

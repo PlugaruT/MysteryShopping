@@ -25,6 +25,7 @@ from mystery_shopping.projects.views import ResearchMethodologyViewSet
 from mystery_shopping.projects.views import PlannedEvaluationViewSet
 from mystery_shopping.projects.views import PlannedEvaluationPerShopperViewSet
 from mystery_shopping.projects.views import AccomplishedEvaluationViewSet
+from mystery_shopping.projects.views import AccomplishedEvaluationPerShopperViewSet
 
 from mystery_shopping.users.views import ClientEmployeeViewSet
 from mystery_shopping.users.views import ProjectWorkerViewSet
@@ -66,6 +67,9 @@ shopper_router.register(r'shoppers', ShopperViewSet)
 shopper_planned_evaluation = routers.NestedSimpleRouter(shopper_router, r'shoppers', lookup='shopper')
 shopper_planned_evaluation.register(r'planned-evaluations', PlannedEvaluationPerShopperViewSet, base_name='shopper-planned-evaluations')
 
+shopper_accomplished_evaluation = routers.NestedSimpleRouter(shopper_router, r'shoppers', lookup='shopper')
+shopper_accomplished_evaluation.register(r'accomplished-evaluations', AccomplishedEvaluationPerShopperViewSet, base_name='shopper-accomplished-evaluations')
+
 
 urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name='pages/home.html'), name="home"),
@@ -88,6 +92,7 @@ urlpatterns = [
 
     url(r'^api/users/', include(shopper_router.urls)),
     url(r'^api/users/', include(shopper_planned_evaluation.urls)),
+    url(r'^api/users/', include(shopper_accomplished_evaluation.urls)),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
