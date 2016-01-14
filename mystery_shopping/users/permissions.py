@@ -54,4 +54,28 @@ class IsTenantConsultant(permissions.BasePermission):
             return False
         return False
 
+
+class IsShopper(permissions.BasePermission):
+    """Permission for Shopper user.
+    """
+    def has_permission(self, request, view):
+        if request.user:
+            if hasattr(request.user, "shopper"):
+                return True
+            return False
+        return False
+
+
+class HasAccessToEvaluations(permissions.BasePermission):
+    """Check if tenant project manager, tenant product manager, tenant consultant or shopper has access to either it's Planned or Accomplished evaluations.
+    """
+    def has_permission(self, request, view):
+        if request.user:
+            # print(request.user.user_type)
+            if request.user.user_type in ['tenantproductmanager', 'tenantprojectmanager', 'tenantconsultant']:
+                return True
+            return False
+        return False
+
+
 # TODO[iulian] add other permissions as needed.

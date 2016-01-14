@@ -72,7 +72,8 @@ class Project(models.Model):
         ordering = ('tenant',)
 
     def __str__(self):
-        return 'Project for {}'.format(self.client.name)
+        return 'Project for {}, start: {}/{}/{}, end: {}/{}/{}'.format(self.client.name, self.period_start.day, self.period_start.month, self.period_start.year%2000,
+                                                                       self.period_end.day, self.period_end.month, self.period_start.year%2000)
 
 
 class PlannedEvaluation(models.Model):
@@ -110,7 +111,7 @@ class AccomplishedEvaluation(PlannedEvaluation):
 
     """
     # Relations
-    questionnaire = models.ForeignKey(Questionnaire)
+    questionnaire = models.OneToOneField(Questionnaire)
 
     # Attributes
     time_accomplished = models.DateTimeField()

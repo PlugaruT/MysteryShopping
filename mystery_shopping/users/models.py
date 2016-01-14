@@ -27,6 +27,19 @@ class User(AbstractUser):
     def get_absolute_url(self):
         return reverse('users:detail', kwargs={'username': self.username})
 
+    @property
+    def user_type(self):
+        if hasattr(self, 'tenantproductmanager'):
+            return 'tenantproductmanager'
+        elif hasattr(self, 'tenantprojectmanager'):
+            return 'tenantprojectmanager'
+        elif hasattr(self, 'tenantconsultant'):
+            return 'tenantconsultant'
+        elif hasattr(self, 'shopper'):
+            return 'shopper'
+        else:
+            return []
+
 
 class TenantUserAbstract(models.Model):
     """The abstract class for Tenant User model.

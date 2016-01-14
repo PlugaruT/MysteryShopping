@@ -4,7 +4,7 @@ from __future__ import absolute_import, unicode_literals
 from django.core.urlresolvers import reverse
 from django.views.generic import DetailView, ListView, RedirectView, UpdateView
 from rest_framework import viewsets
-from rest_framework.decorators import detail_route
+from rest_condition import Or
 
 from braces.views import LoginRequiredMixin
 
@@ -17,6 +17,8 @@ from .serializers import ClientEmployeeSerializer
 from .serializers import ProjectWorkerSerializer
 from .serializers import ShopperSerializer
 from .serializers import TenantProjectManagerSerializer
+from mystery_shopping.users.permissions import IsTenantProjectManager
+from mystery_shopping.users.permissions import IsTenantConsultant
 
 
 class UserDetailView(LoginRequiredMixin, DetailView):
@@ -24,6 +26,9 @@ class UserDetailView(LoginRequiredMixin, DetailView):
     # These next two lines tell the view to index lookups by username
     slug_field = "username"
     slug_url_kwarg = "username"
+
+    # TODO: permission classes for editing profile
+    # authentificated, istenant__, isshopper..
 
 
 class UserRedirectView(LoginRequiredMixin, RedirectView):
@@ -71,11 +76,7 @@ class ClientEmployeeViewSet(viewsets.ModelViewSet):
 class ShopperViewSet(viewsets.ModelViewSet):
     queryset = Shopper.objects.all()
     serializer_class = ShopperSerializer
-
-    # @detail_route()
-    # def questionnaires(self, request):
-    #     pass
-
+    permission_classes = (Or(IsTenantProjectManager, IsTenantConsultant),)
 
 
 class ProjectWorkerViewSet(viewsets.ModelViewSet):
