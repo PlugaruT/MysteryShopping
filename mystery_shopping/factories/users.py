@@ -49,7 +49,7 @@ class ShopperFactory(DjangoModelFactory):
     user = SubFactory(UserFactory)
     date_of_birth = fuzzy.FuzzyDate(date(1990, 1, 12))
     gender = 'f'
-    has_car = True
+    has_drivers_license = True
 
 
 class UserThatIsTenantProductManagerFactory(DjangoModelFactory):
