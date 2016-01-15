@@ -2,6 +2,8 @@ from django.db import models
 
 from mptt.models import MPTTModel, TreeForeignKey
 
+from mystery_shopping.tenants.models import Tenant
+
 # REMINDER: don't use newline characters in the representation
 
 
@@ -40,12 +42,13 @@ class QuestionnaireTemplate(QuestionnaireAbstract):
 
     """
     # Relations
-    script = models.ForeignKey(QuestionnaireScript, null=True, blank=True,
-                               related_name='template_questionnaires')
+    tenant = models.ForeignKey(Tenant)
+
+    # Attributes
     description = models.TextField()
 
     def __str__(self):
-        return 'Title: %s \n%s' % (self.title, self.script)
+        return 'Title: {}'.format(self.title)
 
 
 class Questionnaire(QuestionnaireAbstract):
@@ -54,14 +57,13 @@ class Questionnaire(QuestionnaireAbstract):
 
     """
     # Relations
-    script = models.ForeignKey(QuestionnaireScript, null=True, blank=True)
     template = models.ForeignKey(QuestionnaireTemplate)
 
     class Meta:
         default_related_name = 'questionnaires'
 
     def __str__(self):
-        return 'Title: %s \n%s' % (self.title, self.script)
+        return 'Title: {}'.format(self.title)
 
 
 class QuestionnaireBlockAbstract(models.Model):
@@ -89,7 +91,7 @@ class QuestionnaireTemplateBlock(QuestionnaireBlockAbstract, MPTTModel):
         parent_attr = 'parent_block'
 
     def __str__(self):
-        return 'Title: %s' % self.title
+        return 'Title: {}'.format(self.title)
 
 
 class QuestionnaireBlock(QuestionnaireBlockAbstract, MPTTModel):
@@ -108,7 +110,7 @@ class QuestionnaireBlock(QuestionnaireBlockAbstract, MPTTModel):
         parent_attr = 'parent_block'
 
     def __str__(self):
-        return 'Title: %s' % self.title
+        return 'Title: {}'.format(self.title)
 
 
 class QuestionAbstract(models.Model):
@@ -119,7 +121,6 @@ class QuestionAbstract(models.Model):
     # Attributes
     question_body = models.CharField(max_length=200)  # TODO: find optimal length
     type = models.TextField()
-    show_comment = models.BooleanField()
     max_score = models.PositiveSmallIntegerField(null=True, blank=True)
 
     class Meta:
@@ -135,11 +136,8 @@ class QuestionnaireTemplateQuestion(QuestionAbstract):
     questionnaire_template = models.ForeignKey(QuestionnaireTemplate, related_name='template_questions')
     template_block = models.ForeignKey(QuestionnaireTemplateBlock, related_name='template_block_questions')
 
-    class Meta:
-        default_related_name = 'question_templates'
-
     def __str__(self):
-        return 'Question body: %s' % self.question_body
+        return 'Question body: {}'.format(self.question_body)
 
 
 class QuestionnaireQuestion(QuestionAbstract):
@@ -149,10 +147,13 @@ class QuestionnaireQuestion(QuestionAbstract):
     questionnaire = models.ForeignKey(Questionnaire)
     block = models.ForeignKey(QuestionnaireBlock)
 
+    answer = models.TextField()
+    show_comment = models.BooleanField()
     comment = models.TextField(blank=True)
+    # add consultant (reviewer) comment
 
     class Meta:
         default_related_name = 'questions'
 
     def __str__(self):
-        return 'Question body: %s' % self.question_body
+        return 'Question body: {}'.format(self.question_body)

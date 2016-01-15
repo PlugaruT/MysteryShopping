@@ -17,6 +17,7 @@ class SectionSerializer(serializers.ModelSerializer):
     """
 
     """
+    # id = serializers.IntegerField(label='ID', read_only=False)
     entity = serializers.PrimaryKeyRelatedField(queryset=Entity.objects.all(), required=False)
     tenant = serializers.PrimaryKeyRelatedField(queryset=Tenant.objects.all(), required=False)
 
@@ -41,6 +42,8 @@ class EntitySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
+        print("From create of EntitySerializer")
+        print(validated_data)
         sections = validated_data.pop('sections', None)
 
         entity = Entity.objects.create(**validated_data)
@@ -53,6 +56,14 @@ class EntitySerializer(serializers.ModelSerializer):
             section_ser.is_valid(raise_exception=True)
             section_ser.save()
         return entity
+
+    def update(self, instance, validated_data):
+        sections = validated_data.pop('sections')
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        return instance
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
@@ -82,6 +93,15 @@ class DepartmentSerializer(serializers.ModelSerializer):
             entity_ser.is_valid(raise_exception=True)
             entity_ser.save()
         return department
+
+    def update(self, instance, validated_data):
+        entities = validated_data.pop('entities', None)
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        return instance
 
 
 class CompanySerializer(serializers.ModelSerializer):

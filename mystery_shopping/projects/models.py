@@ -6,6 +6,7 @@ from mystery_shopping.companies.models import Company, Department, Entity, Secti
 from mystery_shopping.questionnaires.models import QuestionnaireScript, QuestionnaireTemplate
 from mystery_shopping.tenants.models import Tenant
 from mystery_shopping.questionnaires.models import QuestionnaireTemplate
+from mystery_shopping.questionnaires.models import Questionnaire
 # from mystery_shopping.users.models import Shopper
 # from mystery_shopping.users.models import TenantProjectManager
 
@@ -31,8 +32,8 @@ class ResearchMethodology(models.Model):
     # many to many fields
     scripts = models.ManyToManyField(QuestionnaireScript)
     questionnaires = models.ManyToManyField(QuestionnaireTemplate)
-    places_to_assess = models.ManyToManyField(PlaceToAssess)
-    people_to_assess = models.ManyToManyField('users.PersonToAssess')
+    places_to_assess = models.ManyToManyField(PlaceToAssess, blank=True)
+    people_to_assess = models.ManyToManyField('users.PersonToAssess', blank=True)
 
     # Attributes
     number_of_evaluations = models.PositiveSmallIntegerField()  # or number_of_calls
@@ -43,6 +44,10 @@ class ResearchMethodology(models.Model):
         verbose_name_plural = 'research methodologies'
         default_related_name = 'research_methodologies'
         ordering = ('number_of_evaluations',)
+
+
+    def __str__(self):
+        return 'Short description: {}, nr. of visits: {}'.format(self.description[0:50], self.number_of_evaluations)
 
 
 class Project(models.Model):
@@ -67,7 +72,8 @@ class Project(models.Model):
         ordering = ('tenant',)
 
     def __str__(self):
-        return 'Project for {}'.format(self.client.name)
+        return 'Project for {}, start: {}/{}/{}, end: {}/{}/{}'.format(self.client.name, self.period_start.day, self.period_start.month, self.period_start.year%2000,
+                                                                       self.period_end.day, self.period_end.month, self.period_start.year%2000)
 
 
 class PlannedEvaluation(models.Model):
@@ -91,16 +97,29 @@ class PlannedEvaluation(models.Model):
                      ('visit', 'Visit'),)
     visit_type = models.CharField(max_length=6, choices=visit_choices)
 
+    # include deadline (maybe even hour)
+
     class Meta:
         default_related_name = 'planned_evaluations'
 
     def __str__(self):
-        return '{}, shopper: {}'.format(self.project, self.shopper.user.last_name)
+        return '{}, shopper: {}'.format(self.project, self.shopper.user.username)
 
 
 class AccomplishedEvaluation(PlannedEvaluation):
     """
 
     """
-    
+    # Relations
+    questionnaire = models.OneToOneField(Questionnaire)
 
+    # Attributes
+    time_accomplished = models.DateTimeField()
+
+    # add timestamp
+
+    class Meta:
+        default_related_name = 'accomplished_evaluations'
+
+    def __str__(self):
+        return '{}, time accomplished: {}'.format(self.project, str(self.time_accomplished))

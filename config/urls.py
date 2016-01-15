@@ -9,14 +9,23 @@ from django.views.generic import TemplateView
 from django.views import defaults as default_views
 
 from rest_framework.routers import DefaultRouter
+from rest_framework_nested import routers
 
 from mystery_shopping.companies.views import CompanyViewSet, DepartmentViewSet, EntityViewSet, SectionViewSet
-from mystery_shopping.questionnaires.views import QuestionnaireScriptViewSet, QuestionnaireTemplateViewSet, \
-    QuestionnaireTemplateBlockViewSet, QuestionnaireTemplateQuestionViewSet
+from mystery_shopping.questionnaires.views import QuestionnaireScriptViewSet
+from mystery_shopping.questionnaires.views import QuestionnaireViewSet
+from mystery_shopping.questionnaires.views import QuestionnaireTemplateViewSet
+from mystery_shopping.questionnaires.views import QuestionnaireTemplateBlockViewSet
+from mystery_shopping.questionnaires.views import QuestionnaireBlockViewSet
+from mystery_shopping.questionnaires.views import QuestionnaireQuestionViewSet
+from mystery_shopping.questionnaires.views import QuestionnaireTemplateQuestionViewSet
 
 from mystery_shopping.projects.views import ProjectViewSet
 from mystery_shopping.projects.views import ResearchMethodologyViewSet
 from mystery_shopping.projects.views import PlannedEvaluationViewSet
+from mystery_shopping.projects.views import PlannedEvaluationPerShopperViewSet
+from mystery_shopping.projects.views import AccomplishedEvaluationViewSet
+from mystery_shopping.projects.views import AccomplishedEvaluationPerShopperViewSet
 
 from mystery_shopping.users.views import ClientEmployeeViewSet
 from mystery_shopping.users.views import ProjectWorkerViewSet
@@ -26,9 +35,12 @@ from mystery_shopping.users.views import TenantProjectManagerViewSet
 
 questionnaire_router = DefaultRouter()
 questionnaire_router.register(r'scripts', QuestionnaireScriptViewSet)
+questionnaire_router.register(r'questionnaires', QuestionnaireViewSet)
 questionnaire_router.register(r'templatequestionnaires', QuestionnaireTemplateViewSet)
+questionnaire_router.register(r'blocks', QuestionnaireBlockViewSet)
 questionnaire_router.register(r'templateblocks', QuestionnaireTemplateBlockViewSet)
-questionnaire_router.register(r'questions', QuestionnaireTemplateQuestionViewSet)
+questionnaire_router.register(r'questions', QuestionnaireQuestionViewSet)
+questionnaire_router.register(r'templatequestions', QuestionnaireTemplateQuestionViewSet)
 
 company_router = DefaultRouter()
 company_router.register(r'companies', CompanyViewSet)
@@ -40,12 +52,24 @@ project_router = DefaultRouter()
 project_router.register(r'projects', ProjectViewSet)
 project_router.register(r'researchmethodologies', ResearchMethodologyViewSet)
 project_router.register(r'plannedevaluations', PlannedEvaluationViewSet)
+project_router.register(r'accomplishedevaluations', AccomplishedEvaluationViewSet)
 
 users_router = DefaultRouter()
 users_router.register(r'clientemployees', ClientEmployeeViewSet)
 users_router.register(r'projectworkers', ProjectWorkerViewSet)
-users_router.register(r'shoppers', ShopperViewSet)
+# users_router.register(r'shoppers', ShopperViewSet)
 users_router.register(r'tenantprojectmanagers', TenantProjectManagerViewSet)
+
+
+shopper_router = routers.SimpleRouter()
+shopper_router.register(r'shoppers', ShopperViewSet)
+
+shopper_planned_evaluation = routers.NestedSimpleRouter(shopper_router, r'shoppers', lookup='shopper')
+shopper_planned_evaluation.register(r'planned-evaluations', PlannedEvaluationPerShopperViewSet, base_name='shopper-planned-evaluations')
+
+shopper_accomplished_evaluation = routers.NestedSimpleRouter(shopper_router, r'shoppers', lookup='shopper')
+shopper_accomplished_evaluation.register(r'accomplished-evaluations', AccomplishedEvaluationPerShopperViewSet, base_name='shopper-accomplished-evaluations')
+
 
 urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name='pages/home.html'), name="home"),
@@ -65,6 +89,10 @@ urlpatterns = [
 
     url(r'^api/projects/', include(project_router.urls)),
     url(r'^api/users/', include(users_router.urls)),
+
+    url(r'^api/users/', include(shopper_router.urls)),
+    url(r'^api/users/', include(shopper_planned_evaluation.urls)),
+    url(r'^api/users/', include(shopper_accomplished_evaluation.urls)),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
