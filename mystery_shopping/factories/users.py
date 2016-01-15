@@ -1,7 +1,7 @@
 from datetime import date
 
 from factory.django import DjangoModelFactory
-from factory import fuzzy, Sequence, SubFactory, PostGenerationMethodCall
+from factory import fuzzy, Sequence, SubFactory, PostGenerationMethodCall, RelatedFactory
 from faker import Factory
 
 from .tenants import TenantFactory
@@ -50,3 +50,17 @@ class ShopperFactory(DjangoModelFactory):
     date_of_birth = fuzzy.FuzzyDate(date(1990, 1, 12))
     gender = 'f'
     has_car = True
+
+
+class UserThatIsTenantProductManagerFactory(DjangoModelFactory):
+    class Meta:
+        model = User
+        exclude = ('r_password',)
+
+    username = fuzzy.FuzzyText(length=10)
+    r_password = '1234'
+    password = PostGenerationMethodCall('set_password', r_password)
+    is_active = True
+    tenantproductmanager = RelatedFactory(TenantProductManagerFactory, factory_related_name='user')
+
+

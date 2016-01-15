@@ -3,6 +3,7 @@ import json
 from rest_assured.testcases import ReadWriteRESTAPITestCaseMixin, BaseRESTAPITestCase
 
 from mystery_shopping.factories.companies import DepartmentFactory, EntityFactory, SectionFactory
+from mystery_shopping.factories.users import UserThatIsTenantProductManagerFactory
 
 
 # TODO write .update()
@@ -10,6 +11,7 @@ class DepartmentAPITestCase(ReadWriteRESTAPITestCaseMixin, BaseRESTAPITestCase):
 
     base_name = 'department'
     factory_class = DepartmentFactory
+    user_factory = UserThatIsTenantProductManagerFactory
     update_data = {'name': "Grigory Leps"}
 
     def get_create_data(self):
@@ -29,6 +31,7 @@ class EntityAPITestCase(ReadWriteRESTAPITestCaseMixin, BaseRESTAPITestCase):
 
     base_name = 'entity'
     factory_class = EntityFactory
+    user_factory = UserThatIsTenantProductManagerFactory
     update_data = {'name': "Entity of Leps"}
 
     def get_create_data(self):
@@ -49,6 +52,7 @@ class SectionAPITestCase(ReadWriteRESTAPITestCaseMixin, BaseRESTAPITestCase):
 
     base_name = 'section'
     factory_class = SectionFactory
+    user_factory = UserThatIsTenantProductManagerFactory
     update_data = {'name': "Section of Leps"}
 
     def get_create_data(self):
