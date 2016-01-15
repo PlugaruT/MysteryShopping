@@ -29,6 +29,7 @@ class PlannedEvaluationSerializer(serializers.ModelSerializer):
     """
 
     """
+
     class Meta:
         model = PlannedEvaluation
         fields = '__all__'

@@ -14,5 +14,5 @@ class ShopperAPITestCase(ReadWriteRESTAPITestCaseMixin, BaseRESTAPITestCase):
             "user": self.object.user.pk,
             "date_of_birth": "1990-01-12",
             "gender": "f",
-            "has_car": True
+            "has_drivers_license": True
         }
