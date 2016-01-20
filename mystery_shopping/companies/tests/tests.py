@@ -2,13 +2,14 @@ from rest_assured.testcases import ReadWriteRESTAPITestCaseMixin, BaseRESTAPITes
 
 from mystery_shopping.factories.users import TenantProjectManagerFactory
 from mystery_shopping.factories.companies import CompanyFactory
+from mystery_shopping.factories.users import UserThatIsTenantProductManagerFactory
 
 
 class CompanyAPITestWithTProjManagerTestCase(ReadWriteRESTAPITestCaseMixin, BaseRESTAPITestCase):
 
     base_name = 'company'
     factory_class = CompanyFactory
-    user_factory = TenantProjectManagerFactory
+    user_factory = UserThatIsTenantProductManagerFactory
     update_data = {'name': 'Best company'}
 
     def get_create_data(self):
