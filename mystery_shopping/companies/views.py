@@ -1,10 +1,28 @@
 from rest_framework import viewsets
 from rest_condition import Or
 
-from .models import Company, Department, Entity, Section
-from .serializers import CompanySerializer, DepartmentSerializer, EntitySerializer, SectionSerializer
-from mystery_shopping.users.permissions import IsTenantProductManager, IsTenantProjectManager, \
-    IsTenantConsultantViewOnly, IsTenantConsultant
+from .models import Industry
+from .models import Company
+from .models import Department
+from .models import Entity
+from .models import Section
+
+from .serializers import IndustrySerializer
+from .serializers import CompanySerializer
+from .serializers import DepartmentSerializer
+from .serializers import EntitySerializer
+from .serializers import SectionSerializer
+
+from mystery_shopping.users.permissions import IsTenantProductManager
+from mystery_shopping.users.permissions import IsTenantProjectManager
+from mystery_shopping.users.permissions import IsTenantConsultantViewOnly
+from mystery_shopping.users.permissions import IsTenantConsultant
+
+
+class IndustryViewSet(viewsets.ModelViewSet):
+    queryset = Industry.objects.all()
+    serializer_class = IndustrySerializer
+    # permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultantViewOnly),)
 
 
 class CompanyViewSet(viewsets.ModelViewSet):

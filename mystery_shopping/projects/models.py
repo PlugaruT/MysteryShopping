@@ -58,10 +58,10 @@ class Project(models.Model):
     tenant = models.ForeignKey(Tenant)
     client = models.ForeignKey(Company)
     # this type of import is used to avoid import circles
-    tenant_project_manager = models.ForeignKey('users.TenantProjectManager')
+    project_manager = models.ForeignKey('users.TenantProjectManager')
     consultants = models.ManyToManyField('users.ProjectWorker')
     shoppers = models.ManyToManyField('users.Shopper')
-    research_methodology = models.ForeignKey('ResearchMethodology')
+    research_methodology = models.ForeignKey('ResearchMethodology', null=True, blank=True)
 
     # Attributes
     period_start = models.DateField()

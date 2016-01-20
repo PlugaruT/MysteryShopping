@@ -21,6 +21,8 @@ class SectionSerializer(serializers.ModelSerializer):
     entity = serializers.PrimaryKeyRelatedField(queryset=Entity.objects.all(), required=False)
     tenant = serializers.PrimaryKeyRelatedField(queryset=Tenant.objects.all(), required=False)
 
+    # todo: remove redefinitions, add extra_args
+
     class Meta:
         model = Section
         fields = '__all__'
@@ -37,13 +39,13 @@ class EntitySerializer(serializers.ModelSerializer):
     tenant = serializers.PrimaryKeyRelatedField(queryset=Tenant.objects.all(), required=False)
     department = serializers.PrimaryKeyRelatedField(queryset=Department.objects.all(), required=False)
 
+    # todo: remove redefinitions, add extra_args
+
     class Meta:
         model = Entity
         fields = '__all__'
 
     def create(self, validated_data):
-        print("From create of EntitySerializer")
-        print(validated_data)
         sections = validated_data.pop('sections', None)
 
         entity = Entity.objects.create(**validated_data)
@@ -58,7 +60,7 @@ class EntitySerializer(serializers.ModelSerializer):
         return entity
 
     def update(self, instance, validated_data):
-        sections = validated_data.pop('sections')
+        validated_data.pop('sections')
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
@@ -95,7 +97,7 @@ class DepartmentSerializer(serializers.ModelSerializer):
         return department
 
     def update(self, instance, validated_data):
-        entities = validated_data.pop('entities', None)
+        validated_data.pop('entities', None)
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)

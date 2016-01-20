@@ -127,7 +127,13 @@ class ClientManager(ClientUserAbstract):
     company = models.ForeignKey(Company, related_name='managers')
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
-    place = GenericForeignKey()
+
+    limit = models.Q(app_label='companies', model='department') |\
+            models.Q(app_label='companies', model='entity') |\
+            models.Q(app_label='companies', model='section')
+    place_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='place_type', null=True, blank=True)
+    place_id = models.PositiveIntegerField(null=True, blank=True)
+    place_object = GenericForeignKey('place_type', 'place_id')
 
     def __str__(self):
         return u'{} {}'.format(self.user, self.place)
@@ -170,7 +176,8 @@ class ProjectWorker(models.Model):
     A worker can either be a Tenant Project Manager, or a Tenant Consultant
     """
     limit = models.Q(app_label='users', model='tenantprojectmanager') |\
-            models.Q(app_label='users', model='tenantconsultant')
+            models.Q(app_label='users', model='tenantconsultant') |\
+            models.Q(app_label='users', model='tenantproductmanager')
     content_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='content_type_project_workers')
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'content_object')

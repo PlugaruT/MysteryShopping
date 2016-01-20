@@ -11,7 +11,14 @@ from django.views import defaults as default_views
 from rest_framework.routers import DefaultRouter
 from rest_framework_nested import routers
 
-from mystery_shopping.companies.views import CompanyViewSet, DepartmentViewSet, EntityViewSet, SectionViewSet
+from mystery_shopping.common.views import CountryViewSet
+
+from mystery_shopping.companies.views import IndustryViewSet
+from mystery_shopping.companies.views import CompanyViewSet
+from mystery_shopping.companies.views import DepartmentViewSet
+from mystery_shopping.companies.views import EntityViewSet
+from mystery_shopping.companies.views import SectionViewSet
+
 from mystery_shopping.questionnaires.views import QuestionnaireScriptViewSet
 from mystery_shopping.questionnaires.views import QuestionnaireViewSet
 from mystery_shopping.questionnaires.views import QuestionnaireTemplateViewSet
@@ -33,6 +40,16 @@ from mystery_shopping.users.views import ShopperViewSet
 from mystery_shopping.users.views import TenantProjectManagerViewSet
 
 
+common_router = DefaultRouter()
+common_router.register(r'countries', CountryViewSet)
+
+company_router = DefaultRouter()
+company_router.register(r'industries', IndustryViewSet)
+company_router.register(r'companies', CompanyViewSet)
+company_router.register(r'departments', DepartmentViewSet)
+company_router.register(r'entities', EntityViewSet)
+company_router.register(r'sections', SectionViewSet)
+
 questionnaire_router = DefaultRouter()
 questionnaire_router.register(r'scripts', QuestionnaireScriptViewSet)
 questionnaire_router.register(r'questionnaires', QuestionnaireViewSet)
@@ -41,12 +58,6 @@ questionnaire_router.register(r'blocks', QuestionnaireBlockViewSet)
 questionnaire_router.register(r'templateblocks', QuestionnaireTemplateBlockViewSet)
 questionnaire_router.register(r'questions', QuestionnaireQuestionViewSet)
 questionnaire_router.register(r'templatequestions', QuestionnaireTemplateQuestionViewSet)
-
-company_router = DefaultRouter()
-company_router.register(r'companies', CompanyViewSet)
-company_router.register(r'departments', DepartmentViewSet)
-company_router.register(r'entities', EntityViewSet)
-company_router.register(r'sections', SectionViewSet)
 
 project_router = DefaultRouter()
 project_router.register(r'projects', ProjectViewSet)
@@ -83,6 +94,7 @@ urlpatterns = [
     url(r'^accounts/', include('allauth.urls')),
 
     # Your stuff: custom urls includes go here
+    url(r'^api/common/', include(common_router.urls)),
 
     url(r'^api/clients/', include(company_router.urls)),
     url(r'^api/questionnaires/', include(questionnaire_router.urls), name="api"),

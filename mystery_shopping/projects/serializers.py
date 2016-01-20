@@ -12,7 +12,6 @@ class ResearchMethodologySerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = ResearchMethodology
-
         fields = '__all__'
 
 
