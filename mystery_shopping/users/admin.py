@@ -12,6 +12,7 @@ from .models import TenantProjectManager
 from .models import TenantConsultant
 from .models import ProjectWorker
 from .models import Shopper
+from .models import ClientManager
 
 
 class MyUserChangeForm(UserChangeForm):
@@ -43,7 +44,7 @@ class UserAdmin(AuthUserAdmin):
     add_form = MyUserCreationForm
 
 
-@admin.register(TenantProductManager, TenantProjectManager, TenantConsultant, ProjectWorker)
+@admin.register(TenantProductManager, TenantProjectManager, TenantConsultant, ProjectWorker, ClientManager)
 class Tenants(admin.ModelAdmin):
     pass
 

@@ -12,6 +12,10 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_nested import routers
 
 from mystery_shopping.common.views import CountryViewSet
+from mystery_shopping.common.views import CountryRegionViewSet
+from mystery_shopping.common.views import CountyViewSet
+from mystery_shopping.common.views import CityViewSet
+from mystery_shopping.common.views import SectorViewSet
 
 from mystery_shopping.companies.views import IndustryViewSet
 from mystery_shopping.companies.views import CompanyViewSet
@@ -35,13 +39,19 @@ from mystery_shopping.projects.views import AccomplishedEvaluationViewSet
 from mystery_shopping.projects.views import AccomplishedEvaluationPerShopperViewSet
 
 from mystery_shopping.users.views import ClientEmployeeViewSet
+from mystery_shopping.users.views import ClientManagerViewSet
 from mystery_shopping.users.views import ProjectWorkerViewSet
 from mystery_shopping.users.views import ShopperViewSet
+from mystery_shopping.users.views import TenantProductManagerViewSet
 from mystery_shopping.users.views import TenantProjectManagerViewSet
 
 
 common_router = DefaultRouter()
 common_router.register(r'countries', CountryViewSet)
+common_router.register(r'countryregions', CountryRegionViewSet)
+common_router.register(r'counties', CountyViewSet)
+common_router.register(r'cities', CityViewSet)
+common_router.register(r'sectors', SectorViewSet)
 
 company_router = DefaultRouter()
 company_router.register(r'industries', IndustryViewSet)
@@ -67,8 +77,10 @@ project_router.register(r'accomplishedevaluations', AccomplishedEvaluationViewSe
 
 users_router = DefaultRouter()
 users_router.register(r'clientemployees', ClientEmployeeViewSet)
+users_router.register(r'clientmanagers', ClientManagerViewSet)
 users_router.register(r'projectworkers', ProjectWorkerViewSet)
 # users_router.register(r'shoppers', ShopperViewSet)
+users_router.register(r'tenantproductmanagers', TenantProductManagerViewSet)
 users_router.register(r'tenantprojectmanagers', TenantProjectManagerViewSet)
 
 

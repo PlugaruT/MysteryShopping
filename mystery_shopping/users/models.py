@@ -69,6 +69,9 @@ class TenantProductManager(TenantUserAbstract):
     def __str__(self):
         return u'{} {}'.format(self.user, self.tenant)
 
+    def get_type(self):
+        return 'Tenant Product Manager'
+
 
 class TenantProjectManager(TenantUserAbstract):
     """The model class for Tenant Project Manager.
@@ -79,6 +82,9 @@ class TenantProjectManager(TenantUserAbstract):
     def __str__(self):
         return u'{} {}'.format(self.user, self.tenant)
 
+    def get_type(self):
+        return 'Tenant Project Manager'
+
 
 class TenantConsultant(TenantUserAbstract):
     """The model class for Tenant Consultant.
@@ -88,6 +94,9 @@ class TenantConsultant(TenantUserAbstract):
 
     def __str__(self):
         return u'{} {}'.format(self.user, self.tenant)
+
+    def get_type(self):
+       return 'Tenant Consultant'
 
 
 class ClientUserAbstract(models.Model):
@@ -125,15 +134,13 @@ class ClientManager(ClientUserAbstract):
     """
     # Relations
     company = models.ForeignKey(Company, related_name='managers')
-    content_type = models.ForeignKey(ContentType)
-    object_id = models.PositiveIntegerField()
 
     limit = models.Q(app_label='companies', model='department') |\
             models.Q(app_label='companies', model='entity') |\
             models.Q(app_label='companies', model='section')
     place_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='place_type', null=True, blank=True)
     place_id = models.PositiveIntegerField(null=True, blank=True)
-    place_object = GenericForeignKey('place_type', 'place_id')
+    place  = GenericForeignKey('place_type', 'place_id')
 
     def __str__(self):
         return u'{} {}'.format(self.user, self.place)
@@ -178,10 +185,17 @@ class ProjectWorker(models.Model):
     limit = models.Q(app_label='users', model='tenantprojectmanager') |\
             models.Q(app_label='users', model='tenantconsultant') |\
             models.Q(app_label='users', model='tenantproductmanager')
-    content_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='content_type_project_workers')
-    object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey('content_type', 'content_object')
+    project_worker_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='content_type_project_workers')
+    project_worker_id = models.PositiveIntegerField()
+    project_worker = GenericForeignKey('project_worker_type', 'project_worker_id')
 
+
+    def __str__(self):
+        if self.project_worker_type.model == 'tenantprojectmanager':
+            user = TenantProjectManager.objects.get(pk=self.project_worker_id)
+        elif self.project_worker_type.model == 'tenantconsultant':
+            user= TenantConsultant.objects.get(pk=self.project_worker_id)
+        return 'type: {}, user: {}'.format(self.project_worker_type, user.user.username)
 
 class PersonToAssess(models.Model):
     """

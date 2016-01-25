@@ -19,9 +19,9 @@ class PlaceToAssess(models.Model):
     """
     limit = models.Q(app_label='companies', model='entity') |\
             models.Q(app_label='companies', model='section')
-    content_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='content_type_place_to_assess')
-    object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey('content_type', 'content_object')
+    place_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='content_type_place_to_assess')
+    place_id = models.PositiveIntegerField()
+    place = GenericForeignKey('place_type', 'place_id')
 
 
 class ResearchMethodology(models.Model):
@@ -58,7 +58,13 @@ class Project(models.Model):
     tenant = models.ForeignKey(Tenant)
     client = models.ForeignKey(Company)
     # this type of import is used to avoid import circles
-    project_manager = models.ForeignKey('users.TenantProjectManager')
+
+    limit = models.Q(app_label='users', model='tenantproductmanager') | \
+            models.Q(app_label='users', model='tenantprojectmanager')
+    project_manager_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='project_manager_type', null=True, blank=True)
+    project_manager_id = models.PositiveIntegerField(null=True, blank=True)
+    project_manager_object = GenericForeignKey('project_manager_type', 'project_manager_id')
+
     consultants = models.ManyToManyField('users.ProjectWorker')
     shoppers = models.ManyToManyField('users.Shopper')
     research_methodology = models.ForeignKey('ResearchMethodology', null=True, blank=True)

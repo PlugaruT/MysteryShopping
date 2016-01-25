@@ -3,6 +3,8 @@ from rest_framework import serializers
 from mystery_shopping.tenants.models import Tenant
 from .models import Industry, Company, Department, Entity, Section
 
+from mystery_shopping.users.serializers import ClientManagerSerializer
+
 
 class IndustrySerializer(serializers.ModelSerializer):
     """
@@ -72,6 +74,7 @@ class DepartmentSerializer(serializers.ModelSerializer):
     """
 
     """
+    manager = ClientManagerSerializer(read_only=True, many=True)
     entities = EntitySerializer(many=True)
 
     class Meta:
