@@ -77,7 +77,7 @@ class DepartmentSerializer(serializers.ModelSerializer):
 
     """
     manager = ClientManagerSerializer(read_only=True, many=True)
-    entities = EntitySerializer(many=True)
+    entities = EntitySerializer(many=True, required=False)
 
     class Meta:
         model = Department
@@ -88,17 +88,18 @@ class DepartmentSerializer(serializers.ModelSerializer):
 
         department = Department.objects.create(**validated_data)
 
-        for entity in entities:
-            entity['department'] = department.id
-            entity['tenant'] = department.tenant.id
-            entity['city'] = entity['city'].id
-            try:
-                entity['sector'] = entity['sector'].id
-            except:
-                pass
-            entity_ser = EntitySerializer(data=entity)
-            entity_ser.is_valid(raise_exception=True)
-            entity_ser.save()
+        if entities is not None:
+            for entity in entities:
+                entity['department'] = department.id
+                entity['tenant'] = department.tenant.id
+                entity['city'] = entity['city'].id
+                try:
+                    entity['sector'] = entity['sector'].id
+                except:
+                    pass
+                entity_ser = EntitySerializer(data=entity)
+                entity_ser.is_valid(raise_exception=True)
+                entity_ser.save()
         return department
 
     def update(self, instance, validated_data):
@@ -116,6 +117,7 @@ class CompanySerializer(serializers.ModelSerializer):
 
     """
     departments_repr = DepartmentSerializer(source='departments', many=True, read_only=True)
+
     class Meta:
         model = Company
         fields = '__all__'
