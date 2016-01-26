@@ -134,7 +134,6 @@ class ClientManager(ClientUserAbstract):
     """
     # Relations
     company = models.ForeignKey(Company, related_name='managers')
-
     limit = models.Q(app_label='companies', model='department') |\
             models.Q(app_label='companies', model='entity') |\
             models.Q(app_label='companies', model='section')
@@ -208,6 +207,6 @@ class PersonToAssess(models.Model):
     """
     limit = models.Q(app_label='users', model='clientmanager') |\
             models.Q(app_label='users', model='clientemployee')
-    content_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='content_type_person_to_assess')
-    object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey('content_type', 'object_id')
+    person_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='content_type_person_to_assess')
+    person_id = models.PositiveIntegerField()
+    person  = GenericForeignKey('person_type', 'person_id')

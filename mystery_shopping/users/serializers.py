@@ -17,9 +17,46 @@ from mystery_shopping.companies.serializer_fields import PlaceRelatedField
 class UserSerializer(serializers.ModelSerializer):
     """Serializer class for User model
     """
+    password = serializers.CharField(write_only=True, required=False)
+    confirm_password = serializers.CharField(write_only=True, required=False)
+
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name')
+        fields = ('id', 'username', 'first_name', 'last_name', 'password', 'confirm_password')
+
+    def create(self, validated_data):
+        password = validated_data.get('password', None)
+        confirm_password = validated_data.pop('confirm_password', None)
+
+        user = User(**validated_data)
+
+        if password and confirm_password and password == confirm_password:
+            user.set_password(password)
+        else:
+            raise serializers.ValidationError({'password': ['Provided passwords do not match.']})
+
+        user.save()
+        return user
+
+    def update(self, instance, validated_data):
+        # TODO improve password validation on update
+        password = validated_data.pop('password', None)
+        confirm_password = validated_data.pop('confirm_password', None)
+
+        if password and confirm_password:
+            if password == confirm_password:
+                instance.set_password(password)
+                instance.save()
+                # TODO change update_session_auth_hash to JWT_token_update
+                # update_session_auth_hash(self.context.get('request'), instance)
+            else:
+                raise serializers.ValidationError({'password': ['Provided passwords do not match.']})
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        return instance
 
 
 class TenantProductManagerSerializer(serializers.ModelSerializer):
@@ -70,21 +107,43 @@ class ClientProjectManagerSerializer(serializers.ModelSerializer):
 class ClientManagerSerializer(serializers.ModelSerializer):
     """Serializer class for ClientManager user model.
     """
-    manager_repr = UserSerializer(source='user', read_only=True)
+    user = UserSerializer()
     # place_repr = PlaceRelatedField(source='place', read_only=True)
+
     class Meta:
         model = ClientManager
         fields = '__all__'
+
+    def create(self, validated_data):
+        user = validated_data.pop('user', None)
+        user_ser = UserSerializer(data=user)
+        user_ser.is_valid(raise_exception=True)
+        user_ser.save()
+
+        client_manager = ClientManager.objects.create( user=user_ser.instance, **validated_data)
+
+        return client_manager
 
 
 class ClientEmployeeSerializer(serializers.ModelSerializer):
     """Serializer class for ClientEmployee user model.
     """
-    employee_repr = UserSerializer(source='user', read_only=True)
+    user = UserSerializer()
 
     class Meta:
         model = ClientEmployee
         fields = '__all__'
+
+    def create(self, validated_data):
+        user = validated_data.pop('user', None)
+
+        user_ser = UserSerializer(data=user)
+        user_ser.is_valid(raise_exception=True)
+        user_ser.save()
+
+        client_employee = ClientManager.objects.create( user=user_ser.instance, **validated_data)
+
+        return client_employee
 
 
 class ShopperSerializer(serializers.ModelSerializer):
