@@ -373,7 +373,7 @@
 **`POST`**:
 
 - `company` : *id* 
-- `user` : *id*
+- `user` : `User` representation
 - `place_id` : *integer*
 - `place_type` : *id* (for `ContentType` : `department`, `entity`, `section`)
 
@@ -381,7 +381,7 @@
 ```json
 {
     "place_id": null,
-    "user": null,
+    "user": { ... },
     "company": null,
     "place_type": null
 }
