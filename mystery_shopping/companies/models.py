@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.contenttypes.fields import GenericRelation
 
 from mystery_shopping.common.models import City, Country, Sector
 from mystery_shopping.tenants.models import Tenant
@@ -55,6 +56,9 @@ class Department(models.Model):
     # Relations
     company = models.ForeignKey(Company)
     tenant = models.ForeignKey(Tenant)
+    manager = GenericRelation('users.ClientManager',
+                              content_type_field='place_type',
+                              object_id_field='place_id')
 
     # Attributes
     name = models.CharField(max_length=255)
@@ -66,7 +70,6 @@ class Department(models.Model):
     def __str__(self):
         return 'Name: %s, company: %s' % (self.name, self.company.name)
 
-
 # PoS
 class Entity(models.Model):
     """
@@ -77,11 +80,14 @@ class Entity(models.Model):
     sector = models.ForeignKey(Sector, null=True)
     city = models.ForeignKey(City)
     tenant = models.ForeignKey(Tenant)
+    manager = GenericRelation('users.ClientManager',
+                              content_type_field='place_type',
+                              object_id_field='place_id')
 
     # Attributes
     name = models.CharField(max_length=255)
     address = models.CharField(max_length=255)
-    coordinates = models.CharField(max_length=50)
+    coordinates = models.CharField(max_length=50, null=True, blank=True)
 
     class Meta:
         ordering = ('department', 'name',)
@@ -99,6 +105,9 @@ class Section(models.Model):
     # Relations
     entity = models.ForeignKey(Entity)
     tenant = models.ForeignKey(Tenant)
+    manager = GenericRelation('users.ClientManager',
+                              content_type_field='place_type',
+                              object_id_field='place_id')
 
     # Attributes
     name = models.CharField(max_length=255)

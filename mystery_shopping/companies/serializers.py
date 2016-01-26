@@ -3,6 +3,8 @@ from rest_framework import serializers
 from mystery_shopping.tenants.models import Tenant
 from .models import Industry, Company, Department, Entity, Section
 
+from mystery_shopping.users.serializers import ClientManagerSerializer
+
 
 class IndustrySerializer(serializers.ModelSerializer):
     """
@@ -18,8 +20,11 @@ class SectionSerializer(serializers.ModelSerializer):
 
     """
     # id = serializers.IntegerField(label='ID', read_only=False)
+    manager = ClientManagerSerializer(read_only=True, many=True)
     entity = serializers.PrimaryKeyRelatedField(queryset=Entity.objects.all(), required=False)
     tenant = serializers.PrimaryKeyRelatedField(queryset=Tenant.objects.all(), required=False)
+
+    # todo: remove redefinitions, add extra_args
 
     class Meta:
         model = Section
@@ -33,17 +38,18 @@ class EntitySerializer(serializers.ModelSerializer):
     """
 
     """
+    manager = ClientManagerSerializer(read_only=True, many=True)
     sections = SectionSerializer(many=True)
     tenant = serializers.PrimaryKeyRelatedField(queryset=Tenant.objects.all(), required=False)
     department = serializers.PrimaryKeyRelatedField(queryset=Department.objects.all(), required=False)
+
+    # todo: remove redefinitions, add extra_args
 
     class Meta:
         model = Entity
         fields = '__all__'
 
     def create(self, validated_data):
-        print("From create of EntitySerializer")
-        print(validated_data)
         sections = validated_data.pop('sections', None)
 
         entity = Entity.objects.create(**validated_data)
@@ -58,7 +64,7 @@ class EntitySerializer(serializers.ModelSerializer):
         return entity
 
     def update(self, instance, validated_data):
-        sections = validated_data.pop('sections')
+        validated_data.pop('sections')
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
@@ -70,6 +76,7 @@ class DepartmentSerializer(serializers.ModelSerializer):
     """
 
     """
+    manager = ClientManagerSerializer(read_only=True, many=True)
     entities = EntitySerializer(many=True)
 
     class Meta:
@@ -95,7 +102,7 @@ class DepartmentSerializer(serializers.ModelSerializer):
         return department
 
     def update(self, instance, validated_data):
-        entities = validated_data.pop('entities', None)
+        validated_data.pop('entities', None)
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
@@ -108,6 +115,7 @@ class CompanySerializer(serializers.ModelSerializer):
     """
 
     """
+    departments_repr = DepartmentSerializer(source='departments', many=True, read_only=True)
     class Meta:
         model = Company
         fields = '__all__'

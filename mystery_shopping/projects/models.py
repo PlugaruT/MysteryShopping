@@ -19,9 +19,10 @@ class PlaceToAssess(models.Model):
     """
     limit = models.Q(app_label='companies', model='entity') |\
             models.Q(app_label='companies', model='section')
-    content_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='content_type_place_to_assess')
-    object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey('content_type', 'content_object')
+    place_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='content_type_place_to_assess')
+    place_id = models.PositiveIntegerField()
+    place = GenericForeignKey('place_type', 'place_id')
+    methodology = models.ForeignKey('ResearchMethodology', related_name='research_methodologies')
 
 
 class ResearchMethodology(models.Model):
@@ -32,8 +33,8 @@ class ResearchMethodology(models.Model):
     # many to many fields
     scripts = models.ManyToManyField(QuestionnaireScript)
     questionnaires = models.ManyToManyField(QuestionnaireTemplate)
-    places_to_assess = models.ManyToManyField(PlaceToAssess, blank=True)
-    people_to_assess = models.ManyToManyField('users.PersonToAssess', blank=True)
+    # people_to_assess = models.ManyToManyField('users.PersonToAssess', blank=True)
+
 
     # Attributes
     number_of_evaluations = models.PositiveSmallIntegerField()  # or number_of_calls
@@ -56,12 +57,18 @@ class Project(models.Model):
     """
     # Relations
     tenant = models.ForeignKey(Tenant)
-    client = models.ForeignKey(Company)
+    company = models.ForeignKey(Company)
     # this type of import is used to avoid import circles
-    tenant_project_manager = models.ForeignKey('users.TenantProjectManager')
+
+    limit = models.Q(app_label='users', model='tenantproductmanager') | \
+            models.Q(app_label='users', model='tenantprojectmanager')
+    project_manager_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='project_manager_type', null=True, blank=True)
+    project_manager_id = models.PositiveIntegerField(null=True, blank=True)
+    project_manager_object = GenericForeignKey('project_manager_type', 'project_manager_id')
+
     consultants = models.ManyToManyField('users.ProjectWorker')
     shoppers = models.ManyToManyField('users.Shopper')
-    research_methodology = models.ForeignKey('ResearchMethodology')
+    research_methodology = models.ForeignKey('ResearchMethodology', null=True, blank=True)
 
     # Attributes
     period_start = models.DateField()
@@ -72,7 +79,7 @@ class Project(models.Model):
         ordering = ('tenant',)
 
     def __str__(self):
-        return 'Project for {}, start: {}/{}/{}, end: {}/{}/{}'.format(self.client.name, self.period_start.day, self.period_start.month, self.period_start.year%2000,
+        return 'Project for {}, start: {}/{}/{}, end: {}/{}/{}'.format(self.company.name, self.period_start.day, self.period_start.month, self.period_start.year%2000,
                                                                        self.period_end.day, self.period_end.month, self.period_start.year%2000)
 
 
