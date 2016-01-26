@@ -88,10 +88,10 @@ shopper_router = routers.SimpleRouter()
 shopper_router.register(r'shoppers', ShopperViewSet)
 
 shopper_planned_evaluation = routers.NestedSimpleRouter(shopper_router, r'shoppers', lookup='shopper')
-shopper_planned_evaluation.register(r'planned-evaluations', PlannedEvaluationPerShopperViewSet, base_name='shopper-planned-evaluations')
+shopper_planned_evaluation.register(r'plannedevaluations', PlannedEvaluationPerShopperViewSet, base_name='shopper-planned-evaluations')
 
 shopper_accomplished_evaluation = routers.NestedSimpleRouter(shopper_router, r'shoppers', lookup='shopper')
-shopper_accomplished_evaluation.register(r'accomplished-evaluations', AccomplishedEvaluationPerShopperViewSet, base_name='shopper-accomplished-evaluations')
+shopper_accomplished_evaluation.register(r'accomplishedevaluations', AccomplishedEvaluationPerShopperViewSet, base_name='shopper-accomplished-evaluations')
 
 
 urlpatterns = [
@@ -101,22 +101,25 @@ urlpatterns = [
     # Django Admin, use {% url 'admin:index' %}
     url(settings.ADMIN_URL, include(admin.site.urls)),
 
+    url(r'^api-token-auth/', 'rest_framework_jwt.views.obtain_jwt_token'),
+    url(r'^api-token-refresh/', 'rest_framework_jwt.views.refresh_jwt_token'),
+
     # User management
     url(r'^users/', include("mystery_shopping.users.urls", namespace="users")),
     url(r'^accounts/', include('allauth.urls')),
 
     # Your stuff: custom urls includes go here
-    url(r'^api/common/', include(common_router.urls)),
+    url(r'^api/v1/', include(common_router.urls)),
 
-    url(r'^api/clients/', include(company_router.urls)),
-    url(r'^api/questionnaires/', include(questionnaire_router.urls), name="api"),
+    url(r'^api/v1/', include(company_router.urls)),
+    url(r'^api/v1/', include(questionnaire_router.urls), name="api"),
 
-    url(r'^api/projects/', include(project_router.urls)),
-    url(r'^api/users/', include(users_router.urls)),
+    url(r'^api/v1/', include(project_router.urls)),
+    url(r'^api/v1/', include(users_router.urls)),
 
-    url(r'^api/users/', include(shopper_router.urls)),
-    url(r'^api/users/', include(shopper_planned_evaluation.urls)),
-    url(r'^api/users/', include(shopper_accomplished_evaluation.urls)),
+    url(r'^api/v1/', include(shopper_router.urls)),
+    url(r'^api/v1/', include(shopper_planned_evaluation.urls)),
+    url(r'^api/v1/', include(shopper_accomplished_evaluation.urls)),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

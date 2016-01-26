@@ -1,12 +1,14 @@
 from rest_assured.testcases import ReadWriteRESTAPITestCaseMixin, BaseRESTAPITestCase
 
 from mystery_shopping.factories.users import ShopperFactory
+from mystery_shopping.factories.users import UserThatIsTenantProjectManagerFactory
 
 
 class ShopperAPITestCase(ReadWriteRESTAPITestCaseMixin, BaseRESTAPITestCase):
 
     base_name = 'shopper'
     factory_class = ShopperFactory
+    user_factory = UserThatIsTenantProjectManagerFactory
     update_data = {'gender': 'm'}
 
     def get_create_data(self):

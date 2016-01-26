@@ -64,3 +64,15 @@ class UserThatIsTenantProductManagerFactory(DjangoModelFactory):
     tenantproductmanager = RelatedFactory(TenantProductManagerFactory, factory_related_name='user')
 
 
+class UserThatIsTenantProjectManagerFactory(DjangoModelFactory):
+    class Meta:
+        model = User
+        exclude = ('r_password',)
+
+    username = fuzzy.FuzzyText(length=10)
+    r_password = '1234'
+    password = PostGenerationMethodCall('set_password', r_password)
+    is_active = True
+    shopper = RelatedFactory(TenantProjectManager, factory_related_name='user')
+
+
