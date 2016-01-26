@@ -20,6 +20,7 @@ class SectionSerializer(serializers.ModelSerializer):
 
     """
     # id = serializers.IntegerField(label='ID', read_only=False)
+    manager = ClientManagerSerializer(read_only=True, many=True)
     entity = serializers.PrimaryKeyRelatedField(queryset=Entity.objects.all(), required=False)
     tenant = serializers.PrimaryKeyRelatedField(queryset=Tenant.objects.all(), required=False)
 
@@ -37,6 +38,7 @@ class EntitySerializer(serializers.ModelSerializer):
     """
 
     """
+    manager = ClientManagerSerializer(read_only=True, many=True)
     sections = SectionSerializer(many=True)
     tenant = serializers.PrimaryKeyRelatedField(queryset=Tenant.objects.all(), required=False)
     department = serializers.PrimaryKeyRelatedField(queryset=Department.objects.all(), required=False)
@@ -113,6 +115,7 @@ class CompanySerializer(serializers.ModelSerializer):
     """
 
     """
+    departments_repr = DepartmentSerializer(source='departments', many=True, read_only=True)
     class Meta:
         model = Company
         fields = '__all__'

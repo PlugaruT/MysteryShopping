@@ -11,6 +11,7 @@ from .models import ProjectWorker
 from .models import PersonToAssess
 from .models import Shopper
 from mystery_shopping.tenants.serializers import TenantSerializer
+from mystery_shopping.companies.serializer_fields import PlaceRelatedField
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -65,9 +66,12 @@ class ClientProjectManagerSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+
 class ClientManagerSerializer(serializers.ModelSerializer):
     """Serializer class for ClientManager user model.
     """
+    manager_repr = UserSerializer(source='user', read_only=True)
+    # place_repr = PlaceRelatedField(source='place', read_only=True)
     class Meta:
         model = ClientManager
         fields = '__all__'
@@ -76,6 +80,8 @@ class ClientManagerSerializer(serializers.ModelSerializer):
 class ClientEmployeeSerializer(serializers.ModelSerializer):
     """Serializer class for ClientEmployee user model.
     """
+    employee_repr = UserSerializer(source='user', read_only=True)
+
     class Meta:
         model = ClientEmployee
         fields = '__all__'

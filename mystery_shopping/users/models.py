@@ -195,7 +195,10 @@ class ProjectWorker(models.Model):
             user = TenantProjectManager.objects.get(pk=self.project_worker_id)
         elif self.project_worker_type.model == 'tenantconsultant':
             user= TenantConsultant.objects.get(pk=self.project_worker_id)
+        elif self.project_worker_type.model == 'tenantproductmanager':
+            user= TenantProductManager.objects.get(pk=self.project_worker_id)
         return 'type: {}, user: {}'.format(self.project_worker_type, user.user.username)
+
 
 class PersonToAssess(models.Model):
     """

@@ -22,6 +22,7 @@ class PlaceToAssess(models.Model):
     place_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='content_type_place_to_assess')
     place_id = models.PositiveIntegerField()
     place = GenericForeignKey('place_type', 'place_id')
+    methodology = models.ForeignKey('ResearchMethodology', related_name='research_methodologies')
 
 
 class ResearchMethodology(models.Model):
@@ -32,8 +33,8 @@ class ResearchMethodology(models.Model):
     # many to many fields
     scripts = models.ManyToManyField(QuestionnaireScript)
     questionnaires = models.ManyToManyField(QuestionnaireTemplate)
-    places_to_assess = models.ManyToManyField(PlaceToAssess, blank=True)
-    people_to_assess = models.ManyToManyField('users.PersonToAssess', blank=True)
+    # people_to_assess = models.ManyToManyField('users.PersonToAssess', blank=True)
+
 
     # Attributes
     number_of_evaluations = models.PositiveSmallIntegerField()  # or number_of_calls
@@ -56,7 +57,7 @@ class Project(models.Model):
     """
     # Relations
     tenant = models.ForeignKey(Tenant)
-    client = models.ForeignKey(Company)
+    company = models.ForeignKey(Company)
     # this type of import is used to avoid import circles
 
     limit = models.Q(app_label='users', model='tenantproductmanager') | \
@@ -78,7 +79,7 @@ class Project(models.Model):
         ordering = ('tenant',)
 
     def __str__(self):
-        return 'Project for {}, start: {}/{}/{}, end: {}/{}/{}'.format(self.client.name, self.period_start.day, self.period_start.month, self.period_start.year%2000,
+        return 'Project for {}, start: {}/{}/{}, end: {}/{}/{}'.format(self.company.name, self.period_start.day, self.period_start.month, self.period_start.year%2000,
                                                                        self.period_end.day, self.period_end.month, self.period_start.year%2000)
 
 
