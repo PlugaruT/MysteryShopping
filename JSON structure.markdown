@@ -243,7 +243,7 @@
 - `sections` : `SectionSerializer` (`many=True`)
 - `name` : *string*
 - `address` : *string*
-- `coordinates` : *string* 
+- `coordinates` : *string* (`null = True`)
 
 > example:
 ```json
@@ -268,7 +268,7 @@
 - `sections` : `SectionSerializer` (`many=True`)
 - `name` : *string*
 - `address` : *string*
-- `coordinates` : *string* 
+- `coordinates` : *string* (`null = True`)
 
 > example:
 ```json

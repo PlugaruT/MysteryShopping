@@ -87,7 +87,7 @@ class Entity(models.Model):
     # Attributes
     name = models.CharField(max_length=255)
     address = models.CharField(max_length=255)
-    coordinates = models.CharField(max_length=50)
+    coordinates = models.CharField(max_length=50, null=True, blank=True)
 
     class Meta:
         ordering = ('department', 'name',)
