@@ -3,6 +3,7 @@ from rest_framework import serializers
 from mystery_shopping.tenants.models import Tenant
 from .models import Industry, Company, Department, Entity, Section
 
+from mystery_shopping.common.serializer import CountrySerializer
 from mystery_shopping.users.serializers import ClientManagerSerializer
 
 
@@ -117,7 +118,9 @@ class CompanySerializer(serializers.ModelSerializer):
 
     """
     departments_repr = DepartmentSerializer(source='departments', many=True, read_only=True)
-
+    industry_repr = IndustrySerializer(source='industry', read_only=True)
+    country_repr = CountrySerializer(source='country', read_only=True)
+    
     class Meta:
         model = Company
         fields = '__all__'

@@ -16,6 +16,7 @@ from .models import TenantProjectManager
 from .models import TenantProductManager
 from .models import User
 
+from .serializers import UserSerializer
 from .serializers import ClientEmployeeSerializer
 from .serializers import ClientManagerSerializer
 from .serializers import ProjectWorkerSerializer
@@ -66,6 +67,11 @@ class UserListView(LoginRequiredMixin, ListView):
     # These next two lines tell the view to index lookups by username
     slug_field = "username"
     slug_url_kwarg = "username"
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 
 
 class TenantProductManagerViewSet(viewsets.ModelViewSet):

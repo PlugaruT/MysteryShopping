@@ -38,6 +38,7 @@ from mystery_shopping.projects.views import PlannedEvaluationPerShopperViewSet
 from mystery_shopping.projects.views import AccomplishedEvaluationViewSet
 from mystery_shopping.projects.views import AccomplishedEvaluationPerShopperViewSet
 
+from mystery_shopping.users.views import UserViewSet
 from mystery_shopping.users.views import ClientEmployeeViewSet
 from mystery_shopping.users.views import ClientManagerViewSet
 from mystery_shopping.users.views import ProjectWorkerViewSet
@@ -76,6 +77,7 @@ project_router.register(r'plannedevaluations', PlannedEvaluationViewSet)
 project_router.register(r'accomplishedevaluations', AccomplishedEvaluationViewSet)
 
 users_router = DefaultRouter()
+users_router.register(r'users', UserViewSet)
 users_router.register(r'clientemployees', ClientEmployeeViewSet)
 users_router.register(r'clientmanagers', ClientManagerViewSet)
 users_router.register(r'projectworkers', ProjectWorkerViewSet)
