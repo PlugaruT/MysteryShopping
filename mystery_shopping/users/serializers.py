@@ -124,6 +124,19 @@ class ClientManagerSerializer(serializers.ModelSerializer):
 
         return client_manager
 
+    # def update(self, instance, validated_data):
+    #     user = validated_data.pop('user', None)
+    #     user_instance = User.objects.filter(pk=user.id).first()
+    #     user_ser = UserSerializer(instance=user_instance, data=user)
+    #     user_ser.is_valid(raise_exception=True)
+    #     user_ser.save()
+    #
+    #     for attr, value in validated_data.items():
+    #         setattr(instance, attr, value)
+    #     instance.save()
+    #
+    #     return instance
+
 
 class ClientEmployeeSerializer(serializers.ModelSerializer):
     """Serializer class for ClientEmployee user model.
@@ -141,7 +154,7 @@ class ClientEmployeeSerializer(serializers.ModelSerializer):
         user_ser.is_valid(raise_exception=True)
         user_ser.save()
 
-        client_employee = ClientManager.objects.create( user=user_ser.instance, **validated_data)
+        client_employee = ClientEmployee.objects.create( user=user_ser.instance, **validated_data)
 
         return client_employee
 
