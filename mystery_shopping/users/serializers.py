@@ -107,7 +107,7 @@ class ClientProjectManagerSerializer(serializers.ModelSerializer):
 class ClientManagerSerializer(serializers.ModelSerializer):
     """Serializer class for ClientManager user model.
     """
-    user = UserSerializer(required=False)
+    user = UserSerializer(required=False, allow_null=True)
     # place_repr = PlaceRelatedField(source='place', read_only=True)
 
     class Meta:
@@ -143,7 +143,7 @@ class ClientManagerSerializer(serializers.ModelSerializer):
 class ClientEmployeeSerializer(serializers.ModelSerializer):
     """Serializer class for ClientEmployee user model.
     """
-    user = UserSerializer(required=False)
+    user = UserSerializer(required=False, allow_null=True)
 
     class Meta:
         model = ClientEmployee
