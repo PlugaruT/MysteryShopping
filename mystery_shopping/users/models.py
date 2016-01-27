@@ -107,7 +107,7 @@ class ClientUserAbstract(models.Model):
     .. note:: The Company relation is not included here for the purpose of defining an explicit related_name
         on each Client User class.
     """
-    user = models.OneToOneField(User)
+    user = models.OneToOneField(User, null=True)
 
     class Meta:
         abstract = True
