@@ -127,7 +127,7 @@ class PlannedEvaluationSerializer(serializers.ModelSerializer):
     entity_repr = EntitySerializer(source='entity', read_only=True)
     section_repr = SectionSerializer(source='section', read_only=True)
     employee_ser = ClientUserRelatedField(source='employee', read_only=True)
-    
+
     class Meta:
         model = PlannedEvaluation
         fields = '__all__'

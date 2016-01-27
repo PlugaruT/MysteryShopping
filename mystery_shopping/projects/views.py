@@ -34,7 +34,7 @@ class ResearchMethodologyViewSet(viewsets.ModelViewSet):
 class PlannedEvaluationViewSet(viewsets.ModelViewSet):
     queryset = PlannedEvaluation.objects.all()
     serializer_class = PlannedEvaluationSerializer
-    permission_classes = (Or(IsTenantProjectManager, IsTenantConsultant, IsShopper),)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant, IsShopper),)
 
     def get_queryset(self):
         if self.request.user.user_type in ['tenantproductmanager', 'tenantprojectmanager', 'tenantconsultant']:
@@ -62,7 +62,7 @@ class PlannedEvaluationPerShopperViewSet(viewsets.ViewSet):
 class AccomplishedEvaluationViewSet(viewsets.ModelViewSet):
     queryset = AccomplishedEvaluation.objects.all()
     serializer_class = AccomplishedEvaluationsSerializer
-    permission_classes = (Or(IsTenantProjectManager, IsTenantConsultant, IsShopper),)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant, IsShopper),)
 
     def get_queryset(self):
         if self.request.user.user_type in ['tenantproductmanager', 'tenantprojectmanager', 'tenantconsultant']:

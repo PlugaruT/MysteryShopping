@@ -1,0 +1,12 @@
+from rest_framework.routers import DefaultRouter
+
+from .views import ProjectViewSet
+from .views import ResearchMethodologyViewSet
+from .views import PlannedEvaluationViewSet
+from .views import AccomplishedEvaluationViewSet
+
+router = DefaultRouter()
+router.register(r'projects', ProjectViewSet)
+router.register(r'researchmethodologies', ResearchMethodologyViewSet)
+router.register(r'plannedevaluations', PlannedEvaluationViewSet)
+router.register(r'accomplishedevaluations', AccomplishedEvaluationViewSet)
