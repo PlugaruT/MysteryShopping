@@ -31,17 +31,19 @@ class CountySerializer(serializers.ModelSerializer):
         model = County
 
 
-class CitySerializer(serializers.ModelSerializer):
-    """
-    City Serializer.
-    """
-    class Meta:
-        model = City
-
-
 class SectorSerializer(serializers.ModelSerializer):
     """
     Sector Serializer.
     """
     class Meta:
         model = Sector
+
+
+class CitySerializer(serializers.ModelSerializer):
+    """
+    City Serializer.
+    """
+    sectors = SectorSerializer(many=True, required=False)
+
+    class Meta:
+        model = City
