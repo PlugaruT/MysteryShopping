@@ -23,6 +23,7 @@ from mystery_shopping.users.serializers import ShopperSerializer
 from mystery_shopping.users.serializers import ProjectWorkerSerializer
 from mystery_shopping.users.serializers import PersonToAssessSerializer
 from mystery_shopping.users.serializer_fields import ProjectManagerRelatedField
+from mystery_shopping.users.serializer_fields import ClientUserRelatedField
 
 from mystery_shopping.users.serializers import TenantProductManagerSerializer
 from mystery_shopping.users.serializers import TenantProjectManagerSerializer
@@ -125,7 +126,8 @@ class PlannedEvaluationSerializer(serializers.ModelSerializer):
     questionnaire_template_repr = QuestionnaireTemplateSerializer(source='questionnaire_template', read_only=True)
     entity_repr = EntitySerializer(source='entity', read_only=True)
     section_repr = SectionSerializer(source='section', read_only=True)
-
+    employee_ser = ClientUserRelatedField(source='employee', read_only=True)
+    
     class Meta:
         model = PlannedEvaluation
         fields = '__all__'
