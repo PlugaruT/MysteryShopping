@@ -5,6 +5,7 @@ from .models import Industry, Company, Department, Entity, Section
 
 from mystery_shopping.common.serializer import CountrySerializer
 from mystery_shopping.users.serializers import ClientManagerSerializer
+from mystery_shopping.users.serializers import ClientEmployeeSerializer
 
 
 class IndustrySerializer(serializers.ModelSerializer):
@@ -22,6 +23,7 @@ class SectionSerializer(serializers.ModelSerializer):
     """
     # id = serializers.IntegerField(label='ID', read_only=False)
     managers = ClientManagerSerializer(read_only=True, many=True)
+    employees = ClientEmployeeSerializer(read_only=True, many=True)
     entity = serializers.PrimaryKeyRelatedField(queryset=Entity.objects.all(), required=False)
 
     # todo: remove redefinitions, add extra_args
@@ -39,6 +41,7 @@ class EntitySerializer(serializers.ModelSerializer):
 
     """
     managers = ClientManagerSerializer(read_only=True, many=True)
+    employees = ClientEmployeeSerializer(read_only=True, many=True)
     sections = SectionSerializer(many=True, required=False)
     department = serializers.PrimaryKeyRelatedField(queryset=Department.objects.all(), required=False)
 
