@@ -23,7 +23,6 @@ class SectionSerializer(serializers.ModelSerializer):
     # id = serializers.IntegerField(label='ID', read_only=False)
     manager = ClientManagerSerializer(read_only=True, many=True)
     entity = serializers.PrimaryKeyRelatedField(queryset=Entity.objects.all(), required=False)
-    tenant = serializers.PrimaryKeyRelatedField(queryset=Tenant.objects.all(), required=False)
 
     # todo: remove redefinitions, add extra_args
 
@@ -40,8 +39,7 @@ class EntitySerializer(serializers.ModelSerializer):
 
     """
     manager = ClientManagerSerializer(read_only=True, many=True)
-    sections = SectionSerializer(many=True)
-    tenant = serializers.PrimaryKeyRelatedField(queryset=Tenant.objects.all(), required=False)
+    sections = SectionSerializer(many=True, required=False)
     department = serializers.PrimaryKeyRelatedField(queryset=Department.objects.all(), required=False)
 
     # todo: remove redefinitions, add extra_args
@@ -55,13 +53,14 @@ class EntitySerializer(serializers.ModelSerializer):
 
         entity = Entity.objects.create(**validated_data)
 
-        for section in sections:
-            section['entity'] = entity.id
-            section['tenant'] = entity.tenant.id
-            section['city'] = section['city'].id
-            section_ser = SectionSerializer(data=section)
-            section_ser.is_valid(raise_exception=True)
-            section_ser.save()
+        if sections is not None:
+            for section in sections:
+                section['entity'] = entity.id
+                section['tenant'] = entity.tenant.id
+                section['city'] = section['city'].id
+                section_ser = SectionSerializer(data=section)
+                section_ser.is_valid(raise_exception=True)
+                section_ser.save()
         return entity
 
     def update(self, instance, validated_data):
