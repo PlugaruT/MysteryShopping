@@ -19,7 +19,6 @@ class CountryViewSet(viewsets.ModelViewSet):
     # todo: add permissions
 
 
-
 class CountryRegionViewSet(viewsets.ModelViewSet):
     queryset = CountryRegion.objects.all()
     serializer_class = CountryRegionSerializer

@@ -16,12 +16,14 @@ from mystery_shopping.companies.serializers import EntitySerializer
 from mystery_shopping.companies.serializers import SectionSerializer
 
 from mystery_shopping.companies.serializers import CompanySerializer
+
 from mystery_shopping.questionnaires.serializers import QuestionnaireScriptSerializer
 from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializer
 from mystery_shopping.users.serializers import ShopperSerializer
 from mystery_shopping.users.serializers import ProjectWorkerSerializer
 from mystery_shopping.users.serializers import PersonToAssessSerializer
 from mystery_shopping.users.serializer_fields import ProjectManagerRelatedField
+from mystery_shopping.users.serializer_fields import ClientUserRelatedField
 
 from mystery_shopping.users.serializers import TenantProductManagerSerializer
 from mystery_shopping.users.serializers import TenantProjectManagerSerializer
@@ -118,6 +120,14 @@ class PlannedEvaluationSerializer(serializers.ModelSerializer):
     """
 
     """
+    project_repr = ProjectSerializer(source='project', read_only=True)
+    shopper_repr = ShopperSerializer(source='shopper', read_only=True)
+    questionnaire_script_repr = QuestionnaireScriptSerializer(source='questionnaire_script', read_only=True)
+    questionnaire_template_repr = QuestionnaireTemplateSerializer(source='questionnaire_template', read_only=True)
+    entity_repr = EntitySerializer(source='entity', read_only=True)
+    section_repr = SectionSerializer(source='section', read_only=True)
+    employee_ser = ClientUserRelatedField(source='employee', read_only=True)
+
     class Meta:
         model = PlannedEvaluation
         fields = '__all__'
@@ -130,7 +140,7 @@ class PlannedEvaluationSerializer(serializers.ModelSerializer):
             return data
 
 
-class AccomplishedEvaluationsSerializer(serializers.ModelSerializer):
+class AccomplishedEvaluationsSerializer(PlannedEvaluationSerializer):
     """
 
     """

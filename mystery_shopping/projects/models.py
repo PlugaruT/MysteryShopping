@@ -98,7 +98,7 @@ class PlannedEvaluation(models.Model):
             models.Q(app_label='users', model='clientemployee')
     employee_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='employee_type', null=True, blank=True)
     employee_id = models.PositiveIntegerField(null=True, blank=True)
-    employee_object = GenericForeignKey('employee_type', 'employee_id')
+    employee = GenericForeignKey('employee_type', 'employee_id')
 
     visit_choices = (('call', 'Call'),
                      ('visit', 'Visit'),)
