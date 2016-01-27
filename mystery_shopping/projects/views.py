@@ -12,6 +12,7 @@ from .serializers import ProjectSerializer
 from .serializers import ResearchMethodologySerializer
 from .serializers import PlannedEvaluationSerializer
 from .serializers import AccomplishedEvaluationsSerializer
+from mystery_shopping.users.permissions import IsTenantProductManager
 from mystery_shopping.users.permissions import IsTenantProjectManager
 from mystery_shopping.users.permissions import IsTenantConsultant
 from mystery_shopping.users.permissions import IsShopper
@@ -21,13 +22,13 @@ from mystery_shopping.users.permissions import HasAccessToEvaluations
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
-    permission_classes = (IsTenantProjectManager,)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager),)
 
 
 class ResearchMethodologyViewSet(viewsets.ModelViewSet):
     queryset = ResearchMethodology.objects.all()
     serializer_class = ResearchMethodologySerializer
-    permission_classes = (IsTenantProjectManager,)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager),)
 
 
 class PlannedEvaluationViewSet(viewsets.ModelViewSet):

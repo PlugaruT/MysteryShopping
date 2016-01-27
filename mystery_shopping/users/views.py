@@ -23,6 +23,7 @@ from .serializers import ProjectWorkerSerializer
 from .serializers import ShopperSerializer
 from .serializers import TenantProductManagerSerializer
 from .serializers import TenantProjectManagerSerializer
+from mystery_shopping.users.permissions import IsTenantProductManager
 from mystery_shopping.users.permissions import IsTenantProjectManager
 from mystery_shopping.users.permissions import IsTenantConsultant
 
@@ -97,7 +98,7 @@ class ClientManagerViewSet(viewsets.ModelViewSet):
 class ShopperViewSet(viewsets.ModelViewSet):
     queryset = Shopper.objects.all()
     serializer_class = ShopperSerializer
-    permission_classes = (Or(IsTenantProjectManager, IsTenantConsultant),)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
 
 
 class ProjectWorkerViewSet(viewsets.ModelViewSet):
