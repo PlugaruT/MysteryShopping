@@ -121,6 +121,7 @@ class ClientProjectManager(ClientUserAbstract):
     """The model class for Client Project Manager user.
     """
     # Relations
+    user = models.OneToOneField(User)
     company = models.ForeignKey(Company, related_name='project_managers')
 
     def __str__(self):
