@@ -107,7 +107,7 @@ class ClientProjectManagerSerializer(serializers.ModelSerializer):
 class ClientManagerSerializer(serializers.ModelSerializer):
     """Serializer class for ClientManager user model.
     """
-    user = UserSerializer()
+    user = UserSerializer(required=False)
     # place_repr = PlaceRelatedField(source='place', read_only=True)
 
     class Meta:
@@ -116,11 +116,13 @@ class ClientManagerSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = validated_data.pop('user', None)
-        user_ser = UserSerializer(data=user)
-        user_ser.is_valid(raise_exception=True)
-        user_ser.save()
+        if user is not None:
+            user_ser = UserSerializer(data=user)
+            user_ser.is_valid(raise_exception=True)
+            user_ser.save()
+            user = user_ser.instance
 
-        client_manager = ClientManager.objects.create( user=user_ser.instance, **validated_data)
+        client_manager = ClientManager.objects.create(user=user, **validated_data)
 
         return client_manager
 
@@ -141,7 +143,7 @@ class ClientManagerSerializer(serializers.ModelSerializer):
 class ClientEmployeeSerializer(serializers.ModelSerializer):
     """Serializer class for ClientEmployee user model.
     """
-    user = UserSerializer()
+    user = UserSerializer(required=False)
 
     class Meta:
         model = ClientEmployee
@@ -150,11 +152,13 @@ class ClientEmployeeSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = validated_data.pop('user', None)
 
-        user_ser = UserSerializer(data=user)
-        user_ser.is_valid(raise_exception=True)
-        user_ser.save()
+        if user is not None:
+            user_ser = UserSerializer(data=user)
+            user_ser.is_valid(raise_exception=True)
+            user_ser.save()
+            user = user_ser.instance
 
-        client_employee = ClientEmployee.objects.create( user=user_ser.instance, **validated_data)
+        client_employee = ClientEmployee.objects.create(user=user, **validated_data)
 
         return client_employee
 

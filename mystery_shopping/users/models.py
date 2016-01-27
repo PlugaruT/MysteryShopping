@@ -107,7 +107,13 @@ class ClientUserAbstract(models.Model):
     .. note:: The Company relation is not included here for the purpose of defining an explicit related_name
         on each Client User class.
     """
+    # Relations
     user = models.OneToOneField(User, null=True)
+
+    # Attributes
+    first_name = models.CharField(max_length=30, blank=True)
+    last_name = models.CharField(max_length=30, blank=True)
+    job_title = models.CharField(max_length=60, blank=True)
 
     class Meta:
         abstract = True
@@ -121,7 +127,6 @@ class ClientProjectManager(ClientUserAbstract):
     """The model class for Client Project Manager user.
     """
     # Relations
-    user = models.OneToOneField(User)
     company = models.ForeignKey(Company, related_name='project_managers')
 
     def __str__(self):
