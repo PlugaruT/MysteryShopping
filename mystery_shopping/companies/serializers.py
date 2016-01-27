@@ -21,7 +21,7 @@ class SectionSerializer(serializers.ModelSerializer):
 
     """
     # id = serializers.IntegerField(label='ID', read_only=False)
-    manager = ClientManagerSerializer(read_only=True, many=True)
+    managers = ClientManagerSerializer(read_only=True, many=True)
     entity = serializers.PrimaryKeyRelatedField(queryset=Entity.objects.all(), required=False)
 
     # todo: remove redefinitions, add extra_args
@@ -38,7 +38,7 @@ class EntitySerializer(serializers.ModelSerializer):
     """
 
     """
-    manager = ClientManagerSerializer(read_only=True, many=True)
+    managers = ClientManagerSerializer(read_only=True, many=True)
     sections = SectionSerializer(many=True, required=False)
     department = serializers.PrimaryKeyRelatedField(queryset=Department.objects.all(), required=False)
 
@@ -76,7 +76,7 @@ class DepartmentSerializer(serializers.ModelSerializer):
     """
 
     """
-    manager = ClientManagerSerializer(read_only=True, many=True)
+    managers = ClientManagerSerializer(read_only=True, many=True)
     entities = EntitySerializer(many=True, required=False)
 
     class Meta:
@@ -93,6 +93,7 @@ class DepartmentSerializer(serializers.ModelSerializer):
                 entity['department'] = department.id
                 entity['tenant'] = department.tenant.id
                 entity['city'] = entity['city'].id
+                # TODO change this piece of code. This is not sexy at all.
                 try:
                     entity['sector'] = entity['sector'].id
                 except:

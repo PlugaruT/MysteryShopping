@@ -56,9 +56,9 @@ class Department(models.Model):
     # Relations
     company = models.ForeignKey(Company)
     tenant = models.ForeignKey(Tenant)
-    manager = GenericRelation('users.ClientManager',
-                              content_type_field='place_type',
-                              object_id_field='place_id')
+    managers = GenericRelation('users.ClientManager',
+                               content_type_field='place_type',
+                               object_id_field='place_id')
 
     # Attributes
     name = models.CharField(max_length=255)
@@ -80,9 +80,9 @@ class Entity(models.Model):
     sector = models.ForeignKey(Sector, null=True)
     city = models.ForeignKey(City)
     tenant = models.ForeignKey(Tenant)
-    manager = GenericRelation('users.ClientManager',
-                              content_type_field='place_type',
-                              object_id_field='place_id')
+    managers = GenericRelation('users.ClientManager',
+                               content_type_field='place_type',
+                               object_id_field='place_id')
 
     # Attributes
     name = models.CharField(max_length=255)
@@ -105,9 +105,9 @@ class Section(models.Model):
     # Relations
     entity = models.ForeignKey(Entity)
     tenant = models.ForeignKey(Tenant)
-    manager = GenericRelation('users.ClientManager',
-                              content_type_field='place_type',
-                              object_id_field='place_id')
+    managers = GenericRelation('users.ClientManager',
+                               content_type_field='place_type',
+                               object_id_field='place_id')
 
     # Attributes
     name = models.CharField(max_length=255)
