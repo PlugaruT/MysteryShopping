@@ -33,7 +33,7 @@ class ResearchMethodology(models.Model):
     # many to many fields
     scripts = models.ManyToManyField(QuestionnaireScript)
     questionnaires = models.ManyToManyField(QuestionnaireTemplate)
-    # people_to_assess = models.ManyToManyField('users.PersonToAssess', blank=True)
+    # people_to_assess = models.ManyToM anyField('users.PersonToAssess', blank=True)
 
 
     # Attributes
@@ -66,7 +66,7 @@ class Project(models.Model):
     project_manager_id = models.PositiveIntegerField(null=True, blank=True)
     project_manager_object = GenericForeignKey('project_manager_type', 'project_manager_id')
 
-    consultants = models.ManyToManyField('users.ProjectWorker')
+    # consultants = models.ManyToManyField('users.ProjectWorker')
     shoppers = models.ManyToManyField('users.Shopper')
     research_methodology = models.ForeignKey('ResearchMethodology', null=True, blank=True)
 
@@ -79,7 +79,8 @@ class Project(models.Model):
         ordering = ('tenant',)
 
     def __str__(self):
-        return 'Project for {}, start: {}/{}/{}, end: {}/{}/{}'.format(self.company.name, self.period_start.day, self.period_start.month, self.period_start.year%2000,
+        return 'Project for {}, start: {}/{}/{}, end: {}/{}/{}'.format(self.company.name,
+                                                                       self.period_start.day, self.period_start.month, self.period_start.year%2000,
                                                                        self.period_end.day, self.period_end.month, self.period_start.year%2000)
 
 

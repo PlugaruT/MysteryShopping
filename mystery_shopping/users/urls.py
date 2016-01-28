@@ -8,7 +8,6 @@ from rest_framework_nested.routers import NestedSimpleRouter
 
 from . import views
 
-
 from .views import UserViewSet
 from .views import ClientEmployeeViewSet
 from .views import ClientManagerViewSet
@@ -16,6 +15,7 @@ from .views import ProjectWorkerViewSet
 from .views import ShopperViewSet
 from .views import TenantProductManagerViewSet
 from .views import TenantProjectManagerViewSet
+from .views import PersonToAssessViewSet
 
 from mystery_shopping.projects.views import PlannedEvaluationPerShopperViewSet
 from mystery_shopping.projects.views import AccomplishedEvaluationPerShopperViewSet
@@ -59,6 +59,7 @@ router.register(r'projectworkers', ProjectWorkerViewSet)
 # users_router.register(r'shoppers', ShopperViewSet)
 router.register(r'tenantproductmanagers', TenantProductManagerViewSet)
 router.register(r'tenantprojectmanagers', TenantProjectManagerViewSet)
+router.register(r'peopletoassess', PersonToAssessViewSet)
 
 shopper_router = SimpleRouter()
 shopper_router.register(r'shoppers', ShopperViewSet)

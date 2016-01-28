@@ -6,9 +6,6 @@ from .models import PlannedEvaluation
 from .models import AccomplishedEvaluation
 from .models import PlaceToAssess
 
-from mystery_shopping.users.models import TenantProductManager
-from mystery_shopping.users.models import TenantProjectManager
-from mystery_shopping.users.models import TenantConsultant
 
 from mystery_shopping.companies.models import Entity
 from mystery_shopping.companies.models import Section
@@ -25,9 +22,6 @@ from mystery_shopping.users.serializers import PersonToAssessSerializer
 from mystery_shopping.users.serializer_fields import ProjectManagerRelatedField
 from mystery_shopping.users.serializer_fields import ClientUserRelatedField
 
-from mystery_shopping.users.serializers import TenantProductManagerSerializer
-from mystery_shopping.users.serializers import TenantProjectManagerSerializer
-from mystery_shopping.users.serializers import TenantConsultantSerializer
 
 
 class PlaceToAssessSerializer(serializers.ModelSerializer):
@@ -60,8 +54,9 @@ class ResearchMethodologySerializer(serializers.ModelSerializer):
     scripts_repr = QuestionnaireScriptSerializer(source='scripts', many=True, read_only=True)
     questionnaires_repr = QuestionnaireTemplateSerializer(source='questionnaires', many=True, read_only=True)
     places_to_assess_repr = PlaceToAssessSerializer(source='places_to_assess', many=True, read_only=True)
-    people_to_assess_repr = PersonToAssessSerializer(source='people_to_assess', many=True, read_only=True)
+    people_to_assess_repr = PersonToAssessSerializer(source='peopletoassess', many=True, read_only=True)
     project_id = serializers.IntegerField(required=False)
+
 
     class Meta:
         model = ResearchMethodology
@@ -110,6 +105,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     shoppers_repr = ShopperSerializer(source='shoppers', many=True, read_only=True)
     project_manager_repr = ProjectManagerRelatedField(source='project_manager_object', read_only=True)
     consultants_repr = ProjectWorkerSerializer(source='consultants', many=True, read_only=True)
+    project_workers = ProjectWorkerSerializer(source='projectworkers', many=True, read_only=True)
 
     class Meta:
         model = Project

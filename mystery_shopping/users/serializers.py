@@ -11,7 +11,9 @@ from .models import ProjectWorker
 from .models import PersonToAssess
 from .models import Shopper
 from mystery_shopping.tenants.serializers import TenantSerializer
-from mystery_shopping.companies.serializer_fields import PlaceRelatedField
+# from mystery_shopping.companies.serializer_fields import PlaceRelatedField
+# from mystery_shopping.users.serializer_fields import ProjectWorkerRelatedField
+# from mystery_shopping.projects.serializers import ProjectSerializer
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -171,55 +173,62 @@ class ShopperSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class ProjectWorkerSerializer(serializers.ModelSerializer):
-    """Serializer class for ProjectWorker.
+class ProjectWorkerRelatedField(serializers.RelatedField):
+    """
+    A custom field to use to serialize the instance of a project worker according to it's type: TenantProductManager, TenantProjectManager or TenantConsultant.
     """
 
-    class Meta:
-        model = ProjectWorker
-        fields = '__all__'
-
-    def to_representation(self, instance):
+    def to_representation(self, value):
         """
         Serialize tagged objects to a simple textual representation.
         """
-        if instance.project_worker_type.model == 'tenantproductmanager':
-            to_serialize = TenantProductManager.objects.get(pk=instance.project_worker_id)
-            serializer = TenantProductManagerSerializer(to_serialize)
-        elif instance.project_worker_type.model == 'tenantprojectmanager':
-            to_serialize = TenantProjectManager.objects.get(pk=instance.project_worker_id)
-            serializer = TenantProjectManagerSerializer(to_serialize)
-        elif instance.project_worker_type.model == 'tenantconsultant':
-            to_serialize = TenantConsultant.objects.get(pk=instance.project_worker_id)
-            serializer = TenantConsultantSerializer(to_serialize)
+        if isinstance(value, TenantProductManager):
+            serializer = TenantProductManagerSerializer(value)
+        elif isinstance(value, TenantProjectManager):
+            serializer = TenantProjectManagerSerializer(value)
+        elif isinstance(value, TenantConsultant):
+            serializer = TenantConsultantSerializer(value)
         else:
             raise Exception('Unexpected type of tagged object')
 
         return serializer.data
 
-#     todo: define to_representation as a related field
+
+
+class ProjectWorkerSerializer(serializers.ModelSerializer):
+    """Serializer class for ProjectWorker.
+    """
+    project_workers_repr = ProjectWorkerRelatedField(source='project_worker', read_only=True)
+
+    class Meta:
+        model = ProjectWorker
+        fields = '__all__'
+
+
+class PersonToAssessRelatedField(serializers.RelatedField):
+    """
+    A custom field to use to serialize the instance of a person to assess according to it's type: ClientManager or ClientEmployee.
+    """
+    def to_representation(self, value):
+        """
+        Serialize tagged objects to a simple textual representation.
+        """
+        if isinstance(value, ClientManager):
+            serializer = ClientManagerSerializer(value)
+        elif isinstance(value, ClientEmployee):
+            serializer = ClientEmployeeSerializer(value)
+        else:
+            raise Exception('Unexpected type of tagged object')
+
+        return serializer.data
 
 
 class PersonToAssessSerializer(serializers.ModelSerializer):
     """
 
     """
+    person_repr = PersonToAssessRelatedField(source='person', read_only=True)
 
     class Meta:
         model = PersonToAssess
         fields = '__all__'
-
-    def to_representation(self, instance):
-        """
-        Serialize tagged objects to a simple textual representation.
-        """
-        if instance.project_worker_type.model == 'clientmanager':
-            to_serialize = ClientManager.objects.get(pk=instance.project_worker_id)
-            serializer = ClientManager(to_serialize)
-        elif instance.project_worker_type.model == 'clientemployee':
-            to_serialize = ClientEmployee.objects.get(pk=instance.project_worker_id)
-            serializer = ClientEmployeeSerializer(to_serialize)
-        else:
-            raise Exception('Unexpected type of tagged object')
-
-        return serializer.data

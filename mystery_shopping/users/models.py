@@ -11,6 +11,7 @@ from mystery_shopping.companies.models import Company
 from mystery_shopping.companies.models import Entity
 from mystery_shopping.companies.models import Section
 from mystery_shopping.projects.models import Project
+from mystery_shopping.projects.models import ResearchMethodology
 from mystery_shopping.tenants.models import Tenant
 
 
@@ -70,7 +71,7 @@ class TenantProductManager(TenantUserAbstract):
         return u'{} {}'.format(self.user, self.tenant)
 
     def get_type(self):
-        return 'Tenant Product Manager'
+        return 'tenantproductmanager'
 
 
 class TenantProjectManager(TenantUserAbstract):
@@ -83,7 +84,7 @@ class TenantProjectManager(TenantUserAbstract):
         return u'{} {}'.format(self.user, self.tenant)
 
     def get_type(self):
-        return 'Tenant Project Manager'
+        return 'tenantprojectmanager'
 
 
 class TenantConsultant(TenantUserAbstract):
@@ -96,7 +97,7 @@ class TenantConsultant(TenantUserAbstract):
         return u'{} {}'.format(self.user, self.tenant)
 
     def get_type(self):
-       return 'Tenant Consultant'
+       return 'tenantconsultant'
 
 
 class ClientUserAbstract(models.Model):
@@ -194,15 +195,16 @@ class ProjectWorker(models.Model):
     project_worker_id = models.PositiveIntegerField()
     project_worker = GenericForeignKey('project_worker_type', 'project_worker_id')
 
+    project = models.ForeignKey(Project, related_name='projectworkers')
 
     def __str__(self):
         if self.project_worker_type.model == 'tenantprojectmanager':
             user = TenantProjectManager.objects.get(pk=self.project_worker_id)
         elif self.project_worker_type.model == 'tenantconsultant':
-            user= TenantConsultant.objects.get(pk=self.project_worker_id)
+            user = TenantConsultant.objects.get(pk=self.project_worker_id)
         elif self.project_worker_type.model == 'tenantproductmanager':
-            user= TenantProductManager.objects.get(pk=self.project_worker_id)
-        return 'type: {}, user: {}'.format(self.project_worker_type, user.user.username)
+            user = TenantProductManager.objects.get(pk=self.project_worker_id)
+        return 'type: {}, user: {}, project: {}'.format(self.project_worker_type, user.user.username, self.project)
 
 
 class PersonToAssess(models.Model):
@@ -215,4 +217,6 @@ class PersonToAssess(models.Model):
             models.Q(app_label='users', model='clientemployee')
     person_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='content_type_person_to_assess')
     person_id = models.PositiveIntegerField()
-    person  = GenericForeignKey('person_type', 'person_id')
+    person = GenericForeignKey('person_type', 'person_id')
+
+    research_methodology = models.ForeignKey(ResearchMethodology, related_name='peopletoassess')
