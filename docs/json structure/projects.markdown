@@ -30,7 +30,7 @@
 - `places_to_assess_repr` : *representation* of `PlaceToAssess` (`many = True, read_only = True`)
 - `people_to_assess_repr` : *representation* of `PersonToAssess` (`many = True, read_only = True`)
 
-[example](projects\ example/researchmethodology.json)
+> [example](projects\ example/researchmethodology.json)
 
 ## Project
 
@@ -74,7 +74,7 @@
 - `project_manager_repr` = *representation* of `TenantProductManager` or `TenantProjectManager` (`read_only = True`)
 - `project_workers_repr` = *representation* of `ProjectWorker` = `tenantproductmanager`, `tenantprojectmanager` `tenantconsultant` (`many = True, read_only = True`)
 
-[example](projects\ example/project	.json)
+> [example](projects\ example/project	.json)
 
 ## Planned Evaluation
 
@@ -123,7 +123,7 @@
 - `section_repr` : *representation* of `Section` (`read_only = True`)
 - `employee_repr` : *representation* of `employee` = `clientmanager` or `clientemployee` (`read_only = True`)
 
-[example](projects\ example/plannedevaluation.json)
+> [example](projects\ example/plannedevaluation.json)
 
 ## Accomplished Evaluation
 
@@ -178,4 +178,4 @@
 - `section_repr` : *representation* of `Section` (`read_only = True`)
 - `employee_repr` : *representation* of `employee` = `clientmanager` or `clientemployee` (`read_only = True`)
 
-[example](projects\ example/accomplishedevaluation.json)
+> [example](projects\ example/accomplishedevaluation.json)

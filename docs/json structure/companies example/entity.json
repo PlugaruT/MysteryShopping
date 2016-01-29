@@ -1,0 +1,46 @@
+{
+    "id": 1,
+    "manager": [
+        {
+            "id": 2,
+            "manager_repr": {
+                "username": "mark_entity_manager",
+                "first_name": "",
+                "last_name": ""
+            },
+            "place_id": 1,
+            "user": 7,
+            "company": 1,
+            "place_type": 25
+        }
+    ],
+    "sections": [
+        {
+            "id": 1,
+            "manager": [
+                {
+                    "id": 3,
+                    "manager_repr": {
+                        "username": "vera_section_manager",
+                        "first_name": "",
+                        "last_name": ""
+                    },
+                    "place_id": 1,
+                    "user": 8,
+                    "company": 1,
+                    "place_type": 26
+                }
+            ],
+            "entity": 1,
+            "tenant": 2,
+            "name": "Mars"
+        }
+    ],
+    "tenant": 2,
+    "department": 1,
+    "name": "Space Exploration",
+    "address": "lalala, classified",
+    "coordinates": "123 123",
+    "sector": 1,
+    "city": 1
+}
