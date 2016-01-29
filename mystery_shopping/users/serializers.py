@@ -198,7 +198,7 @@ class ProjectWorkerRelatedField(serializers.RelatedField):
 class ProjectWorkerSerializer(serializers.ModelSerializer):
     """Serializer class for ProjectWorker.
     """
-    project_workers_repr = ProjectWorkerRelatedField(source='project_worker', read_only=True)
+    project_worker_repr = ProjectWorkerRelatedField(source='project_worker', read_only=True)
 
     class Meta:
         model = ProjectWorker

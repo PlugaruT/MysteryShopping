@@ -1,0 +1,359 @@
+{
+    "id": 1,
+    "company_repr": {
+        "id": 1,
+        "departments_repr": [
+            {
+                "id": 2,
+                "managers": [],
+                "entities": [],
+                "name": "fsd",
+                "company": 1,
+                "tenant": 1
+            },
+            {
+                "id": 1,
+                "managers": [
+                    {
+                        "id": 1,
+                        "user": {
+                            "id": 2,
+                            "username": "ion_client_manager",
+                            "first_name": "",
+                            "last_name": ""
+                        },
+                        "first_name": "",
+                        "last_name": "",
+                        "job_title": "",
+                        "place_id": 1,
+                        "company": 1,
+                        "place_type": 24
+                    }
+                ],
+                "entities": [
+                    {
+                        "id": 1,
+                        "managers": [
+                            {
+                                "id": 2,
+                                "user": {
+                                    "id": 7,
+                                    "username": "mark_entity_manager",
+                                    "first_name": "",
+                                    "last_name": ""
+                                },
+                                "first_name": "",
+                                "last_name": "",
+                                "job_title": "",
+                                "place_id": 1,
+                                "company": 1,
+                                "place_type": 25
+                            },
+                            {
+                                "id": 5,
+                                "user": {
+                                    "id": 19,
+                                    "username": "123",
+                                    "first_name": "",
+                                    "last_name": ""
+                                },
+                                "first_name": "Ion",
+                                "last_name": "Primul",
+                                "job_title": "",
+                                "place_id": 1,
+                                "company": 1,
+                                "place_type": 25
+                            }
+                        ],
+                        "employees": [
+                            {
+                                "id": 1,
+                                "user": {
+                                    "id": 6,
+                                    "username": "andrei_client_employee",
+                                    "first_name": "",
+                                    "last_name": ""
+                                },
+                                "first_name": "",
+                                "last_name": "",
+                                "job_title": "",
+                                "company": 1,
+                                "entity": 1,
+                                "section": 1
+                            },
+                            {
+                                "id": 2,
+                                "user": {
+                                    "id": 18,
+                                    "username": "volodea_cilent_employee",
+                                    "first_name": "Volodea",
+                                    "last_name": ""
+                                },
+                                "first_name": "",
+                                "last_name": "",
+                                "job_title": "",
+                                "company": 1,
+                                "entity": 1,
+                                "section": 1
+                            }
+                        ],
+                        "sections": [
+                            {
+                                "id": 1,
+                                "managers": [
+                                    {
+                                        "id": 3,
+                                        "user": {
+                                            "id": 8,
+                                            "username": "vera_section_manager",
+                                            "first_name": "",
+                                            "last_name": ""
+                                        },
+                                        "first_name": "",
+                                        "last_name": "",
+                                        "job_title": "",
+                                        "place_id": 1,
+                                        "company": 1,
+                                        "place_type": 26
+                                    },
+                                    {
+                                        "id": 4,
+                                        "user": {
+                                            "id": 16,
+                                            "username": "test_user2",
+                                            "first_name": "User",
+                                            "last_name": "Test"
+                                        },
+                                        "first_name": "",
+                                        "last_name": "",
+                                        "job_title": "",
+                                        "place_id": 1,
+                                        "company": 1,
+                                        "place_type": 26
+                                    }
+                                ],
+                                "employees": [
+                                    {
+                                        "id": 1,
+                                        "user": {
+                                            "id": 6,
+                                            "username": "andrei_client_employee",
+                                            "first_name": "",
+                                            "last_name": ""
+                                        },
+                                        "first_name": "",
+                                        "last_name": "",
+                                        "job_title": "",
+                                        "company": 1,
+                                        "entity": 1,
+                                        "section": 1
+                                    },
+                                    {
+                                        "id": 2,
+                                        "user": {
+                                            "id": 18,
+                                            "username": "volodea_cilent_employee",
+                                            "first_name": "Volodea",
+                                            "last_name": ""
+                                        },
+                                        "first_name": "",
+                                        "last_name": "",
+                                        "job_title": "",
+                                        "company": 1,
+                                        "entity": 1,
+                                        "section": 1
+                                    }
+                                ],
+                                "entity": 1,
+                                "name": "Mars",
+                                "tenant": 2
+                            }
+                        ],
+                        "department": 1,
+                        "name": "Space Exploration",
+                        "address": "lalala, classified",
+                        "coordinates": "123 123",
+                        "sector": 1,
+                        "city": 1,
+                        "tenant": 2
+                    }
+                ],
+                "name": "Space Rockets",
+                "company": 1,
+                "tenant": 1
+            }
+        ],
+        "industry_repr": {
+            "id": 1,
+            "name": "Astronomică"
+        },
+        "country_repr": {
+            "id": 1,
+            "name": "Republica Moldova"
+        },
+        "name": "NASA",
+        "contact_person": "Leroy Jenkins",
+        "contact_phone": "+123",
+        "contact_email": "help@nasa.com",
+        "domain": "nasa",
+        "logo": null,
+        "industry": 1,
+        "country": 1,
+        "tenant": 1
+    },
+    "shoppers_repr": [
+        {
+            "id": 1,
+            "date_of_birth": "2016-01-25",
+            "gender": "m",
+            "has_drivers_license": false,
+            "user": 4
+        }
+    ],
+    "project_manager_repr": {
+        "id": 1,
+        "user": {
+            "id": 1,
+            "username": "mihai",
+            "first_name": "",
+            "last_name": ""
+        },
+        "tenant": {
+            "id": 1,
+            "name": "SparkLabs"
+        },
+        "type": "tenantproductmanager"
+    },
+    "project_workers_repr": [
+        {
+            "id": 1,
+            "project_worker_repr": {
+                "id": 1,
+                "user": {
+                    "id": 3,
+                    "username": "alex_tenant_consultant",
+                    "first_name": "",
+                    "last_name": ""
+                },
+                "tenant": {
+                    "id": 2,
+                    "name": "Magenta"
+                },
+                "type": "tenantconsultant"
+            },
+            "project_worker_id": 1,
+            "project_worker_type": 15,
+            "project": 1
+        },
+        {
+            "id": 5,
+            "project_worker_repr": {
+                "id": 1,
+                "user": {
+                    "id": 1,
+                    "username": "mihai",
+                    "first_name": "",
+                    "last_name": ""
+                },
+                "tenant": {
+                    "id": 1,
+                    "name": "SparkLabs"
+                },
+                "type": "tenantproductmanager"
+            },
+            "project_worker_id": 1,
+            "project_worker_type": 13,
+            "project": 1
+        },
+        {
+            "id": 6,
+            "project_worker_repr": {
+                "id": 1,
+                "user": {
+                    "id": 1,
+                    "username": "mihai",
+                    "first_name": "",
+                    "last_name": ""
+                },
+                "tenant": {
+                    "id": 1,
+                    "name": "SparkLabs"
+                },
+                "type": "tenantprojectmanager"
+            },
+            "project_worker_id": 1,
+            "project_worker_type": 14,
+            "project": 1
+        },
+        {
+            "id": 7,
+            "project_worker_repr": {
+                "id": 1,
+                "user": {
+                    "id": 1,
+                    "username": "mihai",
+                    "first_name": "",
+                    "last_name": ""
+                },
+                "tenant": {
+                    "id": 1,
+                    "name": "SparkLabs"
+                },
+                "type": "tenantproductmanager"
+            },
+            "project_worker_id": 1,
+            "project_worker_type": 13,
+            "project": 1
+        },
+        {
+            "id": 8,
+            "project_worker_repr": {
+                "id": 1,
+                "user": {
+                    "id": 1,
+                    "username": "mihai",
+                    "first_name": "",
+                    "last_name": ""
+                },
+                "tenant": {
+                    "id": 1,
+                    "name": "SparkLabs"
+                },
+                "type": "tenantprojectmanager"
+            },
+            "project_worker_id": 1,
+            "project_worker_type": 14,
+            "project": 1
+        },
+        {
+            "id": 9,
+            "project_worker_repr": {
+                "id": 1,
+                "user": {
+                    "id": 1,
+                    "username": "mihai",
+                    "first_name": "",
+                    "last_name": ""
+                },
+                "tenant": {
+                    "id": 1,
+                    "name": "SparkLabs"
+                },
+                "type": "tenantproductmanager"
+            },
+            "project_worker_id": 1,
+            "project_worker_type": 13,
+            "project": 1
+        }
+    ],
+    "project_manager_id": 1,
+    "period_start": "2016-01-25",
+    "period_end": "2016-01-25",
+    "tenant": 2,
+    "company": 1,
+    "project_manager_type": 13,
+    "research_methodology": 1,
+    "shoppers": [
+        1
+    ]
+}

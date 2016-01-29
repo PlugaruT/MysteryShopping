@@ -30,11 +30,8 @@ class ResearchMethodology(models.Model):
 
     """
     # Relations
-    # many to many fields
     scripts = models.ManyToManyField(QuestionnaireScript)
     questionnaires = models.ManyToManyField(QuestionnaireTemplate)
-    # people_to_assess = models.ManyToM anyField('users.PersonToAssess', blank=True)
-
 
     # Attributes
     number_of_evaluations = models.PositiveSmallIntegerField()  # or number_of_calls
@@ -45,7 +42,6 @@ class ResearchMethodology(models.Model):
         verbose_name_plural = 'research methodologies'
         default_related_name = 'research_methodologies'
         ordering = ('number_of_evaluations',)
-
 
     def __str__(self):
         return 'Short description: {}, nr. of visits: {}'.format(self.description[0:50], self.number_of_evaluations)

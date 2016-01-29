@@ -101,11 +101,10 @@ class ProjectSerializer(serializers.ModelSerializer):
     """
 
     """
-    client_repr = CompanySerializer(source='client', read_only=True)
+    company_repr = CompanySerializer(source='company', read_only=True)
     shoppers_repr = ShopperSerializer(source='shoppers', many=True, read_only=True)
     project_manager_repr = ProjectManagerRelatedField(source='project_manager_object', read_only=True)
-    consultants_repr = ProjectWorkerSerializer(source='consultants', many=True, read_only=True)
-    project_workers = ProjectWorkerSerializer(source='projectworkers', many=True, read_only=True)
+    project_workers_repr = ProjectWorkerSerializer(source='projectworkers', many=True, read_only=True)
 
     class Meta:
         model = Project
@@ -122,7 +121,7 @@ class PlannedEvaluationSerializer(serializers.ModelSerializer):
     questionnaire_template_repr = QuestionnaireTemplateSerializer(source='questionnaire_template', read_only=True)
     entity_repr = EntitySerializer(source='entity', read_only=True)
     section_repr = SectionSerializer(source='section', read_only=True)
-    employee_ser = ClientUserRelatedField(source='employee', read_only=True)
+    employee_repr = ClientUserRelatedField(source='employee', read_only=True)
 
     class Meta:
         model = PlannedEvaluation
