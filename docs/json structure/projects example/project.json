@@ -63,6 +63,21 @@
                                 "place_id": 1,
                                 "company": 1,
                                 "place_type": 25
+                            },
+                            {
+                                "id": 6,
+                                "user": {
+                                    "id": 20,
+                                    "username": "axintii_client_manager",
+                                    "first_name": "",
+                                    "last_name": ""
+                                },
+                                "first_name": "",
+                                "last_name": "",
+                                "job_title": "",
+                                "place_id": 1,
+                                "company": 1,
+                                "place_type": 25
                             }
                         ],
                         "employees": [
@@ -346,13 +361,179 @@
             "project": 1
         }
     ],
+    "research_methodology": {
+        "id": 1,
+        "scripts_repr": [
+            {
+                "id": 1,
+                "title": "Script#1",
+                "description": "Bacon ipsum dolor amet rump bresaola kielbasa, cow turducken venison pig pork jerky strip steak spare ribs sirloin ham bacon capicola. Ham hock cow frankfurter porchetta. Swine filet mignon t-bone capicola salami sirloin, ham hock bacon. Pancetta drumstick brisket chicken, picanha pig venison salami prosciutto tail. Boudin beef bresaola ribeye pig, tongue brisket sausage sirloin porchetta venison beef ribs short ribs picanha. Salami venison shank chicken sirloin."
+            },
+            {
+                "id": 2,
+                "title": "Script#2",
+                "description": "Kevin venison cupim salami pork belly swine tail sausage meatloaf picanha pig capicola. Meatloaf kevin turkey, fatback strip steak rump beef bresaola beef ribs pork chop boudin pork loin. Shoulder ham pork tenderloin pastrami. Biltong meatloaf porchetta cow swine beef prosciutto cupim kielbasa spare ribs brisket. Ball tip kevin pastrami kielbasa. Sirloin salami meatball strip steak shoulder bacon, beef meatloaf capicola pig."
+            }
+        ],
+        "questionnaires_repr": [
+            {
+                "id": 2,
+                "template_blocks": [
+                    {
+                        "id": 2,
+                        "template_block_questions": [],
+                        "questionnaire_template": 2,
+                        "lft": 1,
+                        "rght": 12,
+                        "tree_id": 1,
+                        "level": 0,
+                        "title": "Albert",
+                        "weight": "0.9000",
+                        "parent_block": null
+                    },
+                    {
+                        "id": 3,
+                        "template_block_questions": [
+                            {
+                                "id": 1,
+                                "questionnaire_template": 2,
+                                "template_block": 3,
+                                "question_body": "Question#1",
+                                "type": "sYes [::] 5 || No [::] 0 || NA [::] -1",
+                                "max_score": 2
+                            },
+                            {
+                                "id": 2,
+                                "questionnaire_template": 2,
+                                "template_block": 3,
+                                "question_body": "Question#2",
+                                "type": "sYes [::] 5 || No [::] 0 || NA [::] -1",
+                                "max_score": 5
+                            }
+                        ],
+                        "questionnaire_template": 2,
+                        "lft": 2,
+                        "rght": 3,
+                        "tree_id": 1,
+                        "level": 1,
+                        "title": "Bert",
+                        "weight": "1.0000",
+                        "parent_block": 2
+                    },
+                    {
+                        "id": 4,
+                        "template_block_questions": [],
+                        "questionnaire_template": 2,
+                        "lft": 4,
+                        "rght": 11,
+                        "tree_id": 1,
+                        "level": 1,
+                        "title": "Chuck",
+                        "weight": "1.0000",
+                        "parent_block": 2
+                    },
+                    {
+                        "id": 5,
+                        "template_block_questions": [],
+                        "questionnaire_template": 2,
+                        "lft": 5,
+                        "rght": 6,
+                        "tree_id": 1,
+                        "level": 2,
+                        "title": "Donna",
+                        "weight": "1.0000",
+                        "parent_block": 4
+                    },
+                    {
+                        "id": 6,
+                        "template_block_questions": [],
+                        "questionnaire_template": 2,
+                        "lft": 7,
+                        "rght": 8,
+                        "tree_id": 1,
+                        "level": 2,
+                        "title": "Eddie",
+                        "weight": "1.0000",
+                        "parent_block": 4
+                    },
+                    {
+                        "id": 7,
+                        "template_block_questions": [],
+                        "questionnaire_template": 2,
+                        "lft": 9,
+                        "rght": 10,
+                        "tree_id": 1,
+                        "level": 2,
+                        "title": "Fred",
+                        "weight": "1.0000",
+                        "parent_block": 4
+                    }
+                ],
+                "title": "Questionnaire#2",
+                "description": "Shank pastrami pork chop alcatra rump, pork belly pig tongue shankle cupim. Prosciutto venison meatloaf leberkas. Beef ribs shankle cow alcatra jerky. Doner boudin swine turkey turducken. Cupim ball tip brisket doner, sausage prosciutto ham hock tongue pork chuck. Pork tail prosciutto, doner ribeye alcatra frankfurter pastrami.",
+                "tenant": 1
+            },
+            {
+                "id": 1,
+                "template_blocks": [
+                    {
+                        "id": 1,
+                        "template_block_questions": [],
+                        "questionnaire_template": 1,
+                        "lft": 1,
+                        "rght": 2,
+                        "tree_id": 1,
+                        "level": 0,
+                        "title": "TestBlock#1",
+                        "weight": "1.0000",
+                        "parent_block": null
+                    }
+                ],
+                "title": "QuestionnaireTemplate#1",
+                "description": "gksdjfklas;fjksld;fsdfsd",
+                "tenant": 1
+            }
+        ],
+        "people_to_assess_repr": [
+            {
+                "id": 1,
+                "person_repr": {
+                    "id": 1,
+                    "user": {
+                        "id": 6,
+                        "username": "andrei_client_employee",
+                        "first_name": "",
+                        "last_name": ""
+                    },
+                    "first_name": "",
+                    "last_name": "",
+                    "job_title": "",
+                    "company": 1,
+                    "entity": 1,
+                    "section": 1
+                },
+                "person_id": 1,
+                "person_type": 18,
+                "research_methodology": 1
+            }
+        ],
+        "number_of_evaluations": 3,
+        "description": "Tail swine prosciutto fatback rump ground round pig ham hock short loin jowl frankfurter tri-tip capicola. Salami meatloaf pork frankfurter, sirloin ground round andouille. Brisket capicola strip steak biltong frankfurter. Meatball shank doner filet mignon turkey tenderloin chuck jowl short ribs landjaeger ham. Pancetta swine turkey cupim prosciutto, leberkas brisket.",
+        "scripts": [
+            1,
+            2
+        ],
+        "questionnaires": [
+            2,
+            1
+        ]
+    },
     "project_manager_id": 1,
     "period_start": "2016-01-25",
     "period_end": "2016-01-25",
     "tenant": 2,
     "company": 1,
     "project_manager_type": 13,
-    "research_methodology": 1,
     "shoppers": [
         1
     ]

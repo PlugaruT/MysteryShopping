@@ -105,10 +105,31 @@ class ProjectSerializer(serializers.ModelSerializer):
     shoppers_repr = ShopperSerializer(source='shoppers', many=True, read_only=True)
     project_manager_repr = ProjectManagerRelatedField(source='project_manager_object', read_only=True)
     project_workers_repr = ProjectWorkerSerializer(source='projectworkers', many=True, read_only=True)
+    research_methodology = ResearchMethodologySerializer(required=False)
 
     class Meta:
         model = Project
         fields = '__all__'
+
+    def create(self, validated_data):
+        research_methodology = validated_data.pop('research_methodology', None)
+        project = Project.objects.create(**validated_data)
+
+        if research_methodology is not None:
+            research_methodology['project_id'] = project.id
+            research_methodology_ser = ResearchMethodology(data=research_methodology)
+            research_methodology_ser.is_valid(raise_exeption=True)
+            research_methodology_ser.save()
+
+        return project
+
+    def update(self, instance, validated_data):
+        validated_data.pop('research_methodology', None)
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance
 
 
 class PlannedEvaluationSerializer(serializers.ModelSerializer):

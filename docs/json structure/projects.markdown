@@ -41,20 +41,26 @@
 - `project_manager_type` : *id* (for `ContentType`: `tenantproductmanager` or `tenantprojectmanager`)
 - `project_manager_id` : *integer*
 - `shoppers` : *id* (`ManyToManyField`)
-- `research_methodology` : *id* (`null = True`)
+- `research_methodology` : *representation* of `ResearchMethodology`  (`required = False`)
 - `period_start` : `DateField`
 - `period_end` : `DateField`
 
 > example:
 ```json
 {
+    "research_methodology": {
+        "project_id": null,
+        "number_of_evaluations": null,
+        "description": "",
+        "scripts": [],
+        "questionnaires": []
+    },
     "project_manager_id": null,
     "period_start": null,
     "period_end": null,
     "tenant": null,
     "company": null,
     "project_manager_type": null,
-    "research_methodology": null,
     "shoppers": []
 }
 ```
