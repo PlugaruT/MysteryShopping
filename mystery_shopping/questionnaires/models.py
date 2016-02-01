@@ -162,3 +162,46 @@ class QuestionnaireQuestion(QuestionAbstract):
 
     def __str__(self):
         return 'Question body: {}'.format(self.question_body)
+
+
+class QuestionChoiceAbstract(models.Model):
+    """
+    Abstract class for a question choice
+
+    """
+    # Attributes
+    text = models.CharField(max_length=255)
+    score = models.PositiveIntegerField()
+    weight = models.DecimalField(max_digits=5, decimal_places=4)
+
+    class Meta:
+        abstract = True
+
+
+class QuestionnaireTemplateQuestionChoice(QuestionChoiceAbstract):
+    """
+
+    """
+    # Relation
+    template_question = models.ForeignKey(QuestionnaireTemplateQuestion)
+
+    class Meta:
+        default_related_name = "template_question_choice"
+
+    def __str__(self):
+        return "Question: {}. text: {}".format(self.template_question.question_body, self.text)
+
+
+class QuestionnaireQuestionChoice(QuestionChoiceAbstract):
+    """
+
+    """
+    # Relation
+    question = models.ForeignKey(QuestionnaireQuestion)
+
+    class Meta:
+        default_related_name = "question_choice"
+
+    def __str__(self):
+        return "Question: {}. text: {}".format(self.question.question_body, self.text)
+
