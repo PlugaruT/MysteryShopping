@@ -22,7 +22,8 @@ class PlaceToAssess(models.Model):
     place_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='content_type_place_to_assess')
     place_id = models.PositiveIntegerField()
     place = GenericForeignKey('place_type', 'place_id')
-    methodology = models.ForeignKey('ResearchMethodology', related_name='research_methodologies')
+
+    research_methodology = models.ForeignKey('ResearchMethodology', related_name='research_methodologies')
 
 
 class ResearchMethodology(models.Model):
