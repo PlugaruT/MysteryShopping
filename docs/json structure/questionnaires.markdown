@@ -139,3 +139,40 @@ The `lft`, `rght`, `level` and `tree_id` fields are used by the **mptt** algorit
     "max_score": 2
 }
 ```
+
+## Template Question Choice
+
+**`POST`**:
+
+- `text` : *string* (`max_length = 255`)
+- `score` : *integer*
+- `weight` : *DecimalField* (`max_digits=5, decimal_places=4`, example: `0.4552`)
+- `template_question` : *representation* for `QuestionnaireTemplateQuestion` (`many = True, required = False`)
+
+> example:
+```json
+{
+    "text": "",
+    "score": null,
+    "weight": null,
+    "template_question": null
+}
+```
+
+**`GET`**:
+
+- `text` : *string* (`max_length = 255`)
+- `score` : *integer*
+- `weight` : *DecimalField* (`max_digits=5, decimal_places=4`, example: `0.4552`)
+- `template_question` : *representation* for `QuestionnaireTemplateQuestion` (`many = True, required = False`)
+
+> example:
+```json
+{
+    "id": 3,
+    "text": "this is some interesting answer",
+    "score": 3,
+    "weight": "0.0001",
+    "template_question": 1
+}
+```
