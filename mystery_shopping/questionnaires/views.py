@@ -8,6 +8,8 @@ from .models import QuestionnaireBlock
 from .models import QuestionnaireTemplateBlock
 from .models import QuestionnaireQuestion
 from .models import QuestionnaireTemplateQuestion
+from .models import QuestionnaireQuestionChoice
+from .models import QuestionnaireTemplateQuestionChoice
 from .serializers import QuestionnaireScriptSerializer
 from .serializers import QuestionnaireSerializer
 from .serializers import QuestionnaireTemplateSerializer
@@ -15,6 +17,8 @@ from .serializers import QuestionnaireBlockSerializer
 from .serializers import QuestionnaireTemplateBlockSerializer
 from .serializers import QuestionnaireQuestionSerializer
 from .serializers import QuestionnaireTemplateQuestionSerializer
+from .serializers import QuestionnaireQuestionChoiceSerializer
+from .serializers import QuestionnaireTemplateQuestionChoiceSerializer
 
 from mystery_shopping.users.permissions import IsTenantProductManager
 from mystery_shopping.users.permissions import IsTenantProjectManager
@@ -60,4 +64,16 @@ class QuestionnaireTemplateQuestionViewSet(viewsets.ModelViewSet):
 class QuestionnaireQuestionViewSet(viewsets.ModelViewSet):
     queryset = QuestionnaireQuestion.objects.all()
     serializer_class = QuestionnaireQuestionSerializer
+    permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)
+
+
+class QuestionnaireTemplateQuestionChoiceViewSet(viewsets.ModelViewSet):
+    queryset = QuestionnaireTemplateQuestionChoice.objects.all()
+    serializer_class = QuestionnaireTemplateQuestionChoiceSerializer
+    permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)
+
+
+class QuestionnaireQuestionChoiceViewSet(viewsets.ModelViewSet):
+    queryset = QuestionnaireQuestionChoice.objects.all()
+    serializer_class = QuestionnaireQuestionChoiceSerializer
     permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)

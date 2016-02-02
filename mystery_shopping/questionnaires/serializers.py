@@ -7,7 +7,29 @@ from .models import QuestionnaireBlock
 from .models import QuestionnaireTemplateBlock
 from .models import QuestionnaireQuestion
 from .models import QuestionnaireTemplateQuestion
+from .models import QuestionnaireTemplateQuestionChoice
+from .models import QuestionnaireQuestionChoice
 from .validators import ValidateQuestion
+
+
+
+class QuestionnaireTemplateQuestionChoiceSerializer(serializers.ModelSerializer):
+    """
+    """
+    template_question = serializers.PrimaryKeyRelatedField(queryset=QuestionnaireTemplateQuestion.objects.all(), required=False)
+
+    class Meta:
+        model = QuestionnaireTemplateQuestionChoice
+        fields = '__all__'
+
+
+class QuestionnaireQuestionChoiceSerializer(serializers.ModelSerializer):
+    """
+    """
+
+    class Meta:
+        model = QuestionnaireQuestionChoice
+        fields = '__all__'
 
 
 class QuestionnaireScriptSerializer(serializers.ModelSerializer):
@@ -25,31 +47,41 @@ class QuestionnaireQuestionSerializer(serializers.ModelSerializer):
     """
     questionnaire = serializers.PrimaryKeyRelatedField(queryset=Questionnaire.objects.all(), required=False)
     block = serializers.PrimaryKeyRelatedField(queryset=QuestionnaireBlock._default_manager.all(), required=False)
+    question_choices = QuestionnaireQuestionChoiceSerializer(many=True, required=False)
 
     class Meta:
         model = QuestionnaireQuestion
         fields = '__all__'
 
-    def validate_type(self, value):
-        """
-        Check if type of the question is an allowed one
-
-        """
-        if value[0] in ('s', 'm'):
-            validator = ValidateQuestion()
-            error = validator.single_multiple(value[1:])
-        elif value[0] == 't':
-            validator = ValidateQuestion()
-            error = validator.date_validator(value[1:])
-        else:
-            raise serializers.ValidationError("Not a valid type")
-
-        if error:
-                raise serializers.ValidationError("Errors: {0}".format(error))
-        return value
+    # def validate_type(self, value):
+    #     """
+    #     Check if type of the question is an allowed one
+    #
+    #     """
+    #     if value[0] in ('s', 'm'):
+    #         validator = ValidateQuestion()
+    #         error = validator.single_multiple(value[1:])
+    #     elif value[0] == 't':
+    #         validator = ValidateQuestion()
+    #         error = validator.date_validator(value[1:])
+    #     else:
+    #         raise serializers.ValidationError("Not a valid type")
+    #
+    #     if error:
+    #             raise serializers.ValidationError("Errors: {0}".format(error))
+    #     return value
 
     def create(self, validated_data):
-        return QuestionnaireQuestion.objects.create(**validated_data)
+        question_choices = validated_data.pop('question_choices', None)
+
+        question = QuestionnaireTemplateQuestion.objects.create(**validated_data)
+
+        for question_choice in question_choices:
+            question_choice['question'] = question.id
+            question_choice_ser = QuestionnaireTemplateQuestionChoiceSerializer(data=question_choice)
+            question_choice_ser.is_valid(raise_exception=True)
+            question_choice_ser.save()
+        return question
 
     def update(self, instance, validated_data):
         for attr, value in validated_data.items():
@@ -64,6 +96,7 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
     """
     questionnaire_template = serializers.PrimaryKeyRelatedField(queryset=QuestionnaireTemplate.objects.all(), required=False)
     template_block = serializers.PrimaryKeyRelatedField(queryset=QuestionnaireTemplateBlock._default_manager.all(), required=False)
+    template_question_choices = QuestionnaireTemplateQuestionChoiceSerializer(many=True, required=False)
 
     class Meta:
         model = QuestionnaireTemplateQuestion
@@ -88,7 +121,16 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
     #     return value
 
     def create(self, validated_data):
-        return QuestionnaireTemplateQuestion.objects.create(**validated_data)
+        template_question_choices = validated_data.pop('template_question_choices', None)
+
+        template_question = QuestionnaireTemplateQuestion.objects.create(**validated_data)
+
+        for template_question_choice in template_question_choices:
+            template_question_choice['template_question'] = template_question.id
+            template_question_choice_ser = QuestionnaireTemplateQuestionChoiceSerializer(data=template_question_choice)
+            template_question_choice_ser.is_valid(raise_exception=True)
+            template_question_choice_ser.save()
+        return template_question
 
     def update(self, instance, validated_data):
         for attr, value in validated_data.items():
