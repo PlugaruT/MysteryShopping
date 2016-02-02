@@ -168,9 +168,23 @@ class ClientEmployeeSerializer(serializers.ModelSerializer):
 class ShopperSerializer(serializers.ModelSerializer):
     """Serializer class for Shopper user model.
     """
+    user = UserSerializer()
+
     class Meta:
         model = Shopper
         fields = '__all__'
+
+    def create(self, validated_data):
+        user = validated_data.pop('user', None)
+
+        user_ser = UserSerializer(data=user)
+        user_ser.is_valid(raise_exception=True)
+        user_ser.save()
+        user = user_ser.instance
+
+        shopper = Shopper.objects.create(user=user, **validated_data)
+
+        return shopper
 
 
 class ProjectWorkerRelatedField(serializers.RelatedField):
