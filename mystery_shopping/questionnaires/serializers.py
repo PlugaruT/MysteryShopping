@@ -69,23 +69,23 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
         model = QuestionnaireTemplateQuestion
         fields = '__all__'
 
-    def validate_type(self, value):
-        """
-        Check if type of the question is an allowed one
-
-        """
-        if value[0] in ('s', 'm'):
-            validator = ValidateQuestion()
-            error = validator.single_multiple(value[1:])
-        elif value[0] == 't':
-            validator = ValidateQuestion()
-            error = validator.date_validator(value[1:])
-        else:
-            raise serializers.ValidationError("Not a valid type")
-
-        if error:
-                raise serializers.ValidationError("Errors: {0}".format(error))
-        return value
+    # def validate_type(self, value):
+    #     """
+    #     Check if type of the question is an allowed one
+    #
+    #     """
+    #     if value[0] in ('s', 'm'):
+    #         validator = ValidateQuestion()
+    #         error = validator.single_multiple(value[1:])
+    #     elif value[0] == 't':
+    #         validator = ValidateQuestion()
+    #         error = validator.date_validator(value[1:])
+    #     else:
+    #         raise serializers.ValidationError("Not a valid type")
+    #
+    #     if error:
+    #             raise serializers.ValidationError("Errors: {0}".format(error))
+    #     return value
 
     def create(self, validated_data):
         return QuestionnaireTemplateQuestion.objects.create(**validated_data)
