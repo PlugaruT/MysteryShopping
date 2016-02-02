@@ -186,7 +186,7 @@ class QuestionnaireTemplateQuestionChoice(QuestionChoiceAbstract):
     template_question = models.ForeignKey(QuestionnaireTemplateQuestion)
 
     class Meta:
-        default_related_name = "template_question_choice"
+        default_related_name = "template_question_choices"
 
     def __str__(self):
         return "Question: {}. text: {}".format(self.template_question.question_body, self.text)
@@ -200,7 +200,7 @@ class QuestionnaireQuestionChoice(QuestionChoiceAbstract):
     question = models.ForeignKey(QuestionnaireQuestion)
 
     class Meta:
-        default_related_name = "question_choice"
+        default_related_name = "question_choices"
 
     def __str__(self):
         return "Question: {}. text: {}".format(self.question.question_body, self.text)
