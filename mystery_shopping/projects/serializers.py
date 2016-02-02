@@ -104,7 +104,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     company_repr = CompanySerializer(source='company', read_only=True)
     shoppers_repr = ShopperSerializer(source='shoppers', many=True, read_only=True)
     project_manager_repr = ProjectManagerRelatedField(source='project_manager_object', read_only=True)
-    project_workers_repr = ProjectWorkerSerializer(source='projectworkers', many=True, read_only=True)
+    project_workers_repr = ProjectWorkerSerializer(source='project_workers', many=True, read_only=True)
     research_methodology = ResearchMethodologySerializer(required=False)
 
     class Meta:
