@@ -195,7 +195,7 @@ class ProjectWorker(models.Model):
     project_worker_id = models.PositiveIntegerField()
     project_worker = GenericForeignKey('project_worker_type', 'project_worker_id')
 
-    project = models.ForeignKey(Project, related_name='projectworkers')
+    project = models.ForeignKey(Project, related_name='project_workers')
 
     def __str__(self):
         if self.project_worker_type.model == 'tenantprojectmanager':
