@@ -187,7 +187,7 @@ class QuestionnaireTemplateBlockSerializer(serializers.ModelSerializer):
     """
 
     """
-    template_block_questions = QuestionnaireTemplateQuestionSerializer(many=True)
+    template_questions = QuestionnaireTemplateQuestionSerializer(many=True)
     questionnaire_template = serializers.PrimaryKeyRelatedField(queryset=QuestionnaireTemplate.objects.all(), required=False)
     lft = serializers.IntegerField(required=False)
     rght = serializers.IntegerField(required=False)
@@ -201,11 +201,11 @@ class QuestionnaireTemplateBlockSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         # print(validated_data)
         children = validated_data.pop('children', None)
-        template_block_questions = validated_data.pop('template_block_questions')
+        template_questions = validated_data.pop('template_questions')
 
         template_block = QuestionnaireTemplateBlock.objects.create(**validated_data)
 
-        for template_block_question in template_block_questions:
+        for template_block_question in template_questions:
             # print(template_block_question)
             template_block_question['questionnaire_template'] = template_block.questionnaire_template.id
             template_block_question['template_block'] = template_block.id
