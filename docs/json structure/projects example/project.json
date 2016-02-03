@@ -219,10 +219,15 @@
     "shoppers_repr": [
         {
             "id": 1,
+            "user": {
+                "id": 4,
+                "username": "alex_shopper",
+                "first_name": "",
+                "last_name": ""
+            },
             "date_of_birth": "2016-01-25",
             "gender": "m",
-            "has_drivers_license": false,
-            "user": 4
+            "has_drivers_license": false
         }
     ],
     "project_manager_repr": {
@@ -241,7 +246,7 @@
     },
     "project_workers_repr": [
         {
-            "id": 1,
+            "id": 26,
             "project_worker_repr": {
                 "id": 1,
                 "user": {
@@ -261,87 +266,7 @@
             "project": 1
         },
         {
-            "id": 5,
-            "project_worker_repr": {
-                "id": 1,
-                "user": {
-                    "id": 1,
-                    "username": "mihai",
-                    "first_name": "",
-                    "last_name": ""
-                },
-                "tenant": {
-                    "id": 1,
-                    "name": "SparkLabs"
-                },
-                "type": "tenantproductmanager"
-            },
-            "project_worker_id": 1,
-            "project_worker_type": 13,
-            "project": 1
-        },
-        {
-            "id": 6,
-            "project_worker_repr": {
-                "id": 1,
-                "user": {
-                    "id": 1,
-                    "username": "mihai",
-                    "first_name": "",
-                    "last_name": ""
-                },
-                "tenant": {
-                    "id": 1,
-                    "name": "SparkLabs"
-                },
-                "type": "tenantprojectmanager"
-            },
-            "project_worker_id": 1,
-            "project_worker_type": 14,
-            "project": 1
-        },
-        {
-            "id": 7,
-            "project_worker_repr": {
-                "id": 1,
-                "user": {
-                    "id": 1,
-                    "username": "mihai",
-                    "first_name": "",
-                    "last_name": ""
-                },
-                "tenant": {
-                    "id": 1,
-                    "name": "SparkLabs"
-                },
-                "type": "tenantproductmanager"
-            },
-            "project_worker_id": 1,
-            "project_worker_type": 13,
-            "project": 1
-        },
-        {
-            "id": 8,
-            "project_worker_repr": {
-                "id": 1,
-                "user": {
-                    "id": 1,
-                    "username": "mihai",
-                    "first_name": "",
-                    "last_name": ""
-                },
-                "tenant": {
-                    "id": 1,
-                    "name": "SparkLabs"
-                },
-                "type": "tenantprojectmanager"
-            },
-            "project_worker_id": 1,
-            "project_worker_type": 14,
-            "project": 1
-        },
-        {
-            "id": 9,
+            "id": 27,
             "project_worker_repr": {
                 "id": 1,
                 "user": {
@@ -398,17 +323,67 @@
                                 "id": 1,
                                 "questionnaire_template": 2,
                                 "template_block": 3,
+                                "template_question_choices": [
+                                    {
+                                        "id": 3,
+                                        "template_question": 1,
+                                        "text": "this is some interesting answer",
+                                        "score": 3,
+                                        "weight": "0.0001"
+                                    },
+                                    {
+                                        "id": 2,
+                                        "template_question": 1,
+                                        "text": "123 sf sfafjksld fjskdlfjaks",
+                                        "score": 3,
+                                        "weight": "0.0001"
+                                    },
+                                    {
+                                        "id": 1,
+                                        "template_question": 1,
+                                        "text": "bla, blab, bla",
+                                        "score": 1,
+                                        "weight": "0.9900"
+                                    }
+                                ],
                                 "question_body": "Question#1",
-                                "type": "sYes [::] 5 || No [::] 0 || NA [::] -1",
+                                "type": "s",
                                 "max_score": 2
                             },
                             {
                                 "id": 2,
                                 "questionnaire_template": 2,
                                 "template_block": 3,
+                                "template_question_choices": [],
                                 "question_body": "Question#2",
-                                "type": "sYes [::] 5 || No [::] 0 || NA [::] -1",
+                                "type": "s",
                                 "max_score": 5
+                            },
+                            {
+                                "id": 5,
+                                "questionnaire_template": 2,
+                                "template_block": 3,
+                                "template_question_choices": [],
+                                "question_body": "Question%32",
+                                "type": "t",
+                                "max_score": 4
+                            },
+                            {
+                                "id": 8,
+                                "questionnaire_template": 2,
+                                "template_block": 3,
+                                "template_question_choices": [
+                                    {
+                                        "id": 4,
+                                        "template_question": 8,
+                                        "text": "bla, blab, bla 3",
+                                        "score": 1,
+                                        "weight": "0.9900"
+                                    }
+                                ],
+                                "question_body": "Question%3fsdafsd 2",
+                                "type": "t",
+                                "max_score": 44
                             }
                         ],
                         "questionnaire_template": 2,

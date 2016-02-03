@@ -22,6 +22,7 @@ from mystery_shopping.users.serializers import PersonToAssessSerializer
 from mystery_shopping.users.serializer_fields import ProjectManagerRelatedField
 from mystery_shopping.users.serializer_fields import ClientUserRelatedField
 
+from mystery_shopping.users.models import ProjectWorker
 
 
 class PlaceToAssessSerializer(serializers.ModelSerializer):
@@ -104,7 +105,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     company_repr = CompanySerializer(source='company', read_only=True)
     shoppers_repr = ShopperSerializer(source='shoppers', many=True, read_only=True)
     project_manager_repr = ProjectManagerRelatedField(source='project_manager_object', read_only=True)
-    project_workers_repr = ProjectWorkerSerializer(source='projectworkers', many=True, read_only=True)
+    project_workers_repr = ProjectWorkerSerializer(source='projectworkers', many=True)
     research_methodology = ResearchMethodologySerializer(required=False)
 
     class Meta:
@@ -112,8 +113,17 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
+        print(validated_data)
         research_methodology = validated_data.pop('research_methodology', None)
+        project_workers = validated_data.pop('project_workers_repr', None)
+        validated_data.pop('shoppers', None)
+        validated_data.pop('projectworkers', None)
+
         project = Project.objects.create(**validated_data)
+
+        if project_workers is not None:
+            for project_worker in project_workers:
+                ProjectWorker.objects.create(**project_worker)
 
         if research_methodology is not None:
             research_methodology['project_id'] = project.id
@@ -125,10 +135,18 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         validated_data.pop('research_methodology', None)
+        project_workers = validated_data.pop('projectworkers', None)
+
+        ProjectWorker.objects.filter(project=instance.id).delete()
+
+        if project_workers is not None:
+            for project_worker in project_workers:
+                ProjectWorker.objects.create(**project_worker)
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
+
         return instance
 
 
