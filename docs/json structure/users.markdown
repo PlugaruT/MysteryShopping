@@ -83,3 +83,52 @@
     "section": 1
 }
 ```
+
+
+## Project Worker
+
+**`POST`**:
+
+- `project_worker_id` : *integer*
+- `project_worker_type` : *id* (for `tenantconsultant` : `tenantprojectmanager`, `tenantproductmanager`)
+- `project` : *id*
+
+> example:
+```json
+{
+    "project_worker_id": null,
+    "project_worker_type": null,
+    "project": null
+}
+```
+
+**`GET`**:
+
+- `project_worker_id` : *integer*
+- `project_worker_type` : *id* (for `tenantconsultant` : `tenantprojectmanager`, `tenantproductmanager`)
+- `project` : *id*
+- `project_worker_repr` : *representation* for `ProjectWorker` (`read_only = True`)
+
+> example:
+```json
+{
+    "id": 26,
+    "project_worker_repr": {
+        "id": 1,
+        "user": {
+            "id": 3,
+            "username": "alex_tenant_consultant",
+            "first_name": "",
+            "last_name": ""
+        },
+        "tenant": {
+            "id": 2,
+            "name": "Magenta"
+        },
+        "type": "tenantconsultant"
+    },
+    "project_worker_id": 1,
+    "project_worker_type": 15,
+    "project": 1
+}
+```

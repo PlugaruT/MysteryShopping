@@ -65,7 +65,7 @@ class Project(models.Model):
     project_manager_object = GenericForeignKey('project_manager_type', 'project_manager_id')
 
     # consultants = models.ManyToManyField('users.ProjectWorker')
-    shoppers = models.ManyToManyField('users.Shopper')
+    shoppers = models.ManyToManyField('users.Shopper', null=True)
     research_methodology = models.ForeignKey('ResearchMethodology', null=True, blank=True)
 
     # Attributes
