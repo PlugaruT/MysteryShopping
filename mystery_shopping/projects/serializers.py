@@ -23,6 +23,7 @@ from mystery_shopping.users.serializer_fields import ProjectManagerRelatedField
 from mystery_shopping.users.serializer_fields import ClientUserRelatedField
 
 from mystery_shopping.users.models import ProjectWorker
+from mystery_shopping.users.models import PersonToAssess
 
 
 class PlaceToAssessSerializer(serializers.ModelSerializer):
@@ -31,13 +32,14 @@ class PlaceToAssessSerializer(serializers.ModelSerializer):
     class Meta:
         model = PlaceToAssess
         fields = '__all__'
+        extra_kwargs = {'research_methodology': {'required': False}}
 
     def to_representation(self, instance):
         """
         Serialize tagged objects to a simple textual representation.
         """
         if instance.place_type.model == 'entity':
-            to_serialize = Entity.objects.get(pk=instance.project_worker_id)
+            to_serialize = Entity.objects.get(pk=instance.place_id)
             serializer = EntitySerializer(to_serialize)
         elif instance.place_type.model == 'section':
             to_serialize = Section.objects.get(pk=instance.place_id)
@@ -54,8 +56,8 @@ class ResearchMethodologySerializer(serializers.ModelSerializer):
     """
     scripts_repr = QuestionnaireScriptSerializer(source='scripts', many=True, read_only=True)
     questionnaires_repr = QuestionnaireTemplateSerializer(source='questionnaires', many=True, read_only=True)
-    places_to_assess_repr = PlaceToAssessSerializer(source='places_to_assess', many=True, read_only=True)
-    people_to_assess_repr = PersonToAssessSerializer(source='peopletoassess', many=True, read_only=True)
+    places_to_assess_repr = PlaceToAssessSerializer(source='places_to_assess', many=True)
+    people_to_assess_repr = PersonToAssessSerializer(source='people_to_assess', many=True)
     project_id = serializers.IntegerField(required=False)
 
     class Meta:
@@ -82,10 +84,14 @@ class ResearchMethodologySerializer(serializers.ModelSerializer):
             research_methodology.questionnaires.add(questionnaire)
 
         for place_to_assess in places_to_assess:
-            research_methodology.places_to_assess.add(place_to_assess)
+            place_to_assess['research_methodology'] = research_methodology
+            place_to_assess_instance = PlaceToAssess.objects.create(**place_to_assess)
+            research_methodology.places_to_assess.add(place_to_assess_instance)
 
         for person_to_assess in people_to_assess:
-            research_methodology.people_to_assess.add(person_to_assess)
+            person_to_assess['research_methodology'] = research_methodology
+            person_to_assess_instance = PersonToAssess.objects.create(**person_to_assess)
+            research_methodology.people_to_assess.add(person_to_assess_instance)
 
         if project_id:
             project_to_set = Project.objects.filter(pk=project_id).first()
@@ -141,7 +147,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
         if project_workers is not None:
             for project_worker in project_workers:
-                project_worker['project'] = project.id
+                project_worker['project'] = instance.id
                 ProjectWorker.objects.create(**project_worker)
 
         for attr, value in validated_data.items():
@@ -170,7 +176,7 @@ class PlannedEvaluationSerializer(serializers.ModelSerializer):
     def validate(self, data):
         # Check if number of maximum evaluations isn't surpassed
         if PlannedEvaluation.objects.filter(project=data['project']).count() >= Project.objects.get(pk=data['project'].id).research_methodology.number_of_evaluations:
-            raise serializers.ValidationError('Number of evaluations is exceeded')
+            raise serializers.ValidationError('Max number of evaluations is exceeded')
         else:
             return data
 

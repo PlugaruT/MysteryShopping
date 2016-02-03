@@ -7,10 +7,14 @@
 - `number_of_evaluations` : *integer*
 - `description` : *string* (`blank=True`)
 - `project_id` : *id* (if provided will set this `ReseearchMethodology` to the provided `Project`)
+- `places_to_assess_repr` : *representation* of `PlaceToAssess` (`many = True`)
+- `people_to_assess_repr` : *representation* of `PersonToAssess` (`many = True`)
 
 > example:
 ```json
 {
+    "places_to_assess_repr": [],
+    "people_to_assess_repr": [],
     "project_id": null,
     "number_of_evaluations": null,
     "description": "",
@@ -27,8 +31,8 @@
 - `description` : *string* (`blank=True`)
 - `scripts_repr` : *representation* of `QuestionnaireScript` (`many = True, read_only = True`)
 - `questionnaires_repr` : *representation* of `QuestionnaireTemplate` (`many = True, read_only = True`)
-- `places_to_assess_repr` : *representation* of `PlaceToAssess` (`many = True, read_only = True`)
-- `people_to_assess_repr` : *representation* of `PersonToAssess` (`many = True, read_only = True`)
+- `places_to_assess_repr` : *representation* of `PlaceToAssess` (`many = True`)
+- `people_to_assess_repr` : *representation* of `PersonToAssess` (`many = True`)
 
 > [example](projects\ example/researchmethodology.json)
 
@@ -41,6 +45,7 @@
 - `project_manager_type` : *id* (for `ContentType`: `tenantproductmanager` or `tenantprojectmanager`)
 - `project_manager_id` : *integer*
 - `shoppers` : *id* (`ManyToManyField`)
+- `project_workers_repr` : *representation* of `ProjectWorker` (`many = True`)
 - `research_methodology` : *representation* of `ResearchMethodology`  (`required = False`)
 - `period_start` : `DateField`
 - `period_end` : `DateField`
@@ -48,6 +53,7 @@
 > example:
 ```json
 {
+    "project_workers_repr": [],
     "research_methodology": {
         "project_id": null,
         "number_of_evaluations": null,
@@ -78,7 +84,7 @@
 - `company_repr` :  *representation* of `Company` (`read_only = True`)
 - `shoppers_repr` = *representation* of `Shopper` (`many = True, read_only = True`)
 - `project_manager_repr` = *representation* of `TenantProductManager` or `TenantProjectManager` (`read_only = True`)
-- `project_workers_repr` = *representation* of `ProjectWorker` = `tenantproductmanager`, `tenantprojectmanager` `tenantconsultant` (`many = True, read_only = True`)
+- `project_workers_repr` = *representation* of `ProjectWorker` = `tenantproductmanager`, `tenantprojectmanager` `tenantconsultant` (`many = True`)
 
 > [example](projects\ example/project	.json)
 

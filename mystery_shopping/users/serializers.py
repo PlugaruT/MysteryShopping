@@ -247,3 +247,5 @@ class PersonToAssessSerializer(serializers.ModelSerializer):
     class Meta:
         model = PersonToAssess
         fields = '__all__'
+        extra_kwargs = {'research_methodology': {'required': False}}
+

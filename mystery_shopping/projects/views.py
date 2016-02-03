@@ -4,10 +4,12 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_condition import Or
 
+from .models import PlaceToAssess
 from .models import Project
 from .models import ResearchMethodology
 from .models import PlannedEvaluation
 from .models import AccomplishedEvaluation
+from .serializers import PlaceToAssessSerializer
 from .serializers import ProjectSerializer
 from .serializers import ResearchMethodologySerializer
 from .serializers import PlannedEvaluationSerializer
@@ -17,6 +19,12 @@ from mystery_shopping.users.permissions import IsTenantProjectManager
 from mystery_shopping.users.permissions import IsTenantConsultant
 from mystery_shopping.users.permissions import IsShopper
 from mystery_shopping.users.permissions import HasAccessToEvaluations
+
+
+class PlaceToAssessViewSet(viewsets.ModelViewSet):
+    queryset = PlaceToAssess.objects.all()
+    serializer_class = PlaceToAssessSerializer
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager),)
 
 
 class ProjectViewSet(viewsets.ModelViewSet):

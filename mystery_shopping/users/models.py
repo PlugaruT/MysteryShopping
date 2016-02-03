@@ -219,4 +219,4 @@ class PersonToAssess(models.Model):
     person_id = models.PositiveIntegerField()
     person = GenericForeignKey('person_type', 'person_id')
 
-    research_methodology = models.ForeignKey(ResearchMethodology, related_name='peopletoassess')
+    research_methodology = models.ForeignKey(ResearchMethodology, related_name='people_to_assess')
