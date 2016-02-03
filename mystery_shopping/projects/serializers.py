@@ -105,7 +105,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     company_repr = CompanySerializer(source='company', read_only=True)
     shoppers_repr = ShopperSerializer(source='shoppers', many=True, read_only=True)
     project_manager_repr = ProjectManagerRelatedField(source='project_manager_object', read_only=True)
-    project_workers_repr = ProjectWorkerSerializer(source='projectworkers', many=True)
+    project_workers_repr = ProjectWorkerSerializer(source='project_workers', many=True)
     research_methodology = ResearchMethodologySerializer(required=False)
 
     class Meta:
@@ -117,12 +117,13 @@ class ProjectSerializer(serializers.ModelSerializer):
         research_methodology = validated_data.pop('research_methodology', None)
         project_workers = validated_data.pop('project_workers_repr', None)
         validated_data.pop('shoppers', None)
-        validated_data.pop('projectworkers', None)
+        validated_data.pop('project_workers', None)
 
         project = Project.objects.create(**validated_data)
 
         if project_workers is not None:
             for project_worker in project_workers:
+                project_worker['project'] = project.id
                 ProjectWorker.objects.create(**project_worker)
 
         if research_methodology is not None:
@@ -141,6 +142,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
         if project_workers is not None:
             for project_worker in project_workers:
+                project_worker['project'] = project.id
                 ProjectWorker.objects.create(**project_worker)
 
         for attr, value in validated_data.items():
