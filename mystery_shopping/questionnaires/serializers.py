@@ -93,9 +93,9 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
     """
 
     """
-    # questionnaire_template = serializers.PrimaryKeyRelatedField(queryset=QuestionnaireTemplate.objects.all(), required=False)
-    # template_block = serializers.PrimaryKeyRelatedField(queryset=QuestionnaireTemplateBlock._default_manager.all(), required=False)
-    # template_question_choices = QuestionnaireTemplateQuestionChoiceSerializer(many=True, required=False)
+    questionnaire_template = serializers.PrimaryKeyRelatedField(queryset=QuestionnaireTemplate.objects.all(), required=False)
+    template_block = serializers.PrimaryKeyRelatedField(queryset=QuestionnaireTemplateBlock._default_manager.all(), required=False)
+    template_question_choices = QuestionnaireTemplateQuestionChoiceSerializer(many=True, required=False)
 
     class Meta:
         model = QuestionnaireTemplateQuestion
@@ -145,7 +145,7 @@ class QuestionnaireBlockSerializer(serializers.ModelSerializer):
 
     """
     block_questions = QuestionnaireQuestionSerializer(many=True)
-    # questionnaire = serializers.PrimaryKeyRelatedField(queryset=Questionnaire.objects.all(), required=False)
+    questionnaire = serializers.PrimaryKeyRelatedField(queryset=Questionnaire.objects.all(), required=False)
     lft = serializers.IntegerField(required=False)
     rght = serializers.IntegerField(required=False)
     tree_id = serializers.IntegerField(required=False)
@@ -205,11 +205,11 @@ class QuestionnaireTemplateBlockSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         # print(validated_data)
         children = validated_data.pop('children', None)
-        template_block_questions = validated_data.pop('template_block_questions')
+        template_questions = validated_data.pop('template_questions')
 
         template_block = QuestionnaireTemplateBlock.objects.create(**validated_data)
 
-        for template_block_question in template_block_questions:
+        for template_block_question in template_questions:
             # print(template_block_question)
             template_block_question['questionnaire_template'] = template_block.questionnaire_template.id
             template_block_question['template_block'] = template_block.id

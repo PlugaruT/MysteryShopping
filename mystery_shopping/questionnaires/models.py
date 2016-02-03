@@ -138,8 +138,11 @@ class QuestionnaireTemplateQuestion(QuestionAbstract):
 
     """
     # Relations
-    questionnaire_template = models.ForeignKey(QuestionnaireTemplate, related_name='template_questions')
-    template_block = models.ForeignKey(QuestionnaireTemplateBlock, related_name='template_block_questions')
+    questionnaire_template = models.ForeignKey(QuestionnaireTemplate)
+    template_block = models.ForeignKey(QuestionnaireTemplateBlock)
+
+    class Meta:
+        default_related_name = 'template_questions'
 
     def __str__(self):
         return 'Question body: {}'.format(self.question_body)
