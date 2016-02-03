@@ -12,7 +12,6 @@ from .models import QuestionnaireQuestionChoice
 from .validators import ValidateQuestion
 
 
-
 class QuestionnaireTemplateQuestionChoiceSerializer(serializers.ModelSerializer):
     """
     """
@@ -94,13 +93,16 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
     """
 
     """
-    questionnaire_template = serializers.PrimaryKeyRelatedField(queryset=QuestionnaireTemplate.objects.all(), required=False)
-    template_block = serializers.PrimaryKeyRelatedField(queryset=QuestionnaireTemplateBlock._default_manager.all(), required=False)
-    template_question_choices = QuestionnaireTemplateQuestionChoiceSerializer(many=True, required=False)
+    # questionnaire_template = serializers.PrimaryKeyRelatedField(queryset=QuestionnaireTemplate.objects.all(), required=False)
+    # template_block = serializers.PrimaryKeyRelatedField(queryset=QuestionnaireTemplateBlock._default_manager.all(), required=False)
+    # template_question_choices = QuestionnaireTemplateQuestionChoiceSerializer(many=True, required=False)
 
     class Meta:
         model = QuestionnaireTemplateQuestion
         fields = '__all__'
+        extra_kwargs = {'questionnaire_template': {'required': False},
+                        'template_block': {'required': False},
+                        'template_question_choices': {'required': False}}
 
     # def validate_type(self, value):
     #     """
@@ -143,7 +145,7 @@ class QuestionnaireBlockSerializer(serializers.ModelSerializer):
 
     """
     block_questions = QuestionnaireQuestionSerializer(many=True)
-    questionnaire = serializers.PrimaryKeyRelatedField(queryset=Questionnaire.objects.all(), required=False)
+    # questionnaire = serializers.PrimaryKeyRelatedField(queryset=Questionnaire.objects.all(), required=False)
     lft = serializers.IntegerField(required=False)
     rght = serializers.IntegerField(required=False)
     tree_id = serializers.IntegerField(required=False)
@@ -152,6 +154,7 @@ class QuestionnaireBlockSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionnaireBlock
         fields = '__all__'
+        extra_kwargs = {'questionnaire': {'required': False}}
 
     def create(self, validated_data):
         # print(validated_data)
@@ -188,7 +191,7 @@ class QuestionnaireTemplateBlockSerializer(serializers.ModelSerializer):
 
     """
     template_block_questions = QuestionnaireTemplateQuestionSerializer(many=True)
-    questionnaire_template = serializers.PrimaryKeyRelatedField(queryset=QuestionnaireTemplate.objects.all(), required=False)
+    # questionnaire_template = serializers.PrimaryKeyRelatedField(queryset=QuestionnaireTemplate.objects.all(), required=False)
     lft = serializers.IntegerField(required=False)
     rght = serializers.IntegerField(required=False)
     tree_id = serializers.IntegerField(required=False)
@@ -197,6 +200,7 @@ class QuestionnaireTemplateBlockSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionnaireTemplateBlock
         fields = '__all__'
+        extra_kwargs = {'questionnaire_template': {'required': False}}
 
     def create(self, validated_data):
         # print(validated_data)

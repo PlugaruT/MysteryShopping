@@ -213,7 +213,6 @@ class ProjectWorkerSerializer(serializers.ModelSerializer):
     """Serializer class for ProjectWorker.
     """
     project_worker_repr = ProjectWorkerRelatedField(source='project_worker', read_only=True)
-    # project = serializers.PrimaryKeyRelatedField(queryset=Project.objects.all())
 
     class Meta:
         model = ProjectWorker

@@ -58,7 +58,6 @@ class ResearchMethodologySerializer(serializers.ModelSerializer):
     people_to_assess_repr = PersonToAssessSerializer(source='peopletoassess', many=True, read_only=True)
     project_id = serializers.IntegerField(required=False)
 
-
     class Meta:
         model = ResearchMethodology
         fields = '__all__'
