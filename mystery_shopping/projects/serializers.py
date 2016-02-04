@@ -24,6 +24,7 @@ from mystery_shopping.users.serializer_fields import ClientUserRelatedField
 
 from mystery_shopping.users.models import ProjectWorker
 from mystery_shopping.users.models import PersonToAssess
+from mystery_shopping.users.models import Shopper
 
 
 class PlaceToAssessSerializer(serializers.ModelSerializer):
@@ -56,8 +57,8 @@ class ResearchMethodologySerializer(serializers.ModelSerializer):
     """
     scripts_repr = QuestionnaireScriptSerializer(source='scripts', many=True, read_only=True)
     questionnaires_repr = QuestionnaireTemplateSerializer(source='questionnaires', many=True, read_only=True)
-    places_to_assess_repr = PlaceToAssessSerializer(source='places_to_assess', many=True)
-    people_to_assess_repr = PersonToAssessSerializer(source='people_to_assess', many=True)
+    places_to_assess_repr = PlaceToAssessSerializer(source='places_to_assess', many=True, required=False)
+    people_to_assess_repr = PersonToAssessSerializer(source='people_to_assess', many=True, required=False)
     project_id = serializers.IntegerField(required=False)
 
     class Meta:
@@ -68,10 +69,10 @@ class ResearchMethodologySerializer(serializers.ModelSerializer):
         print(validated_data)
         project_id = validated_data.pop('project_id', None)
 
-        scripts = validated_data.pop('scripts')
-        questionnaires = validated_data.pop('questionnaires')
-        places_to_assess = validated_data.pop('places_to_assess')
-        people_to_assess = validated_data.pop('people_to_assess')
+        scripts = validated_data.pop('scripts', [])
+        questionnaires = validated_data.pop('questionnaires', [])
+        places_to_assess = validated_data.pop('places_to_assess', [])
+        people_to_assess = validated_data.pop('people_to_assess', [])
 
         print(validated_data)
 
@@ -151,6 +152,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     project_manager_repr = ProjectManagerRelatedField(source='project_manager_object', read_only=True)
     project_workers_repr = ProjectWorkerSerializer(source='project_workers', many=True)
     research_methodology = ResearchMethodologySerializer(required=False)
+    shoppers = serializers.PrimaryKeyRelatedField(queryset=Shopper.objects.all(), many=True, allow_null=True, required=False)
 
     class Meta:
         model = Project
@@ -161,7 +163,6 @@ class ProjectSerializer(serializers.ModelSerializer):
         research_methodology = validated_data.pop('research_methodology', None)
         project_workers = validated_data.pop('project_workers', None)
         validated_data.pop('shoppers', None)
-        validated_data.pop('project_workers', None)
 
         project = Project.objects.create(**validated_data)
 
@@ -170,6 +171,7 @@ class ProjectSerializer(serializers.ModelSerializer):
                 project_worker['project'] = project
                 ProjectWorker.objects.create(**project_worker)
 
+        # TODO refactor this method according to the one in .update() method
         if research_methodology is not None:
             research_methodology['project_id'] = project.id
             research_methodology_ser = ResearchMethodology(data=research_methodology)
@@ -179,15 +181,32 @@ class ProjectSerializer(serializers.ModelSerializer):
         return project
 
     def update(self, instance, validated_data):
-        validated_data.pop('research_methodology', None)
-        project_workers = validated_data.pop('projectworkers', None)
+        project_workers = validated_data.pop('project_workers', None)
+        research_methodology = validated_data.pop('research_methodology', None)
 
         instance.prepare_for_update()
 
         if project_workers is not None:
             for project_worker in project_workers:
-                project_worker['project'] = instance.id
+                project_worker['project'] = instance
                 ProjectWorker.objects.create(**project_worker)
+
+        if research_methodology is not None:
+            research_methodology_instance = instance.research_methodology
+            research_methodology['project_id'] = instance.id
+
+            # Map list of instances to list of instance id's, so that when calling serializer.is_valid method, it won't
+            # throw the "expected id, got instance" error.
+            research_methodology['scripts'] = list(map(lambda x: x.id, research_methodology.get('scripts', [])))
+            research_methodology['questionnaires'] = list(map(lambda x: x.id, research_methodology.get('questionnaires', [])))
+
+            if research_methodology_instance is not None:
+                research_methodology_ser = ResearchMethodologySerializer(research_methodology_instance, data=research_methodology)
+            else:
+                research_methodology_ser = ResearchMethodologySerializer(data=research_methodology)
+            research_methodology_ser.is_valid(raise_exception=True)
+            research_methodology_ser.save()
+            instance.research_methodology = research_methodology_ser.instance
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
