@@ -65,7 +65,8 @@ class Project(models.Model):
     project_manager_object = GenericForeignKey('project_manager_type', 'project_manager_id')
 
     # consultants = models.ManyToManyField('users.ProjectWorker')
-    shoppers = models.ManyToManyField('users.Shopper')
+    # TODO remove null=True and overwrite serializer shoppers field to allow null values for shoppers field (and not shoppers_repr)
+    shoppers = models.ManyToManyField('users.Shopper', null=True)
     research_methodology = models.ForeignKey('ResearchMethodology', null=True, blank=True)
 
     # Attributes
