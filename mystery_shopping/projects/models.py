@@ -2,6 +2,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.db import models
 from model_utils import Choices
+from model_utils.models import TimeStampedModel
 
 from mystery_shopping.companies.models import Company, Department, Entity, Section
 from mystery_shopping.questionnaires.models import QuestionnaireScript, QuestionnaireTemplate
@@ -109,7 +110,7 @@ class PlannedEvaluation(models.Model):
     employee = GenericForeignKey('employee_type', 'employee_id')
 
     evaluation_choices = Choices((('call', 'Call'),
-                             ('visit', 'Visit')))
+                                  ('visit', 'Visit')))
     evaluation_type = models.CharField(max_length=6, choices=evaluation_choices)
 
     suggested_start_date = models.DateTimeField(null=True)
@@ -122,7 +123,7 @@ class PlannedEvaluation(models.Model):
         return '{}, shopper: {}'.format(self.project, self.shopper.user.username)
 
 
-class AccomplishedEvaluation(PlannedEvaluation):
+class AccomplishedEvaluation(TimeStampedModel, PlannedEvaluation):
     """
 
     """
