@@ -108,9 +108,9 @@ class PlannedEvaluation(models.Model):
     employee_id = models.PositiveIntegerField(null=True, blank=True)
     employee = GenericForeignKey('employee_type', 'employee_id')
 
-    visit_choices = Choices((('call', 'Call'),
+    evaluation_choices = Choices((('call', 'Call'),
                              ('visit', 'Visit')))
-    visit_type = models.CharField(max_length=6, choices=visit_choices)
+    evaluation_type = models.CharField(max_length=6, choices=evaluation_choices)
 
     suggested_start_date = models.DateTimeField(null=True)
     suggested_end_date = models.DateTimeField(null=True)
