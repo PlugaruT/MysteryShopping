@@ -15,6 +15,7 @@ from .views import ProjectWorkerViewSet
 from .views import ShopperViewSet
 from .views import TenantProductManagerViewSet
 from .views import TenantProjectManagerViewSet
+from .views import TenantConsultantViewSet
 from .views import PersonToAssessViewSet
 
 from mystery_shopping.projects.views import PlannedEvaluationPerShopperViewSet
@@ -59,6 +60,7 @@ router.register(r'projectworkers', ProjectWorkerViewSet)
 # users_router.register(r'shoppers', ShopperViewSet)
 router.register(r'tenantproductmanagers', TenantProductManagerViewSet)
 router.register(r'tenantprojectmanagers', TenantProjectManagerViewSet)
+router.register(r'tenantconsultants', TenantConsultantViewSet)
 router.register(r'peopletoassess', PersonToAssessViewSet)
 
 shopper_router = SimpleRouter()

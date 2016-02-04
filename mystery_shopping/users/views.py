@@ -14,6 +14,7 @@ from .models import ProjectWorker
 from .models import Shopper
 from .models import TenantProjectManager
 from .models import TenantProductManager
+from .models import TenantConsultant
 from .models import User
 from .models import PersonToAssess
 
@@ -24,6 +25,7 @@ from .serializers import ProjectWorkerSerializer
 from .serializers import ShopperSerializer
 from .serializers import TenantProductManagerSerializer
 from .serializers import TenantProjectManagerSerializer
+from .serializers import TenantConsultantSerializer
 from .serializers import PersonToAssessSerializer
 from mystery_shopping.users.permissions import IsTenantProductManager
 from mystery_shopping.users.permissions import IsTenantProjectManager
@@ -85,6 +87,11 @@ class TenantProductManagerViewSet(viewsets.ModelViewSet):
 class TenantProjectManagerViewSet(viewsets.ModelViewSet):
     queryset = TenantProjectManager.objects.all()
     serializer_class = TenantProjectManagerSerializer
+
+
+class TenantConsultantViewSet(viewsets.ModelViewSet):
+    queryset = TenantConsultant.objects.all()
+    serializer_class = TenantConsultantSerializer
 
 
 class ClientEmployeeViewSet(viewsets.ModelViewSet):
