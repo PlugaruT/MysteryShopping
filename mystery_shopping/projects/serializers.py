@@ -120,7 +120,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         print(validated_data)
         research_methodology = validated_data.pop('research_methodology', None)
-        project_workers = validated_data.pop('project_workers_repr', None)
+        project_workers = validated_data.pop('project_workers', None)
         validated_data.pop('shoppers', None)
         validated_data.pop('project_workers', None)
 
@@ -128,7 +128,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
         if project_workers is not None:
             for project_worker in project_workers:
-                project_worker['project'] = project.id
+                project_worker['project'] = project
                 ProjectWorker.objects.create(**project_worker)
 
         if research_methodology is not None:
