@@ -102,6 +102,45 @@ class ResearchMethodologySerializer(serializers.ModelSerializer):
 
         return research_methodology
 
+    def update(self, instance, validated_data):
+        project_id = validated_data.pop('project_id', None)
+
+        scripts = validated_data.pop('scripts')
+        questionnaires = validated_data.pop('questionnaires')
+        places_to_assess = validated_data.pop('places_to_assess')
+        people_to_assess = validated_data.pop('people_to_assess')
+
+        instance.prepare_for_update()
+
+        for script in scripts:
+            instance.scripts.add(script)
+
+        for questionnaire in questionnaires:
+            instance.questionnaires.add(questionnaire)
+
+        for place_to_assess in places_to_assess:
+            place_to_assess['research_methodology'] = instance
+            place_to_assess_instance = PlaceToAssess.objects.create(**place_to_assess)
+            instance.places_to_assess.add(place_to_assess_instance)
+
+        for person_to_assess in people_to_assess:
+            person_to_assess['research_methodology'] = instance
+            person_to_assess_instance = PersonToAssess.objects.create(**person_to_assess)
+            instance.people_to_assess.add(person_to_assess_instance)
+
+        if project_id:
+            project_to_set = Project.objects.filter(pk=project_id).first()
+
+            if project_to_set:
+                project_to_set.research_methodology = instance
+                project_to_set.save()
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        return instance
+
 
 class ProjectSerializer(serializers.ModelSerializer):
     """
@@ -143,7 +182,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         validated_data.pop('research_methodology', None)
         project_workers = validated_data.pop('projectworkers', None)
 
-        ProjectWorker.objects.filter(project=instance.id).delete()
+        instance.prepare_for_update()
 
         if project_workers is not None:
             for project_worker in project_workers:

@@ -48,6 +48,12 @@ class ResearchMethodology(models.Model):
     def __str__(self):
         return 'Short description: {}, nr. of visits: {}'.format(self.description[0:50], self.number_of_evaluations)
 
+    def prepare_for_update(self):
+        self.people_to_assess.all().delete()
+        self.places_to_assess.all().delete()
+        self.scripts.clear()
+        self.questionnaires.clear()
+
 
 class Project(models.Model):
     """
@@ -80,6 +86,9 @@ class Project(models.Model):
         return 'Project for {}, start: {}/{}/{}, end: {}/{}/{}'.format(self.company.name,
                                                                        self.period_start.day, self.period_start.month, self.period_start.year%2000,
                                                                        self.period_end.day, self.period_end.month, self.period_start.year%2000)
+
+    def prepare_for_update(self):
+        self.project_workers.all().delete()
 
 
 class PlannedEvaluation(models.Model):

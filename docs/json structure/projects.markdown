@@ -1,3 +1,6 @@
+/play wups
+/play trombone
+
 ## Research Methodology
 
 **`POST`**:
