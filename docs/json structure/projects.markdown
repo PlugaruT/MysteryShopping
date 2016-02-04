@@ -1,5 +1,3 @@
-/play wups
-/play trombone
 
 ## Research Methodology
 

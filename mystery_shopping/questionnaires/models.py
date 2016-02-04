@@ -175,7 +175,7 @@ class QuestionChoiceAbstract(models.Model):
     """
     # Attributes
     text = models.CharField(max_length=255)
-    score = models.PositiveIntegerField()
+    score = models.IntegerField()
     weight = models.DecimalField(max_digits=5, decimal_places=4)
 
     class Meta:
