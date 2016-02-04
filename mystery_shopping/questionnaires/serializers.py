@@ -95,14 +95,13 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
     """
     # questionnaire_template = serializers.PrimaryKeyRelatedField(queryset=QuestionnaireTemplate.objects.all(), required=False)
     # template_block = serializers.PrimaryKeyRelatedField(queryset=QuestionnaireTemplateBlock._default_manager.all(), required=False)
-    # template_question_choices = QuestionnaireTemplateQuestionChoiceSerializer(many=True, required=False)
+    template_question_choices = QuestionnaireTemplateQuestionChoiceSerializer(many=True, required=False)
 
     class Meta:
         model = QuestionnaireTemplateQuestion
         fields = '__all__'
         extra_kwargs = {'questionnaire_template': {'required': False},
-                        'template_block': {'required': False},
-                        'template_question_choices': {'required': False}}
+                        'template_block': {'required': False}}
 
     # def validate_type(self, value):
     #     """
