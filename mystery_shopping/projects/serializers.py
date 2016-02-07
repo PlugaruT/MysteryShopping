@@ -48,7 +48,14 @@ class PlaceToAssessSerializer(serializers.ModelSerializer):
         else:
             raise Exception('Unexpected type of tagged object')
 
-        return serializer.data
+        place_to_assess_dict = {
+            'place_type': instance.place_type_id,
+            'place_id': instance.place_id
+        }
+
+        place_to_assess_dict.update(serializer.data)
+
+        return place_to_assess_dict
 
 
 class ResearchMethodologySerializer(serializers.ModelSerializer):
@@ -106,10 +113,10 @@ class ResearchMethodologySerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         project_id = validated_data.pop('project_id', None)
 
-        scripts = validated_data.pop('scripts')
-        questionnaires = validated_data.pop('questionnaires')
-        places_to_assess = validated_data.pop('places_to_assess')
-        people_to_assess = validated_data.pop('people_to_assess')
+        scripts = validated_data.pop('scripts', [])
+        questionnaires = validated_data.pop('questionnaires', [])
+        places_to_assess = validated_data.pop('places_to_assess', [])
+        people_to_assess = validated_data.pop('people_to_assess', [])
 
         instance.prepare_for_update()
 
@@ -181,6 +188,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         return project
 
     def update(self, instance, validated_data):
+        print(validated_data)
         project_workers = validated_data.pop('project_workers', None)
         research_methodology = validated_data.pop('research_methodology', None)
 
@@ -199,6 +207,25 @@ class ProjectSerializer(serializers.ModelSerializer):
             # throw the "expected id, got instance" error.
             research_methodology['scripts'] = list(map(lambda x: x.id, research_methodology.get('scripts', [])))
             research_methodology['questionnaires'] = list(map(lambda x: x.id, research_methodology.get('questionnaires', [])))
+
+            # Apped '_repr' suffix to places_to_assess and people_to_assess fields such that when calling
+            # ResearchMethodologySerializer's validation, it won't set these values to empty lists, because of not
+            # finding 'places_to_assess_repr' values in data dict
+            research_methodology['places_to_assess_repr'] = research_methodology['places_to_assess']
+            for place in research_methodology['places_to_assess_repr']:
+                place['place_type'] = place.get('place_type').id
+                try:
+                    del place['research_methodology']
+                except KeyError:
+                    pass
+
+            research_methodology['people_to_assess_repr'] = research_methodology['people_to_assess']
+            for person in research_methodology['people_to_assess_repr']:
+                person['person_type'] = person.get('person_type').id
+                try:
+                    del person['research_methodology']
+                except KeyError:
+                    pass
 
             if research_methodology_instance is not None:
                 research_methodology_ser = ResearchMethodologySerializer(research_methodology_instance, data=research_methodology)
