@@ -13,6 +13,8 @@ from .serializers import DepartmentSerializer
 from .serializers import EntitySerializer
 from .serializers import SectionSerializer
 
+from mystery_shopping.users.serializers import SimpleCompanySerializer
+
 from mystery_shopping.users.permissions import IsTenantProductManager
 from mystery_shopping.users.permissions import IsTenantProjectManager
 from mystery_shopping.users.permissions import IsTenantConsultantViewOnly
@@ -28,7 +30,14 @@ class IndustryViewSet(viewsets.ModelViewSet):
 class CompanyViewSet(viewsets.ModelViewSet):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
+    simple_serializer_class = SimpleCompanySerializer
     # permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultantViewOnly),)
+
+    def get_serializer_class(self):
+        if self.request.query_params.get('simple', False):
+            return self.simple_serializer_class
+        else:
+            return self.serializer_class
 
 
 class DepartmentViewSet(viewsets.ModelViewSet):

@@ -10,10 +10,19 @@ from .models import ClientEmployee
 from .models import ProjectWorker
 from .models import PersonToAssess
 from .models import Shopper
+from mystery_shopping.companies.models import Company
 from mystery_shopping.tenants.serializers import TenantSerializer
 # from mystery_shopping.companies.serializer_fields import PlaceRelatedField
 # from mystery_shopping.users.serializer_fields import ProjectWorkerRelatedField
 # from mystery_shopping.projects.serializers import ProjectSerializer
+
+
+class SimpleCompanySerializer(serializers.ModelSerializer):
+    """A Company serializer that do not have any nested serializer fields."""
+
+    class Meta:
+        model = Company
+        fields = '__all__'
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -146,6 +155,7 @@ class ClientEmployeeSerializer(serializers.ModelSerializer):
     """Serializer class for ClientEmployee user model.
     """
     user = UserSerializer(required=False, allow_null=True)
+    company_repr = SimpleCompanySerializer(source='company', read_only=True)
 
     class Meta:
         model = ClientEmployee
