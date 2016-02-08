@@ -156,7 +156,7 @@ class QuestionnaireQuestion(QuestionAbstract):
     block = models.ForeignKey(QuestionnaireBlock)
 
     answer = models.TextField()
-    show_comment = models.BooleanField()
+    show_comment = models.BooleanField(default=True)
     comment = models.TextField(blank=True)
     answer_choices = models.ManyToManyField("QuestionnaireQuestionChoice")
     # add consultant (reviewer) comment
