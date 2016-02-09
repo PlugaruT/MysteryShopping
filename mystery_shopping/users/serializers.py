@@ -104,6 +104,18 @@ class TenantConsultantSerializer(serializers.ModelSerializer):
         model = TenantConsultant
         fields = '__all__'
 
+    def create(self, validated_data):
+        user = validated_data.pop('user', None)
+        if user is not None:
+            user_ser = UserSerializer(data=user)
+            user_ser.is_valid(raise_exception=True)
+            user_ser.save()
+            user = user_ser.instance
+
+        tenant_consultant = TenantConsultant.objects.create(user=user, **validated_data)
+
+        return tenant_consultant
+
 
 class ClientProjectManagerSerializer(serializers.ModelSerializer):
     """Serializer class for ClientProjectManager user model.
