@@ -140,3 +140,19 @@ class AccomplishedEvaluation(TimeStampedModel, PlannedEvaluation):
 
     def __str__(self):
         return '{}, time accomplished: {}'.format(self.project, str(self.time_accomplished))
+
+
+class EvaluationAssessmentLevel(models.Model):
+    """
+    Class used for assessing the review status of a accomplished evaluation
+    """
+    # Relations
+    project = models.ForeignKey(Project)
+    previous_level = models.OneToOneField('self', null=True, blank=True, related_name='next_level')
+    project_manager = models.ForeignKey('users.TenantProjectManager', null=True)
+
+    # Attributes
+    level = models.PositiveIntegerField(null=True, default=0,  blank=True)
+
+    def __str__(self):
+        return "Project: {}; level: {}".format(self.project, self.level)

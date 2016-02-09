@@ -270,7 +270,7 @@ class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
         fields = '__all__'  # ('title', 'template_blocks',)
 
     def create(self, validated_data):
-        # print(validated_data)
+        print(validated_data)
         template_blocks = validated_data.pop('template_blocks', None)
         questionnaire_template = QuestionnaireTemplate.objects.create(**validated_data)
         previous_template_block = None
