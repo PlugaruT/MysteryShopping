@@ -165,6 +165,16 @@ class ProjectSerializer(serializers.ModelSerializer):
         model = Project
         fields = '__all__'
 
+    # @staticmethod
+    # def setup_eager_loading(queryset):
+    #     """
+    #     Perform necessary eager loading of data.
+    #     """
+    #     queryset = queryset.select_related('company', 'tenant')
+    #     queryset = queryset.prefetch_related('shoppers__user', 'research_methodology__scripts', 'research_methodology__questionnaires',)
+    #     # queryset = queryset.prefetch_related(None)
+    #     return queryset
+
     def create(self, validated_data):
         print(validated_data)
         research_methodology = validated_data.pop('research_methodology', None)

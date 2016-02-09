@@ -104,7 +104,7 @@ class QuestionnaireBlock(QuestionnaireBlockAbstract, MPTTModel):
     parent_block = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
 
     # Attributes
-    score = models.DecimalField(max_digits=5, decimal_places=2)
+    score = models.DecimalField(max_digits=5, decimal_places=2, null=True)
 
     class MPTTMeta:
         order_insertion_by = ('title',)
@@ -127,6 +127,8 @@ class QuestionAbstract(models.Model):
                            ('m', 'Multiple Choice'))
     type = models.CharField(max_length=1, choices=type_choices, default=type_choices.t)
     max_score = models.PositiveSmallIntegerField(null=True, blank=True)
+    position = models.PositiveIntegerField(null=True, blank=True)
+    weight = models.DecimalField(max_digits=5, decimal_places=4)
 
     class Meta:
         abstract = True

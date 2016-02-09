@@ -32,6 +32,11 @@ class ProjectViewSet(viewsets.ModelViewSet):
     serializer_class = ProjectSerializer
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager),)
 
+    # def get_queryset(self):
+    #     queryset = Project.objects.all()
+    #     queryset = self.get_serializer_class().setup_eager_loading(queryset)
+    #     return queryset
+
 
 class ResearchMethodologyViewSet(viewsets.ModelViewSet):
     queryset = ResearchMethodology.objects.all()
