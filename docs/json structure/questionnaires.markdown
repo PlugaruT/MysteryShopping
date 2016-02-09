@@ -61,11 +61,8 @@
 - `title` : *string* (`max_length = 50`)
 - `weight` : *DecimalField* (`max_digits=5, decimal_places=4`, example: `0.4552`)
 - `questionnaire_template` : *id*
-- `parent_block` : *id* to `self` (`null = True`)
-- `lft` : *integer* (`required = False`)
-- `rght` : *integer* (`required = False`)
-- `level` : *integer* (`required = False`)
-- `tree_id` : *integer* (`required = False`)
+- `parent_order_number` : *integer* to that shows the theoretical `parent_block` (`null = True`)
+- `order_number` : *integer* (identifier of the block inside the *sent* template `questionnaire`)
 - `template_block_questions` : *representation* of `QuestionnaireTemplateBlock` (`many = True`)
 
 The `lft`, `rght`, `level` and `tree_id` fields are used by the **mptt** algorithm. If provided, the data will override the data calculated by the algorithm, if not, the values will be set by the algorithm.
@@ -73,14 +70,12 @@ The `lft`, `rght`, `level` and `tree_id` fields are used by the **mptt** algorit
 > example:
 ```json
 {
-    "template_block_questions": [],
-    "questionnaire_template": null,
-    "lft": null,
-    "rght": null,
-    "tree_id": null,
-    "level": null,
+    "template_questions": [],
+    "parent_order_number": null,
+    "order_number": null,
     "title": "",
     "weight": null,
+    "questionnaire_template": null,
     "parent_block": null
 }
 ```
