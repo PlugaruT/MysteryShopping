@@ -1,29 +1,87 @@
 {
     "id": 3,
-    "template_block_questions": [
+    "template_questions": [
         {
             "id": 1,
-            "questionnaire_template": 2,
-            "template_block": 3,
+            "template_question_choices": [
+                {
+                    "id": 1,
+                    "template_question": 1,
+                    "text": "bla, blab, bla",
+                    "score": "1.00",
+                    "weight": "0.99"
+                },
+                {
+                    "id": 2,
+                    "template_question": 1,
+                    "text": "123 sf sfafjksld fjskdlfjaks",
+                    "score": "3.00",
+                    "weight": "0.00"
+                },
+                {
+                    "id": 3,
+                    "template_question": 1,
+                    "text": "this is some interesting answer",
+                    "score": "3.00",
+                    "weight": "0.00"
+                }
+            ],
             "question_body": "Question#1",
-            "type": "sYes [::] 5 || No [::] 0 || NA [::] -1",
-            "max_score": 2
+            "type": "s",
+            "max_score": 2,
+            "position": null,
+            "weight": "1.00",
+            "questionnaire_template": 2,
+            "template_block": 3
         },
         {
             "id": 2,
-            "questionnaire_template": 2,
-            "template_block": 3,
+            "template_question_choices": [],
             "question_body": "Question#2",
-            "type": "sYes [::] 5 || No [::] 0 || NA [::] -1",
-            "max_score": 5
+            "type": "s",
+            "max_score": 5,
+            "position": null,
+            "weight": "1.00",
+            "questionnaire_template": 2,
+            "template_block": 3
+        },
+        {
+            "id": 5,
+            "template_question_choices": [],
+            "question_body": "Question%32",
+            "type": "t",
+            "max_score": 4,
+            "position": null,
+            "weight": "1.00",
+            "questionnaire_template": 2,
+            "template_block": 3
+        },
+        {
+            "id": 8,
+            "template_question_choices": [
+                {
+                    "id": 4,
+                    "template_question": 8,
+                    "text": "bla, blab, bla 3",
+                    "score": "1.00",
+                    "weight": "0.99"
+                }
+            ],
+            "question_body": "Question%3fsdafsd 2",
+            "type": "t",
+            "max_score": 44,
+            "position": null,
+            "weight": "1.00",
+            "questionnaire_template": 2,
+            "template_block": 3
         }
     ],
-    "questionnaire_template": 2,
+    "title": "Bert",
+    "weight": "1.00",
     "lft": 2,
     "rght": 3,
-    "tree_id": 1,
+    "tree_id": 4,
     "level": 1,
-    "title": "Bert",
-    "weight": "1.0000",
+    "questionnaire_template": 2,
     "parent_block": 2
 }

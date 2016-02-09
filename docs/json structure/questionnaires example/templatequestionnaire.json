@@ -1,97 +1,131 @@
 {
-    "id": 2,
     "template_blocks": [
         {
-            "id": 2,
-            "template_block_questions": [],
-            "questionnaire_template": 2,
-            "lft": 1,
-            "rght": 12,
-            "tree_id": 1,
-            "level": 0,
+    
+            "template_questions": [],
             "title": "Albert",
-            "weight": "0.9000",
-            "parent_block": null
+            "weight": "0.90",
+            "parent_order_number": null,
+            "order_number": 1
         },
         {
-            "id": 3,
-            "template_block_questions": [
+            "template_questions": [
                 {
-                    "id": 1,
-                    "questionnaire_template": 2,
-                    "template_block": 3,
+            
+                    "template_question_choices": [
+                        {
+                            "text": "bla, blab, bla",
+                            "score": "1.00",
+                            "weight": "0.99"
+                        },
+                        {
+                            "text": "123 sf sfafjksld fjskdlfjaks",
+                            "score": "3.00",
+                            "weight": "0.00"
+                        },
+                        {
+                            "text": "this is some interesting answer",
+                            "score": "3.00",
+                            "weight": "0.00"
+                        }
+                    ],
                     "question_body": "Question#1",
-                    "type": "sYes [::] 5 || No [::] 0 || NA [::] -1",
-                    "max_score": 2
+                    "type": "s",
+                    "max_score": 2,
+                    "position": null,
+                    "weight": "1.00"
                 },
                 {
-                    "id": 2,
-                    "questionnaire_template": 2,
-                    "template_block": 3,
+                    "template_question_choices": [],
                     "question_body": "Question#2",
-                    "type": "sYes [::] 5 || No [::] 0 || NA [::] -1",
-                    "max_score": 5
+                    "type": "s",
+                    "max_score": 5,
+                    "position": null,
+                    "weight": "1.00"
+                },
+                {
+                    "template_question_choices": [],
+                    "question_body": "Question%32",
+                    "type": "t",
+                    "max_score": 4,
+                    "position": null,
+                    "weight": "1.00"
+                },
+                {
+                    "template_question_choices": [
+                        {
+                            "text": "bla, blab, bla 3",
+                            "score": "1.00",
+                            "weight": "0.99"
+                        }
+                    ],
+                    "question_body": "Question%3fsdafsd 2",
+                    "type": "t",
+                    "max_score": 44,
+                    "position": null,
+                    "weight": "1.00"
                 }
             ],
-            "questionnaire_template": 2,
-            "lft": 2,
-            "rght": 3,
-            "tree_id": 1,
-            "level": 1,
             "title": "Bert",
-            "weight": "1.0000",
-            "parent_block": 2
+            "weight": "1.00",
+            "parent_order_number": 1,
+            "order_number": 2
         },
         {
-            "id": 4,
-            "template_block_questions": [],
-            "questionnaire_template": 2,
-            "lft": 4,
-            "rght": 11,
-            "tree_id": 1,
-            "level": 1,
+    
+            "template_questions": [],
             "title": "Chuck",
-            "weight": "1.0000",
-            "parent_block": 2
+            "weight": "1.00",
+            "parent_order_number": 1,
+            "order_number": 3
         },
         {
-            "id": 5,
-            "template_block_questions": [],
-            "questionnaire_template": 2,
-            "lft": 5,
-            "rght": 6,
-            "tree_id": 1,
-            "level": 2,
-            "title": "Donna",
-            "weight": "1.0000",
-            "parent_block": 4
-        },
-        {
-            "id": 6,
-            "template_block_questions": [],
-            "questionnaire_template": 2,
-            "lft": 7,
-            "rght": 8,
-            "tree_id": 1,
-            "level": 2,
+    
+            "template_questions": [],
             "title": "Eddie",
-            "weight": "1.0000",
-            "parent_block": 4
+            "weight": "1.00",
+            "parent_order_number": 3,
+            "order_number": 4
         },
         {
-            "id": 7,
-            "template_block_questions": [],
-            "questionnaire_template": 2,
-            "lft": 9,
-            "rght": 10,
-            "tree_id": 1,
-            "level": 2,
+    
+            "template_questions": [],
             "title": "Fred",
-            "weight": "1.0000",
-            "parent_block": 4
+            "weight": "1.00",
+            "parent_order_number": 4,
+            "order_number": 5
+        },
+        {
+            "template_questions": [],
+            "title": "Test_tree_id#1",
+            "weight": "1.00",
+            "parent_order_number": null,
+            "order_number": 6
+        },
+        {
+            "template_questions": [],
+            "title": "Test_tree_id#1.1",
+            "weight": "1.00",
+            "parent_order_number": 6,
+            "order_number": 7
+        },
+        {
+            "template_questions": [],
+            "title": "Test_tree_id#2",
+            "weight": "2.00",
+            "parent_order_number": null,
+            "order_number": 8
+        },
+        {
+    
+            "template_questions": [],
+            "title": "Donna2",
+            "weight": "11.00",
+            "parent_order_number": 8,
+            "order_number": 9
         }
     ],
-    "title": "Questionnaire#2",
+    "title": "Questionnaire#3",
     "description": "Shank pastrami pork chop alcatra rump, pork belly pig tongue shankle cupim. Prosciutto venison meatloaf leberkas. Beef ribs shankle cow alcatra jerky. Doner boudin swine turkey turducken. Cupim ball tip brisket doner, sausage prosciutto ham hock tongue pork chuck. Pork tail prosciutto, doner ribeye alcatra frankfurter pastrami.",
     "tenant": 1
 }
