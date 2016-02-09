@@ -11,7 +11,6 @@ from . import views
 from .views import UserViewSet
 from .views import ClientEmployeeViewSet
 from .views import ClientManagerViewSet
-from .views import ProjectWorkerViewSet
 from .views import ShopperViewSet
 from .views import TenantProductManagerViewSet
 from .views import TenantProjectManagerViewSet
@@ -56,7 +55,6 @@ router = DefaultRouter()
 router.register(r'users', UserViewSet)
 router.register(r'clientemployees', ClientEmployeeViewSet)
 router.register(r'clientmanagers', ClientManagerViewSet)
-router.register(r'projectworkers', ProjectWorkerViewSet)
 # users_router.register(r'shoppers', ShopperViewSet)
 router.register(r'tenantproductmanagers', TenantProductManagerViewSet)
 router.register(r'tenantprojectmanagers', TenantProjectManagerViewSet)

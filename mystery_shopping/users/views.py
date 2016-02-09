@@ -10,7 +10,6 @@ from braces.views import LoginRequiredMixin
 
 from .models import ClientEmployee
 from .models import ClientManager
-from .models import ProjectWorker
 from .models import Shopper
 from .models import TenantProjectManager
 from .models import TenantProductManager
@@ -21,7 +20,6 @@ from .models import PersonToAssess
 from .serializers import UserSerializer
 from .serializers import ClientEmployeeSerializer
 from .serializers import ClientManagerSerializer
-from .serializers import ProjectWorkerSerializer
 from .serializers import ShopperSerializer
 from .serializers import TenantProductManagerSerializer
 from .serializers import TenantProjectManagerSerializer
@@ -109,10 +107,6 @@ class ShopperViewSet(viewsets.ModelViewSet):
     serializer_class = ShopperSerializer
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
 
-
-class ProjectWorkerViewSet(viewsets.ModelViewSet):
-    queryset = ProjectWorker.objects.all()
-    serializer_class = ProjectWorkerSerializer
 
 class PersonToAssessViewSet(viewsets.ModelViewSet):
     queryset = PersonToAssess.objects.all()

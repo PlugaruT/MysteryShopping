@@ -60,6 +60,9 @@ class Questionnaire(QuestionnaireAbstract):
     # Relations
     template = models.ForeignKey(QuestionnaireTemplate)
 
+    # Attributes
+    score = models.DecimalField(max_digits=5, decimal_places=2)
+
     class Meta:
         default_related_name = 'questionnaires'
 
@@ -73,7 +76,7 @@ class QuestionnaireBlockAbstract(models.Model):
 
     """
     title = models.CharField(max_length=50)
-    weight = models.DecimalField(max_digits=5, decimal_places=4)
+    weight = models.DecimalField(max_digits=5, decimal_places=2)
 
     class Meta:
         abstract = True
@@ -104,7 +107,7 @@ class QuestionnaireBlock(QuestionnaireBlockAbstract, MPTTModel):
     parent_block = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
 
     # Attributes
-    score = models.DecimalField(max_digits=5, decimal_places=2, null=True)
+    score = models.DecimalField(max_digits=5, decimal_places=2)
 
     class MPTTMeta:
         order_insertion_by = ('title',)
@@ -128,7 +131,7 @@ class QuestionAbstract(models.Model):
     type = models.CharField(max_length=1, choices=type_choices, default=type_choices.t)
     max_score = models.PositiveSmallIntegerField(null=True, blank=True)
     position = models.PositiveIntegerField(null=True, blank=True)
-    weight = models.DecimalField(max_digits=5, decimal_places=4)
+    weight = models.DecimalField(max_digits=5, decimal_places=2)
 
     class Meta:
         abstract = True
@@ -177,8 +180,8 @@ class QuestionChoiceAbstract(models.Model):
     """
     # Attributes
     text = models.CharField(max_length=255)
-    score = models.IntegerField()
-    weight = models.DecimalField(max_digits=5, decimal_places=4)
+    score = models.DecimalField(max_digits=5, decimal_places=2)
+    weight = models.DecimalField(max_digits=5, decimal_places=2)
 
     class Meta:
         abstract = True

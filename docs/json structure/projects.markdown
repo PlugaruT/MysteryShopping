@@ -46,7 +46,7 @@
 - `project_manager_type` : *id* (for `ContentType`: `tenantproductmanager` or `tenantprojectmanager`)
 - `project_manager_id` : *integer*
 - `shoppers` : *id* (`ManyToManyField`)
-- `project_workers_repr` : *representation* of `ProjectWorker` (`many = True`)
+- `consultants_repr` : *representation* of `TenantConsultants` (`many = True`)
 - `research_methodology` : *representation* of `ResearchMethodology`  (`required = False`)
 - `period_start` : `DateField`
 - `period_end` : `DateField`

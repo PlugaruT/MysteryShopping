@@ -64,14 +64,8 @@ class Project(models.Model):
     tenant = models.ForeignKey(Tenant)
     company = models.ForeignKey(Company)
     # this type of import is used to avoid import circles
-
-    limit = models.Q(app_label='users', model='tenantproductmanager') | \
-            models.Q(app_label='users', model='tenantprojectmanager')
-    project_manager_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='project_manager_type', null=True, blank=True)
-    project_manager_id = models.PositiveIntegerField(null=True, blank=True)
-    project_manager_object = GenericForeignKey('project_manager_type', 'project_manager_id')
-
-    # consultants = models.ManyToManyField('users.ProjectWorker')
+    project_manager = models.ForeignKey('users.TenantProjectManager')
+    consultants = models.ManyToManyField('users.TenantConsultant')
     shoppers = models.ManyToManyField('users.Shopper')
     research_methodology = models.ForeignKey('ResearchMethodology', null=True, blank=True)
 

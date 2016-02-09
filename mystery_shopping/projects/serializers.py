@@ -17,12 +17,11 @@ from mystery_shopping.companies.serializers import CompanySerializer
 from mystery_shopping.questionnaires.serializers import QuestionnaireScriptSerializer
 from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializer
 from mystery_shopping.users.serializers import ShopperSerializer
-from mystery_shopping.users.serializers import ProjectWorkerSerializer
 from mystery_shopping.users.serializers import PersonToAssessSerializer
+from mystery_shopping.users.serializers import TenantProjectManagerSerializer
 from mystery_shopping.users.serializer_fields import ProjectManagerRelatedField
 from mystery_shopping.users.serializer_fields import ClientUserRelatedField
 
-from mystery_shopping.users.models import ProjectWorker
 from mystery_shopping.users.models import PersonToAssess
 from mystery_shopping.users.models import Shopper
 
@@ -156,8 +155,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     """
     company_repr = CompanySerializer(source='company', read_only=True)
     shoppers_repr = ShopperSerializer(source='shoppers', many=True, read_only=True)
-    project_manager_repr = ProjectManagerRelatedField(source='project_manager_object', read_only=True)
-    project_workers_repr = ProjectWorkerSerializer(source='project_workers', many=True)
+    project_manager_repr = TenantProjectManagerSerializer(source='project_manager', read_only=True)
     research_methodology = ResearchMethodologySerializer(required=False)
     shoppers = serializers.PrimaryKeyRelatedField(queryset=Shopper.objects.all(), many=True, allow_null=True, required=False)
 
@@ -183,10 +181,10 @@ class ProjectSerializer(serializers.ModelSerializer):
 
         project = Project.objects.create(**validated_data)
 
-        if project_workers is not None:
-            for project_worker in project_workers:
-                project_worker['project'] = project
-                ProjectWorker.objects.create(**project_worker)
+        # if project_workers is not None:
+        #     for project_worker in project_workers:
+        #         project_worker['project'] = project
+        #         ProjectWorker.objects.create(**project_worker)
 
         # TODO refactor this method according to the one in .update() method
         if research_methodology is not None:
@@ -204,10 +202,10 @@ class ProjectSerializer(serializers.ModelSerializer):
 
         instance.prepare_for_update()
 
-        if project_workers is not None:
-            for project_worker in project_workers:
-                project_worker['project'] = instance
-                ProjectWorker.objects.create(**project_worker)
+        # if project_workers is not None:
+        #     for project_worker in project_workers:
+        #         project_worker['project'] = instance
+        #         ProjectWorker.objects.create(**project_worker)
 
         if research_methodology is not None:
             research_methodology_instance = instance.research_methodology

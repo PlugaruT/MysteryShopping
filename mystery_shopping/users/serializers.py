@@ -7,7 +7,6 @@ from .models import TenantConsultant
 from .models import ClientProjectManager
 from .models import ClientManager
 from .models import ClientEmployee
-from .models import ProjectWorker
 from .models import PersonToAssess
 from .models import Shopper
 from mystery_shopping.companies.models import Company
@@ -74,7 +73,7 @@ class TenantProductManagerSerializer(serializers.ModelSerializer):
     """Serializer class for TenantProductManager user model.
     """
     user = UserSerializer()
-    tenant = TenantSerializer()
+    tenant_repr = TenantSerializer(source='tenant', read_only=True)
     type = serializers.CharField(source='get_type', read_only=True)
 
     class Meta:
@@ -86,7 +85,7 @@ class TenantProjectManagerSerializer(serializers.ModelSerializer):
     """Serializer class for TenantProjectManager user model.
     """
     user = UserSerializer()
-    tenant = TenantSerializer()
+    tenant_repr = TenantSerializer(source='tenant', read_only=True)
     type = serializers.CharField(source='get_type', read_only=True)
 
     class Meta:
@@ -98,7 +97,7 @@ class TenantConsultantSerializer(serializers.ModelSerializer):
     """Serializer class for TenantConsultant user model.
     """
     user = UserSerializer()
-    tenant = TenantSerializer()
+    tenant_repr = TenantSerializer(source='tenant', read_only=True)
     type = serializers.CharField(source='get_type', read_only=True)
 
     class Meta:
@@ -216,18 +215,6 @@ class ProjectWorkerRelatedField(serializers.RelatedField):
             raise Exception('Unexpected type of tagged object')
 
         return serializer.data
-
-
-
-class ProjectWorkerSerializer(serializers.ModelSerializer):
-    """Serializer class for ProjectWorker.
-    """
-    project_worker_repr = ProjectWorkerRelatedField(source='project_worker', read_only=True)
-
-    class Meta:
-        model = ProjectWorker
-        fields = '__all__'
-        extra_kwargs = {'project': {'required': False}}
 
 
 class PersonToAssessRelatedField(serializers.RelatedField):
