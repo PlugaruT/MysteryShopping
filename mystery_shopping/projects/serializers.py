@@ -176,10 +176,13 @@ class ProjectSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         print(validated_data)
         research_methodology = validated_data.pop('research_methodology', None)
-        project_workers = validated_data.pop('project_workers', None)
+        consultants = validated_data.pop('consultants', [])
         validated_data.pop('shoppers', None)
 
         project = Project.objects.create(**validated_data)
+
+        for consultant in consultants:
+            project.consultants.add(consultant)
 
         # if project_workers is not None:
         #     for project_worker in project_workers:
@@ -197,10 +200,13 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         print(validated_data)
-        project_workers = validated_data.pop('project_workers', None)
+        consultants = validated_data.pop('consultants', [])
         research_methodology = validated_data.pop('research_methodology', None)
 
         instance.prepare_for_update()
+
+        for consultant in consultants:
+            instance.consultants.add(consultant)
 
         # if project_workers is not None:
         #     for project_worker in project_workers:
