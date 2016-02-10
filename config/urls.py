@@ -10,6 +10,8 @@ from django.views import defaults as default_views
 
 from mystery_shopping.common.urls import router as common_router
 from mystery_shopping.companies.urls import router as company_router
+from mystery_shopping.companies.urls import company_router_for_projects
+from mystery_shopping.companies.urls import company_project_router
 from mystery_shopping.projects.urls import router as project_router
 from mystery_shopping.questionnaires.urls import router as questionnaire_router
 from mystery_shopping.users.urls import router as user_router
@@ -36,6 +38,8 @@ urlpatterns = [
     url(r'^api/v1/', include(common_router.urls)),
 
     url(r'^api/v1/', include(company_router.urls)),
+    url(r'^api/v1/', include(company_router_for_projects.urls)),
+    url(r'^api/v1/', include(company_project_router.urls)),
     url(r'^api/v1/', include(questionnaire_router.urls), name="api"),
 
     url(r'^api/v1/', include(project_router.urls)),

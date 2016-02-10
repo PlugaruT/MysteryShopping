@@ -61,7 +61,7 @@ router.register(r'tenantprojectmanagers', TenantProjectManagerViewSet)
 router.register(r'tenantconsultants', TenantConsultantViewSet)
 router.register(r'peopletoassess', PersonToAssessViewSet)
 
-shopper_router = SimpleRouter()
+shopper_router = DefaultRouter()
 shopper_router.register(r'shoppers', ShopperViewSet)
 
 shopper_planned_evaluation = NestedSimpleRouter(shopper_router, r'shoppers', lookup='shopper')

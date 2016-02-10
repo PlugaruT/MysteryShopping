@@ -38,6 +38,21 @@ class ProjectViewSet(viewsets.ModelViewSet):
     #     return queryset
 
 
+class ProjectPerCompanyViewSet(viewsets.ViewSet):
+    permission_classes = (HasAccessToEvaluations,)
+
+    def list(self, request, company_pk=None):
+        queryset = Project.objects.filter(company=company_pk)
+        serializer = ProjectSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None, company_pk=None):
+        project = get_object_or_404(Project, pk=pk, company=company_pk)
+        self.check_object_permissions(request, project)
+        serializer = ProjectSerializer(project)
+        return Response(serializer.data)
+
+
 class ResearchMethodologyViewSet(viewsets.ModelViewSet):
     queryset = ResearchMethodology.objects.all()
     serializer_class = ResearchMethodologySerializer
@@ -58,10 +73,10 @@ class PlannedEvaluationViewSet(viewsets.ModelViewSet):
 
 
 class PlannedEvaluationPerShopperViewSet(viewsets.ViewSet):
-    permission_classes = (HasAccessToEvaluations,)
+    permission_classes = (Or(HasAccessToEvaluations, IsTenantProductManager),)
 
     def list(self, request, shopper_pk=None):
-        queryset = PlannedEvaluation.objects.filter(shopper__user=shopper_pk)
+        queryset = PlannedEvaluation.objects.filter(shopper=shopper_pk)
         serializer = PlannedEvaluationSerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -88,7 +103,7 @@ class AccomplishedEvaluationPerShopperViewSet(viewsets.ViewSet):
     permission_classes = (HasAccessToEvaluations,)
 
     def list(self, request, shopper_pk=None):
-        queryset = AccomplishedEvaluation.objects.filter(shopper__user=shopper_pk)
+        queryset = AccomplishedEvaluation.objects.filter(shopper=shopper_pk)
         serializer = AccomplishedEvaluationsSerializer(queryset, many=True)
         return Response(serializer.data)
 
