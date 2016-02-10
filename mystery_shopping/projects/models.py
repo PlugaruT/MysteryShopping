@@ -83,7 +83,7 @@ class Project(models.Model):
                                                                        self.period_end.day, self.period_end.month, self.period_start.year%2000)
 
     def prepare_for_update(self):
-        self.project_workers.all().delete()
+        self.consultants.clear()
 
 
 class PlannedEvaluation(models.Model):
