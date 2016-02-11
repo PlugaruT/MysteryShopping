@@ -142,11 +142,15 @@ class EvaluationAssessmentLevel(models.Model):
     """
     # Relations
     project = models.ForeignKey(Project)
-    previous_level = models.OneToOneField('self', null=True, blank=True, related_name='next_level')
+    next_level = models.OneToOneField('self', null=True, blank=True, related_name='previous_level')
     project_manager = models.ForeignKey('users.TenantProjectManager', null=True)
+    consultants = models.ManyToManyField('users.TenantConsultant')
 
     # Attributes
     level = models.PositiveIntegerField(null=True, default=0,  blank=True)
+
+    class Meta:
+        default_related_name = 'evaluation_assessment_levels'
 
     def __str__(self):
         return "Project: {}; level: {}".format(self.project, self.level)

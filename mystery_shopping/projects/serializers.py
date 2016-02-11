@@ -5,7 +5,7 @@ from .models import ResearchMethodology
 from .models import PlannedEvaluation
 from .models import AccomplishedEvaluation
 from .models import PlaceToAssess
-
+from .models import EvaluationAssessmentLevel
 
 from mystery_shopping.companies.models import Entity
 from mystery_shopping.companies.models import Section
@@ -19,6 +19,7 @@ from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSer
 from mystery_shopping.users.serializers import ShopperSerializer
 from mystery_shopping.users.serializers import PersonToAssessSerializer
 from mystery_shopping.users.serializers import TenantProjectManagerSerializer
+from mystery_shopping.users.serializers import TenantConsultantSerializer
 from mystery_shopping.users.serializer_fields import ProjectManagerRelatedField
 from mystery_shopping.users.serializer_fields import ClientUserRelatedField
 
@@ -286,4 +287,17 @@ class AccomplishedEvaluationsSerializer(PlannedEvaluationSerializer):
     """
     class Meta:
         model = AccomplishedEvaluation
+        fields = '__all__'
+
+
+class EvaluationAssessmentLevelSerializer(serializers.ModelSerializer):
+    """
+
+    """
+    previous_level = serializers.PrimaryKeyRelatedField(read_only=True)
+    project_manager_repr = TenantProjectManagerSerializer(source='project_manager', read_only=True)
+    consultants_repr = TenantConsultantSerializer(source='consultants', read_only=True, many=True)
+
+    class Meta:
+        model = EvaluationAssessmentLevel
         fields = '__all__'

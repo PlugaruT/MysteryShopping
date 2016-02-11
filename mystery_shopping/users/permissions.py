@@ -71,7 +71,7 @@ class HasAccessToEvaluations(permissions.BasePermission):
     """
     def has_permission(self, request, view):
         if request.user:
-            print(request.user.user_type)
+            # print(request.user.user_type)
             if request.user.user_type in ['tenantproductmanager', 'tenantprojectmanager', 'tenantconsultant']:
                 return True
             return False

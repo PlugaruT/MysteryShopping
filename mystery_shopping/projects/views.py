@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 
 from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_condition import Or
 
@@ -9,11 +10,14 @@ from .models import Project
 from .models import ResearchMethodology
 from .models import PlannedEvaluation
 from .models import AccomplishedEvaluation
+from .models import EvaluationAssessmentLevel
 from .serializers import PlaceToAssessSerializer
 from .serializers import ProjectSerializer
 from .serializers import ResearchMethodologySerializer
 from .serializers import PlannedEvaluationSerializer
 from .serializers import AccomplishedEvaluationsSerializer
+from .serializers import EvaluationAssessmentLevelSerializer
+
 from mystery_shopping.users.permissions import IsTenantProductManager
 from mystery_shopping.users.permissions import IsTenantProjectManager
 from mystery_shopping.users.permissions import IsTenantConsultant
@@ -73,7 +77,7 @@ class PlannedEvaluationViewSet(viewsets.ModelViewSet):
 
 
 class PlannedEvaluationPerShopperViewSet(viewsets.ViewSet):
-    permission_classes = (Or(HasAccessToEvaluations, IsTenantProductManager),)
+    permission_classes = (IsAuthenticated, HasAccessToEvaluations, )
 
     def list(self, request, shopper_pk=None):
         queryset = PlannedEvaluation.objects.filter(shopper=shopper_pk)
@@ -112,3 +116,9 @@ class AccomplishedEvaluationPerShopperViewSet(viewsets.ViewSet):
         self.check_object_permissions(request, accomplished_evaluation)
         serializer = AccomplishedEvaluationsSerializer(accomplished_evaluation)
         return Response(serializer.data)
+
+
+class EvaluationAssessmentLevelViewSet(viewsets.ModelViewSet):
+    queryset = EvaluationAssessmentLevel.objects.all()
+    serializer_class = EvaluationAssessmentLevelSerializer
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant, IsShopper),)
