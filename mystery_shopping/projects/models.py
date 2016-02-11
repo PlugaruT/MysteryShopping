@@ -3,6 +3,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.db import models
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
+from model_utils.fields import StatusField
 
 from mystery_shopping.companies.models import Company, Department, Entity, Section
 from mystery_shopping.questionnaires.models import QuestionnaireScript, QuestionnaireTemplate
@@ -123,11 +124,17 @@ class AccomplishedEvaluation(TimeStampedModel, PlannedEvaluation):
     """
     # Relations
     questionnaire = models.OneToOneField(Questionnaire)
+    evaluation_assessment_level = models.ForeignKey('EvaluationAssessmentLevel', null=True)
 
     # Attributes
+    STATUS = Choices(('draft', 'Draft'),
+                     ('submitted', 'Submitted'),
+                     ('reviewed', 'Reviewed'),
+                     ('approved', 'Approved'),
+                     ('declined', 'Declined'),
+                     ('rejected', 'Rejected'))
+    status = StatusField()
     time_accomplished = models.DateTimeField()
-
-    # add timestamp
 
     class Meta:
         default_related_name = 'accomplished_evaluations'
