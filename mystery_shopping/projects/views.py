@@ -11,12 +11,14 @@ from .models import ResearchMethodology
 from .models import PlannedEvaluation
 from .models import AccomplishedEvaluation
 from .models import EvaluationAssessmentLevel
+from .models import EvaluationAssessmentComment
 from .serializers import PlaceToAssessSerializer
 from .serializers import ProjectSerializer
 from .serializers import ResearchMethodologySerializer
 from .serializers import PlannedEvaluationSerializer
 from .serializers import AccomplishedEvaluationsSerializer
 from .serializers import EvaluationAssessmentLevelSerializer
+from .serializers import EvaluationAssessmentCommentSerializer
 
 from mystery_shopping.users.permissions import IsTenantProductManager
 from mystery_shopping.users.permissions import IsTenantProjectManager
@@ -121,4 +123,10 @@ class AccomplishedEvaluationPerShopperViewSet(viewsets.ViewSet):
 class EvaluationAssessmentLevelViewSet(viewsets.ModelViewSet):
     queryset = EvaluationAssessmentLevel.objects.all()
     serializer_class = EvaluationAssessmentLevelSerializer
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant, IsShopper),)
+
+
+class EvaluationAssessmentCommentViewSet(viewsets.ModelViewSet):
+    queryset = EvaluationAssessmentComment.objects.all()
+    serializer_class = EvaluationAssessmentCommentSerializer
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant, IsShopper),)

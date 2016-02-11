@@ -6,6 +6,8 @@ from .views import ResearchMethodologyViewSet
 from .views import PlannedEvaluationViewSet
 from .views import AccomplishedEvaluationViewSet
 from .views import EvaluationAssessmentLevelViewSet
+from .views import EvaluationAssessmentCommentViewSet
+
 
 router = DefaultRouter()
 router.register(r'placestoassess', PlaceToAssessViewSet)
@@ -14,3 +16,4 @@ router.register(r'researchmethodologies', ResearchMethodologyViewSet)
 router.register(r'plannedevaluations', PlannedEvaluationViewSet)
 router.register(r'accomplishedevaluations', AccomplishedEvaluationViewSet)
 router.register(r'evaluationassessmentlevels', EvaluationAssessmentLevelViewSet)
+router.register(r'evaluationassessmentcomments', EvaluationAssessmentCommentViewSet)

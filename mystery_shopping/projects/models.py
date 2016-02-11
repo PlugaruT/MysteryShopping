@@ -161,3 +161,21 @@ class EvaluationAssessmentLevel(models.Model):
 
     def __str__(self):
         return "Project: {}; level: {}".format(self.project, self.level)
+
+
+class EvaluationAssessmentComment(models.Model):
+    """
+
+    """
+    # Relations
+    consultant = models.ForeignKey('users.TenantConsultant')
+    evaluation_assessment_level = models.ForeignKey(EvaluationAssessmentLevel)
+
+    # Attributes
+    comment = models.TextField()
+
+    class Meta:
+        default_related_name = 'evaluation_assessment_comments'
+
+    def __str__(self):
+        return "Comment: {}, consultant: {}".format(self.comment[:50], self.consultant.user.last_name)

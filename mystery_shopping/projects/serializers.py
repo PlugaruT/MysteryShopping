@@ -6,6 +6,7 @@ from .models import PlannedEvaluation
 from .models import AccomplishedEvaluation
 from .models import PlaceToAssess
 from .models import EvaluationAssessmentLevel
+from .models import EvaluationAssessmentComment
 
 from mystery_shopping.companies.models import Entity
 from mystery_shopping.companies.models import Section
@@ -290,6 +291,17 @@ class AccomplishedEvaluationsSerializer(PlannedEvaluationSerializer):
         fields = '__all__'
 
 
+class EvaluationAssessmentCommentSerializer(serializers.ModelSerializer):
+    """
+
+    """
+    consultant_repr = TenantConsultantSerializer(source='consultant', read_only=True)
+
+    class Meta:
+        model = EvaluationAssessmentComment
+        fields = '__all__'
+
+
 class EvaluationAssessmentLevelSerializer(serializers.ModelSerializer):
     """
 
@@ -297,6 +309,7 @@ class EvaluationAssessmentLevelSerializer(serializers.ModelSerializer):
     previous_level = serializers.PrimaryKeyRelatedField(read_only=True)
     project_manager_repr = TenantProjectManagerSerializer(source='project_manager', read_only=True)
     consultants_repr = TenantConsultantSerializer(source='consultants', read_only=True, many=True)
+    comments = EvaluationAssessmentCommentSerializer(source='evaluation_assessment_comments', read_only=True, many=True)
 
     class Meta:
         model = EvaluationAssessmentLevel
