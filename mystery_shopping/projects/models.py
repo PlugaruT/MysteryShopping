@@ -108,6 +108,8 @@ class PlannedEvaluation(models.Model):
                                   ('visit', 'Visit')))
     evaluation_type = models.CharField(max_length=6, choices=evaluation_choices)
 
+    is_draft = models.BooleanField(default=True)
+
     suggested_start_date = models.DateTimeField(null=True)
     suggested_end_date = models.DateTimeField(null=True)
 
