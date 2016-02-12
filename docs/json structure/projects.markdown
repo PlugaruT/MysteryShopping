@@ -192,3 +192,92 @@
 - `employee_repr` : *representation* of `employee` = `clientmanager` or `clientemployee` (`read_only = True`)
 
 > [example](projects\ example/accomplishedevaluation.json)
+
+## Evaluation Assessment Level
+
+**`POST`**:
+
+- `project` : *id*
+- `previous_level` : *id* (`null = True`)
+- `project_manager` : *id* (`null = True`)
+- `consultants` : [*ids*] (`M2M field`)
+- `level` : *integer*
+
+> example:
+```json
+{
+    "level": null,
+    "project": null,
+    "previous_level": null,
+    "project_manager": null,
+    "consultants": []
+}
+```
+
+**`GET`**:
+
+- `project` : *id*
+- `previous_level` : *id*
+- `project_manager` : *id*
+- `consultants` : [*ids*]
+- `level` : *integer*
+- `next_level` : *id* (`read_only = True`)
+- `project_manager_repr` : *representation* of `Project Manager` (`read_only = True`)
+- `consultants_repr` : *representation* of `Consultant` (`many = True, read_only = True`)
+- `comments` : *representation* of `Evaluation Comment` (`many = True, read_only = True`)
+
+> [example](projects\ example/evaluationassessmentlevel.json)
+
+
+## Evaluation Assessment Comment
+
+**`POST`**:
+
+- `commenter_id` : *integer*
+- `commenter_type` : *id* (for `ContentType`: `tenantprojectmanager` or `tenantconsultant`)
+- `evaluation_assessment_level` : *id*
+- `comment` : *string* (`TextField`)
+
+> example:
+```json
+{
+    "commenter_id": null,
+    "comment": "",
+    "commenter_type": null,
+    "evaluation_assessment_level": null
+}
+```
+
+**`GET`**:
+
+- `commenter_id` : *integer*
+- `commenter_type` : *id* (for `ContentType`: `tenantprojectmanager` or `tenantconsultant`)
+- `evaluation_assessment_level` : *id*
+- `comment` : *string* (`TextField`)
+- `commenter_repr` : *representation* of `Project Manager` or `Consultant` (`read_only = True`)
+
+> example:
+```json
+{
+    "id": 1,
+    "commenter_repr": {
+        "id": 1,
+        "user": {
+            "id": 3,
+            "username": "alex_tenant_consultant",
+            "first_name": "",
+            "last_name": ""
+        },
+        "tenant_repr": {
+            "id": 2,
+            "name": "Magenta"
+        },
+        "type": "tenantconsultant",
+        "tenant": 2
+    },
+    "commenter_id": 1,
+    "comment": "fjsdkl fjsdlfj sadklfjsdkl fajsdklfasd;fsjdkl;",
+    "commenter_type": 15,
+    "evaluation_assessment_level": 4
+}
+```

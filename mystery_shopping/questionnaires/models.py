@@ -62,6 +62,7 @@ class Questionnaire(QuestionnaireAbstract):
 
     # Attributes
     score = models.DecimalField(max_digits=5, decimal_places=2)
+    weight = models.PositiveSmallIntegerField(default=100)
 
     class Meta:
         default_related_name = 'questionnaires'
@@ -164,7 +165,6 @@ class QuestionnaireQuestion(QuestionAbstract):
     show_comment = models.BooleanField(default=True)
     comment = models.TextField(blank=True)
     answer_choices = models.ManyToManyField("QuestionnaireQuestionChoice")
-    # add consultant (reviewer) comment
 
     class Meta:
         default_related_name = 'questions'

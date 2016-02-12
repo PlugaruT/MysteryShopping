@@ -149,7 +149,7 @@ class EvaluationAssessmentLevel(models.Model):
     """
     # Relations
     project = models.ForeignKey(Project)
-    next_level = models.OneToOneField('self', null=True, blank=True, related_name='previous_level')
+    previous_level = models.OneToOneField('self', null=True, blank=True, related_name='next_level')
     project_manager = models.ForeignKey('users.TenantProjectManager', null=True)
     consultants = models.ManyToManyField('users.TenantConsultant')
 
@@ -168,7 +168,11 @@ class EvaluationAssessmentComment(models.Model):
 
     """
     # Relations
-    consultant = models.ForeignKey('users.TenantConsultant')
+    limit = models.Q(app_label='users', model='tenantprojectmanager') | \
+            models.Q(app_label='users', model='tenantconsultant')
+    commenter_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='commenter_type')
+    commenter_id = models.PositiveIntegerField()
+    commenter = GenericForeignKey('commenter_type', 'commenter_id')
     evaluation_assessment_level = models.ForeignKey(EvaluationAssessmentLevel)
 
     # Attributes
@@ -178,4 +182,4 @@ class EvaluationAssessmentComment(models.Model):
         default_related_name = 'evaluation_assessment_comments'
 
     def __str__(self):
-        return "Comment: {}, consultant: {}".format(self.comment[:50], self.consultant.user.last_name)
+        return "Comment: {}, consultant: {}".format(self.comment[:50], self.commenter)

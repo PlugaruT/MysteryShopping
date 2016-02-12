@@ -21,7 +21,7 @@ from mystery_shopping.users.serializers import ShopperSerializer
 from mystery_shopping.users.serializers import PersonToAssessSerializer
 from mystery_shopping.users.serializers import TenantProjectManagerSerializer
 from mystery_shopping.users.serializers import TenantConsultantSerializer
-from mystery_shopping.users.serializer_fields import ProjectManagerRelatedField
+from mystery_shopping.users.serializer_fields import TenantUserRelatedField
 from mystery_shopping.users.serializer_fields import ClientUserRelatedField
 
 from mystery_shopping.users.models import PersonToAssess
@@ -165,13 +165,14 @@ class ProjectSerializer(serializers.ModelSerializer):
         model = Project
         fields = '__all__'
 
-    # @staticmethod
+    @staticmethod
     # def setup_eager_loading(queryset):
     #     """
     #     Perform necessary eager loading of data.
     #     """
-    #     queryset = queryset.select_related('company', 'tenant')
-    #     queryset = queryset.prefetch_related('shoppers__user', 'research_methodology__scripts', 'research_methodology__questionnaires',)
+    #     # queryset = queryset.select_related()
+    #     queryset = queryset.prefetch_related('company__departments__entities__sections', 'shoppers__user', 'research_methodology__scripts', 'research_methodology__questionnaires',
+    #     'research_methodology__questionnaires__template_blocks','research_methodology__questionnaires__template_blocks__template_questions' )
     #     # queryset = queryset.prefetch_related(None)
     #     return queryset
 
@@ -295,7 +296,7 @@ class EvaluationAssessmentCommentSerializer(serializers.ModelSerializer):
     """
 
     """
-    consultant_repr = TenantConsultantSerializer(source='consultant', read_only=True)
+    commenter_repr = TenantUserRelatedField(source='commenter', read_only=True)
 
     class Meta:
         model = EvaluationAssessmentComment
@@ -306,7 +307,7 @@ class EvaluationAssessmentLevelSerializer(serializers.ModelSerializer):
     """
 
     """
-    previous_level = serializers.PrimaryKeyRelatedField(read_only=True)
+    next_level = serializers.PrimaryKeyRelatedField(read_only=True)
     project_manager_repr = TenantProjectManagerSerializer(source='project_manager', read_only=True)
     consultants_repr = TenantConsultantSerializer(source='consultants', read_only=True, many=True)
     comments = EvaluationAssessmentCommentSerializer(source='evaluation_assessment_comments', read_only=True, many=True)
