@@ -14,7 +14,7 @@ from .serializers import ClientManagerSerializer
 from .serializers import ClientEmployeeSerializer
 
 
-class ProjectManagerRelatedField(serializers.RelatedField):
+class TenantUserRelatedField(serializers.RelatedField):
     """
     A custom field to use to serialize the instance (from a Project) of a project manager according to it's type: TenantProductManager or TenantProjectManager.
     """
@@ -27,6 +27,8 @@ class ProjectManagerRelatedField(serializers.RelatedField):
             serializer = TenantProductManagerSerializer(value)
         elif isinstance(value, TenantProjectManager):
             serializer = TenantProjectManagerSerializer(value)
+        elif isinstance(value, TenantConsultant):
+            serializer = TenantConsultantSerializer(value)
         else:
             raise Exception('Unexpected type of tagged object')
 
