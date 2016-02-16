@@ -34,6 +34,7 @@ class ResearchMethodology(models.Model):
 
     """
     # Relations
+    tenant = models.ForeignKey(Tenant)
     scripts = models.ManyToManyField(QuestionnaireScript)
     questionnaires = models.ManyToManyField(QuestionnaireTemplate)
 

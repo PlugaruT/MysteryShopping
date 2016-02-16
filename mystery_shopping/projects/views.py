@@ -66,6 +66,11 @@ class ResearchMethodologyViewSet(viewsets.ModelViewSet):
     serializer_class = ResearchMethodologySerializer
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager),)
 
+    def get_queryset(self):
+        queryset = ResearchMethodology.objects.all()
+        queryset = queryset.filter(tenant=self.request.user.user_type_attr.tenant)
+        return queryset
+
 
 class PlannedEvaluationViewSet(viewsets.ModelViewSet):
     queryset = PlannedEvaluation.objects.all()
