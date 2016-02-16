@@ -38,10 +38,11 @@ class ProjectViewSet(viewsets.ModelViewSet):
     serializer_class = ProjectSerializer
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager),)
 
-    # def get_queryset(self):
-    #     queryset = Project.objects.all()
-    #     queryset = self.get_serializer_class().setup_eager_loading(queryset)
-    #     return queryset
+    def get_queryset(self):
+        queryset = Project.objects.all()
+        # queryset = self.get_serializer_class().setup_eager_loading(queryset)
+        queryset = queryset.filter(tenant=self.request.user.user_type_attr.tenant)
+        return queryset
 
 
 class ProjectPerCompanyViewSet(viewsets.ViewSet):
@@ -72,9 +73,13 @@ class PlannedEvaluationViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         if self.request.user.user_type in ['tenantproductmanager', 'tenantprojectmanager', 'tenantconsultant']:
-            return PlannedEvaluation.objects.all()
+            queryset = PlannedEvaluation.objects.all()
+            queryset = queryset.filter(project__tenant=self.request.user.user_type_attr.tenant)
+            return queryset
         elif self.request.user.user_type is 'shopper':
-            return PlannedEvaluation.objects.filter(shopper__user=self.request.user)
+            queryset = PlannedEvaluation.objects.all()
+            queryset = queryset.filter(shopper__user=self.request.user)
+            return queryset
         return None
 
 
@@ -100,7 +105,9 @@ class AccomplishedEvaluationViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         if self.request.user.user_type in ['tenantproductmanager', 'tenantprojectmanager', 'tenantconsultant']:
-            return AccomplishedEvaluation.objects.all()
+            queryset = AccomplishedEvaluation.objects.all()
+            queryset = queryset.filter(project__tenant=self.request.user.user_type_attr.tenant)
+            return queryset
         elif self.request.user.user_type is 'shopper':
             return AccomplishedEvaluation.objects.filter(shopper__user=self.request.user)
         return None

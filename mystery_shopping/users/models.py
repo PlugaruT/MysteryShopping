@@ -41,6 +41,15 @@ class User(AbstractUser):
         else:
             return []
 
+    @property
+    def user_type_attr(self):
+        if hasattr(self, 'tenantproductmanager'):
+            return getattr(self, 'tenantproductmanager')
+        elif hasattr(self, 'tenantprojectmanager'):
+            return getattr(self, 'tenantprojectmanager')
+        elif hasattr(self, 'tenantconsultant'):
+            return getattr(self, 'tenantconsultant')
+
 
 class TenantUserAbstract(models.Model):
     """The abstract class for Tenant User model.
@@ -146,7 +155,7 @@ class ClientManager(ClientUserAbstract):
             models.Q(app_label='companies', model='section')
     place_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='place_type', null=True, blank=True)
     place_id = models.PositiveIntegerField(null=True, blank=True)
-    place  = GenericForeignKey('place_type', 'place_id')
+    place = GenericForeignKey('place_type', 'place_id')
 
     def __str__(self):
         return u'{} {}'.format(self.user, self.place)
