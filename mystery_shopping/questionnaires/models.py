@@ -47,6 +47,7 @@ class QuestionnaireTemplate(QuestionnaireAbstract):
 
     # Attributes
     description = models.TextField()
+    is_editable = models.BooleanField(default=True)
 
     def __str__(self):
         return 'Title: {}'.format(self.title)

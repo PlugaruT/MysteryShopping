@@ -15,11 +15,11 @@ from .validators import ValidateQuestion
 class QuestionnaireTemplateQuestionChoiceSerializer(serializers.ModelSerializer):
     """
     """
-    template_question = serializers.PrimaryKeyRelatedField(queryset=QuestionnaireTemplateQuestion.objects.all(), required=False)
 
     class Meta:
         model = QuestionnaireTemplateQuestionChoice
         fields = '__all__'
+        extra_kwargs = {'template_question': {'required': False}}
 
 
 class QuestionnaireQuestionChoiceSerializer(serializers.ModelSerializer):
@@ -29,6 +29,7 @@ class QuestionnaireQuestionChoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionnaireQuestionChoice
         fields = '__all__'
+        extra_kwargs = {'question': {'required': False}}
 
 
 class QuestionnaireScriptSerializer(serializers.ModelSerializer):
@@ -108,12 +109,9 @@ class QuestionnaireBlockSerializer(serializers.ModelSerializer):
     """
 
     """
-    block_questions = QuestionnaireQuestionSerializer(many=True)
-    # questionnaire = serializers.PrimaryKeyRelatedField(queryset=Questionnaire.objects.all(), required=False)
-    lft = serializers.IntegerField(required=False)
-    rght = serializers.IntegerField(required=False)
-    tree_id = serializers.IntegerField(required=False)
-    level = serializers.IntegerField(required=False)
+    questions = QuestionnaireQuestionSerializer(many=True)
+    parent_order_number = serializers.IntegerField(write_only=True, allow_null=True, required=False)
+    order_number = serializers.IntegerField(write_only=True, required=False)
 
     class Meta:
         model = QuestionnaireBlock
@@ -123,15 +121,15 @@ class QuestionnaireBlockSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         # print(validated_data)
         children = validated_data.pop('children', None)
-        block_questions = validated_data.pop('block_questions')
+        questions = validated_data.pop('questions')
 
-        block = QuestionnaireTemplateBlock.objects.create(**validated_data)
+        block = QuestionnaireBlock.objects.create(**validated_data)
 
-        for block_question in block_questions:
-            # print(block_question)
-            block_question['questionnaire_template'] = block.questionnaire_template.id
-            block_question['block'] = block.id
-            block_question_ser = QuestionnaireTemplateQuestionSerializer(data=block_question)
+        for question in questions:
+            # print(question)
+            question['questionnaire'] = block.questionnaire.id
+            question['block'] = block.id
+            block_question_ser = QuestionnaireQuestionSerializer(data=question)
             block_question_ser.is_valid(raise_exception=True)
             block_question_ser.save()
         return block
@@ -155,11 +153,6 @@ class QuestionnaireTemplateBlockSerializer(serializers.ModelSerializer):
 
     """
     template_questions = QuestionnaireTemplateQuestionSerializer(many=True)
-    # questionnaire_template = serializers.PrimaryKeyRelatedField(queryset=QuestionnaireTemplate.objects.all(), required=False)
-    # lft = serializers.IntegerField(required=False)
-    # rght = serializers.IntegerField(required=False)
-    # tree_id = serializers.IntegerField(required=False)
-    # level = serializers.IntegerField(required=False)
     parent_order_number = serializers.IntegerField(write_only=True, allow_null=True, required=False)
     order_number = serializers.IntegerField(write_only=True, required=False)
 
@@ -202,7 +195,7 @@ class QuestionnaireSerializer(serializers.ModelSerializer):
     """
 
     """
-    blocks = QuestionnaireTemplateBlockSerializer(many=True, required=False)
+    blocks = QuestionnaireBlockSerializer(many=True, required=False)
 
     class Meta:
         model = Questionnaire
@@ -211,22 +204,32 @@ class QuestionnaireSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         # print(validated_data)
         blocks = validated_data.pop('blocks', None)
-        questionnaire = QuestionnaireTemplate.objects.create(**validated_data)
-        previous_block = None
-        parents_id = {}
+        questionnaire = Questionnaire.objects.create(**validated_data)
+
+        if questionnaire.template.is_editable:
+            questionnaire.template.is_editable = False
+            questionnaire.template.save()
+
+        parents = {}
         if blocks:
             for block in blocks:
                 block['questionnaire'] = questionnaire.id
-                if block['lft'] == 1:
-                    parents_id['level_' + str(block['level'])] = None
-                elif block['level'] > previous_block.level:
-                    parents_id['level_' + str(block['level'])] = previous_block.id
-
-                block['parent_block'] = parents_id['level_' + str(block['level'])]
-                block_ser = QuestionnaireTemplateBlockSerializer(data=block)
-                block_ser.is_valid(raise_exception=True)
-                current_block = block_ser.save()
-                previous_block = current_block
+                if block['parent_order_number'] is None:
+                    order_number = block.pop('order_number', None)
+                    block.pop('parent_order_number', None)
+                    block['parent_block'] = None
+                    block_ser = QuestionnaireBlockSerializer(data=block)
+                    block_ser.is_valid(raise_exception=True)
+                    block_ser.save()
+                    parents[order_number] = block_ser.instance.id
+                else:
+                    block['parent_block'] = parents[block['parent_order_number']]
+                    order_number = block.pop('order_number', None)
+                    block.pop('parent_order_number', None)
+                    block_ser = QuestionnaireBlockSerializer(data=block)
+                    block_ser.is_valid(raise_exception=True)
+                    block_ser.save()
+                    parents[order_number] = block_ser.instance.id
         return questionnaire
 
 
@@ -241,22 +244,18 @@ class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
         fields = '__all__'  # ('title', 'template_blocks',)
 
     def create(self, validated_data):
-        print(validated_data)
+        # print(validated_data)
         template_blocks = validated_data.pop('template_blocks', None)
         questionnaire_template = QuestionnaireTemplate.objects.create(**validated_data)
 
         parents = {}
         if template_blocks:
             for template_block in template_blocks:
-                print(template_block)
                 template_block['questionnaire_template'] = questionnaire_template.id
                 if template_block['parent_order_number'] is None:
                     order_number = template_block.pop('order_number', None)
                     template_block.pop('parent_order_number', None)
                     template_block['parent_block'] = None
-                    print()
-                    print("number", order_number)
-                    print(template_block)
                     template_block_ser = QuestionnaireTemplateBlockSerializer(data=template_block)
                     template_block_ser.is_valid(raise_exception=True)
                     template_block_ser.save()
@@ -265,13 +264,9 @@ class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
                     template_block['parent_block'] = parents[template_block['parent_order_number']]
                     order_number = template_block.pop('order_number', None)
                     template_block.pop('parent_order_number', None)
-                    print()
-                    print("number", order_number)
-                    print(template_block)
                     template_block_ser = QuestionnaireTemplateBlockSerializer(data=template_block)
                     template_block_ser.is_valid(raise_exception=True)
                     template_block_ser.save()
                     parents[order_number] = template_block_ser.instance.id
-                print(parents)
 
         return questionnaire_template
