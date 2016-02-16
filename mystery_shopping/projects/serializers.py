@@ -263,7 +263,6 @@ class PlannedEvaluationSerializer(serializers.ModelSerializer):
     """
 
     """
-    project_repr = ProjectSerializer(source='project', read_only=True)
     shopper_repr = ShopperSerializer(source='shopper', read_only=True)
     questionnaire_script_repr = QuestionnaireScriptSerializer(source='questionnaire_script', read_only=True)
     questionnaire_template_repr = QuestionnaireTemplateSerializer(source='questionnaire_template', read_only=True)
