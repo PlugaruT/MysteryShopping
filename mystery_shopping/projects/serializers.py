@@ -160,6 +160,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     project_manager_repr = TenantProjectManagerSerializer(source='project_manager', read_only=True)
     research_methodology = ResearchMethodologySerializer(required=False)
     shoppers = serializers.PrimaryKeyRelatedField(queryset=Shopper.objects.all(), many=True, allow_null=True, required=False)
+    consultants_repr = TenantConsultantSerializer(source='consultants', read_only=True, many=True)
 
     class Meta:
         model = Project
