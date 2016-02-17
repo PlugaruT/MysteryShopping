@@ -88,10 +88,10 @@ class Project(models.Model):
         self.consultants.clear()
 
 
-class PlannedEvaluation(models.Model):
+class Evaluation(TimeStampedModel, models.Model):
     """
-
     """
+    # Relationships
     project = models.ForeignKey(Project)
     shopper = models.ForeignKey('users.Shopper')
     questionnaire_script = models.ForeignKey(QuestionnaireScript)
@@ -101,49 +101,42 @@ class PlannedEvaluation(models.Model):
 
     limit = models.Q(app_label='users', model='clientmanager') | \
             models.Q(app_label='users', model='clientemployee')
-    employee_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='employee_type', null=True, blank=True)
+    evaluation_employee_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='evaluation_employee_type', null=True, blank=True)
     employee_id = models.PositiveIntegerField(null=True, blank=True)
-    employee = GenericForeignKey('employee_type', 'employee_id')
+    employee = GenericForeignKey('evaluation_employee_type', 'employee_id')
 
+    # For "Accomplished"
+    questionnaire = models.OneToOneField(Questionnaire, null=True, blank=True)
+    evaluation_assessment_level = models.ForeignKey('EvaluationAssessmentLevel', null=True, blank=True)
+
+    # Attributes
     evaluation_choices = Choices(('call', 'Call'),
                                  ('visit', 'Visit'))
-    evaluation_type = models.CharField(max_length=6, choices=evaluation_choices)
-
+    evaluation_type = StatusField(choices=evaluation_choices)
     is_draft = models.BooleanField(default=True)
 
     suggested_start_date = models.DateTimeField(null=True)
     suggested_end_date = models.DateTimeField(null=True)
 
-    class Meta:
-        default_related_name = 'planned_evaluations'
-
-    def __str__(self):
-        return '{}, shopper: {}'.format(self.project, self.shopper.user.username)
-
-
-class AccomplishedEvaluation(TimeStampedModel, PlannedEvaluation):
-    """
-
-    """
-    # Relations
-    questionnaire = models.OneToOneField(Questionnaire)
-    evaluation_assessment_level = models.ForeignKey('EvaluationAssessmentLevel', null=True)
-
-    # Attributes
-    STATUS = Choices(('draft', 'Draft'),
+    STATUS = Choices(('planned', 'Planned'),
+                     ('draft', 'Draft'),
                      ('submitted', 'Submitted'),
                      ('reviewed', 'Reviewed'),
                      ('approved', 'Approved'),
                      ('declined', 'Declined'),
                      ('rejected', 'Rejected'))
     status = StatusField()
-    time_accomplished = models.DateTimeField()
+    # For "Accomplished"
+    time_accomplished = models.DateTimeField(null=True)
 
     class Meta:
-        default_related_name = 'accomplished_evaluations'
+        default_related_name = 'evaluations'
 
     def __str__(self):
-        return '{}, time accomplished: {}'.format(self.project, str(self.time_accomplished))
+        if self.time_accomplished is not None:
+            return '{}, shopper: {}'.format(self.project, self.shopper.user.username)
+        else:
+            return '{}, time accomplished: {}'.format(self.project, str(self.time_accomplished))
 
 
 class EvaluationAssessmentLevel(models.Model):
@@ -177,6 +170,7 @@ class EvaluationAssessmentComment(models.Model):
     commenter_id = models.PositiveIntegerField()
     commenter = GenericForeignKey('commenter_type', 'commenter_id')
     evaluation_assessment_level = models.ForeignKey(EvaluationAssessmentLevel)
+    # evaluation = models.ForeignKey(Evaluation)
 
     # Attributes
     comment = models.TextField()

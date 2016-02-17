@@ -17,8 +17,8 @@ from .views import TenantProjectManagerViewSet
 from .views import TenantConsultantViewSet
 from .views import PersonToAssessViewSet
 
-from mystery_shopping.projects.views import PlannedEvaluationPerShopperViewSet
-from mystery_shopping.projects.views import AccomplishedEvaluationPerShopperViewSet
+# from mystery_shopping.projects.views import PlannedEvaluationPerShopperViewSet
+# from mystery_shopping.projects.views import AccomplishedEvaluationPerShopperViewSet
 
 
 urlpatterns = [
@@ -64,8 +64,8 @@ router.register(r'peopletoassess', PersonToAssessViewSet)
 shopper_router = DefaultRouter()
 shopper_router.register(r'shoppers', ShopperViewSet)
 
-shopper_planned_evaluation = NestedSimpleRouter(shopper_router, r'shoppers', lookup='shopper')
-shopper_planned_evaluation.register(r'plannedevaluations', PlannedEvaluationPerShopperViewSet, base_name='shopper-planned-evaluations')
+# shopper_planned_evaluation = NestedSimpleRouter(shopper_router, r'shoppers', lookup='shopper')
+# shopper_planned_evaluation.register(r'plannedevaluations', PlannedEvaluationPerShopperViewSet, base_name='shopper-planned-evaluations')
 
-shopper_accomplished_evaluation = NestedSimpleRouter(shopper_router, r'shoppers', lookup='shopper')
-shopper_accomplished_evaluation.register(r'accomplishedevaluations', AccomplishedEvaluationPerShopperViewSet, base_name='shopper-accomplished-evaluations')
+# shopper_accomplished_evaluation = NestedSimpleRouter(shopper_router, r'shoppers', lookup='shopper')
+# shopper_accomplished_evaluation.register(r'accomplishedevaluations', AccomplishedEvaluationPerShopperViewSet, base_name='shopper-accomplished-evaluations')

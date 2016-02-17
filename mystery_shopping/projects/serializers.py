@@ -2,8 +2,7 @@ from rest_framework import serializers
 
 from .models import Project
 from .models import ResearchMethodology
-from .models import PlannedEvaluation
-from .models import AccomplishedEvaluation
+from .models import Evaluation
 from .models import PlaceToAssess
 from .models import EvaluationAssessmentLevel
 from .models import EvaluationAssessmentComment
@@ -258,37 +257,25 @@ class ProjectSerializer(serializers.ModelSerializer):
 
         return instance
 
-
-class PlannedEvaluationSerializer(serializers.ModelSerializer):
+class EvaluationSerializer(serializers.ModelSerializer):
     """
-
     """
     shopper_repr = ShopperSerializer(source='shopper', read_only=True)
     questionnaire_script_repr = QuestionnaireScriptSerializer(source='questionnaire_script', read_only=True)
-    questionnaire_template_repr = QuestionnaireTemplateSerializer(source='questionnaire_template', read_only=True)
     entity_repr = EntitySerializer(source='entity', read_only=True)
     section_repr = SectionSerializer(source='section', read_only=True)
     employee_repr = ClientUserRelatedField(source='employee', read_only=True)
 
     class Meta:
-        model = PlannedEvaluation
+        model = Evaluation
         fields = '__all__'
 
     def validate(self, data):
         # Check if number of maximum evaluations isn't surpassed
-        if PlannedEvaluation.objects.filter(project=data['project']).count() >= Project.objects.get(pk=data['project'].id).research_methodology.number_of_evaluations:
+        if Evaluation.objects.filter(project=data['project']).count() >= Project.objects.get(pk=data['project'].id).research_methodology.number_of_evaluations:
             raise serializers.ValidationError('Max number of evaluations is exceeded')
         else:
             return data
-
-
-class AccomplishedEvaluationsSerializer(PlannedEvaluationSerializer):
-    """
-
-    """
-    class Meta:
-        model = AccomplishedEvaluation
-        fields = '__all__'
 
 
 class EvaluationAssessmentCommentSerializer(serializers.ModelSerializer):
