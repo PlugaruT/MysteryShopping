@@ -165,7 +165,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         model = Project
         fields = '__all__'
 
-    @staticmethod
+    # @staticmethod
     # def setup_eager_loading(queryset):
     #     """
     #     Perform necessary eager loading of data.
@@ -225,7 +225,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             research_methodology['scripts'] = list(map(lambda x: x.id, research_methodology.get('scripts', [])))
             research_methodology['questionnaires'] = list(map(lambda x: x.id, research_methodology.get('questionnaires', [])))
 
-            # Apped '_repr' suffix to places_to_assess and people_to_assess fields such that when calling
+            # Append '_repr' suffix to places_to_assess and people_to_assess fields such that when calling
             # ResearchMethodologySerializer's validation, it won't set these values to empty lists, because of not
             # finding 'places_to_assess_repr' values in data dict
             research_methodology['places_to_assess_repr'] = research_methodology['places_to_assess']

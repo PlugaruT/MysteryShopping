@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 
 from rest_framework import viewsets
+from rest_framework.serializers import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
@@ -90,10 +91,20 @@ class PlannedEvaluationViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         is_many = True if isinstance(request.data, list) else False
-        serializer = self.get_serializer(data=request.data, many=is_many)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
+        if is_many:
+            evaluations_left = Project.objects.get(pk=request.data[0]['project']).research_methodology.number_of_evaluations - PlannedEvaluation.objects.filter(project=request.data[0]['project']).count()
+            if evaluations_left >= len(request.data):
+                serializer = self.get_serializer(data=request.data, many=True)
+                serializer.is_valid(raise_exception=True)
+                self.perform_create(serializer)
+                headers = self.get_success_headers(serializer.data)
+            else:
+                raise ValidationError('You are trying to create more evaluations than the amount left.')
+        else:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
