@@ -15,6 +15,7 @@ from mystery_shopping.companies.serializers import SectionSerializer
 from mystery_shopping.companies.serializers import CompanySerializer
 
 from mystery_shopping.questionnaires.serializers import QuestionnaireScriptSerializer
+from mystery_shopping.questionnaires.serializers import QuestionnaireSerializer
 from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializer
 from mystery_shopping.users.serializers import ShopperSerializer
 from mystery_shopping.users.serializers import PersonToAssessSerializer
@@ -289,6 +290,7 @@ class EvaluationSerializer(serializers.ModelSerializer):
     """
     shopper_repr = ShopperSerializer(source='shopper', read_only=True)
     questionnaire_script_repr = QuestionnaireScriptSerializer(source='questionnaire_script', read_only=True)
+    questionnaire_repr = QuestionnaireSerializer(source='questionnaire', read_only=True)
     entity_repr = EntitySerializer(source='entity', read_only=True)
     section_repr = SectionSerializer(source='section', read_only=True)
     employee_repr = ClientUserRelatedField(source='employee', read_only=True)
@@ -303,3 +305,28 @@ class EvaluationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Max number of evaluations is exceeded')
         else:
             return data
+
+
+class EvaluationAssessmentCommentSerializer(serializers.ModelSerializer):
+    """
+
+    """
+    commenter_repr = TenantUserRelatedField(source='commenter', read_only=True)
+
+    class Meta:
+        model = EvaluationAssessmentComment
+        fields = '__all__'
+
+
+class EvaluationAssessmentLevelSerializer(serializers.ModelSerializer):
+    """
+
+    """
+    next_level = serializers.PrimaryKeyRelatedField(read_only=True)
+    project_manager_repr = TenantProjectManagerSerializer(source='project_manager', read_only=True)
+    consultants_repr = TenantConsultantSerializer(source='consultants', read_only=True, many=True)
+    comments = EvaluationAssessmentCommentSerializer(source='evaluation_assessment_comments', read_only=True, many=True)
+
+    class Meta:
+        model = EvaluationAssessmentLevel
+        fields = '__all__'

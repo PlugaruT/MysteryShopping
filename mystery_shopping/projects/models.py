@@ -112,7 +112,7 @@ class Evaluation(TimeStampedModel, models.Model):
     # Attributes
     evaluation_choices = Choices(('call', 'Call'),
                                  ('visit', 'Visit'))
-    evaluation_type = StatusField(choices=evaluation_choices)
+    evaluation_type = StatusField(choices_name='evaluation_choices')
     is_draft = models.BooleanField(default=True)
 
     suggested_start_date = models.DateTimeField(null=True)
@@ -127,7 +127,7 @@ class Evaluation(TimeStampedModel, models.Model):
                      ('rejected', 'Rejected'))
     status = StatusField()
     # For "Accomplished"
-    time_accomplished = models.DateTimeField(null=True)
+    time_accomplished = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         default_related_name = 'evaluations'
@@ -170,7 +170,7 @@ class EvaluationAssessmentComment(models.Model):
     commenter_id = models.PositiveIntegerField()
     commenter = GenericForeignKey('commenter_type', 'commenter_id')
     evaluation_assessment_level = models.ForeignKey(EvaluationAssessmentLevel)
-    # evaluation = models.ForeignKey(Evaluation)
+    evaluation = models.ForeignKey(Evaluation)
 
     # Attributes
     comment = models.TextField()

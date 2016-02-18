@@ -89,51 +89,50 @@ class EvaluationViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         is_many = True if isinstance(request.data, list) else False
-        if is_many:
-            evaluations_left = Project.objects.get(pk=request.data[0]['project']).research_methodology.number_of_evaluations - Evaluation.objects.filter(project=request.data[0]['project']).count()
-            if evaluations_left >= len(request.data):
-                serializer = self.get_serializer(data=request.data, many=True)
-                serializer.is_valid(raise_exception=True)
-                self.perform_create(serializer)
-                headers = self.get_success_headers(serializer.data)
-            else:
-                raise ValidationError('You are trying to create more evaluations than the amount left.')
-        else:
-            serializer = self.get_serializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            self.perform_create(serializer)
-            headers = self.get_success_headers(serializer.data)
+        project_id = request.data[0]['project'] if is_many else request.data['project']
+        total_number_of_evaluations = Project.objects.get(pk=project_id).research_methodology.number_of_evaluations
+        current_number_of_evaluations = Evaluation.objects.filter(project=project_id).count()
+        evaluations_left = total_number_of_evaluations - current_number_of_evaluations
+        evaluations_to_create = len(request.data) if is_many else 1
+        print(evaluations_left, evaluations_to_create)
+        if evaluations_to_create > evaluations_left:
+            raise ValidationError('Number of evaluations exceeded. Left: {}.'.format(evaluations_left))
+
+        serializer = self.get_serializer(data=request.data, many=is_many)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
-# class PlannedEvaluationPerShopperViewSet(viewsets.ViewSet):
-#     permission_classes = (IsAuthenticated, HasAccessToEvaluations, )
-#
-#     def list(self, request, shopper_pk=None):
-#         queryset = PlannedEvaluation.objects.filter(shopper=shopper_pk)
-#         serializer = PlannedEvaluationSerializer(queryset, many=True)
-#         return Response(serializer.data)
-#
-#     def retrieve(self, request, pk=None, shopper_pk=None):
-#         planned_evaluation = get_object_or_404(PlannedEvaluation, pk=pk, shopper=shopper_pk)
-#         self.check_object_permissions(request, planned_evaluation)
-#         serializer = PlannedEvaluationSerializer(planned_evaluation)
-#         return Response(serializer.data)
+class EvaluationPerShopperViewSet(viewsets.ViewSet):
+    permission_classes = (IsAuthenticated, HasAccessToEvaluations, )
+
+    def list(self, request, shopper_pk=None):
+        queryset = Evaluation.objects.filter(shopper=shopper_pk)
+        serializer = EvaluationSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None, shopper_pk=None):
+        evaluation = get_object_or_404(Evaluation, pk=pk, shopper=shopper_pk)
+        self.check_object_permissions(request, evaluation)
+        serializer = EvaluationSerializer(evaluation)
+        return Response(serializer.data)
 
 
-# class AccomplishedEvaluationPerShopperViewSet(viewsets.ViewSet):
-#     permission_classes = (HasAccessToEvaluations,)
-#
-#     def list(self, request, shopper_pk=None):
-#         queryset = AccomplishedEvaluation.objects.filter(shopper=shopper_pk)
-#         serializer = AccomplishedEvaluationsSerializer(queryset, many=True)
-#         return Response(serializer.data)
-#
-#     def retrieve(self, request, pk=None, shopper_pk=None):
-#         accomplished_evaluation = get_object_or_404(AccomplishedEvaluation, pk=pk, shopper=shopper_pk)
-#         self.check_object_permissions(request, accomplished_evaluation)
-#         serializer = AccomplishedEvaluationsSerializer(accomplished_evaluation)
-#         return Response(serializer.data)
+class EvaluationPerProjectViewSet(viewsets.ViewSet):
+    permission_classes = (IsAuthenticated, HasAccessToEvaluations, )
+
+    def list(self, request, project_pk=None):
+        queryset = Evaluation.objects.filter(project=project_pk)
+        serializer = EvaluationSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None, project_pk=None):
+        evaluation = get_object_or_404(Evaluation, pk=pk, project=project_pk)
+        self.check_object_permissions(request, evaluation)
+        serializer = EvaluationSerializer(evaluation)
+        return Response(serializer.data)
 
 
 class EvaluationAssessmentLevelViewSet(viewsets.ModelViewSet):
