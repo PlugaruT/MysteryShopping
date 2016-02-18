@@ -27,6 +27,31 @@ from mystery_shopping.users.models import PersonToAssess
 from mystery_shopping.users.models import Shopper
 
 
+class EvaluationAssessmentCommentSerializer(serializers.ModelSerializer):
+    """
+
+    """
+    commenter_repr = TenantUserRelatedField(source='commenter', read_only=True)
+
+    class Meta:
+        model = EvaluationAssessmentComment
+        fields = '__all__'
+
+
+class EvaluationAssessmentLevelSerializer(serializers.ModelSerializer):
+    """
+
+    """
+    next_level = serializers.PrimaryKeyRelatedField(read_only=True)
+    project_manager_repr = TenantProjectManagerSerializer(source='project_manager', read_only=True)
+    consultants_repr = TenantConsultantSerializer(source='consultants', read_only=True, many=True)
+    comments = EvaluationAssessmentCommentSerializer(source='evaluation_assessment_comments', read_only=True, many=True)
+
+    class Meta:
+        model = EvaluationAssessmentLevel
+        fields = '__all__'
+
+
 class PlaceToAssessSerializer(serializers.ModelSerializer):
     """
     """
@@ -160,6 +185,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     research_methodology = ResearchMethodologySerializer(required=False)
     shoppers = serializers.PrimaryKeyRelatedField(queryset=Shopper.objects.all(), many=True, allow_null=True, required=False)
     consultants_repr = TenantConsultantSerializer(source='consultants', read_only=True, many=True)
+    evaluation_assessment_levels_repr = EvaluationAssessmentLevelSerializer(source='evaluation_assessment_levels', read_only=True, many=True)
 
     class Meta:
         model = Project
@@ -277,28 +303,3 @@ class EvaluationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Max number of evaluations is exceeded')
         else:
             return data
-
-
-class EvaluationAssessmentCommentSerializer(serializers.ModelSerializer):
-    """
-
-    """
-    commenter_repr = TenantUserRelatedField(source='commenter', read_only=True)
-
-    class Meta:
-        model = EvaluationAssessmentComment
-        fields = '__all__'
-
-
-class EvaluationAssessmentLevelSerializer(serializers.ModelSerializer):
-    """
-
-    """
-    next_level = serializers.PrimaryKeyRelatedField(read_only=True)
-    project_manager_repr = TenantProjectManagerSerializer(source='project_manager', read_only=True)
-    consultants_repr = TenantConsultantSerializer(source='consultants', read_only=True, many=True)
-    comments = EvaluationAssessmentCommentSerializer(source='evaluation_assessment_comments', read_only=True, many=True)
-
-    class Meta:
-        model = EvaluationAssessmentLevel
-        fields = '__all__'
