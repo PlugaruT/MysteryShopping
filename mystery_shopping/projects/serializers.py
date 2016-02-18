@@ -298,35 +298,3 @@ class EvaluationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Evaluation
         fields = '__all__'
-
-    def validate(self, data):
-        # Check if number of maximum evaluations isn't surpassed
-        if Evaluation.objects.filter(project=data['project']).count() >= Project.objects.get(pk=data['project'].id).research_methodology.number_of_evaluations:
-            raise serializers.ValidationError('Max number of evaluations is exceeded')
-        else:
-            return data
-
-
-class EvaluationAssessmentCommentSerializer(serializers.ModelSerializer):
-    """
-
-    """
-    commenter_repr = TenantUserRelatedField(source='commenter', read_only=True)
-
-    class Meta:
-        model = EvaluationAssessmentComment
-        fields = '__all__'
-
-
-class EvaluationAssessmentLevelSerializer(serializers.ModelSerializer):
-    """
-
-    """
-    next_level = serializers.PrimaryKeyRelatedField(read_only=True)
-    project_manager_repr = TenantProjectManagerSerializer(source='project_manager', read_only=True)
-    consultants_repr = TenantConsultantSerializer(source='consultants', read_only=True, many=True)
-    comments = EvaluationAssessmentCommentSerializer(source='evaluation_assessment_comments', read_only=True, many=True)
-
-    class Meta:
-        model = EvaluationAssessmentLevel
-        fields = '__all__'
