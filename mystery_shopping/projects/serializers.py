@@ -15,6 +15,7 @@ from mystery_shopping.companies.serializers import SectionSerializer
 from mystery_shopping.companies.serializers import CompanySerializer
 
 from mystery_shopping.questionnaires.serializers import QuestionnaireScriptSerializer
+from mystery_shopping.questionnaires.serializers import QuestionnaireSerializer
 from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializer
 from mystery_shopping.users.serializers import ShopperSerializer
 from mystery_shopping.users.serializers import PersonToAssessSerializer
@@ -263,6 +264,7 @@ class EvaluationSerializer(serializers.ModelSerializer):
     """
     shopper_repr = ShopperSerializer(source='shopper', read_only=True)
     questionnaire_script_repr = QuestionnaireScriptSerializer(source='questionnaire_script', read_only=True)
+    questionnaire_repr = QuestionnaireSerializer(source='questionnaire', read_only=True)
     entity_repr = EntitySerializer(source='entity', read_only=True)
     section_repr = SectionSerializer(source='section', read_only=True)
     employee_repr = ClientUserRelatedField(source='employee', read_only=True)
@@ -270,13 +272,6 @@ class EvaluationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Evaluation
         fields = '__all__'
-
-    def validate(self, data):
-        # Check if number of maximum evaluations isn't surpassed
-        if Evaluation.objects.filter(project=data['project']).count() >= Project.objects.get(pk=data['project'].id).research_methodology.number_of_evaluations:
-            raise serializers.ValidationError('Max number of evaluations is exceeded')
-        else:
-            return data
 
 
 class EvaluationAssessmentCommentSerializer(serializers.ModelSerializer):

@@ -45,13 +45,13 @@ class QuestionnaireQuestionSerializer(serializers.ModelSerializer):
     """
 
     """
-    questionnaire = serializers.PrimaryKeyRelatedField(queryset=Questionnaire.objects.all(), required=False)
-    block = serializers.PrimaryKeyRelatedField(queryset=QuestionnaireBlock._default_manager.all(), required=False)
     question_choices = QuestionnaireQuestionChoiceSerializer(many=True, required=False)
 
     class Meta:
         model = QuestionnaireQuestion
         fields = '__all__'
+        extra_kwargs = {'block': {'required': False},
+                        'questionnaire': {'required': False}}
 
     def create(self, validated_data):
         question_choices = validated_data.pop('question_choices', None)
@@ -76,8 +76,6 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
     """
 
     """
-    # questionnaire_template = serializers.PrimaryKeyRelatedField(queryset=QuestionnaireTemplate.objects.all(), required=False)
-    # template_block = serializers.PrimaryKeyRelatedField(queryset=QuestionnaireTemplateBlock._default_manager.all(), required=False)
     template_question_choices = QuestionnaireTemplateQuestionChoiceSerializer(many=True, required=False)
 
     class Meta:
@@ -169,13 +167,8 @@ class QuestionnaireTemplateBlockSerializer(serializers.ModelSerializer):
         template_block = QuestionnaireTemplateBlock.objects.create(**validated_data)
 
         for template_block_question in template_questions:
-            print()
-            print('template question from block')
-            print(template_block_question)
             template_block_question['questionnaire_template'] = template_block.questionnaire_template.id
             template_block_question['template_block'] = template_block.id
-            print("fdsjakflsad")
-            print(template_block_question)
             template_block_question_ser = QuestionnaireTemplateQuestionSerializer(data=template_block_question)
             template_block_question_ser.is_valid(raise_exception=True)
             template_block_question_ser.save()
