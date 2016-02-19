@@ -136,6 +136,12 @@ class EvaluationPerProjectViewSet(viewsets.ViewSet):
         serializer = EvaluationSerializer(evaluation)
         return Response(serializer.data)
 
+    def destroy(self, request, pk=None, company_pk=None, project_pk=None):
+        queryset = Evaluation.objects.filter(pk=pk, project=project_pk, project__company=company_pk)
+        evaluation = get_object_or_404(queryset, pk=pk)
+        evaluation.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class EvaluationAssessmentLevelViewSet(viewsets.ModelViewSet):
     queryset = EvaluationAssessmentLevel.objects.all()
