@@ -26,6 +26,7 @@ from mystery_shopping.users.serializer_fields import ClientUserRelatedField
 
 from mystery_shopping.users.models import PersonToAssess
 from mystery_shopping.users.models import Shopper
+from mystery_shopping.users.models import TenantConsultant
 
 
 class EvaluationAssessmentCommentSerializer(serializers.ModelSerializer):
@@ -47,6 +48,7 @@ class EvaluationAssessmentLevelSerializer(serializers.ModelSerializer):
     project_manager_repr = TenantProjectManagerSerializer(source='project_manager', read_only=True)
     consultants_repr = TenantConsultantSerializer(source='consultants', read_only=True, many=True)
     comments = EvaluationAssessmentCommentSerializer(source='evaluation_assessment_comments', read_only=True, many=True)
+    consultants = serializers.PrimaryKeyRelatedField(queryset=TenantConsultant.objects.all(), allow_empty=True, many=True)
 
     class Meta:
         model = EvaluationAssessmentLevel
