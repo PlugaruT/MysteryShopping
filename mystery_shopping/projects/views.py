@@ -46,7 +46,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
 
 class ProjectPerCompanyViewSet(viewsets.ViewSet):
-    permission_classes = (HasAccessToEvaluations,)
+    permission_classes = (HasAccessToEvaluations,)  # TODO check whether this permission is appropriate here (maybe it should be HasAccessToProjects ?
 
     def list(self, request, company_pk=None):
         queryset = Project.objects.filter(company=company_pk)
@@ -54,7 +54,8 @@ class ProjectPerCompanyViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
     def retrieve(self, request, pk=None, company_pk=None):
-        project = get_object_or_404(Project, pk=pk, company=company_pk)
+        queryset = Project.objects.filter(pk=pk, company=company_pk)
+        project = get_object_or_404(queryset, pk=pk)
         self.check_object_permissions(request, project)
         serializer = ProjectSerializer(project)
         return Response(serializer.data)
@@ -123,13 +124,14 @@ class EvaluationPerShopperViewSet(viewsets.ViewSet):
 class EvaluationPerProjectViewSet(viewsets.ViewSet):
     permission_classes = (IsAuthenticated, HasAccessToEvaluations, )
 
-    def list(self, request, project_pk=None):
-        queryset = Evaluation.objects.filter(project=project_pk)
+    def list(self, request, company_pk=None, project_pk=None):
+        queryset = Evaluation.objects.filter(project=project_pk, project__company=company_pk)
         serializer = EvaluationSerializer(queryset, many=True)
         return Response(serializer.data)
 
-    def retrieve(self, request, pk=None, project_pk=None):
-        evaluation = get_object_or_404(Evaluation, pk=pk, project=project_pk)
+    def retrieve(self, request, pk=None, company_pk=None, project_pk=None):
+        queryset = Evaluation.objects.filter(pk=pk, project=project_pk, project__company=company_pk)
+        evaluation = get_object_or_404(queryset, pk=pk)
         self.check_object_permissions(request, evaluation)
         serializer = EvaluationSerializer(evaluation)
         return Response(serializer.data)

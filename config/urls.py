@@ -13,7 +13,6 @@ from mystery_shopping.companies.urls import router as company_router
 from mystery_shopping.companies.urls import company_router_for_projects
 from mystery_shopping.companies.urls import company_project_router
 from mystery_shopping.projects.urls import router as project_router
-from mystery_shopping.projects.urls import project_router_for_projects
 from mystery_shopping.projects.urls import project_evaluation
 from mystery_shopping.questionnaires.urls import router as questionnaire_router
 from mystery_shopping.users.urls import router as user_router
@@ -44,7 +43,6 @@ urlpatterns = [
     url(r'^api/v1/', include(questionnaire_router.urls), name="api"),
 
     url(r'^api/v1/', include(project_router.urls)),
-    url(r'^api/v1/', include(project_router_for_projects.urls)),
     url(r'^api/v1/', include(project_evaluation.urls)),
     url(r'^api/v1/', include(user_router.urls)),
 

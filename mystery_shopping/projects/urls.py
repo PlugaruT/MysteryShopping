@@ -8,18 +8,19 @@ from .views import EvaluationViewSet
 from .views import EvaluationPerProjectViewSet
 from .views import EvaluationAssessmentLevelViewSet
 from .views import EvaluationAssessmentCommentViewSet
+from mystery_shopping.companies.urls import company_project_router
 
 
 router = DefaultRouter()
 router.register(r'placestoassess', PlaceToAssessViewSet)
-# router.register(r'projects', ProjectViewSet)
+router.register(r'projects', ProjectViewSet)
 router.register(r'researchmethodologies', ResearchMethodologyViewSet)
 router.register(r'evaluations', EvaluationViewSet)
 router.register(r'evaluationassessmentlevels', EvaluationAssessmentLevelViewSet)
 router.register(r'evaluationassessmentcomments', EvaluationAssessmentCommentViewSet)
 
-project_router_for_projects = DefaultRouter()
-project_router_for_projects.register(r'projects', ProjectViewSet)
-
-project_evaluation = NestedSimpleRouter(project_router_for_projects, r'projects', lookup='project')
+# Define another `projects` route that is a nested route of `companies` route. Do this because there is a need
+# to have both a nested router within `companies` route AND a default router for `projects` to obtain the list
+# of all project for a tenant.
+project_evaluation = NestedSimpleRouter(company_project_router, r'projects', lookup='project')
 project_evaluation.register(r'evaluations', EvaluationPerProjectViewSet, base_name='project-evaluations')

@@ -17,7 +17,7 @@ router.register(r'entities', EntityViewSet)
 router.register(r'sections', SectionViewSet)
 
 company_router_for_projects = DefaultRouter()
-company_router_for_projects.register(r'companies', CompanyViewSet)
+company_router_for_projects.register(r'companies', CompanyViewSet, base_name='companies')
 
 company_project_router = NestedSimpleRouter(company_router_for_projects, r'companies', lookup='company')
 company_project_router.register(r'projects', ProjectPerCompanyViewSet, base_name='company-projects')

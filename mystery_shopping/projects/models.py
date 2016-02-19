@@ -101,9 +101,9 @@ class Evaluation(TimeStampedModel, models.Model):
 
     limit = models.Q(app_label='users', model='clientmanager') | \
             models.Q(app_label='users', model='clientemployee')
-    evaluation_employee_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='evaluation_employee_type', null=True, blank=True)
+    employee_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='employee_type', null=True, blank=True)
     employee_id = models.PositiveIntegerField(null=True, blank=True)
-    employee = GenericForeignKey('evaluation_employee_type', 'employee_id')
+    employee = GenericForeignKey('employee_type', 'employee_id')
 
     # For "Accomplished"
     questionnaire = models.OneToOneField(Questionnaire, null=True, blank=True)
