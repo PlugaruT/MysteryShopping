@@ -62,7 +62,7 @@ class Questionnaire(QuestionnaireAbstract):
     template = models.ForeignKey(QuestionnaireTemplate)
 
     # Attributes
-    score = models.DecimalField(max_digits=5, decimal_places=2)
+    score = models.DecimalField(max_digits=5, decimal_places=2, null=True)
     weight = models.PositiveSmallIntegerField(default=100)
 
     class Meta:
@@ -109,7 +109,7 @@ class QuestionnaireBlock(QuestionnaireBlockAbstract, MPTTModel):
     parent_block = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
 
     # Attributes
-    score = models.DecimalField(max_digits=5, decimal_places=2)
+    score = models.DecimalField(max_digits=5, decimal_places=2, null=True)
 
     class MPTTMeta:
         order_insertion_by = ('title',)

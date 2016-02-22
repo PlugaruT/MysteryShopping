@@ -114,7 +114,8 @@ class QuestionnaireBlockSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionnaireBlock
         fields = '__all__'
-        extra_kwargs = {'questionnaire': {'required': False}}
+        extra_kwargs = {'questionnaire': {'required': False},
+                        'score': {'required': False}}
 
     def create(self, validated_data):
         # print(validated_data)

@@ -48,12 +48,13 @@ class EvaluationAssessmentLevelSerializer(serializers.ModelSerializer):
     project_manager_repr = TenantProjectManagerSerializer(source='project_manager', read_only=True)
     consultants_repr = TenantConsultantSerializer(source='consultants', read_only=True, many=True)
     comments = EvaluationAssessmentCommentSerializer(source='evaluation_assessment_comments', read_only=True, many=True)
-    consultants = serializers.PrimaryKeyRelatedField(queryset=TenantConsultant.objects.all(), allow_empty=True, many=True)
+    # consultants = serializers.PrimaryKeyRelatedField(queryset=TenantConsultant.objects.all(), allow_empty=True, many=True)
 
     class Meta:
         model = EvaluationAssessmentLevel
         fields = '__all__'
-
+        extra_kwargs = {'consultants': {'allow_empty': True, 'many': True}}
+        
 
 class PlaceToAssessSerializer(serializers.ModelSerializer):
     """
@@ -300,3 +301,24 @@ class EvaluationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Evaluation
         fields = '__all__'
+
+    def create(self, validated_data):
+        questionnaire_template = validated_data.get('questionnaire_template', None)
+        print(questionnaire_template)
+        questionnaire_template_serialized = QuestionnaireTemplateSerializer(questionnaire_template)
+        import collections
+        questionnaire_to_create = collections.OrderedDict(questionnaire_template_serialized.data)
+        questionnaire_to_create['blocks'] = questionnaire_to_create.pop('template_blocks')
+        questionnaire_to_create['template'] = questionnaire_template.id
+        for block_index, block in enumerate(questionnaire_to_create['blocks']):
+            block['order_number'] = block.pop('id')
+            block['parent_order_number'] = block.pop('parent_block')
+            block['questions'] = block.pop('template_questions')
+
+        questionnaire_to_create_ser = QuestionnaireSerializer(data=questionnaire_to_create)
+        questionnaire_to_create_ser.is_valid(raise_exception=True)
+        questionnaire_to_create_ser.save()
+
+        validated_data['questionnaire'] = questionnaire_to_create_ser.instance
+        evaluation = Evaluation.objects.create(**validated_data)
+        return evaluation
