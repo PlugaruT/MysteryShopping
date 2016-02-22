@@ -51,16 +51,17 @@ class QuestionnaireQuestionSerializer(serializers.ModelSerializer):
         model = QuestionnaireQuestion
         fields = '__all__'
         extra_kwargs = {'block': {'required': False},
-                        'questionnaire': {'required': False}}
+                        'questionnaire': {'required': False},
+                        'answer_choices': {'required': False}}
 
     def create(self, validated_data):
         question_choices = validated_data.pop('question_choices', None)
 
-        question = QuestionnaireTemplateQuestion.objects.create(**validated_data)
+        question = QuestionnaireQuestion.objects.create(**validated_data)
 
         for question_choice in question_choices:
             question_choice['question'] = question.id
-            question_choice_ser = QuestionnaireTemplateQuestionChoiceSerializer(data=question_choice)
+            question_choice_ser = QuestionnaireQuestionChoiceSerializer(data=question_choice)
             question_choice_ser.is_valid(raise_exception=True)
             question_choice_ser.save()
         return question

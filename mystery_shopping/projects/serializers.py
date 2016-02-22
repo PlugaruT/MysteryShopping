@@ -315,6 +315,9 @@ class EvaluationSerializer(serializers.ModelSerializer):
             block['parent_order_number'] = block.pop('parent_block')
             block['questions'] = block.pop('template_questions')
 
+            for question in block['questions']:
+                question['question_choices'] = question.pop('template_question_choices')
+
         questionnaire_to_create_ser = QuestionnaireSerializer(data=questionnaire_to_create)
         questionnaire_to_create_ser.is_valid(raise_exception=True)
         questionnaire_to_create_ser.save()
