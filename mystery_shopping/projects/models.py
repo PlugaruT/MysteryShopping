@@ -10,6 +10,7 @@ from mystery_shopping.questionnaires.models import QuestionnaireScript, Question
 from mystery_shopping.tenants.models import Tenant
 from mystery_shopping.questionnaires.models import QuestionnaireTemplate
 from mystery_shopping.questionnaires.models import Questionnaire
+from mystery_shopping.projects.project_statuses import ProjectStatus
 # from mystery_shopping.users.models import Shopper
 # from mystery_shopping.users.models import TenantProjectManager
 
@@ -118,13 +119,13 @@ class Evaluation(TimeStampedModel, models.Model):
     suggested_start_date = models.DateTimeField(null=True)
     suggested_end_date = models.DateTimeField(null=True)
 
-    STATUS = Choices(('planned', 'Planned'),
-                     ('draft', 'Draft'),
-                     ('submitted', 'Submitted'),
-                     ('reviewed', 'Reviewed'),
-                     ('approved', 'Approved'),
-                     ('declined', 'Declined'),
-                     ('rejected', 'Rejected'))
+    STATUS = Choices((ProjectStatus.PLANNED, 'Planned'),
+                     (ProjectStatus.DRAFT, 'Draft'),
+                     (ProjectStatus.SUBMITTED, 'Submitted'),
+                     (ProjectStatus.REVIEWED, 'Reviewed'),
+                     (ProjectStatus.APPROVED, 'Approved'),
+                     (ProjectStatus.DECLINED, 'Declined'),
+                     (ProjectStatus.REJECTED, 'Rejected'))
     status = StatusField()
     # For "Accomplished"
     time_accomplished = models.DateTimeField(null=True, blank=True)

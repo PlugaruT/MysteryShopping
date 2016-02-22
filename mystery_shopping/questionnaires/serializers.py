@@ -47,12 +47,14 @@ class QuestionnaireQuestionSerializer(serializers.ModelSerializer):
     """
     question_choices = QuestionnaireQuestionChoiceSerializer(many=True, required=False)
 
+    question_id = serializers.IntegerField(write_only=True, required=False)
+
     class Meta:
         model = QuestionnaireQuestion
         fields = '__all__'
         extra_kwargs = {'block': {'required': False},
                         'questionnaire': {'required': False},
-                        'answer_choices': {'required': False}}
+                        'answer_choices': {'required': False, 'allow_empty': True}}
 
     def create(self, validated_data):
         question_choices = validated_data.pop('question_choices', None)

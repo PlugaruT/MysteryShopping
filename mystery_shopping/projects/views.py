@@ -123,6 +123,10 @@ class EvaluationPerShopperViewSet(viewsets.ViewSet):
 
 class EvaluationPerProjectViewSet(viewsets.ViewSet):
     permission_classes = (IsAuthenticated, HasAccessToEvaluations, )
+    serializer_class = EvaluationSerializer
+
+    def get_serializer(self):
+        return self.serializer_class
 
     def list(self, request, company_pk=None, project_pk=None):
         queryset = Evaluation.objects.filter(project=project_pk, project__company=company_pk)
@@ -134,6 +138,14 @@ class EvaluationPerProjectViewSet(viewsets.ViewSet):
         evaluation = get_object_or_404(queryset, pk=pk)
         self.check_object_permissions(request, evaluation)
         serializer = EvaluationSerializer(evaluation)
+        return Response(serializer.data)
+
+    def update(self, request, pk=None, company_pk=None, project_pk=None):
+        queryset = Evaluation.objects.filter(pk=pk, project=project_pk, project__company=company_pk)
+        evaluation = get_object_or_404(queryset, pk=pk)
+        serializer = EvaluationSerializer(evaluation, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(serializer.data)
 
     def destroy(self, request, pk=None, company_pk=None, project_pk=None):
