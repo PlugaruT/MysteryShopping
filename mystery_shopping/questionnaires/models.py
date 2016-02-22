@@ -162,9 +162,9 @@ class QuestionnaireQuestion(QuestionAbstract):
     questionnaire = models.ForeignKey(Questionnaire)
     block = models.ForeignKey(QuestionnaireBlock)
 
-    answer = models.TextField()
+    answer = models.TextField(null=True, blank=True)
     show_comment = models.BooleanField(default=True)
-    comment = models.TextField(blank=True)
+    comment = models.TextField(null=True, blank=True)
     answer_choices = models.ManyToManyField("QuestionnaireQuestionChoice")
 
     class Meta:
@@ -180,9 +180,9 @@ class QuestionChoiceAbstract(models.Model):
 
     """
     # Attributes
-    text = models.CharField(max_length=255)
-    score = models.DecimalField(max_digits=5, decimal_places=2)
-    weight = models.DecimalField(max_digits=5, decimal_places=2)
+    text = models.CharField(max_length=255, null=True)
+    score = models.DecimalField(max_digits=5, decimal_places=2, null=True)
+    weight = models.DecimalField(max_digits=5, decimal_places=2, null=True)
 
     class Meta:
         abstract = True
