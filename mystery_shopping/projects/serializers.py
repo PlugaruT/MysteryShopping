@@ -329,7 +329,6 @@ class EvaluationSerializer(serializers.ModelSerializer):
         return evaluation
 
     def update(self, instance, validated_data):
-        print(validated_data)
         current_status = instance.status
         questionnaire = validated_data.pop('questionnaire', None)
 

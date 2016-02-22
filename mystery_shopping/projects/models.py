@@ -139,6 +139,13 @@ class Evaluation(TimeStampedModel, models.Model):
         else:
             return '{}, time accomplished: {}'.format(self.project, str(self.time_accomplished))
 
+    def save(self, *args, **kwargs):
+        if self.status == ProjectStatus.SUBMITTED and self.evaluation_assessment_level is None:
+            first_evaluation_assessment_level = EvaluationAssessmentLevel.objects.get(project=self.project,
+                                                                                      previous_level__isnull=True)
+            self.evaluation_assessment_level = first_evaluation_assessment_level
+        super(Evaluation, self).save(*args, **kwargs)
+
 
 class EvaluationAssessmentLevel(models.Model):
     """
