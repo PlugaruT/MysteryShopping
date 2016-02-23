@@ -179,6 +179,7 @@ class EvaluationAssessmentComment(models.Model):
     commenter = GenericForeignKey('commenter_type', 'commenter_id')
     evaluation_assessment_level = models.ForeignKey(EvaluationAssessmentLevel)
     evaluation = models.ForeignKey(Evaluation)
+    questionnaire = models.ForeignKey(Questionnaire)
 
     # Attributes
     comment = models.TextField()
