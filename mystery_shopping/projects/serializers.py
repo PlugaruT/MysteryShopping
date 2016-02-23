@@ -17,12 +17,14 @@ from mystery_shopping.companies.serializers import CompanySerializer
 from mystery_shopping.questionnaires.serializers import QuestionnaireScriptSerializer
 from mystery_shopping.questionnaires.serializers import QuestionnaireSerializer
 from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializer
+from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from mystery_shopping.users.serializers import ShopperSerializer
 from mystery_shopping.users.serializers import PersonToAssessSerializer
 from mystery_shopping.users.serializers import TenantProjectManagerSerializer
 from mystery_shopping.users.serializers import TenantConsultantSerializer
 from mystery_shopping.users.serializer_fields import TenantUserRelatedField
 from mystery_shopping.users.serializer_fields import ClientUserRelatedField
+from mystery_shopping.projects.project_statuses import ProjectStatus
 
 from mystery_shopping.users.models import PersonToAssess
 from mystery_shopping.users.models import Shopper
@@ -293,7 +295,7 @@ class EvaluationSerializer(serializers.ModelSerializer):
     """
     shopper_repr = ShopperSerializer(source='shopper', read_only=True)
     questionnaire_script_repr = QuestionnaireScriptSerializer(source='questionnaire_script', read_only=True)
-    questionnaire_repr = QuestionnaireSerializer(source='questionnaire', read_only=True)
+    questionnaire = QuestionnaireSerializer()
     entity_repr = EntitySerializer(source='entity', read_only=True)
     section_repr = SectionSerializer(source='section', read_only=True)
     employee_repr = ClientUserRelatedField(source='employee', read_only=True)
@@ -324,3 +326,25 @@ class EvaluationSerializer(serializers.ModelSerializer):
         validated_data['questionnaire'] = questionnaire_to_create_ser.instance
         evaluation = Evaluation.objects.create(**validated_data)
         return evaluation
+
+    def update(self, instance, validated_data):
+        current_status = instance.status
+        questionnaire = validated_data.pop('questionnaire', None)
+
+        if questionnaire and current_status in ProjectStatus.EDITABLE_STATUSES:
+            for block in questionnaire.get('blocks', []):
+                for question in block.get('questions', []):
+                    question_instance = QuestionnaireQuestion.objects.get(questionnaire=question.get('questionnaire'), pk=question.get('question_id'))
+                    question_instance.answer = question.get('answer', None)
+                    question_instance.answer_choices.add(*question.get('answer_choices', []))
+                    question_instance.comment = question.get('comment', None)
+                    question_instance.save()
+
+            if validated_data.get('status', ProjectStatus.PLANNED) == ProjectStatus.PLANNED:
+                instance.status = ProjectStatus.DRAFT
+            else:
+                instance.status = validated_data.get('status')
+
+            instance.save()
+
+        return instance
