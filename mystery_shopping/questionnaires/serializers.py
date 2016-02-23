@@ -114,6 +114,18 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
         return template_question
 
     def update(self, instance, validated_data):
+
+        siblings_to_update = validated_data.pop('siblings', [])
+        for sibling in siblings_to_update:
+            question_id = sibling.pop('question_id')
+            # Check if the questions are from the same questionnaire template block
+            question_to_update = QuestionnaireTemplateQuestion.objects.filter(pk=question_id, template_block=validated_data['template_block']).first()
+
+            if question_to_update is not None:
+                for attr, value in sibling['question_changes'].items():
+                    setattr(question_to_update, attr, value)
+                question_to_update.save()
+                
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
