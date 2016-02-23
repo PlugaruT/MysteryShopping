@@ -175,7 +175,7 @@ class QuestionnaireTemplateBlockSerializer(serializers.ModelSerializer):
             block_id = sibling.pop('block_id')
             # Check if blocks are from the same questionnaire template
             block_to_update = QuestionnaireTemplateBlock.objects.filter(pk=block_id, questionnaire_template=validated_data['questionnaire_template']).first()
-            
+
             if block_to_update is not None:
                 for attr, value in sibling['block_changes'].items():
                     setattr(block_to_update, attr, value)
@@ -192,11 +192,20 @@ class QuestionnaireTemplateBlockSerializer(serializers.ModelSerializer):
         return template_block
 
     def update(self, instance, validated_data):
-        print(validated_data)
-        instance.title = validated_data.get('title', instance.title)
-        instance.weight = validated_data.get('weight', instance.weight)
-        instance.questionnaire_template = validated_data.get('questionnaire_template', instance.questionnaire_template)
-        instance.parent_block = validated_data.get('parent_block', instance.parent_block)
+        # Get the block siblings to update
+        siblings = validated_data.pop('siblings', [])
+        for sibling in siblings:
+            block_id = sibling.pop('block_id')
+            # Check if blocks are from the same questionnaire template
+            block_to_update = QuestionnaireTemplateBlock.objects.filter(pk=block_id, questionnaire_template=validated_data['questionnaire_template']).first()
+
+            if block_to_update is not None:
+                for attr, value in sibling['block_changes'].items():
+                    setattr(block_to_update, attr, value)
+                block_to_update.save()
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
         instance.save()
         return instance
 
