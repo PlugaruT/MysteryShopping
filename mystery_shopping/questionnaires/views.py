@@ -1,4 +1,7 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
+from rest_framework.response import Response
+from rest_framework import status
 from rest_condition import Or
 
 from .models import QuestionnaireScript
@@ -47,6 +50,12 @@ class QuestionnaireTemplateBlockViewSet(viewsets.ModelViewSet):
     queryset = QuestionnaireTemplateBlock.objects.all()
     serializer_class = QuestionnaireTemplateBlockSerializer
     permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)
+
+    def destroy(self, request, pk=None):
+        queryset = QuestionnaireTemplateBlock.objects.filter(pk=pk)
+        template_block = get_object_or_404(queryset, pk=pk)
+        template_block.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class QuestionnaireBlockViewSet(viewsets.ModelViewSet):
