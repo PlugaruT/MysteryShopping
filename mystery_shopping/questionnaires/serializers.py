@@ -157,6 +157,8 @@ class QuestionnaireTemplateBlockSerializer(serializers.ModelSerializer):
     template_questions = QuestionnaireTemplateQuestionSerializer(many=True)
     parent_order_number = serializers.IntegerField(write_only=True, allow_null=True, required=False)
     order_number = serializers.IntegerField(write_only=True, required=False)
+    # this field will contain information that is needed to update a Questionnaire Template
+    siblings = serializers.JSONField(write_only=True, required=False)
 
     class Meta:
         model = QuestionnaireTemplateBlock
@@ -164,9 +166,20 @@ class QuestionnaireTemplateBlockSerializer(serializers.ModelSerializer):
         extra_kwargs = {'questionnaire_template': {'required': False}}
 
     def create(self, validated_data):
-        # print(validated_data)
-        children = validated_data.pop('children', None)
+        validated_data.pop('children', None)
         template_questions = validated_data.pop('template_questions')
+
+        # Get the block siblings to update
+        siblings = validated_data.pop('siblings', [])
+        for sibling in siblings:
+            block_id = sibling.pop('block_id')
+            # Check if blocks are from the same questionnaire template
+            block_to_update = QuestionnaireTemplateBlock.objects.filter(pk=block_id, questionnaire_template=validated_data['questionnaire_template']).first()
+            
+            if block_to_update is not None:
+                for attr, value in sibling['block_changes'].items():
+                    setattr(block_to_update, attr, value)
+                block_to_update.save()
 
         template_block = QuestionnaireTemplateBlock.objects.create(**validated_data)
 
