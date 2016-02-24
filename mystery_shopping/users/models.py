@@ -50,6 +50,25 @@ class User(AbstractUser):
         elif hasattr(self, 'tenantconsultant'):
             return getattr(self, 'tenantconsultant')
 
+    @property
+    def user_roles(self):
+        roles = []
+        if hasattr(self, 'tenantproductmanager'):
+            roles.append('tenantproductmanager')
+        if hasattr(self, 'tenantprojectmanager'):
+            roles.append('tenantprojectmanager')
+        if hasattr(self, 'tenantconsultant'):
+            roles.append('tenantconsultant')
+        if hasattr(self, 'shopper'):
+            roles.append('shopper')
+        if hasattr(self, 'clientprojectmanager'):
+            roles.append('clientprojectmanager')
+        if hasattr(self, 'clientmanager'):
+            roles.append('clientmanager')
+        if hasattr(self, 'clientemployee'):
+            roles.append('clientemployee')
+        return roles
+
     # TODO: add a get_tenant method
 
 
