@@ -93,7 +93,6 @@ class QuestionnaireTemplateBlock(QuestionnaireBlockAbstract, MPTTModel):
     parent_block = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
 
     class MPTTMeta:
-        order_insertion_by = ('title',)
         parent_attr = 'parent_block'
 
     def __str__(self):
