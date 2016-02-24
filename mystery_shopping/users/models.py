@@ -50,6 +50,8 @@ class User(AbstractUser):
         elif hasattr(self, 'tenantconsultant'):
             return getattr(self, 'tenantconsultant')
 
+    # TODO: add a get_tenant method
+
 
 class TenantUserAbstract(models.Model):
     """The abstract class for Tenant User model.
