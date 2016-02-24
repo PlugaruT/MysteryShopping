@@ -243,9 +243,9 @@ class QuestionnaireSerializer(serializers.ModelSerializer):
         blocks = validated_data.pop('blocks', None)
         questionnaire = Questionnaire.objects.create(**validated_data)
 
-        if questionnaire.template.is_editable:
-            questionnaire.template.is_editable = False
-            questionnaire.template.save()
+        # if questionnaire.template.is_editable:
+        #     questionnaire.template.is_editable = False
+        #     questionnaire.template.save()
 
         parents = {}
         if blocks:
