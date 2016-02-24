@@ -1,8 +1,8 @@
 from rest_framework import serializers
 
-from mystery_shopping.tenants.models import Tenant
 from .models import Industry, Company, Department, Entity, Section
 
+from mystery_shopping.common.serializer import CitySerializer
 from mystery_shopping.common.serializer import CountrySerializer
 from mystery_shopping.users.serializers import ClientManagerSerializer
 from mystery_shopping.users.serializers import ClientEmployeeSerializer
@@ -21,7 +21,6 @@ class SectionSerializer(serializers.ModelSerializer):
     """
 
     """
-    # id = serializers.IntegerField(label='ID', read_only=False)
     managers = ClientManagerSerializer(read_only=True, many=True)
     employees = ClientEmployeeSerializer(read_only=True, many=True)
     entity = serializers.PrimaryKeyRelatedField(queryset=Entity.objects.all(), required=False)
@@ -40,6 +39,7 @@ class EntitySerializer(serializers.ModelSerializer):
     """
 
     """
+    city_repr = CitySerializer(source='city', read_only=True)
     managers = ClientManagerSerializer(read_only=True, many=True)
     employees = ClientEmployeeSerializer(read_only=True, many=True)
     sections = SectionSerializer(many=True, required=False)
