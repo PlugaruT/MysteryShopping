@@ -161,6 +161,7 @@ class EvaluationAssessmentLevel(models.Model):
     level = models.PositiveIntegerField(null=True, default=0,  blank=True)
 
     class Meta:
+        ordering = ('level',)
         default_related_name = 'evaluation_assessment_levels'
 
     def __str__(self):
