@@ -91,7 +91,7 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         if validated_data['questionnaire_template'].is_editable:
-            template_question_choices = validated_data.pop('template_question_choices', None)
+            template_question_choices = validated_data.pop('template_question_choices', [])
             siblings_to_update = validated_data.pop('siblings', [])
             for sibling in siblings_to_update:
                 question_id = sibling.pop('question_id')
