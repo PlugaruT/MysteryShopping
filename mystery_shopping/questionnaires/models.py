@@ -164,16 +164,50 @@ class QuestionnaireQuestion(QuestionAbstract):
     questionnaire = models.ForeignKey(Questionnaire)
     block = models.ForeignKey(QuestionnaireBlock)
 
+    # Attributes
+    score = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     answer = models.TextField(null=True, blank=True)
     show_comment = models.BooleanField(default=True)
     comment = models.TextField(null=True, blank=True)
-    answer_choices = models.ManyToManyField("QuestionnaireQuestionChoice")
+    answer_choices = models.ManyToManyField("QuestionnaireQuestionChoice", blank=True)
 
     class Meta:
         default_related_name = 'questions'
 
     def __str__(self):
         return 'Question body: {}'.format(self.question_body)
+
+    def prepare_to_update(self):
+        self.question_choices.all().delete()
+
+    def calculate_score_for_s(self):
+        choice = self.answer_choices.first()
+        self.score = 0
+        # Check whether choice exists, so choice.score won't throw an exception
+        if choice:
+            self.score = (choice.score / self.max_score) * 100
+        self.save()
+
+    def calculate_score_for_m(self):
+        choices = self.answer_choices.all()
+        choices_score = 0
+        for choice in choices:
+            choices_score += choice.score
+
+        self.score = (choices_score / self.max_score) * 100
+        self.save()
+
+    def calculate_score_for_t_d(self):
+        self.score = 0
+        self.save()
+
+    def calculate_score(self):
+        calculate_score_for_ = {'s': self.calculate_score_for_s,
+                                'm': self.calculate_score_for_m,
+                                't': self.calculate_score_for_t_d,
+                                'd': self.calculate_score_for_t_d}
+        if self.type in calculate_score_for_:
+            calculate_score_for_[self.type]()
 
 
 class QuestionChoiceAbstract(models.Model):

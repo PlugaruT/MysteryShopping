@@ -69,6 +69,8 @@ class QuestionnaireQuestionSerializer(serializers.ModelSerializer):
         return question
 
     def update(self, instance, validated_data):
+
+        validated_data.pop('question_choices', [])
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
