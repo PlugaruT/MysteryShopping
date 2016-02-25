@@ -1,7 +1,6 @@
 {
     "template_blocks": [
         {
-    
             "template_questions": [],
             "title": "Albert",
             "weight": "0.90",
@@ -11,7 +10,6 @@
         {
             "template_questions": [
                 {
-            
                     "template_question_choices": [
                         {
                             "text": "bla, blab, bla",
@@ -72,7 +70,6 @@
             "order_number": 2
         },
         {
-    
             "template_questions": [],
             "title": "Chuck",
             "weight": "1.00",
@@ -80,7 +77,6 @@
             "order_number": 3
         },
         {
-    
             "template_questions": [],
             "title": "Eddie",
             "weight": "1.00",
@@ -88,7 +84,6 @@
             "order_number": 4
         },
         {
-    
             "template_questions": [],
             "title": "Fred",
             "weight": "1.00",
@@ -117,7 +112,6 @@
             "order_number": 8
         },
         {
-    
             "template_questions": [],
             "title": "Donna2",
             "weight": "11.00",

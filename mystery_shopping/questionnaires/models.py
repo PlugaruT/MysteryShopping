@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.db import models
 from model_utils import Choices
 
@@ -71,6 +73,16 @@ class Questionnaire(QuestionnaireAbstract):
     def __str__(self):
         return 'Title: {}'.format(self.title)
 
+    def calculate_score(self):
+        self.score = 0
+        blocks = self.blocks.filter(parent_block=None)
+
+        for block in blocks:
+            self.score += block.calculate_score()
+
+        # self.score /= 100
+        self.save()
+
 
 class QuestionnaireBlockAbstract(models.Model):
     """
@@ -117,6 +129,22 @@ class QuestionnaireBlock(QuestionnaireBlockAbstract, MPTTModel):
     def __str__(self):
         return 'Title: {}'.format(self.title)
 
+    def calculate_score(self):
+        temp_score = Decimal(0)
+
+        blocks = self.get_children()
+        for block in blocks:
+            temp_score += block.calculate_score()
+
+        questions = self.questions.all()
+        for question in questions:
+            temp_score += question.calculate_score()
+
+        self.score = (temp_score * self.weight) / 100
+        self.save()
+
+        # return (self.score / self.weight) * 100 if self.weight else 0
+        return (temp_score * self.weight) / 100
 
 class QuestionAbstract(models.Model):
     """
@@ -182,7 +210,7 @@ class QuestionnaireQuestion(QuestionAbstract):
 
     def calculate_score_for_s(self):
         choice = self.answer_choices.first()
-        self.score = 0
+        self.score = Decimal(0)
         # Check whether choice exists, so choice.score won't throw an exception
         if choice:
             self.score = (choice.score / self.max_score) * 100
@@ -190,11 +218,11 @@ class QuestionnaireQuestion(QuestionAbstract):
 
     def calculate_score_for_m(self):
         choices = self.answer_choices.all()
-        choices_score = 0
+        temp_score = Decimal(0)
         for choice in choices:
-            choices_score += choice.score
+            temp_score += choice.score
 
-        self.score = (choices_score / self.max_score) * 100
+        self.score = (temp_score / self.max_score) * 100
         self.save()
 
     def calculate_score_for_t_d(self):
@@ -208,6 +236,8 @@ class QuestionnaireQuestion(QuestionAbstract):
                                 'd': self.calculate_score_for_t_d}
         if self.type in calculate_score_for_:
             calculate_score_for_[self.type]()
+
+        return (self.score * self.weight) / 100
 
 
 class QuestionChoiceAbstract(models.Model):
