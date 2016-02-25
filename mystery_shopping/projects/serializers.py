@@ -294,7 +294,7 @@ class EvaluationSerializer(serializers.ModelSerializer):
     """
     shopper_repr = ShopperSerializer(source='shopper', read_only=True)
     questionnaire_script_repr = QuestionnaireScriptSerializer(source='questionnaire_script', read_only=True)
-    questionnaire = QuestionnaireSerializer()
+    questionnaire = QuestionnaireSerializer(required=False)
     entity_repr = EntitySerializer(source='entity', read_only=True)
     section_repr = SectionSerializer(source='section', read_only=True)
     employee_repr = ClientUserRelatedField(source='employee', read_only=True)
