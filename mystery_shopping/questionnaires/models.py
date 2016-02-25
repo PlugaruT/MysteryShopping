@@ -153,6 +153,9 @@ class QuestionnaireTemplateQuestion(QuestionAbstract):
     def __str__(self):
         return 'Question body: {}'.format(self.question_body)
 
+    def prepare_to_update(self):
+        self.template_question_choices.all().delete()
+
 
 class QuestionnaireQuestion(QuestionAbstract):
     """

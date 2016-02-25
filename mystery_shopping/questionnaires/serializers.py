@@ -117,6 +117,17 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         if validated_data['questionnaire_template'].is_editable:
+
+            # Delete all template question choices
+            instance.prepare_to_update()
+            template_question_choices = validated_data.pop('template_question_choices', [])
+            # Create the 'new' template question choices
+            for template_question_choice in template_question_choices:
+                template_question_choice['template_question'] = instance.id
+                template_question_choice_ser = QuestionnaireTemplateQuestionChoiceSerializer(data=template_question_choice)
+                template_question_choice_ser.is_valid(raise_exception=True)
+                template_question_choice_ser.save()
+
             siblings_to_update = validated_data.pop('siblings', [])
             for sibling in siblings_to_update:
                 question_id = sibling.pop('question_id')
