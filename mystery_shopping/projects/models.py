@@ -147,7 +147,8 @@ class Evaluation(TimeStampedModel, models.Model):
             if self.evaluation_assessment_level is None:
                 first_evaluation_assessment_level = EvaluationAssessmentLevel.objects.get(project=self.project,
                                                                                           previous_level__isnull=True)
-            self.evaluation_assessment_level = first_evaluation_assessment_level
+                self.evaluation_assessment_level = first_evaluation_assessment_level
+
         super(Evaluation, self).save(*args, **kwargs)
 
 
