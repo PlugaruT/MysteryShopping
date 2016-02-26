@@ -29,10 +29,13 @@ class UserSerializer(serializers.ModelSerializer):
     """
     password = serializers.CharField(write_only=True, required=False)
     confirm_password = serializers.CharField(write_only=True, required=False)
+    user_roles = serializers.ListField(read_only=True)
+    tenant_repr = TenantSerializer(source='get_tenant', read_only=True)
     roles = serializers.ListField(read_only=True, source='user_roles')
 
     class Meta:
         model = User
+        fields = ('id', 'username', 'first_name', 'last_name', 'user_roles', 'password', 'confirm_password', 'tenant_repr')
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'roles', 'password', 'confirm_password')
 
     def create(self, validated_data):
@@ -207,27 +210,6 @@ class ShopperSerializer(serializers.ModelSerializer):
         shopper = Shopper.objects.create(user=user, **validated_data)
 
         return shopper
-
-
-class ProjectWorkerRelatedField(serializers.RelatedField):
-    """
-    A custom field to use to serialize the instance of a project worker according to it's type: TenantProductManager, TenantProjectManager or TenantConsultant.
-    """
-
-    def to_representation(self, value):
-        """
-        Serialize tagged objects to a simple textual representation.
-        """
-        if isinstance(value, TenantProductManager):
-            serializer = TenantProductManagerSerializer(value)
-        elif isinstance(value, TenantProjectManager):
-            serializer = TenantProjectManagerSerializer(value)
-        elif isinstance(value, TenantConsultant):
-            serializer = TenantConsultantSerializer(value)
-        else:
-            raise Exception('Unexpected type of tagged object')
-
-        return serializer.data
 
 
 class PersonToAssessRelatedField(serializers.RelatedField):
