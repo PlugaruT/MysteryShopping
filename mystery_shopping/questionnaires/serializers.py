@@ -71,13 +71,8 @@ class QuestionnaireQuestionSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
 
         instance.prepare_to_update()
-        question_choices = validated_data.pop('question_choices', [])
-        # Create the 'new' question choices
-        for question_choice in question_choices:
-            question_choice['question'] = instance.id
-            question_choice_ser = QuestionnaireQuestionChoiceSerializer(data=question_choice)
-            question_choice_ser.is_valid(raise_exception=True)
-            question_choice_ser.save()
+        validated_data.pop('question_choices', [])
+        validated_data.pop('answer_choices', [])
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)

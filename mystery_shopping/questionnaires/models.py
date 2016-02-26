@@ -80,8 +80,9 @@ class Questionnaire(QuestionnaireAbstract):
         for block in blocks:
             self.score += block.calculate_score()
 
-        # self.score /= 100
         self.save()
+
+        return self.score
 
 
 class QuestionnaireBlockAbstract(models.Model):
@@ -143,8 +144,8 @@ class QuestionnaireBlock(QuestionnaireBlockAbstract, MPTTModel):
         self.score = (temp_score * self.weight) / 100
         self.save()
 
-        # return (self.score / self.weight) * 100 if self.weight else 0
-        return (temp_score * self.weight) / 100
+        return self.score
+
 
 class QuestionAbstract(models.Model):
     """
@@ -206,37 +207,39 @@ class QuestionnaireQuestion(QuestionAbstract):
         return 'Question body: {}'.format(self.question_body)
 
     def prepare_to_update(self):
-        self.question_choices.all().delete()
+        self.answer_choices.clear()
 
     def calculate_score_for_s(self):
-        choice = self.answer_choices.first()
-        self.score = Decimal(0)
-        # Check whether choice exists, so choice.score won't throw an exception
-        if choice:
-            self.score = (choice.score / self.max_score) * 100
-        self.save()
+        choices = self.answer_choices.all()
+        score = Decimal(0)
+        for choice in choices:
+            # TODO: check the correctness of computation in case max_score = 0
+            score += (choice.score / self.max_score) * 100 if self.max_score else 0
+
+        return score
 
     def calculate_score_for_m(self):
         choices = self.answer_choices.all()
-        self.score = Decimal(0)
+        score = Decimal(0)
         for choice in choices:
-            self.score += choice.score
+            score += choice.score
 
-        self.score = (self.score / self.max_score) * 100
-        self.save()
+        return (score / self.max_score) * 100
 
-    def calculate_score_for_t_d(self):
-        self.score = 0
-        self.save()
+    def calculate_score_for_t(self):
+        return Decimal(0)
+
+    def calculate_score_for_d(self):
+        return Decimal(0)
 
     def calculate_score(self):
-        calculate_score_for_ = {'s': self.calculate_score_for_s,
-                                'm': self.calculate_score_for_m,
-                                't': self.calculate_score_for_t_d,
-                                'd': self.calculate_score_for_t_d}
+        # calculate_score_for_ = {'s': self.calculate_score_for_s,
+        #                         'm': self.calculate_score_for_m,
+        #                         't': self.calculate_score_for_t,
+        #                         'd': self.calculate_score_for_d}
 
-        calculate_score_for_[self.type]()
-
+        self.score = getattr(self, 'calculate_score_for_{}'.format(self.type))()
+        self.save()
         return (self.score * self.weight) / 100
 
 
