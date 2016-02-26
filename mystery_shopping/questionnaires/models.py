@@ -218,11 +218,11 @@ class QuestionnaireQuestion(QuestionAbstract):
 
     def calculate_score_for_m(self):
         choices = self.answer_choices.all()
-        temp_score = Decimal(0)
+        self.score = Decimal(0)
         for choice in choices:
-            temp_score += choice.score
+            self.score += choice.score
 
-        self.score = (temp_score / self.max_score) * 100
+        self.score = (self.score / self.max_score) * 100
         self.save()
 
     def calculate_score_for_t_d(self):
@@ -234,8 +234,8 @@ class QuestionnaireQuestion(QuestionAbstract):
                                 'm': self.calculate_score_for_m,
                                 't': self.calculate_score_for_t_d,
                                 'd': self.calculate_score_for_t_d}
-        if self.type in calculate_score_for_:
-            calculate_score_for_[self.type]()
+
+        calculate_score_for_[self.type]()
 
         return (self.score * self.weight) / 100
 
