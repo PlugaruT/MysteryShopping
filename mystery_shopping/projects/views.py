@@ -54,11 +54,25 @@ class ProjectPerCompanyViewSet(viewsets.ViewSet):
         serializer = ProjectSerializer(queryset, many=True)
         return Response(serializer.data)
 
+    def create(self, request, pk=None, company_pk=None):
+        serializer = ProjectSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
     def retrieve(self, request, pk=None, company_pk=None):
         queryset = Project.objects.filter(pk=pk, company=company_pk)
         project = get_object_or_404(queryset, pk=pk)
         self.check_object_permissions(request, project)
         serializer = ProjectSerializer(project)
+        return Response(serializer.data)
+
+    def update(self, request, pk=None, company_pk=None):
+        queryset = Project.objects.filter(pk=pk, company=company_pk)
+        evaluation = get_object_or_404(queryset, pk=pk)
+        serializer = ProjectSerializer(evaluation, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(serializer.data)
 
 
