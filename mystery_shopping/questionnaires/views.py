@@ -56,12 +56,6 @@ class QuestionnaireTemplateBlockViewSet(viewsets.ModelViewSet):
     serializer_class = QuestionnaireTemplateBlockSerializer
     permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)
 
-    def destroy(self, request, pk=None):
-        queryset = QuestionnaireTemplateBlock.objects.filter(pk=pk)
-        template_block = get_object_or_404(queryset, pk=pk)
-        template_block.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
 
 class QuestionnaireBlockViewSet(viewsets.ModelViewSet):
     queryset = QuestionnaireBlock.objects.all()
