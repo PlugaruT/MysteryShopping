@@ -346,7 +346,7 @@ class EvaluationSerializer(serializers.ModelSerializer):
                 instance.status = validated_data.get('status')
 
             if validated_data.get('status', None) == ProjectStatus.SUBMITTED:
-                questionnaire.calculate_score()
+                instance.questionnaire.calculate_score()
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
