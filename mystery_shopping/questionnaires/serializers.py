@@ -266,7 +266,6 @@ class QuestionnaireSerializer(serializers.ModelSerializer):
                                              'blocks__questions__answer_choices')
         return queryset
 
-
     def create(self, validated_data):
         # print(validated_data)
         blocks = validated_data.pop('blocks', None)

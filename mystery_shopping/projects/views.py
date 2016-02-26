@@ -46,7 +46,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
 
 class ProjectPerCompanyViewSet(viewsets.ViewSet):
-    permission_classes = (HasAccessToEvaluations,)  # TODO check whether this permission is appropriate here (maybe it should be HasAccessToProjects ?
+    permission_classes = (HasAccessToEvaluations,)
+    # TODO check whether this permission is appropriate here (maybe it should be HasAccessToProjects?
 
     def list(self, request, company_pk=None):
         queryset = Project.objects.filter(company=company_pk)
@@ -123,13 +124,19 @@ class EvaluationPerProjectViewSet(viewsets.ViewSet):
     permission_classes = (IsAuthenticated, HasAccessToEvaluations, )
     serializer_class = EvaluationSerializer
 
-    def get_serializer(self):
-        return self.serializer_class
+    # def get_serializer(self):
+    #     return self.serializer_class
 
     def list(self, request, company_pk=None, project_pk=None):
         queryset = Evaluation.objects.filter(project=project_pk, project__company=company_pk)
         serializer = EvaluationSerializer(queryset, many=True)
         return Response(serializer.data)
+
+    def create(self, request, pk=None, company_pk=None, project_pk=None):
+        serializer = EvaluationSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def retrieve(self, request, pk=None, company_pk=None, project_pk=None):
         queryset = Evaluation.objects.filter(pk=pk, project=project_pk, project__company=company_pk)
