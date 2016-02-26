@@ -46,7 +46,6 @@ class QuestionnaireQuestionSerializer(serializers.ModelSerializer):
 
     """
     question_choices = QuestionnaireQuestionChoiceSerializer(many=True, required=False)
-
     question_id = serializers.IntegerField(write_only=True, required=False)
 
     class Meta:
@@ -259,6 +258,14 @@ class QuestionnaireSerializer(serializers.ModelSerializer):
     class Meta:
         model = Questionnaire
         fields = '__all__'  #('title', 'blocks', 'template',)
+
+
+    @staticmethod
+    def setup_eager_loading(queryset):
+        queryset = queryset.prefetch_related('blocks__questions__question_choices',
+                                             'blocks__questions__answer_choices')
+        return queryset
+
 
     def create(self, validated_data):
         # print(validated_data)

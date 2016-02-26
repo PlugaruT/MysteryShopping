@@ -303,6 +303,17 @@ class EvaluationSerializer(serializers.ModelSerializer):
         model = Evaluation
         fields = '__all__'
 
+    @staticmethod
+    def setup_eager_loading(queryset):
+        queryset = queryset.select_related('shopper__user', 'entity__city', 'questionnaire', 'questionnaire_template',
+                                           'section')
+        queryset = queryset.prefetch_related('questionnaire__blocks__questions__question_choices',
+                                             'questionnaire__blocks__questions__answer_choices',
+                                             'entity__employees__company',
+                                             'entity__managers', 'entity__sections', 'section__managers',
+                                             'section__employees__company')
+        return queryset
+
     def create(self, validated_data):
         questionnaire_template = validated_data.get('questionnaire_template', None)
         print(questionnaire_template)

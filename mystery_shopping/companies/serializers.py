@@ -23,13 +23,13 @@ class SectionSerializer(serializers.ModelSerializer):
     """
     managers = ClientManagerSerializer(read_only=True, many=True)
     employees = ClientEmployeeSerializer(read_only=True, many=True)
-    entity = serializers.PrimaryKeyRelatedField(queryset=Entity.objects.all(), required=False)
 
     # todo: remove redefinitions, add extra_args
 
     class Meta:
         model = Section
         fields = '__all__'
+        extra_kwargs = {'entity': {'required': False}}
 
     def create(self, validated_data):
         return Section.objects.create(**validated_data)
@@ -43,13 +43,13 @@ class EntitySerializer(serializers.ModelSerializer):
     managers = ClientManagerSerializer(read_only=True, many=True)
     employees = ClientEmployeeSerializer(read_only=True, many=True)
     sections = SectionSerializer(many=True, required=False)
-    department = serializers.PrimaryKeyRelatedField(queryset=Department.objects.all(), required=False)
 
     # todo: remove redefinitions, add extra_args
 
     class Meta:
         model = Entity
         fields = '__all__'
+        extra_kwargs = {'department': {'required': False}}
 
     def create(self, validated_data):
         sections = validated_data.pop('sections', None)

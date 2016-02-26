@@ -78,15 +78,13 @@ class EvaluationViewSet(viewsets.ModelViewSet):
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant, IsShopper),)
 
     def get_queryset(self):
+        queryset = Evaluation.objects.all()
+        queryset = self.get_serializer_class().setup_eager_loading(queryset)
         if self.request.user.user_type in ['tenantproductmanager', 'tenantprojectmanager', 'tenantconsultant']:
-            queryset = Evaluation.objects.all()
-            queryset = queryset.filter(project__tenant=self.request.user.user_type_attr.tenant)
-            return queryset
+            queryset = queryset.filter(project__tenant=self.request.user.get_tenant)
         elif self.request.user.user_type is 'shopper':
-            queryset = Evaluation.objects.all()
             queryset = queryset.filter(shopper__user=self.request.user)
-            return queryset
-        return None
+        return queryset
 
     def create(self, request, *args, **kwargs):
         is_many = True if isinstance(request.data, list) else False
