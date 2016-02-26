@@ -208,7 +208,6 @@ class ProjectSerializer(serializers.ModelSerializer):
     #     return queryset
 
     def create(self, validated_data):
-        print(validated_data)
         research_methodology = validated_data.pop('research_methodology', None)
         consultants = validated_data.pop('consultants', [])
         validated_data.pop('shoppers', None)
@@ -218,22 +217,16 @@ class ProjectSerializer(serializers.ModelSerializer):
         for consultant in consultants:
             project.consultants.add(consultant)
 
-        # if project_workers is not None:
-        #     for project_worker in project_workers:
-        #         project_worker['project'] = project
-        #         ProjectWorker.objects.create(**project_worker)
-
-        # TODO refactor this method according to the one in .update() method
         if research_methodology is not None:
             research_methodology['project_id'] = project.id
-            research_methodology_ser = ResearchMethodology(data=research_methodology)
-            research_methodology_ser.is_valid(raise_exeption=True)
+            research_methodology['tenant'] = research_methodology['tenant'].id
+            research_methodology_ser = ResearchMethodologySerializer(data=research_methodology)
+            research_methodology_ser.is_valid(raise_exception=True)
             research_methodology_ser.save()
 
         return project
 
     def update(self, instance, validated_data):
-        print(validated_data)
         consultants = validated_data.pop('consultants', [])
         research_methodology = validated_data.pop('research_methodology', None)
 
@@ -242,14 +235,10 @@ class ProjectSerializer(serializers.ModelSerializer):
         for consultant in consultants:
             instance.consultants.add(consultant)
 
-        # if project_workers is not None:
-        #     for project_worker in project_workers:
-        #         project_worker['project'] = instance
-        #         ProjectWorker.objects.create(**project_worker)
-
         if research_methodology is not None:
             research_methodology_instance = instance.research_methodology
             research_methodology['project_id'] = instance.id
+            research_methodology['tenant'] = research_methodology['tenant'].id
 
             # Map list of instances to list of instance id's, so that when calling serializer.is_valid method, it won't
             # throw the "expected id, got instance" error.
