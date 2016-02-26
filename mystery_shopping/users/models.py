@@ -145,6 +145,7 @@ class ClientUserAbstract(models.Model):
     """
     # Relations
     user = models.OneToOneField(User, null=True)
+    tenant = models.ForeignKey(Tenant, related_name='%(class)ss')
 
     # Attributes
     first_name = models.CharField(max_length=30, blank=True)
