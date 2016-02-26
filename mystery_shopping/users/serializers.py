@@ -29,14 +29,12 @@ class UserSerializer(serializers.ModelSerializer):
     """
     password = serializers.CharField(write_only=True, required=False)
     confirm_password = serializers.CharField(write_only=True, required=False)
-    user_roles = serializers.ListField(read_only=True)
     tenant_repr = TenantSerializer(source='get_tenant', read_only=True)
     roles = serializers.ListField(read_only=True, source='user_roles')
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'first_name', 'last_name', 'user_roles', 'password', 'confirm_password', 'tenant_repr')
-        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'roles', 'password', 'confirm_password')
+        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'roles', 'password', 'confirm_password', 'tenant_repr')
 
     def create(self, validated_data):
         password = validated_data.get('password', None)
