@@ -70,7 +70,7 @@ class QuestionnaireQuestionSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
 
-        instance.prepare_to_update()
+        # instance.prepare_to_update()
         validated_data.pop('question_choices', [])
         validated_data.pop('answer_choices', [])
 

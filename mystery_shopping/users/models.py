@@ -49,6 +49,8 @@ class User(AbstractUser):
             return getattr(self, 'tenantprojectmanager')
         elif hasattr(self, 'tenantconsultant'):
             return getattr(self, 'tenantconsultant')
+        else:
+            return None
 
     @property
     def user_roles(self):
@@ -70,6 +72,9 @@ class User(AbstractUser):
         return roles
 
     # TODO: add a get_tenant method
+    @property
+    def get_tenant(self):
+        return self.user_type_attr.tenant
 
 
 class TenantUserAbstract(models.Model):
@@ -210,31 +215,6 @@ class Shopper(models.Model):
 
     def __str__(self):
         return u'{}'.format(self.user.username)
-
-
-class ProjectWorker(models.Model):
-    """
-    A class with a generic foreign key for setting workers for a project.
-
-    A worker can either be a Tenant Project Manager, or a Tenant Consultant
-    """
-    limit = models.Q(app_label='users', model='tenantprojectmanager') |\
-            models.Q(app_label='users', model='tenantconsultant') |\
-            models.Q(app_label='users', model='tenantproductmanager')
-    project_worker_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='content_type_project_workers')
-    project_worker_id = models.PositiveIntegerField()
-    project_worker = GenericForeignKey('project_worker_type', 'project_worker_id')
-
-    project = models.ForeignKey(Project, related_name='project_workers')
-
-    def __str__(self):
-        if self.project_worker_type.model == 'tenantprojectmanager':
-            user = TenantProjectManager.objects.get(pk=self.project_worker_id)
-        elif self.project_worker_type.model == 'tenantconsultant':
-            user = TenantConsultant.objects.get(pk=self.project_worker_id)
-        elif self.project_worker_type.model == 'tenantproductmanager':
-            user = TenantProductManager.objects.get(pk=self.project_worker_id)
-        return 'type: {}, user: {}, project: {}'.format(self.project_worker_type, user.user.username, self.project)
 
 
 class PersonToAssess(models.Model):
