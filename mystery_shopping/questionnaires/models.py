@@ -92,6 +92,7 @@ class QuestionnaireBlockAbstract(models.Model):
     """
     title = models.CharField(max_length=50)
     weight = models.DecimalField(max_digits=5, decimal_places=2)
+    order = models.PositiveIntegerField()
 
     class Meta:
         abstract = True
