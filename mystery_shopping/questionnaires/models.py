@@ -253,6 +253,7 @@ class QuestionChoiceAbstract(models.Model):
     text = models.CharField(max_length=255, null=True)
     score = models.DecimalField(max_digits=5, decimal_places=2, null=True)
     weight = models.DecimalField(max_digits=5, decimal_places=2, null=True)
+    order = models.PositiveIntegerField()
 
     class Meta:
         abstract = True
