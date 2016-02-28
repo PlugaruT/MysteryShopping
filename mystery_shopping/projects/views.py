@@ -147,7 +147,17 @@ class EvaluationPerProjectViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
     def create(self, request, pk=None, company_pk=None, project_pk=None):
-        serializer = EvaluationSerializer(data=request.data)
+        is_many = True if isinstance(request.data, list) else False
+        project_id = request.data[0]['project'] if is_many else request.data['project']
+        total_number_of_evaluations = Project.objects.get(pk=project_id).research_methodology.number_of_evaluations
+        current_number_of_evaluations = Evaluation.objects.filter(project=project_id).count()
+        evaluations_left = total_number_of_evaluations - current_number_of_evaluations
+        evaluations_to_create = len(request.data) if is_many else 1
+        print(evaluations_left, evaluations_to_create)
+        if evaluations_to_create > evaluations_left:
+            raise ValidationError('Number of evaluations exceeded. Left: {}.'.format(evaluations_left))
+
+        serializer = EvaluationSerializer(data=request.data, many=is_many)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
