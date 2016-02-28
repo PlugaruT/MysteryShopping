@@ -18,6 +18,7 @@ from mystery_shopping.questionnaires.serializers import QuestionnaireScriptSeria
 from mystery_shopping.questionnaires.serializers import QuestionnaireSerializer
 from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializer
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion
+from mystery_shopping.questionnaires.models import Questionnaire
 from mystery_shopping.users.serializers import ShopperSerializer
 from mystery_shopping.users.serializers import PersonToAssessSerializer
 from mystery_shopping.users.serializers import TenantProjectManagerSerializer
@@ -55,7 +56,7 @@ class EvaluationAssessmentLevelSerializer(serializers.ModelSerializer):
         model = EvaluationAssessmentLevel
         fields = '__all__'
         extra_kwargs = {'consultants': {'allow_empty': True, 'many': True}}
-        
+
 
 class PlaceToAssessSerializer(serializers.ModelSerializer):
     """
@@ -339,6 +340,15 @@ class EvaluationSerializer(serializers.ModelSerializer):
                     question_instance.answer_choices.add(*question.get('answer_choices', []))
                     question_instance.comment = question.get('comment', None)
                     question_instance.save()
+
+            # After updating only the questions above, the updates are not taken
+            # into account when returning the serialized evaluation instance. This
+            # is probably (I didn't investigate it a lot) because the evaluation's
+            # cache does not know that its questionnaire instance was changed and
+            # it uses the cached instance. For it to use the updated questionnaire
+            # representation, resubmit the questionnaire to the evaluation.
+            instance.questionnaire = Questionnaire.objects.get(pk=instance.questionnaire.pk)
+            instance.questionnaire.save()
 
             if validated_data.get('status', ProjectStatus.PLANNED) == ProjectStatus.PLANNED:
                 instance.status = ProjectStatus.DRAFT
