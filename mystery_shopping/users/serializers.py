@@ -9,19 +9,36 @@ from .models import ClientManager
 from .models import ClientEmployee
 from .models import PersonToAssess
 from .models import Shopper
+
 from mystery_shopping.companies.models import Company
 from mystery_shopping.tenants.serializers import TenantSerializer
-# from mystery_shopping.companies.serializer_fields import PlaceRelatedField
-# from mystery_shopping.users.serializer_fields import ProjectWorkerRelatedField
-# from mystery_shopping.projects.serializers import ProjectSerializer
 
 
 class SimpleCompanySerializer(serializers.ModelSerializer):
-    """A Company serializer that do not have any nested serializer fields."""
+    """A Company serializer that does not have any nested serializer fields."""
 
     class Meta:
         model = Company
         fields = '__all__'
+
+
+class UsersUpdateMixin:
+    '''
+    Mixin class used to update (almost) all types of users.
+
+    '''
+    def update(self, instance, validated_data):
+        user = validated_data.pop('user', None)
+        user_instance = User.objects.filter(username=user['username']).first()
+        user_ser = UserSerializer(user_instance, data=user)
+        user_ser.is_valid(raise_exception=True)
+        user_ser.save()
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        return instance
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -35,12 +52,23 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'roles', 'password', 'confirm_password', 'tenant_repr')
+        extra_kwargs = {'username': {'validators': []}}
+
+    @staticmethod
+    def check_username(username):
+        # Todo: add regex checking for 'username' characters
+        if User.objects.filter(username=username).count():
+            raise serializers.ValidationError({
+                'username': ['Username: \'{}\' is already taken, please choose another one.'.format(username)]
+            })
+        return True
 
     def create(self, validated_data):
         password = validated_data.get('password', None)
         confirm_password = validated_data.pop('confirm_password', None)
 
         user = User(**validated_data)
+        self.check_username(validated_data['username'])
 
         if password and confirm_password and password == confirm_password:
             user.set_password(password)
@@ -64,6 +92,9 @@ class UserSerializer(serializers.ModelSerializer):
             else:
                 raise serializers.ValidationError({'password': ['Provided passwords do not match.']})
 
+        validated_data.pop('username', None)
+        # self.check_username(validated_data['username'])
+
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
@@ -71,7 +102,7 @@ class UserSerializer(serializers.ModelSerializer):
         return instance
 
 
-class TenantProductManagerSerializer(serializers.ModelSerializer):
+class TenantProductManagerSerializer(UsersUpdateMixin, serializers.ModelSerializer):
     """Serializer class for TenantProductManager user model.
     """
     user = UserSerializer()
@@ -83,7 +114,7 @@ class TenantProductManagerSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class TenantProjectManagerSerializer(serializers.ModelSerializer):
+class TenantProjectManagerSerializer(UsersUpdateMixin, serializers.ModelSerializer):
     """Serializer class for TenantProjectManager user model.
     """
     user = UserSerializer()
@@ -95,7 +126,7 @@ class TenantProjectManagerSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class TenantConsultantSerializer(serializers.ModelSerializer):
+class TenantConsultantSerializer(UsersUpdateMixin, serializers.ModelSerializer):
     """Serializer class for TenantConsultant user model.
     """
     user = UserSerializer()
@@ -127,8 +158,7 @@ class ClientProjectManagerSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-
-class ClientManagerSerializer(serializers.ModelSerializer):
+class ClientManagerSerializer(UsersUpdateMixin, serializers.ModelSerializer):
     """Serializer class for ClientManager user model.
     """
     user = UserSerializer(required=False, allow_null=True)
@@ -146,25 +176,12 @@ class ClientManagerSerializer(serializers.ModelSerializer):
             user_ser.save()
             user = user_ser.instance
 
-        client_manager = ClientManager.objects.create(user=user, **validated_data)
+        client_manager = self.objects.create(user=user, **validated_data)
 
         return client_manager
 
-    # def update(self, instance, validated_data):
-    #     user = validated_data.pop('user', None)
-    #     user_instance = User.objects.filter(pk=user.id).first()
-    #     user_ser = UserSerializer(instance=user_instance, data=user)
-    #     user_ser.is_valid(raise_exception=True)
-    #     user_ser.save()
-    #
-    #     for attr, value in validated_data.items():
-    #         setattr(instance, attr, value)
-    #     instance.save()
-    #
-    #     return instance
 
-
-class ClientEmployeeSerializer(serializers.ModelSerializer):
+class ClientEmployeeSerializer(UsersUpdateMixin, serializers.ModelSerializer):
     """Serializer class for ClientEmployee user model.
     """
     user = UserSerializer(required=False, allow_null=True)
@@ -188,7 +205,7 @@ class ClientEmployeeSerializer(serializers.ModelSerializer):
         return client_employee
 
 
-class ShopperSerializer(serializers.ModelSerializer):
+class ShopperSerializer(UsersUpdateMixin, serializers.ModelSerializer):
     """Serializer class for Shopper user model.
     """
     user = UserSerializer()
@@ -205,7 +222,7 @@ class ShopperSerializer(serializers.ModelSerializer):
         user_ser.save()
         user = user_ser.instance
 
-        shopper = Shopper.objects.create(user=user, **validated_data)
+        shopper = self.model.objects.create(user=user, **validated_data)
 
         return shopper
 
