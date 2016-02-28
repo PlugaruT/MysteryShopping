@@ -144,10 +144,22 @@ class Evaluation(TimeStampedModel, models.Model):
             self.questionnaire_template.is_editable = False
             self.questionnaire_template.save()
 
+            # In case there is no evaluation assessment level defined for the
+            # submitted evaluation, assign the first level to it.
             if self.evaluation_assessment_level is None:
-                first_evaluation_assessment_level = EvaluationAssessmentLevel.objects.get(project=self.project,
-                                                                                          previous_level__isnull=True)
-                self.evaluation_assessment_level = first_evaluation_assessment_level
+                first_evaluation_assessment_level = EvaluationAssessmentLevel.objects\
+                    .filter(project=self.project, previous_level__isnull=True)\
+                    .first()
+
+                # In case there exist an evaluation level, assign it
+                if first_evaluation_assessment_level is not None:
+                    self.evaluation_assessment_level = first_evaluation_assessment_level
+
+                # Otherwise, this means there are no evaluation assessment levels
+                # defined for this project, thus assign the `approved` status
+                # for the submitted evaluation.
+                else:
+                    self.status = ProjectStatus.APPROVED
 
         super(Evaluation, self).save(*args, **kwargs)
 
