@@ -248,7 +248,7 @@ CORS_ORIGIN_WHITELIST = (
     'localhost:3000',
 )
 
-CORS_ORIGIN_REGEX_WHITELIST = ('^(https?://)?(\w+\.)?mysteryshoppingURL\.com$', )
+CORS_ORIGIN_REGEX_WHITELIST = ('^(https?://)?(\w+\.)?dapi\.solutions', )
 
 CORS_ALLOW_CREDENTIALS = True
 
