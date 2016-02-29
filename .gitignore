@@ -67,3 +67,8 @@ tests/.hitch
 
 test.html
 test_question.html
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml

@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 import mptt.fields
-import django.contrib.postgres.fields
 
 
 class Migration(migrations.Migration):
@@ -16,9 +15,9 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Questionnaire',
             fields=[
-                ('id', models.AutoField(primary_key=True, auto_created=True, verbose_name='ID', serialize=False)),
+                ('id', models.AutoField(auto_created=True, serialize=False, verbose_name='ID', primary_key=True)),
                 ('title', models.CharField(max_length=100)),
-                ('score', models.DecimalField(null=True, max_digits=5, decimal_places=2)),
+                ('score', models.DecimalField(decimal_places=2, null=True, max_digits=5)),
                 ('weight', models.PositiveSmallIntegerField(default=100)),
             ],
             options={
@@ -28,17 +27,17 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='QuestionnaireBlock',
             fields=[
-                ('id', models.AutoField(primary_key=True, auto_created=True, verbose_name='ID', serialize=False)),
+                ('id', models.AutoField(auto_created=True, serialize=False, verbose_name='ID', primary_key=True)),
                 ('title', models.CharField(max_length=50)),
-                ('weight', models.DecimalField(max_digits=5, decimal_places=2)),
+                ('weight', models.DecimalField(decimal_places=2, max_digits=5)),
                 ('order', models.PositiveIntegerField()),
-                ('score', models.DecimalField(null=True, max_digits=5, decimal_places=2)),
-                ('lft', models.PositiveIntegerField(db_index=True, editable=False)),
-                ('rght', models.PositiveIntegerField(db_index=True, editable=False)),
-                ('tree_id', models.PositiveIntegerField(db_index=True, editable=False)),
-                ('level', models.PositiveIntegerField(db_index=True, editable=False)),
-                ('parent_block', mptt.fields.TreeForeignKey(related_name='children', null=True, blank=True, to='questionnaires.QuestionnaireBlock')),
-                ('questionnaire', models.ForeignKey(related_name='blocks', to='questionnaires.Questionnaire')),
+                ('score', models.DecimalField(decimal_places=2, null=True, max_digits=5)),
+                ('lft', models.PositiveIntegerField(editable=False, db_index=True)),
+                ('rght', models.PositiveIntegerField(editable=False, db_index=True)),
+                ('tree_id', models.PositiveIntegerField(editable=False, db_index=True)),
+                ('level', models.PositiveIntegerField(editable=False, db_index=True)),
+                ('parent_block', mptt.fields.TreeForeignKey(null=True, blank=True, related_name='children', to='questionnaires.QuestionnaireBlock')),
+                ('questionnaire', models.ForeignKey(to='questionnaires.Questionnaire', related_name='blocks')),
             ],
             options={
                 'abstract': False,
@@ -47,19 +46,16 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='QuestionnaireQuestion',
             fields=[
-                ('id', models.AutoField(primary_key=True, auto_created=True, verbose_name='ID', serialize=False)),
+                ('id', models.AutoField(auto_created=True, serialize=False, verbose_name='ID', primary_key=True)),
                 ('question_body', models.CharField(max_length=200)),
-                ('type', models.CharField(choices=[('t', 'Text Field'), ('d', 'Date Field'), ('s', 'Single Choice'), ('m', 'Multiple Choice')], max_length=1, default='t')),
+                ('type', models.CharField(default='t', max_length=1, choices=[('t', 'Text Field'), ('d', 'Date Field'), ('s', 'Single Choice'), ('m', 'Multiple Choice')])),
                 ('max_score', models.PositiveSmallIntegerField(null=True, blank=True)),
                 ('order', models.PositiveIntegerField()),
-                ('weight', models.DecimalField(max_digits=5, decimal_places=2)),
-                ('score', models.DecimalField(null=True, blank=True, decimal_places=2, max_digits=5)),
+                ('weight', models.DecimalField(decimal_places=2, max_digits=5)),
+                ('score', models.DecimalField(null=True, decimal_places=2, blank=True, max_digits=5)),
                 ('answer', models.TextField(null=True, blank=True)),
                 ('show_comment', models.BooleanField(default=True)),
                 ('comment', models.TextField(null=True, blank=True)),
-                ('answer_choices', django.contrib.postgres.fields.ArrayField(base_field=models.IntegerField(), blank=True, size=None)),
-                ('block', models.ForeignKey(to='questionnaires.QuestionnaireBlock')),
-                ('questionnaire', models.ForeignKey(to='questionnaires.Questionnaire')),
             ],
             options={
                 'default_related_name': 'questions',
@@ -68,10 +64,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='QuestionnaireQuestionChoice',
             fields=[
-                ('id', models.AutoField(primary_key=True, auto_created=True, verbose_name='ID', serialize=False)),
-                ('text', models.CharField(null=True, max_length=255)),
-                ('score', models.DecimalField(null=True, max_digits=5, decimal_places=2)),
-                ('weight', models.DecimalField(null=True, max_digits=5, decimal_places=2)),
+                ('id', models.AutoField(auto_created=True, serialize=False, verbose_name='ID', primary_key=True)),
+                ('text', models.CharField(max_length=255, null=True)),
+                ('score', models.DecimalField(decimal_places=2, null=True, max_digits=5)),
+                ('weight', models.DecimalField(decimal_places=2, null=True, max_digits=5)),
                 ('order', models.PositiveIntegerField()),
                 ('question', models.ForeignKey(to='questionnaires.QuestionnaireQuestion')),
             ],
@@ -82,7 +78,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='QuestionnaireScript',
             fields=[
-                ('id', models.AutoField(primary_key=True, auto_created=True, verbose_name='ID', serialize=False)),
+                ('id', models.AutoField(auto_created=True, serialize=False, verbose_name='ID', primary_key=True)),
                 ('title', models.CharField(max_length=100)),
                 ('description', models.TextField()),
             ],
@@ -93,30 +89,30 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='QuestionnaireTemplate',
             fields=[
-                ('id', models.AutoField(primary_key=True, auto_created=True, verbose_name='ID', serialize=False)),
+                ('id', models.AutoField(auto_created=True, serialize=False, verbose_name='ID', primary_key=True)),
                 ('title', models.CharField(max_length=100)),
                 ('description', models.TextField()),
                 ('is_editable', models.BooleanField(default=True)),
                 ('tenant', models.ForeignKey(to='tenants.Tenant')),
             ],
             options={
-                'abstract': False,
                 'ordering': ('title',),
+                'abstract': False,
             },
         ),
         migrations.CreateModel(
             name='QuestionnaireTemplateBlock',
             fields=[
-                ('id', models.AutoField(primary_key=True, auto_created=True, verbose_name='ID', serialize=False)),
+                ('id', models.AutoField(auto_created=True, serialize=False, verbose_name='ID', primary_key=True)),
                 ('title', models.CharField(max_length=50)),
-                ('weight', models.DecimalField(max_digits=5, decimal_places=2)),
+                ('weight', models.DecimalField(decimal_places=2, max_digits=5)),
                 ('order', models.PositiveIntegerField()),
-                ('lft', models.PositiveIntegerField(db_index=True, editable=False)),
-                ('rght', models.PositiveIntegerField(db_index=True, editable=False)),
-                ('tree_id', models.PositiveIntegerField(db_index=True, editable=False)),
-                ('level', models.PositiveIntegerField(db_index=True, editable=False)),
-                ('parent_block', mptt.fields.TreeForeignKey(related_name='children', null=True, blank=True, to='questionnaires.QuestionnaireTemplateBlock')),
-                ('questionnaire_template', models.ForeignKey(related_name='template_blocks', to='questionnaires.QuestionnaireTemplate')),
+                ('lft', models.PositiveIntegerField(editable=False, db_index=True)),
+                ('rght', models.PositiveIntegerField(editable=False, db_index=True)),
+                ('tree_id', models.PositiveIntegerField(editable=False, db_index=True)),
+                ('level', models.PositiveIntegerField(editable=False, db_index=True)),
+                ('parent_block', mptt.fields.TreeForeignKey(null=True, blank=True, related_name='children', to='questionnaires.QuestionnaireTemplateBlock')),
+                ('questionnaire_template', models.ForeignKey(to='questionnaires.QuestionnaireTemplate', related_name='template_blocks')),
             ],
             options={
                 'abstract': False,
@@ -125,12 +121,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='QuestionnaireTemplateQuestion',
             fields=[
-                ('id', models.AutoField(primary_key=True, auto_created=True, verbose_name='ID', serialize=False)),
+                ('id', models.AutoField(auto_created=True, serialize=False, verbose_name='ID', primary_key=True)),
                 ('question_body', models.CharField(max_length=200)),
-                ('type', models.CharField(choices=[('t', 'Text Field'), ('d', 'Date Field'), ('s', 'Single Choice'), ('m', 'Multiple Choice')], max_length=1, default='t')),
+                ('type', models.CharField(default='t', max_length=1, choices=[('t', 'Text Field'), ('d', 'Date Field'), ('s', 'Single Choice'), ('m', 'Multiple Choice')])),
                 ('max_score', models.PositiveSmallIntegerField(null=True, blank=True)),
                 ('order', models.PositiveIntegerField()),
-                ('weight', models.DecimalField(max_digits=5, decimal_places=2)),
+                ('weight', models.DecimalField(decimal_places=2, max_digits=5)),
                 ('questionnaire_template', models.ForeignKey(to='questionnaires.QuestionnaireTemplate')),
                 ('template_block', models.ForeignKey(to='questionnaires.QuestionnaireTemplateBlock')),
             ],
@@ -141,16 +137,31 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='QuestionnaireTemplateQuestionChoice',
             fields=[
-                ('id', models.AutoField(primary_key=True, auto_created=True, verbose_name='ID', serialize=False)),
-                ('text', models.CharField(null=True, max_length=255)),
-                ('score', models.DecimalField(null=True, max_digits=5, decimal_places=2)),
-                ('weight', models.DecimalField(null=True, max_digits=5, decimal_places=2)),
+                ('id', models.AutoField(auto_created=True, serialize=False, verbose_name='ID', primary_key=True)),
+                ('text', models.CharField(max_length=255, null=True)),
+                ('score', models.DecimalField(decimal_places=2, null=True, max_digits=5)),
+                ('weight', models.DecimalField(decimal_places=2, null=True, max_digits=5)),
                 ('order', models.PositiveIntegerField()),
                 ('template_question', models.ForeignKey(to='questionnaires.QuestionnaireTemplateQuestion')),
             ],
             options={
                 'default_related_name': 'template_question_choices',
             },
+        ),
+        migrations.AddField(
+            model_name='questionnairequestion',
+            name='answer_choices',
+            field=models.ManyToManyField(blank=True, to='questionnaires.QuestionnaireQuestionChoice'),
+        ),
+        migrations.AddField(
+            model_name='questionnairequestion',
+            name='block',
+            field=models.ForeignKey(to='questionnaires.QuestionnaireBlock'),
+        ),
+        migrations.AddField(
+            model_name='questionnairequestion',
+            name='questionnaire',
+            field=models.ForeignKey(to='questionnaires.Questionnaire'),
         ),
         migrations.AddField(
             model_name='questionnaire',

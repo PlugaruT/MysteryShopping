@@ -9,24 +9,24 @@ import model_utils.fields
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('companies', '0001_initial'),
         ('questionnaires', '0001_initial'),
         ('tenants', '0001_initial'),
-        ('companies', '0001_initial'),
     ]
 
     operations = [
         migrations.CreateModel(
             name='Evaluation',
             fields=[
-                ('id', models.AutoField(primary_key=True, auto_created=True, verbose_name='ID', serialize=False)),
-                ('created', model_utils.fields.AutoCreatedField(editable=False, verbose_name='created', default=django.utils.timezone.now)),
-                ('modified', model_utils.fields.AutoLastModifiedField(editable=False, verbose_name='modified', default=django.utils.timezone.now)),
+                ('id', models.AutoField(auto_created=True, serialize=False, verbose_name='ID', primary_key=True)),
+                ('created', model_utils.fields.AutoCreatedField(editable=False, default=django.utils.timezone.now, verbose_name='created')),
+                ('modified', model_utils.fields.AutoLastModifiedField(editable=False, default=django.utils.timezone.now, verbose_name='modified')),
                 ('employee_id', models.PositiveIntegerField(null=True, blank=True)),
-                ('evaluation_type', model_utils.fields.StatusField(choices=[('call', 'Call'), ('visit', 'Visit')], max_length=100, default='call', no_check_for_status=True)),
+                ('evaluation_type', model_utils.fields.StatusField(default='call', no_check_for_status=True, max_length=100, choices=[('call', 'Call'), ('visit', 'Visit')])),
                 ('is_draft', models.BooleanField(default=True)),
                 ('suggested_start_date', models.DateTimeField(null=True)),
                 ('suggested_end_date', models.DateTimeField(null=True)),
-                ('status', model_utils.fields.StatusField(choices=[('planned', 'Planned'), ('draft', 'Draft'), ('submitted', 'Submitted'), ('reviewed', 'Reviewed'), ('approved', 'Approved'), ('declined', 'Declined'), ('rejected', 'Rejected')], max_length=100, default='planned', no_check_for_status=True)),
+                ('status', model_utils.fields.StatusField(default='planned', no_check_for_status=True, max_length=100, choices=[('planned', 'Planned'), ('draft', 'Draft'), ('submitted', 'Submitted'), ('reviewed', 'Reviewed'), ('approved', 'Approved'), ('declined', 'Declined'), ('rejected', 'Rejected')])),
                 ('time_accomplished', models.DateTimeField(null=True, blank=True)),
             ],
             options={
@@ -36,7 +36,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='EvaluationAssessmentComment',
             fields=[
-                ('id', models.AutoField(primary_key=True, auto_created=True, verbose_name='ID', serialize=False)),
+                ('id', models.AutoField(auto_created=True, serialize=False, verbose_name='ID', primary_key=True)),
                 ('commenter_id', models.PositiveIntegerField()),
                 ('comment', models.TextField()),
             ],
@@ -47,8 +47,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='EvaluationAssessmentLevel',
             fields=[
-                ('id', models.AutoField(primary_key=True, auto_created=True, verbose_name='ID', serialize=False)),
-                ('level', models.PositiveIntegerField(null=True, blank=True, default=0)),
+                ('id', models.AutoField(auto_created=True, serialize=False, verbose_name='ID', primary_key=True)),
+                ('level', models.PositiveIntegerField(null=True, default=0, blank=True)),
             ],
             options={
                 'ordering': ('level',),
@@ -58,14 +58,14 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='PlaceToAssess',
             fields=[
-                ('id', models.AutoField(primary_key=True, auto_created=True, verbose_name='ID', serialize=False)),
+                ('id', models.AutoField(auto_created=True, serialize=False, verbose_name='ID', primary_key=True)),
                 ('place_id', models.PositiveIntegerField()),
             ],
         ),
         migrations.CreateModel(
             name='Project',
             fields=[
-                ('id', models.AutoField(primary_key=True, auto_created=True, verbose_name='ID', serialize=False)),
+                ('id', models.AutoField(auto_created=True, serialize=False, verbose_name='ID', primary_key=True)),
                 ('period_start', models.DateField()),
                 ('period_end', models.DateField()),
                 ('company', models.ForeignKey(to='companies.Company')),
@@ -78,7 +78,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ResearchMethodology',
             fields=[
-                ('id', models.AutoField(primary_key=True, auto_created=True, verbose_name='ID', serialize=False)),
+                ('id', models.AutoField(auto_created=True, serialize=False, verbose_name='ID', primary_key=True)),
                 ('number_of_evaluations', models.PositiveSmallIntegerField()),
                 ('description', models.TextField(blank=True)),
                 ('questionnaires', models.ManyToManyField(to='questionnaires.QuestionnaireTemplate')),

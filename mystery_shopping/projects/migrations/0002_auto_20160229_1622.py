@@ -7,12 +7,12 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('contenttypes', '0002_remove_content_type_name'),
         ('projects', '0001_initial'),
+        ('users', '0001_initial'),
+        ('contenttypes', '0002_remove_content_type_name'),
         ('questionnaires', '0001_initial'),
         ('tenants', '0001_initial'),
         ('companies', '0001_initial'),
-        ('users', '0001_initial'),
     ]
 
     operations = [
@@ -44,12 +44,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='placetoassess',
             name='place_type',
-            field=models.ForeignKey(related_name='content_type_place_to_assess', to='contenttypes.ContentType'),
+            field=models.ForeignKey(to='contenttypes.ContentType', related_name='content_type_place_to_assess'),
         ),
         migrations.AddField(
             model_name='placetoassess',
             name='research_methodology',
-            field=models.ForeignKey(related_name='places_to_assess', to='projects.ResearchMethodology'),
+            field=models.ForeignKey(to='projects.ResearchMethodology', related_name='places_to_assess'),
         ),
         migrations.AddField(
             model_name='evaluationassessmentlevel',
@@ -59,7 +59,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='evaluationassessmentlevel',
             name='previous_level',
-            field=models.OneToOneField(related_name='next_level', blank=True, null=True, to='projects.EvaluationAssessmentLevel'),
+            field=models.OneToOneField(null=True, related_name='next_level', blank=True, to='projects.EvaluationAssessmentLevel'),
         ),
         migrations.AddField(
             model_name='evaluationassessmentlevel',
@@ -74,7 +74,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='evaluationassessmentcomment',
             name='commenter_type',
-            field=models.ForeignKey(related_name='commenter_type', to='contenttypes.ContentType'),
+            field=models.ForeignKey(to='contenttypes.ContentType', related_name='commenter_type'),
         ),
         migrations.AddField(
             model_name='evaluationassessmentcomment',
@@ -94,7 +94,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='evaluation',
             name='employee_type',
-            field=models.ForeignKey(related_name='employee_type', null=True, blank=True, to='contenttypes.ContentType'),
+            field=models.ForeignKey(null=True, blank=True, related_name='employee_type', to='contenttypes.ContentType'),
         ),
         migrations.AddField(
             model_name='evaluation',
@@ -114,7 +114,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='evaluation',
             name='questionnaire',
-            field=models.OneToOneField(blank=True, null=True, to='questionnaires.Questionnaire'),
+            field=models.OneToOneField(null=True, blank=True, to='questionnaires.Questionnaire'),
         ),
         migrations.AddField(
             model_name='evaluation',
