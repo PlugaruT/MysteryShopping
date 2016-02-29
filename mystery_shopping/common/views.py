@@ -38,6 +38,16 @@ class CountyViewSet(viewsets.ModelViewSet):
 class CityViewSet(viewsets.ModelViewSet):
     queryset = City.objects.all()
     serializer_class = CitySerializer
+
+    def get_queryset(self):
+        queryset = super(CityViewSet, self).get_queryset()
+        query_variable = self.request.query_params.get('q', None)
+
+        # Search city by name
+        if query_variable is not None:
+            queryset = queryset.filter(name__icontains=query_variable)
+
+        return queryset
     # todo: add permissions
 
 
