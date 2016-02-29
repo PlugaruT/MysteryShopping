@@ -39,6 +39,11 @@ class QuestionnaireTemplateViewSet(viewsets.ModelViewSet):
     serializer_class = QuestionnaireTemplateSerializer
     permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)
 
+    def get_queryset(self):
+        queryset = QuestionnaireTemplate.objects.all()
+        queryset = self.get_serializer_class().setup_eager_loading(queryset)
+        return queryset
+
 
 class QuestionnaireViewSet(viewsets.ModelViewSet):
     queryset = Questionnaire.objects.all()

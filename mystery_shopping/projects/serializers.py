@@ -298,7 +298,6 @@ class EvaluationSerializer(serializers.ModelSerializer):
         queryset = queryset.select_related('shopper__user', 'entity__city', 'questionnaire', 'questionnaire_template',
                                            'section')
         queryset = queryset.prefetch_related('questionnaire__blocks__questions__question_choices',
-                                             'questionnaire__blocks__questions__answer_choices',
                                              'entity__employees__company',
                                              'entity__managers', 'entity__sections', 'section__managers',
                                              'section__employees__company')

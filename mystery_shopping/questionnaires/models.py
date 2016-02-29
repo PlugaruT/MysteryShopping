@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
 from model_utils import Choices
 
 from mptt.models import MPTTModel, TreeForeignKey
@@ -199,7 +200,7 @@ class QuestionnaireQuestion(QuestionAbstract):
     answer = models.TextField(null=True, blank=True)
     show_comment = models.BooleanField(default=True)
     comment = models.TextField(null=True, blank=True)
-    answer_choices = models.ManyToManyField("QuestionnaireQuestionChoice", blank=True)
+    answer_choices = ArrayField(models.IntegerField(), blank=True)
 
     class Meta:
         default_related_name = 'questions'
