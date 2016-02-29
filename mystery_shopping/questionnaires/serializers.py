@@ -71,7 +71,6 @@ class QuestionnaireQuestionSerializer(serializers.ModelSerializer):
 
         # instance.prepare_to_update()
         validated_data.pop('question_choices', [])
-        validated_data.pop('answer_choices', [])
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
@@ -263,8 +262,7 @@ class QuestionnaireSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def setup_eager_loading(queryset):
-        queryset = queryset.prefetch_related('blocks__questions__question_choices',
-                                             'blocks__questions__answer_choices')
+        queryset = queryset.prefetch_related('blocks__questions__question_choices')
         return queryset
 
     def create(self, validated_data):
@@ -305,6 +303,11 @@ class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
         model = QuestionnaireTemplate
         fields = '__all__'
         extra_kwargs = {'is_editable': {'read_only': True}}
+
+    @staticmethod
+    def setup_eager_loading(queryset):
+        queryset = queryset.prefetch_related('template_blocks__template_questions__template_question_choices')
+        return queryset
 
     def create(self, validated_data):
         template_blocks = validated_data.pop('template_blocks', None)
