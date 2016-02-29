@@ -110,7 +110,6 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
             template_question = QuestionnaireTemplateQuestion.objects.create(**validated_data)
 
             for template_question_choice in template_question_choices:
-                print("from question for question choice")
                 template_question_choice['template_question'] = template_question.id
                 template_question_choice_ser = QuestionnaireTemplateQuestionChoiceSerializer(data=template_question_choice)
                 template_question_choice_ser.is_valid(raise_exception=True)

@@ -1,3 +1,5 @@
+import re
+
 from rest_framework import serializers
 
 from .models import User
@@ -20,6 +22,24 @@ class SimpleCompanySerializer(serializers.ModelSerializer):
     class Meta:
         model = Company
         fields = '__all__'
+
+
+class UsersCreateMixin:
+    '''
+    Mixin class used to create (almost) all types of users.
+
+    '''
+    def create(self, validated_data):
+        user = validated_data.pop('user', None)
+
+        user_ser = UserSerializer(data=user)
+        user_ser.is_valid(raise_exception=True)
+        user_ser.save()
+        user = user_ser.instance
+
+        user_type = self.Meta.model.objects.create(user=user, **validated_data)
+
+        return user_type
 
 
 class UsersUpdateMixin:
@@ -52,7 +72,8 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'roles', 'password', 'confirm_password', 'tenant_repr')
-        extra_kwargs = {'username': {'validators': []}}
+        extra_kwargs = {'username': {'validators': []},
+                        'help_text': 'Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.'}
 
     @staticmethod
     def check_username(username):
@@ -61,6 +82,12 @@ class UserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({
                 'username': ['Username: \'{}\' is already taken, please choose another one.'.format(username)]
             })
+        if not re.match("^[a-zA-Z0-9@.+-_]+$", username):
+            raise serializers.ValidationError({
+                'username': ['Username: \'{}\' contains illegal characters.'
+                             ' Allowed characters: letters, digits and @/./+/-/_ only.'.format(username)]
+            })
+        # No need to check len(username) > 30, as it does it by itself.
         return True
 
     def create(self, validated_data):
@@ -114,7 +141,7 @@ class TenantProductManagerSerializer(UsersUpdateMixin, serializers.ModelSerializ
         fields = '__all__'
 
 
-class TenantProjectManagerSerializer(UsersUpdateMixin, serializers.ModelSerializer):
+class TenantProjectManagerSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):
     """Serializer class for TenantProjectManager user model.
     """
     user = UserSerializer()
@@ -205,7 +232,7 @@ class ClientEmployeeSerializer(UsersUpdateMixin, serializers.ModelSerializer):
         return client_employee
 
 
-class ShopperSerializer(UsersUpdateMixin, serializers.ModelSerializer):
+class ShopperSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):
     """Serializer class for Shopper user model.
     """
     user = UserSerializer()
@@ -213,18 +240,6 @@ class ShopperSerializer(UsersUpdateMixin, serializers.ModelSerializer):
     class Meta:
         model = Shopper
         fields = '__all__'
-
-    def create(self, validated_data):
-        user = validated_data.pop('user', None)
-
-        user_ser = UserSerializer(data=user)
-        user_ser.is_valid(raise_exception=True)
-        user_ser.save()
-        user = user_ser.instance
-
-        shopper = self.model.objects.create(user=user, **validated_data)
-
-        return shopper
 
 
 class PersonToAssessRelatedField(serializers.RelatedField):

@@ -143,6 +143,7 @@ class EvaluationPerProjectViewSet(viewsets.ViewSet):
 
     def list(self, request, company_pk=None, project_pk=None):
         queryset = Evaluation.objects.filter(project=project_pk, project__company=company_pk)
+        queryset = self.serializer_class.setup_eager_loading(queryset)
         serializer = EvaluationSerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -164,6 +165,7 @@ class EvaluationPerProjectViewSet(viewsets.ViewSet):
 
     def retrieve(self, request, pk=None, company_pk=None, project_pk=None):
         queryset = Evaluation.objects.filter(pk=pk, project=project_pk, project__company=company_pk)
+        queryset = self.serializer_class.setup_eager_loading(queryset)
         evaluation = get_object_or_404(queryset, pk=pk)
         self.check_object_permissions(request, evaluation)
         serializer = EvaluationSerializer(evaluation)
