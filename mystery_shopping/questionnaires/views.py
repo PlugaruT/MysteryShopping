@@ -54,7 +54,19 @@ class QuestionnaireViewSet(viewsets.ModelViewSet):
 class QuestionnaireTemplateBlockViewSet(viewsets.ModelViewSet):
     queryset = QuestionnaireTemplateBlock.objects.all()
     serializer_class = QuestionnaireTemplateBlockSerializer
-    permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
+
+    def destroy(self, request, pk=None):
+        queryset = QuestionnaireTemplateBlock.objects.filter(pk=pk)
+        template_block = get_object_or_404(queryset, pk=pk)
+        siblings_to_update = template_block.get_siblings().filter(questionnaire_template=template_block.questionnaire_template, order__gt=template_block.order)
+        # update 'order' field of sibling blocks when a block gets deleted
+        for sibling in siblings_to_update:
+            sibling.order -= 1
+            sibling.save()
+
+        template_block.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class QuestionnaireBlockViewSet(viewsets.ModelViewSet):
