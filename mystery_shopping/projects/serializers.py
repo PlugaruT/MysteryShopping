@@ -335,8 +335,7 @@ class EvaluationSerializer(serializers.ModelSerializer):
                 for question in block.get('questions', []):
                     question_instance = QuestionnaireQuestion.objects.get(questionnaire=question.get('questionnaire'), pk=question.get('question_id'))
                     question_instance.answer = question.get('answer', None)
-                    question_instance.answer_choices.clear()
-                    question_instance.answer_choices.add(*question.get('answer_choices', []))
+                    question_instance.answer_choices = question.get('answer_choices', [])
                     question_instance.comment = question.get('comment', None)
                     question_instance.save()
 

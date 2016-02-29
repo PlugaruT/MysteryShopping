@@ -200,7 +200,7 @@ class QuestionnaireQuestion(QuestionAbstract):
     answer = models.TextField(null=True, blank=True)
     show_comment = models.BooleanField(default=True)
     comment = models.TextField(null=True, blank=True)
-    answer_choices = ArrayField(models.IntegerField(), blank=True)
+    answer_choices = ArrayField(models.IntegerField(), null=True, blank=True)
 
     class Meta:
         default_related_name = 'questions'
