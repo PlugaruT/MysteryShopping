@@ -33,6 +33,8 @@ urlpatterns = [
     url(r'^users/', include("mystery_shopping.users.urls", namespace="users")),
     url(r'^accounts/', include('allauth.urls')),
 
+    url(r'^api/v1/common/', include('mystery_shopping.common.urls', namespace='common')),
+
     # Your stuff: custom urls includes go here
     url(r'^api/v1/', include(common_router.urls)),
 

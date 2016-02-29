@@ -20,6 +20,9 @@ class CountryRegion(models.Model):
     """
 
     """
+    # Relations
+    country = models.ForeignKey(Country)
+
     # Attributes
     name = models.CharField(max_length=50)
 
@@ -60,6 +63,7 @@ class City(models.Model):
 
     # Attributes
     name = models.CharField(max_length=40)
+    zip_code = models.CharField(max_length=10, blank=True)
 
     class Meta:
         ordering = ('county', 'name',)
