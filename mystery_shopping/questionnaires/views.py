@@ -80,6 +80,17 @@ class QuestionnaireTemplateQuestionViewSet(viewsets.ModelViewSet):
     serializer_class = QuestionnaireTemplateQuestionSerializer
     permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)
 
+    def destroy(self, request, pk=None):
+        queryset = QuestionnaireTemplateQuestion.objects.filter(pk=pk)
+        template_question = get_object_or_404(queryset, pk=pk)
+        questions_to_update = QuestionnaireTemplateQuestion.objects.filter(template_block=template_question.template_block, order__gt=template_question.order)
+        for question in questions_to_update:
+            question.order -= 1
+            question.save()
+
+        template_question.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class QuestionnaireQuestionViewSet(viewsets.ModelViewSet):
     queryset = QuestionnaireQuestion.objects.all()
@@ -91,6 +102,17 @@ class QuestionnaireTemplateQuestionChoiceViewSet(viewsets.ModelViewSet):
     queryset = QuestionnaireTemplateQuestionChoice.objects.all()
     serializer_class = QuestionnaireTemplateQuestionChoiceSerializer
     permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)
+
+    def destroy(self, request, pk=None):
+        queryset = QuestionnaireTemplateQuestionChoice.objects.filter(pk=pk)
+        template_question_choice = get_object_or_404(queryset, pk=pk)
+        choice_to_update = QuestionnaireTemplateQuestionChoice.objects.filter(template_question=template_question_choice.template_question, order__gt=template_question_choice.order)
+        for choice in choice_to_update:
+            choice.order -= 1
+            choice.save()
+
+        template_question_choice.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class QuestionnaireQuestionChoiceViewSet(viewsets.ModelViewSet):
