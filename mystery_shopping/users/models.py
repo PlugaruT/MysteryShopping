@@ -69,6 +69,8 @@ class User(AbstractUser):
             roles.append('clientmanager')
         if hasattr(self, 'clientemployee'):
             roles.append('clientemployee')
+        if getattr(self, 'is_staff', False) is True:
+            roles.append('admin')
         return roles
 
     # TODO: add a get_tenant method
