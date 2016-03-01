@@ -203,7 +203,7 @@ class ClientManagerSerializer(UsersUpdateMixin, serializers.ModelSerializer):
             user_ser.save()
             user = user_ser.instance
 
-        client_manager = self.objects.create(user=user, **validated_data)
+        client_manager = ClientManager.objects.create(user=user, **validated_data)
 
         return client_manager
 
