@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
 from model_utils import Choices
 
 from mptt.models import MPTTModel, TreeForeignKey
@@ -199,7 +200,7 @@ class QuestionnaireQuestion(QuestionAbstract):
     answer = models.TextField(null=True, blank=True)
     show_comment = models.BooleanField(default=True)
     comment = models.TextField(null=True, blank=True)
-    answer_choices = models.ManyToManyField("QuestionnaireQuestionChoice", blank=True)
+    answer_choices = ArrayField(models.IntegerField(), null=True, blank=True)
 
     class Meta:
         default_related_name = 'questions'
@@ -211,21 +212,22 @@ class QuestionnaireQuestion(QuestionAbstract):
         self.answer_choices.clear()
 
     def calculate_score_for_s(self):
-        choices = self.answer_choices.all()
         score = Decimal(0)
-        for choice in choices:
-            # TODO: check the correctness of computation in case max_score = 0
-            score += (choice.score / self.max_score) * 100 if self.max_score else 0
+        if self.max_score:
+            for answer_choice_id in self.answer_choices:
+                answer_choice = QuestionnaireQuestionChoice.objects.get(pk=answer_choice_id)
+                score += (answer_choice.score / self.max_score) * 100
 
         return score
 
     def calculate_score_for_m(self):
-        choices = self.answer_choices.all()
         score = Decimal(0)
-        for choice in choices:
-            score += choice.score
+        if self.max_score:
+            for answer_choice_id in self.answer_choices:
+                answer_choice = QuestionnaireQuestionChoice.objects.get(pk=answer_choice_id)
+                score += (answer_choice.score / self.max_score) * 100
 
-        return (score / self.max_score) * 100
+        return score
 
     def calculate_score_for_t(self):
         return Decimal(0)
@@ -234,11 +236,6 @@ class QuestionnaireQuestion(QuestionAbstract):
         return Decimal(0)
 
     def calculate_score(self):
-        # calculate_score_for_ = {'s': self.calculate_score_for_s,
-        #                         'm': self.calculate_score_for_m,
-        #                         't': self.calculate_score_for_t,
-        #                         'd': self.calculate_score_for_d}
-
         self.score = getattr(self, 'calculate_score_for_{}'.format(self.type))()
         self.save()
         return (self.score * self.weight) / 100
