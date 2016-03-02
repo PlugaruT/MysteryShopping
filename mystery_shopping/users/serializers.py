@@ -52,8 +52,8 @@ class UsersUpdateMixin:
         user = validated_data.pop('user', None)
 
         if user:
-            if user.get('username', None) == instance.user.username:
-                validated_data.pop('username')
+            if user.get('username', None) != instance.user.username:
+                user['change_username'] = True
             user_ser = UserSerializer(instance.user, data=user)
             user_ser.is_valid(raise_exception=True)
             user_ser.save()
@@ -72,10 +72,11 @@ class UserSerializer(serializers.ModelSerializer):
     confirm_password = serializers.CharField(write_only=True, required=False)
     tenant_repr = TenantSerializer(source='get_tenant', read_only=True)
     roles = serializers.ListField(read_only=True, source='user_roles')
+    change_username = serializers.BooleanField(write_only=True, required=False)
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'first_name', 'last_name',
+        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'change_username',
                   'roles', 'password', 'confirm_password', 'tenant_repr')
         extra_kwargs = {'username': {'validators': []},
                         'help_text': 'Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.'}
@@ -124,9 +125,14 @@ class UserSerializer(serializers.ModelSerializer):
             else:
                 raise serializers.ValidationError({'password': ['Provided passwords do not match.']})
 
-        if User.objects.filter(username=validated_data.get('username', None)):
-            raise serializers.ValidationError({'username': ['Username: \'{}\' is already taken, please choose another one.'.format(validated_data.get('username'))]})
-        self.check_username(validated_data.get('username'))
+        if validated_data.get('change_username', False):
+            username = validated_data.get('username', None)
+            if User.objects.filter(username=username).exists():
+                raise serializers.ValidationError({
+                    'username': ['Username: \'{}\' is already taken, please choose another one.'.format(username)]})
+            self.check_username(username)
+        else:
+            validated_data.pop('username', None)
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
