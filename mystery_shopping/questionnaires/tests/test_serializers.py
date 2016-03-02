@@ -58,23 +58,23 @@ def generate(func, inputs):
     return decorator
 
 
-@generate(_create_template_question, json.load(
-    open("mystery_shopping/questionnaires/tests/QuestionnaireTemplateQuestions.json")))
-class QuestionnaireTemplateQuestionSerializerTestCase(TestCase):
-    def setUp(self):
-        self.questionnaire_template = QuestionnaireTemplateFactory()
-        self.questionnaire_template_block = QuestionnaireTemplateBlockFactory(
-            questionnaire_template=self.questionnaire_template)
+# @generate(_create_template_question, json.load(
+#     open("mystery_shopping/questionnaires/tests/QuestionnaireTemplateQuestions.json")))
+# class QuestionnaireTemplateQuestionSerializerTestCase(TestCase):
+#     def setUp(self):
+#         self.questionnaire_template = QuestionnaireTemplateFactory()
+#         self.questionnaire_template_block = QuestionnaireTemplateBlockFactory(
+#             questionnaire_template=self.questionnaire_template)
 
 
-@generate(_create_template_block, json.load(
-    open("mystery_shopping/questionnaires/tests/QuestionnaireTemplateBlocks.json")))
-class QuestionnaireTemplateBlockSerializerTestCase(TestCase):
-    def setUp(self):
-        self.questionnaire_template = QuestionnaireTemplateFactory()
-
-
-@generate(_create_questionnaire_template, json.load(
-    open("mystery_shopping/questionnaires/tests/QuestionnaireTemplates.json")))
-class QuestionnaireTemplateSerializerTestCase(TestCase):
-    pass
+# @generate(_create_template_block, json.load(
+#     open("mystery_shopping/questionnaires/tests/QuestionnaireTemplateBlocks.json")))
+# class QuestionnaireTemplateBlockSerializerTestCase(TestCase):
+#     def setUp(self):
+#         self.questionnaire_template = QuestionnaireTemplateFactory()
+#
+#
+# @generate(_create_questionnaire_template, json.load(
+#     open("mystery_shopping/questionnaires/tests/QuestionnaireTemplates.json")))
+# class QuestionnaireTemplateSerializerTestCase(TestCase):
+#     pass
