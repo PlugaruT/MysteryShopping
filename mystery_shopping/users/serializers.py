@@ -32,10 +32,11 @@ class UsersCreateMixin:
     def create(self, validated_data):
         user = validated_data.pop('user', None)
 
-        user_ser = UserSerializer(data=user)
-        user_ser.is_valid(raise_exception=True)
-        user_ser.save()
-        user = user_ser.instance
+        if user:
+            user_ser = UserSerializer(data=user)
+            user_ser.is_valid(raise_exception=True)
+            user_ser.save()
+            user = user_ser.instance
 
         user_type = self.Meta.model.objects.create(user=user, **validated_data)
 
@@ -49,10 +50,13 @@ class UsersUpdateMixin:
     '''
     def update(self, instance, validated_data):
         user = validated_data.pop('user', None)
-        user_instance = User.objects.filter(username=user['username']).first()
-        user_ser = UserSerializer(user_instance, data=user)
-        user_ser.is_valid(raise_exception=True)
-        user_ser.save()
+
+        if user:
+            if user.get('username', None) == instance.user.username:
+                validated_data.pop('username')
+            user_ser = UserSerializer(instance.user, data=user)
+            user_ser.is_valid(raise_exception=True)
+            user_ser.save()
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
@@ -71,7 +75,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'roles', 'password', 'confirm_password', 'tenant_repr')
+        fields = ('id', 'username', 'email', 'first_name', 'last_name',
+                  'roles', 'password', 'confirm_password', 'tenant_repr')
         extra_kwargs = {'username': {'validators': []},
                         'help_text': 'Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.'}
 
@@ -119,8 +124,9 @@ class UserSerializer(serializers.ModelSerializer):
             else:
                 raise serializers.ValidationError({'password': ['Provided passwords do not match.']})
 
-        validated_data.pop('username', None)
-        # self.check_username(validated_data['username'])
+        if User.objects.filter(username=validated_data.get('username', None)):
+            raise serializers.ValidationError({'username': ['Username: \'{}\' is already taken, please choose another one.'.format(validated_data.get('username'))]})
+        self.check_username(validated_data.get('username'))
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
@@ -129,7 +135,7 @@ class UserSerializer(serializers.ModelSerializer):
         return instance
 
 
-class TenantProductManagerSerializer(UsersUpdateMixin, serializers.ModelSerializer):
+class TenantProductManagerSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):
     """Serializer class for TenantProductManager user model.
     """
     user = UserSerializer()
@@ -153,7 +159,7 @@ class TenantProjectManagerSerializer(UsersCreateMixin, UsersUpdateMixin, seriali
         fields = '__all__'
 
 
-class TenantConsultantSerializer(UsersUpdateMixin, serializers.ModelSerializer):
+class TenantConsultantSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):
     """Serializer class for TenantConsultant user model.
     """
     user = UserSerializer()
@@ -164,18 +170,6 @@ class TenantConsultantSerializer(UsersUpdateMixin, serializers.ModelSerializer):
         model = TenantConsultant
         fields = '__all__'
 
-    def create(self, validated_data):
-        user = validated_data.pop('user', None)
-        if user is not None:
-            user_ser = UserSerializer(data=user)
-            user_ser.is_valid(raise_exception=True)
-            user_ser.save()
-            user = user_ser.instance
-
-        tenant_consultant = TenantConsultant.objects.create(user=user, **validated_data)
-
-        return tenant_consultant
-
 
 class ClientProjectManagerSerializer(serializers.ModelSerializer):
     """Serializer class for ClientProjectManager user model.
@@ -185,30 +179,17 @@ class ClientProjectManagerSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class ClientManagerSerializer(UsersUpdateMixin, serializers.ModelSerializer):
+class ClientManagerSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):
     """Serializer class for ClientManager user model.
     """
     user = UserSerializer(required=False, allow_null=True)
-    # place_repr = PlaceRelatedField(source='place', read_only=True)
 
     class Meta:
         model = ClientManager
         fields = '__all__'
 
-    def create(self, validated_data):
-        user = validated_data.pop('user', None)
-        if user is not None:
-            user_ser = UserSerializer(data=user)
-            user_ser.is_valid(raise_exception=True)
-            user_ser.save()
-            user = user_ser.instance
 
-        client_manager = ClientManager.objects.create(user=user, **validated_data)
-
-        return client_manager
-
-
-class ClientEmployeeSerializer(UsersUpdateMixin, serializers.ModelSerializer):
+class ClientEmployeeSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):
     """Serializer class for ClientEmployee user model.
     """
     user = UserSerializer(required=False, allow_null=True)
@@ -217,19 +198,6 @@ class ClientEmployeeSerializer(UsersUpdateMixin, serializers.ModelSerializer):
     class Meta:
         model = ClientEmployee
         fields = '__all__'
-
-    def create(self, validated_data):
-        user = validated_data.pop('user', None)
-
-        if user is not None:
-            user_ser = UserSerializer(data=user)
-            user_ser.is_valid(raise_exception=True)
-            user_ser.save()
-            user = user_ser.instance
-
-        client_employee = ClientEmployee.objects.create(user=user, **validated_data)
-
-        return client_employee
 
 
 class ShopperSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):
