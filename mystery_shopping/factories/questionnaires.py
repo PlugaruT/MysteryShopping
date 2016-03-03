@@ -3,7 +3,6 @@ from factory import SubFactory
 
 from mystery_shopping.questionnaires.models import QuestionnaireTemplate
 from mystery_shopping.questionnaires.models import QuestionnaireTemplateBlock
-from mystery_shopping.questionnaires.models import QuestionnaireTemplateQuestion
 from mystery_shopping.factories.tenants import TenantFactory
 
 
@@ -23,7 +22,7 @@ class QuestionnaireTemplateBlockDefaultFactory(DjangoModelFactory):
 
     title = "Factory Questionnaire Template Block title"
     weight = 1.0
-    order = 1
+    order = 2
     questionnaire_template = SubFactory(QuestionnaireTemplateFactory)
     parent_block = None
 
@@ -36,4 +35,4 @@ class QuestionnaireTemplateBlockFactory(DjangoModelFactory):
     weight = 1.0
     order = 1
     questionnaire_template = SubFactory(QuestionnaireTemplateFactory)
-    parent_block = SubFactory(QuestionnaireTemplateBlockDefaultFactory)
+    # parent_block = SubFactory(QuestionnaireTemplateBlockDefaultFactory)
