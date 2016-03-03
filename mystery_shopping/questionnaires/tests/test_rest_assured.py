@@ -12,24 +12,22 @@ class QuestionnaireTemplateBlockAPITestCase(ReadWriteRESTAPITestCaseMixin, BaseR
     factory_class = QuestionnaireTemplateBlockFactory
     user_factory = UserThatIsTenantProductManagerFactory
 
+    def test_create(self, data=None, **kwargs):
+        kwargs['format'] = 'json'
+        super(QuestionnaireTemplateBlockAPITestCase, self).test_create(data, **kwargs)
+
     def get_create_data(self):
-        # print(self.object.questionnaire_template)
         self.data = json.loads('''{
                                "template_questions":[],
                                "title":"Test Template Block",
                                "weight":"5.00",
                                "parent_block": null
                                 }''')
-        self.data['parent_block'] = self.object.parent_block.id
-        print(type(self.data['parent_block']))
-        print(self.object.questionnaire_template.id)
         self.data['questionnaire_template'] = self.object.questionnaire_template.id
         self.data['order'] = self.object.order
-        print(self.data)
         return self.data
 
     def get_update_data(self):
-        print(type(self.object.questionnaire_template.id))
         self.data = {'title': 'Updated Title',
-                     'questionnaire_template': str(self.object.questionnaire_template.id)}
+                     'order': 10}
         return self.data

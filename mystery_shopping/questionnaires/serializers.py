@@ -229,8 +229,8 @@ class QuestionnaireTemplateBlockSerializer(serializers.ModelSerializer):
         raise serializers.ValidationError('The Questionnaire Template this Block belongs to is not editable')
 
     def update(self, instance, validated_data):
-        template_questions = validated_data.pop('template_questions')
-        if validated_data['questionnaire_template'].is_editable:
+        template_questions = validated_data.pop('template_questions', list())
+        if instance.questionnaire_template.is_editable:
             # Get the block siblings to update
             siblings = validated_data.pop('siblings', [])
             for sibling in siblings:
