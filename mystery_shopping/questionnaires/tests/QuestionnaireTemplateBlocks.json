@@ -1,35 +1,62 @@
 [
   {
-    "test_name": "block_with_no_questions",
-    "data": {
-      "template_block_questions": [],
-      "title": "Block with no questions",
-      "weight": "0.4000",
-      "questionnaire_template": 1,
-      "parent_block": null
-    }
+    "template_questions": [],
+    "title": "Block with no questions",
+    "weight": "5.00",
+    "parent_block": null
   },
   {
-    "test_name": "block_with_2_questions",
-    "data": {
-      "template_block_questions": [
-        {
-          "question_body": "Question#1",
-          "type": "sYes [::] 5 || No [::] 0 || NA [::] -1",
-          "show_comment": true,
-          "max_score": 2
-        },
-        {
-          "question_body": "Question#2",
-          "type": "mYes [::] 5 || No [::] 0 || NA [::] -1",
-          "show_comment": true,
-          "max_score": 5
-        }
-      ],
-      "title": "Block with 2 Questions",
-      "weight": 1.0000,
-      "questionnaire_template": 2,
-      "parent_block": null
-    }
+    "template_questions":[
+          {
+             "template_question_choices":[
+                {
+                   "text":"Da",
+                   "order":1,
+                   "score":"1.00",
+                   "weight":"0.50"
+                },
+                {
+                   "text":"Nu",
+                   "order": 2,
+                   "score":"0.00",
+                   "weight":"0.50"
+                }
+             ],
+             "question_body":"Atmosfera corespunzătoare",
+             "order": 1,
+             "type":"s",
+             "max_score":1,
+             "position":null,
+             "weight":"80.00"
+          },
+          {
+             "template_question_choices":[
+                {
+                   "text":"Da",
+                   "order":1,
+                   "score":"1.00",
+                   "weight":"0.50"
+
+                },
+                {
+                   "text":"Nu",
+                   "order":2,
+                   "score":"0.00",
+                   "weight":"0.50"
+
+                }
+             ],
+             "question_body":"Lipsa golurilor în vitrine",
+             "order": 2,
+             "type":"s",
+             "max_score":1,
+             "position":null,
+             "weight":"20.00"
+          }
+    ],
+    "title": "Block with 2 Questions",
+    "weight": 100.00,
+    "parent_block": null,
+    "order": 1
   }
 ]

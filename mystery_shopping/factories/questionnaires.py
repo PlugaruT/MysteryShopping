@@ -16,17 +16,6 @@ class QuestionnaireTemplateFactory(DjangoModelFactory):
     is_editable = True
 
 
-class QuestionnaireTemplateBlockDefaultFactory(DjangoModelFactory):
-    class Meta:
-        model = QuestionnaireTemplateBlock
-
-    title = "Factory Questionnaire Template Block title"
-    weight = 1.0
-    order = 2
-    questionnaire_template = SubFactory(QuestionnaireTemplateFactory)
-    parent_block = None
-
-
 class QuestionnaireTemplateBlockFactory(DjangoModelFactory):
     class Meta:
         model = QuestionnaireTemplateBlock

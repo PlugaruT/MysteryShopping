@@ -207,12 +207,12 @@ class QuestionnaireTemplateBlockSerializer(serializers.ModelSerializer):
             # Get the block siblings to update
             siblings_to_update = validated_data.pop('siblings', [])
             for sibling in siblings_to_update:
-                block_id = sibling.pop('block_id')
+                block_id = sibling.pop('block_id', None)
                 # Check if blocks are from the same questionnaire template
                 block_to_update = QuestionnaireTemplateBlock.objects.filter(pk=block_id, questionnaire_template=validated_data['questionnaire_template']).first()
 
                 if block_to_update is not None:
-                    for attr, value in sibling['block_changes'].items():
+                    for attr, value in sibling.get('block_changes', {}).items():
                         setattr(block_to_update, attr, value)
                     block_to_update.save()
 
