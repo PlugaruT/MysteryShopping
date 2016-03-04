@@ -1,24 +1,33 @@
 [
   {
-    "test_name": "s_type_question",
-    "data": {
-      "question_body": "Question#2",
-      "type": "sYes [::] 5 || No [::] 0 || NA [::] -1",
-      "show_comment": true,
-      "max_score": 5,
-      "questionnaire_template": 1,
-      "template_block": 1
-    }
+     "template_question_choices":[
+        {
+           "text":"Da",
+           "order":1,
+           "score":"1.00",
+           "weight":"0.50"
+        },
+        {
+           "text":"Nu",
+           "order":2,
+           "score":"0.00",
+           "weight":"0.50"
+        }
+     ],
+     "question_body":"Curățenie în sală",
+     "order": 1,
+     "type":"s",
+     "max_score": 1,
+     "order": 1,
+     "weight":"20.00"
   },
   {
-    "test_name": "t_type_question",
-    "data": {
-      "question_body": "Question#2",
-      "type": "t1900-12-12",
-      "show_comment": true,
-      "max_score": null,
-      "questionnaire_template": 1,
-      "template_block": 1
-    }
+     "template_question_choices": [],
+     "question_body":"Curățenie în sală",
+     "order": 1,
+     "type":"s",
+     "max_score": 1,
+     "order": 2,
+     "weight":"20.00"
   }
 ]

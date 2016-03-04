@@ -118,8 +118,7 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
         raise serializers.ValidationError('The Questionnaire Template this Question belongs to is not editable')
 
     def update(self, instance, validated_data):
-        if validated_data['questionnaire_template'].is_editable:
-
+        if instance.questionnaire_template.is_editable:
             # Delete all template question choices
             instance.prepare_to_update()
             template_question_choices = validated_data.pop('template_question_choices', [])
@@ -246,6 +245,7 @@ class QuestionnaireTemplateBlockSerializer(serializers.ModelSerializer):
             for attr, value in validated_data.items():
                 setattr(instance, attr, value)
             instance.save()
+            print('from update Template Block')
         return instance
 
 

@@ -9,6 +9,7 @@ from rest_assured.testcases import BaseRESTAPITestCase
 from ..models import QuestionnaireTemplateBlock
 from ..serializers import QuestionnaireTemplateBlockSerializer
 from mystery_shopping.factories.questionnaires import QuestionnaireTemplateBlockFactory
+from mystery_shopping.factories.questionnaires import QuestionnaireTemplateQuestionFactory
 from mystery_shopping.factories.users import UserThatIsTenantProductManagerFactory
 
 
@@ -34,7 +35,8 @@ class QuestionnaireTemplateBlockAPITestCase(ReadWriteRESTAPITestCaseMixin, BaseR
 
     def get_update_data(self):
         self.data = {'title': 'Updated Title',
-                     'order': 10}
+                     'order': 10,
+                     'questionnaire_template': str(self.object.questionnaire_template.id)}
         return self.data
 
     def test_create(self, data=None, **kwargs):
@@ -82,3 +84,27 @@ class QuestionnaireTemplateBlockAPITestCase(ReadWriteRESTAPITestCaseMixin, BaseR
             self.assertEqual(sibling.order, i + 1)
 
 
+class QuestionnaireTemplateQuestionAPITestCase(ReadWriteRESTAPITestCaseMixin, BaseRESTAPITestCase):
+
+    base_name = 'questionnairetemplatequestion'
+    factory_class = QuestionnaireTemplateQuestionFactory
+    user_factory = UserThatIsTenantProductManagerFactory
+
+    def setUp(self):
+        self.json_data = json.load(open("mystery_shopping/questionnaires/tests/QuestionnaireTemplateQuestions.json"))
+        super(QuestionnaireTemplateQuestionAPITestCase, self).setUp()
+
+    def get_create_data(self):
+        self.data = self.json_data[0]
+        self.data['questionnaire_template'] = self.object.questionnaire_template.id
+        self.data['template_block'] = self.object.template_block.id
+        return self.data
+
+    def get_update_data(self):
+        self.data = {'question_body': 'Updated Body',
+                     'order': 10}
+        return self.data
+
+    def test_create(self, data=None, **kwargs):
+        kwargs['format'] = 'json'
+        super(QuestionnaireTemplateQuestionAPITestCase, self).test_create(data, **kwargs)
