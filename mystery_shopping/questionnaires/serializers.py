@@ -97,7 +97,7 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
             template_question_choices = validated_data.pop('template_question_choices', [])
             siblings_to_update = validated_data.pop('siblings', [])
             for sibling in siblings_to_update:
-                question_id = sibling.pop('question_id')
+                question_id = sibling.pop('question_id', None)
                 # Check if the questions are from the same questionnaire template block
                 question_to_update = QuestionnaireTemplateQuestion.objects.filter(pk=question_id, template_block=validated_data['template_block']).first()
 
@@ -125,7 +125,8 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
             # Create the 'new' template question choices
             for template_question_choice in template_question_choices:
                 template_question_choice['template_question'] = instance.id
-                template_question_choice_ser = QuestionnaireTemplateQuestionChoiceSerializer(data=template_question_choice)
+                template_question_choice_ser = QuestionnaireTemplateQuestionChoiceSerializer(
+                    data=template_question_choice)
                 template_question_choice_ser.is_valid(raise_exception=True)
                 template_question_choice_ser.save()
 
@@ -245,7 +246,6 @@ class QuestionnaireTemplateBlockSerializer(serializers.ModelSerializer):
             for attr, value in validated_data.items():
                 setattr(instance, attr, value)
             instance.save()
-            print('from update Template Block')
         return instance
 
 

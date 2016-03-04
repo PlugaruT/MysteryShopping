@@ -7,7 +7,9 @@ from rest_assured.testcases import ReadWriteRESTAPITestCaseMixin
 from rest_assured.testcases import BaseRESTAPITestCase
 
 from ..models import QuestionnaireTemplateBlock
+from ..models import QuestionnaireTemplateQuestion
 from ..serializers import QuestionnaireTemplateBlockSerializer
+from ..serializers import QuestionnaireTemplateQuestionSerializer
 from mystery_shopping.factories.questionnaires import QuestionnaireTemplateBlockFactory
 from mystery_shopping.factories.questionnaires import QuestionnaireTemplateQuestionFactory
 from mystery_shopping.factories.users import UserThatIsTenantProductManagerFactory
@@ -108,3 +110,44 @@ class QuestionnaireTemplateQuestionAPITestCase(ReadWriteRESTAPITestCaseMixin, Ba
     def test_create(self, data=None, **kwargs):
         kwargs['format'] = 'json'
         super(QuestionnaireTemplateQuestionAPITestCase, self).test_create(data, **kwargs)
+
+    def test_update_with_sibling(self):
+        sibling_new_weight = 2.9
+        sibling_new_order = 2
+
+        # Create the first question
+        sibling_question = QuestionnaireTemplateQuestionFactory(
+            questionnaire_template=self.object.questionnaire_template, template_block=self.object.template_block, order=1)
+
+        # Create another question that should update the first one
+        self.data = self.json_data[1]
+        self.data['siblings'] = [{'question_id': sibling_question.id,
+                                  'question_changes': {'weight': sibling_new_weight, 'order': sibling_new_order}}]
+        self.data['questionnaire_template'] = self.object.questionnaire_template.id
+        self.data['template_block'] = self.object.template_block.id
+        new_block = QuestionnaireTemplateQuestionSerializer(data=self.data)
+        new_block.is_valid()
+        new_block.save()
+
+        sibling_question = QuestionnaireTemplateQuestion.objects.get(pk=sibling_question.pk)
+
+        self.assertEqual(sibling_question.order, sibling_new_order)
+        self.assertEqual(sibling_question.weight, round(Decimal(sibling_new_weight), 2))
+
+    def test_recalculate_sibling_order(self):
+        initial_orders = [1, 2, 3, 4]
+        siblings = []
+        for i in initial_orders:
+            siblings.append(QuestionnaireTemplateQuestionFactory(
+                questionnaire_template=self.object.questionnaire_template,
+                template_block=self.object.template_block, order=i,
+                question_body='Template Question {}'.format(i)))
+
+        # Delete one question
+        to_delete = siblings.pop(2)
+        self.client.delete(reverse('{}-detail'.format(self.base_name), kwargs={'pk': to_delete.pk}))
+
+        for i, sibling in enumerate(siblings):
+            sibling = QuestionnaireTemplateQuestion.objects.get(pk=sibling.pk)
+            # Assert whether the order has been recalculated
+            self.assertEqual(sibling.order, i + 1)
