@@ -1,10 +1,19 @@
 from factory.django import DjangoModelFactory
 from factory import SubFactory
 
+from mystery_shopping.questionnaires.models import QuestionnaireScript
 from mystery_shopping.questionnaires.models import QuestionnaireTemplate
 from mystery_shopping.questionnaires.models import QuestionnaireTemplateBlock
 from mystery_shopping.questionnaires.models import QuestionnaireTemplateQuestion
 from mystery_shopping.factories.tenants import TenantFactory
+
+
+class QuestionnaireScriptFactory(DjangoModelFactory):
+    class Meta:
+        model = QuestionnaireScript
+
+    title = "Questionnaire Script Factory"
+    description = "Very fancy description"
 
 
 class QuestionnaireTemplateFactory(DjangoModelFactory):

@@ -1,5 +1,6 @@
 from factory.django import DjangoModelFactory
-from factory import fuzzy, SubFactory
+from factory import fuzzy
+from factory import SubFactory
 
 from mystery_shopping.common.models import Country, CountryRegion, County, City, Sector
 
@@ -15,6 +16,7 @@ class CountryRegionFactory(DjangoModelFactory):
     class Meta:
         model = CountryRegion
 
+    country = SubFactory(CountryFactory)
     name = fuzzy.FuzzyText(length=20)
 
 
@@ -34,6 +36,7 @@ class CityFactory(DjangoModelFactory):
 
     county = SubFactory(CountyFactory)
     name = fuzzy.FuzzyText(length=10)
+    zip_code = fuzzy.FuzzyText(length=5)
 
 
 class SectorFactory(DjangoModelFactory):

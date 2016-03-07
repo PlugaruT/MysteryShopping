@@ -295,11 +295,12 @@ class EvaluationSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def setup_eager_loading(queryset):
-        queryset = queryset.select_related('shopper__user', 'entity__city', 'questionnaire', 'questionnaire_template',
-                                           'section')
+        queryset = queryset.select_related('shopper__user', 'entity__city', 'questionnaire',
+                                           'questionnaire_template', 'section')
         queryset = queryset.prefetch_related('questionnaire__blocks__questions__question_choices',
                                              'entity__employees__company',
-                                             'entity__managers', 'entity__sections', 'section__managers',
+                                             'entity__managers', 'entity__sections',
+                                             'section__managers',
                                              'section__employees__company')
         return queryset
 
