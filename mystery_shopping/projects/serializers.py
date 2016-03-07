@@ -299,7 +299,9 @@ class EvaluationSerializer(serializers.ModelSerializer):
                                            'questionnaire_template', 'section')
         queryset = queryset.prefetch_related('questionnaire__blocks__questions__question_choices',
                                              'entity__employees__company',
-                                             'entity__managers', 'entity__sections',
+                                             'entity__managers__user',
+                                             'entity__sections__managers',
+                                             'entity__sections__employees',
                                              'section__managers',
                                              'section__employees__company')
         return queryset

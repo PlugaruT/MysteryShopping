@@ -3,6 +3,7 @@ from decimal import Decimal
 
 from rest_framework.reverse import reverse
 
+from rest_assured.testcases import CreateAPITestCaseMixin
 from rest_assured.testcases import ReadWriteRESTAPITestCaseMixin
 from rest_assured.testcases import BaseRESTAPITestCase
 
@@ -10,9 +11,27 @@ from ..models import QuestionnaireTemplateBlock
 from ..models import QuestionnaireTemplateQuestion
 from ..serializers import QuestionnaireTemplateBlockSerializer
 from ..serializers import QuestionnaireTemplateQuestionSerializer
+from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFactory
 from mystery_shopping.factories.questionnaires import QuestionnaireTemplateBlockFactory
 from mystery_shopping.factories.questionnaires import QuestionnaireTemplateQuestionFactory
 from mystery_shopping.factories.users import UserThatIsTenantProductManagerFactory
+from mystery_shopping.factories.tenants import TenantFactory
+
+
+class QuestionnaireTemplateAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
+    base_name = 'questionnairetemplate'
+    factory_class = QuestionnaireTemplateFactory
+    user_factory = UserThatIsTenantProductManagerFactory
+
+    def setUp(self):
+        self.json_data = json.load(open("mystery_shopping/questionnaires/tests/QuestionnaireTemplates.json"))
+        super(QuestionnaireTemplateAPITestCase, self).setUp()
+
+    def get_create_data(self):
+        tenant = TenantFactory()
+        self.data = self.json_data[1]
+        self.data['tenant'] = tenant.id
+        return self.data
 
 
 class QuestionnaireTemplateBlockAPITestCase(ReadWriteRESTAPITestCaseMixin, BaseRESTAPITestCase):

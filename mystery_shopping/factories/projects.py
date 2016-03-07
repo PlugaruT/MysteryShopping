@@ -77,4 +77,3 @@ class EvaluationFactory(DjangoModelFactory):
     #                      ProjectStatus.REJECTED,)
     status = ProjectStatus.PLANNED
     time_accomplished = None
-
