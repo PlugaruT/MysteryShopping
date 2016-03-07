@@ -972,5 +972,613 @@
     "template_blocks": [],
     "title": "Simple Template Questionnaire without blocks",
     "description": "The best questionnaire"
+},
+{
+   "template_blocks":[
+      {
+         "id":37,
+         "template_questions":[
+
+         ],
+         "title":"Bloc 1",
+         "weight":"50.00",
+         "order":1,
+         "score":null,
+         "lft":1,
+         "rght":14,
+         "tree_id":15,
+         "level":0,
+         "order_number": 37,
+         "parent_order_number": null
+      },
+      {
+         "id":38,
+         "template_questions":[
+
+         ],
+         "title":"Sub-bloc 1",
+         "weight":"60.00",
+         "order":1,
+         "score":null,
+         "lft":2,
+         "rght":7,
+         "tree_id":15,
+         "level":1,
+         "order_number": 38,
+         "parent_order_number":37
+      },
+      {
+         "id":39,
+         "template_questions":[
+            {
+               "id":53,
+               "template_question_choices":[
+                  {
+                     "id":89,
+                     "text":"Yes",
+                     "score":"2.00",
+                     "weight":"0.50",
+                     "order":1
+
+                  },
+                  {
+                     "id":90,
+                     "text":"No",
+                     "score":"0.00",
+                     "weight":"0.50",
+                     "order":2
+
+                  }
+               ],
+               "question_body":"Like tea?",
+               "type":"s",
+               "max_score":2,
+               "order":2,
+               "weight":"50.00",
+               "score":null,
+               "answer":null,
+               "show_comment":true,
+               "comment":null
+
+
+
+            },
+            {
+               "id":54,
+               "template_question_choices":[
+                  {
+                     "id":91,
+                     "text":"Yes",
+                     "score":"2.00",
+                     "weight":"0.50",
+                     "order":1
+
+                  },
+                  {
+                     "id":92,
+                     "text":"No",
+                     "score":"0.00",
+                     "weight":"0.50",
+                     "order":2
+
+                  }
+               ],
+               "question_body":"Like coffee?",
+               "type":"s",
+               "max_score":2,
+               "order":1,
+               "weight":"50.00",
+               "score":null,
+               "answer":null,
+               "show_comment":true,
+               "comment":null
+
+
+
+            }
+         ],
+         "title":"Sub-sub-bloc 1",
+         "weight":"50.00",
+         "order":1,
+         "score":null,
+         "lft":3,
+         "rght":4,
+         "tree_id":15,
+         "level":2,
+         "order_number": 39,
+         "parent_order_number":38
+      },
+      {
+         "id":40,
+         "template_questions":[
+            {
+               "id":55,
+               "template_question_choices":[
+                  {
+                     "id":93,
+                     "text":"Yes",
+                     "score":"2.00",
+                     "weight":"0.50",
+                     "order":1
+
+                  },
+                  {
+                     "id":94,
+                     "text":"No",
+                     "score":"0.00",
+                     "weight":"0.50",
+                     "order":2
+
+                  }
+               ],
+               "question_body":"Like mountains?",
+               "type":"s",
+               "max_score":2,
+               "order":2,
+               "weight":"33.33",
+               "score":null,
+               "answer":null,
+               "show_comment":true,
+               "comment":null
+
+
+
+            },
+            {
+               "id":56,
+               "template_question_choices":[
+                  {
+                     "id":95,
+                     "text":"Yes",
+                     "score":"2.00",
+                     "weight":"0.50",
+                     "order":1
+
+                  },
+                  {
+                     "id":96,
+                     "text":"No",
+                     "score":"0.00",
+                     "weight":"0.50",
+                     "order":2
+
+                  }
+               ],
+               "question_body":"Like sea?",
+               "type":"s",
+               "max_score":2,
+               "order":1,
+               "weight":"66.67",
+               "score":null,
+               "answer":null,
+               "show_comment":true,
+               "comment":null
+
+
+
+            }
+         ],
+         "title":"Sub-sub-bloc 2",
+         "weight":"50.00",
+         "order":2,
+         "score":null,
+         "lft":5,
+         "rght":6,
+         "tree_id":15,
+         "level":2,
+         "order_number": 40,
+         "parent_order_number":38
+      },
+      {
+         "id":41,
+         "template_questions":[
+
+         ],
+         "title":"Sub-bloc 2",
+         "weight":"40.00",
+         "order":2,
+         "score":null,
+         "lft":8,
+         "rght":13,
+         "tree_id":15,
+         "level":1,
+         "order_number": 41,
+         "parent_order_number":37
+      },
+      {
+         "id":42,
+         "template_questions":[
+            {
+               "id":57,
+               "template_question_choices":[
+                  {
+                     "id":97,
+                     "text":"Yes",
+                     "score":"2.00",
+                     "weight":"0.50",
+                     "order":1
+
+                  },
+                  {
+                     "id":98,
+                     "text":"No",
+                     "score":"0.00",
+                     "weight":"0.50",
+                     "order":2
+
+                  }
+               ],
+               "question_body":"Or maybe cookies?",
+               "type":"s",
+               "max_score":2,
+               "order":2,
+               "weight":"50.00",
+               "score":null,
+               "answer":null,
+               "show_comment":true,
+               "comment":null
+
+
+
+            },
+            {
+               "id":58,
+               "template_question_choices":[
+                  {
+                     "id":99,
+                     "text":"Yes",
+                     "score":"2.00",
+                     "weight":"0.50",
+                     "order":1
+
+                  },
+                  {
+                     "id":100,
+                     "text":"No",
+                     "score":"0.00",
+                     "weight":"0.50",
+                     "order":2
+
+                  }
+               ],
+               "question_body":"Want some cake?",
+               "type":"s",
+               "max_score":2,
+               "order":1,
+               "weight":"50.00",
+               "score":null,
+               "answer":null,
+               "show_comment":true,
+               "comment":null
+
+
+
+            }
+         ],
+         "title":"Sub-sub-bloc 3",
+         "weight":"75.00",
+         "order":1,
+         "score":null,
+         "lft":9,
+         "rght":10,
+         "tree_id":15,
+         "level":2,
+         "order_number": 42,
+         "parent_order_number":41
+      },
+      {
+         "id":43,
+         "template_questions":[
+            {
+               "id":59,
+               "template_question_choices":[
+                  {
+                     "id":101,
+                     "text":"Yes",
+                     "score":"5.00",
+                     "weight":"0.50",
+                     "order":1
+
+                  },
+                  {
+                     "id":102,
+                     "text":"No",
+                     "score":"0.00",
+                     "weight":"0.50",
+                     "order":2
+
+                  }
+               ],
+               "question_body":"Are you a programmer?",
+               "type":"s",
+               "max_score":5,
+               "order":1,
+               "weight":"100.00",
+               "score":null,
+               "answer":null,
+               "show_comment":true,
+               "comment":null
+
+
+
+            }
+         ],
+         "title":"Sub-sub-bloc 4",
+         "weight":"25.00",
+         "order":2,
+         "score":null,
+         "lft":11,
+         "rght":12,
+         "tree_id":15,
+         "level":2,
+         "order_number": 43,
+         "parent_order_number":41
+      },
+      {
+         "id":44,
+         "template_questions":[
+
+         ],
+         "title":"Bloc 2",
+         "weight":"50.00",
+         "order":2,
+         "score":null,
+         "lft":1,
+         "rght":8,
+         "tree_id":18,
+         "level":0,
+         "order_number": 44,
+         "parent_order_number":null
+      },
+      {
+         "id":47,
+         "template_questions":[
+            {
+               "id":64,
+               "template_question_choices":[
+
+               ],
+               "question_body":"Comentarii",
+               "type":"t",
+               "max_score":0,
+               "order":1,
+               "weight":"0.00",
+               "score":null,
+               "answer":null,
+               "show_comment":true,
+               "comment":null
+
+
+
+            }
+         ],
+         "title":"Comments for Bloc 2",
+         "weight":"0.00",
+         "order":3,
+         "score":null,
+         "lft":2,
+         "rght":3,
+         "tree_id":18,
+         "level":1,
+         "order_number": 47,
+         "parent_order_number":44
+      },
+      {
+         "id":45,
+         "template_questions":[
+            {
+               "id":60,
+               "template_question_choices":[
+                  {
+                     "id":103,
+                     "text":"A",
+                     "score":"3.00",
+                     "weight":"0.50",
+                     "order":1
+
+                  },
+                  {
+                     "id":104,
+                     "text":"B",
+                     "score":"0.00",
+                     "weight":"0.50",
+                     "order":2
+
+                  }
+               ],
+               "question_body":"A sau B?",
+               "type":"s",
+               "max_score":3,
+               "order":2,
+               "weight":"60.00",
+               "score":null,
+               "answer":null,
+               "show_comment":true,
+               "comment":null
+
+
+
+            },
+            {
+               "id":61,
+               "template_question_choices":[
+                  {
+                     "id":105,
+                     "text":"Adevar",
+                     "score":"3.00",
+                     "weight":"0.50",
+                     "order":1
+
+                  },
+                  {
+                     "id":106,
+                     "text":"Provocare",
+                     "score":"0.00",
+                     "weight":"0.50",
+                     "order":2
+
+                  }
+               ],
+               "question_body":"Adevar sau provocare?",
+               "type":"s",
+               "max_score":3,
+               "order":1,
+               "weight":"40.00",
+               "score":null,
+               "answer":null,
+               "show_comment":true,
+               "comment":null
+
+
+
+            }
+         ],
+         "title":"Sub-bloc 3",
+         "weight":"50.00",
+         "order":1,
+         "score":null,
+         "lft":4,
+         "rght":5,
+         "tree_id":18,
+         "level":1,
+         "order_number": 45,
+         "parent_order_number":44
+      },
+      {
+         "id":46,
+         "template_questions":[
+            {
+               "id":62,
+               "template_question_choices":[
+                  {
+                     "id":107,
+                     "text":"Da",
+                     "score":"3.00",
+                     "weight":"0.50",
+                     "order":1
+
+                  },
+                  {
+                     "id":108,
+                     "text":"Nu",
+                     "score":"0.00",
+                     "weight":"0.50",
+                     "order":2
+
+                  }
+               ],
+               "question_body":"E soare?",
+               "type":"s",
+               "max_score":3,
+               "order":2,
+               "weight":"50.00",
+               "score":null,
+               "answer":null,
+               "show_comment":true,
+               "comment":null
+
+
+
+            },
+            {
+               "id":63,
+               "template_question_choices":[
+                  {
+                     "id":109,
+                     "text":"Da",
+                     "score":"3.00",
+                     "weight":"0.50",
+                     "order":1
+
+                  },
+                  {
+                     "id":110,
+                     "text":"Nu",
+                     "score":"0.00",
+                     "weight":"0.50",
+                     "order":2
+
+                  }
+               ],
+               "question_body":"Ha-ha?",
+               "type":"s",
+               "max_score":3,
+               "order":1,
+               "weight":"50.00",
+               "score":null,
+               "answer":null,
+               "show_comment":true,
+               "comment":null
+
+
+
+            }
+         ],
+         "title":"Sub-bloc 4",
+         "weight":"50.00",
+         "order":2,
+         "score":null,
+         "lft":6,
+         "rght":7,
+         "tree_id":18,
+         "level":1,
+         "order_number": 46,
+         "parent_order_number":44
+      },
+      {
+         "id":48,
+         "template_questions":[
+            {
+               "id":65,
+               "template_question_choices":[
+
+               ],
+               "question_body":"Comment 2",
+               "type":"t",
+               "max_score":0,
+               "order":2,
+               "weight":"0.00",
+               "score":null,
+               "answer":null,
+               "show_comment":true,
+               "comment":null
+
+
+
+            },
+            {
+               "id":66,
+               "template_question_choices":[
+
+               ],
+               "question_body":"Comment",
+               "type":"t",
+               "max_score":0,
+               "order":1,
+               "weight":"0.00",
+               "score":null,
+               "answer":null,
+               "show_comment":true,
+               "comment":null
+
+
+
+            }
+         ],
+         "title":"General comments for questionnaire",
+         "weight":"0.00",
+         "order":3,
+         "score":null,
+         "lft":1,
+         "rght":2,
+         "tree_id":21,
+         "level":0,
+         "order_number": 48,
+         "parent_order_number":null
+      }
+   ],
+   "title":"Test Questionnaire",
+   "description": "lalala",
+   "weight":100
 }
 ]

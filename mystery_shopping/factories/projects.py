@@ -17,10 +17,27 @@ from .questionnaires import QuestionnaireTemplateFactory
 from .companies import EntityFactory
 from .companies import SectionFactory
 
+from mystery_shopping.projects.models import ResearchMethodology
 from mystery_shopping.projects.models import Project
 from mystery_shopping.projects.project_statuses import ProjectStatus
 from mystery_shopping.projects.models import Evaluation
 
+
+class ResearchMethodologyFactory(DjangoModelFactory):
+    class Meta:
+        model = ResearchMethodology
+
+    tenant = SubFactory(TenantFactory)
+    number_of_evaluations = 5
+    description = 'basic research meth description.'
+
+    @post_generation
+    def scripts(self, create, scripts, **kwargs):
+        if not create:
+            return
+        if scripts:
+            for script in scripts:
+                self.scripts.add(script)
 
 
 class ProjectFactory(DjangoModelFactory):
@@ -30,7 +47,7 @@ class ProjectFactory(DjangoModelFactory):
     tenant = SubFactory(TenantFactory)
     company = SubFactory(CompanyFactory)
     project_manager = SubFactory(TenantProjectManagerFactory)
-    research_methodology = None
+    research_methodology = SubFactory(ResearchMethodologyFactory)
 
     period_start = FuzzyDate(date(1990, 12, 12))
     period_end = FuzzyDate(date(2000, 11, 2))
