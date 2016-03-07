@@ -1452,7 +1452,7 @@
                "template_question_choices":[
                   {
                      "id":107,
-                     "text":"Da",
+                     "text":"Yes",
                      "score":"3.00",
                      "weight":"0.50",
                      "order":1
@@ -1460,7 +1460,7 @@
                   },
                   {
                      "id":108,
-                     "text":"Nu",
+                     "text":"No",
                      "score":"0.00",
                      "weight":"0.50",
                      "order":2
@@ -1485,7 +1485,7 @@
                "template_question_choices":[
                   {
                      "id":109,
-                     "text":"Da",
+                     "text":"Yes",
                      "score":"3.00",
                      "weight":"0.50",
                      "order":1
@@ -1493,7 +1493,7 @@
                   },
                   {
                      "id":110,
-                     "text":"Nu",
+                     "text":"No",
                      "score":"0.00",
                      "weight":"0.50",
                      "order":2
