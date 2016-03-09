@@ -19,6 +19,8 @@ from mystery_shopping.factories.projects import EvaluationFactory
 from mystery_shopping.factories.tenants import TenantFactory
 from mystery_shopping.factories.users import UserThatIsTenantProductManagerFactory
 
+# ToDo: make dates 'aware'
+
 
 class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
     base_name = 'evaluation'
@@ -76,10 +78,14 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
         questionnaire = Questionnaire.objects.get(pk=evaluation_ser.data['questionnaire']['id'])
         for question in questionnaire.questions.all():
             for question_choice in question.question_choices.all():
+                # Select all questions with "positive" score
                 if question_choice.text in {'A', 'Adevar', 'Yes'}:
                     question.answer_choices = [question_choice.id]
                     question.save()
 
+        evaluation_data = {
+
+        }
         questionnaire.calculate_score()
         self.assertEqual(questionnaire.score, Decimal(100))
 
@@ -112,6 +118,7 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
         questionnaire = Questionnaire.objects.get(pk=evaluation_ser.data['questionnaire']['id'])
         for question in questionnaire.questions.all():
             for question_choice in question.question_choices.all():
+                # Select all questions with "positive" score, except two of them
                 if question_choice.text in {'B', 'Provocare', 'Yes'}:
                     question.answer_choices = [question_choice.id]
                     question.save()

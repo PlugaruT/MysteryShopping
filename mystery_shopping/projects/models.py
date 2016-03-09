@@ -5,6 +5,8 @@ from model_utils import Choices
 from model_utils.models import TimeStampedModel
 from model_utils.fields import StatusField
 
+from openpyxl import Workbook
+
 from mystery_shopping.companies.models import Company, Department, Entity, Section
 from mystery_shopping.questionnaires.models import QuestionnaireScript, QuestionnaireTemplate
 from mystery_shopping.tenants.models import Tenant
@@ -162,6 +164,19 @@ class Evaluation(TimeStampedModel, models.Model):
                     self.status = ProjectStatus.APPROVED
 
         super(Evaluation, self).save(*args, **kwargs)
+
+    def prepare_xlsx_file(self):
+        evaluation_xlsx = Workbook()
+        ws = evaluation_xlsx.active
+        ws2 = evaluation_xlsx.create_sheet(title='New Sheet')
+        ws.merge_cells(start_row=1, end_row=1, start_column=1, end_column=10)
+        cell_to_write = ws.cell(row=1, column=1)
+        cell_to_write.value = 'lalalala {}'.format(self.id)
+        cell_to_write = ws.cell(row=1, column=1)
+        cell_to_write.value = 'lalalala {}'.format(self.id + 1)
+        return evaluation_xlsx
+
+
 
 
 class EvaluationAssessmentLevel(models.Model):

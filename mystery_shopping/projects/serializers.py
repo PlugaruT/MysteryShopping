@@ -104,15 +104,12 @@ class ResearchMethodologySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
-        print(validated_data)
         project_id = validated_data.pop('project_id', None)
 
         scripts = validated_data.pop('scripts', [])
         questionnaires = validated_data.pop('questionnaires', [])
         places_to_assess = validated_data.pop('places_to_assess', [])
         people_to_assess = validated_data.pop('people_to_assess', [])
-
-        print(validated_data)
 
         research_methodology = ResearchMethodology.objects.create(**validated_data)
 
@@ -308,7 +305,6 @@ class EvaluationSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         questionnaire_template = validated_data.get('questionnaire_template', None)
-        print(questionnaire_template)
         questionnaire_template_serialized = QuestionnaireTemplateSerializer(questionnaire_template)
         import collections
         questionnaire_to_create = collections.OrderedDict(questionnaire_template_serialized.data)

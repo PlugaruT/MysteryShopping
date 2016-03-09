@@ -1,11 +1,16 @@
 from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
 
 from rest_framework import viewsets
+from rest_framework.decorators import detail_route
 from rest_framework.serializers import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_condition import Or
+
+from openpyxl import Workbook
+from openpyxl.writer.excel import save_virtual_workbook
 
 from .models import PlaceToAssess
 from .models import Project
@@ -117,6 +122,15 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    @detail_route(methods=['GET'])
+    def get_excel(self, request, pk=None):
+        # print(request.instance)
+        response = HttpResponse(content_type='application/vnd.ms-excel')
+        response['Content-Disposition'] = "attachment; filename=test.xlsx"
+        instance = Evaluation.objects.get(pk=pk)
+        response.write(save_virtual_workbook(instance.prepare_xlsx_file()))
+        return response
 
 
 class EvaluationPerShopperViewSet(viewsets.ViewSet):
