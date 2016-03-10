@@ -6,6 +6,10 @@ from model_utils.models import TimeStampedModel
 from model_utils.fields import StatusField
 
 from openpyxl import Workbook
+from openpyxl.styles import Alignment
+from openpyxl.styles import Font
+from openpyxl.styles import PatternFill
+from openpyxl.utils import get_column_letter
 
 from mystery_shopping.companies.models import Company, Department, Entity, Section
 from mystery_shopping.questionnaires.models import QuestionnaireScript, QuestionnaireTemplate
@@ -149,8 +153,8 @@ class Evaluation(TimeStampedModel, models.Model):
             # In case there is no evaluation assessment level defined for the
             # submitted evaluation, assign the first level to it.
             if self.evaluation_assessment_level is None:
-                first_evaluation_assessment_level = EvaluationAssessmentLevel.objects\
-                    .filter(project=self.project, previous_level__isnull=True)\
+                first_evaluation_assessment_level = EvaluationAssessmentLevel.objects \
+                    .filter(project=self.project, previous_level__isnull=True) \
                     .first()
 
                 # In case there exist an evaluation level, assign it
@@ -164,19 +168,6 @@ class Evaluation(TimeStampedModel, models.Model):
                     self.status = ProjectStatus.APPROVED
 
         super(Evaluation, self).save(*args, **kwargs)
-
-    def prepare_xlsx_file(self):
-        evaluation_xlsx = Workbook()
-        ws = evaluation_xlsx.active
-        ws2 = evaluation_xlsx.create_sheet(title='New Sheet')
-        ws.merge_cells(start_row=1, end_row=1, start_column=1, end_column=10)
-        cell_to_write = ws.cell(row=1, column=1)
-        cell_to_write.value = 'lalalala {}'.format(self.id)
-        cell_to_write = ws.cell(row=1, column=1)
-        cell_to_write.value = 'lalalala {}'.format(self.id + 1)
-        return evaluation_xlsx
-
-
 
 
 class EvaluationAssessmentLevel(models.Model):

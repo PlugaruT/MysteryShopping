@@ -24,6 +24,7 @@ from .serializers import ResearchMethodologySerializer
 from .serializers import EvaluationSerializer
 from .serializers import EvaluationAssessmentLevelSerializer
 from .serializers import EvaluationAssessmentCommentSerializer
+from .spreadsheets import EvaluationSpreadsheet
 
 from mystery_shopping.users.permissions import IsTenantProductManager
 from mystery_shopping.users.permissions import IsTenantProjectManager
@@ -129,7 +130,8 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         response = HttpResponse(content_type='application/vnd.ms-excel')
         response['Content-Disposition'] = "attachment; filename=test.xlsx"
         instance = Evaluation.objects.get(pk=pk)
-        response.write(save_virtual_workbook(instance.prepare_xlsx_file()))
+        evaluation_spreadsheet = EvaluationSpreadsheet(evaluation=instance)
+        response.write(save_virtual_workbook(evaluation_spreadsheet.generate_spreadsheet()))
         return response
 
 
