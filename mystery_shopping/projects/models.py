@@ -5,20 +5,12 @@ from model_utils import Choices
 from model_utils.models import TimeStampedModel
 from model_utils.fields import StatusField
 
-from openpyxl import Workbook
-from openpyxl.styles import Alignment
-from openpyxl.styles import Font
-from openpyxl.styles import PatternFill
-from openpyxl.utils import get_column_letter
-
 from mystery_shopping.companies.models import Company, Department, Entity, Section
 from mystery_shopping.questionnaires.models import QuestionnaireScript, QuestionnaireTemplate
 from mystery_shopping.tenants.models import Tenant
 from mystery_shopping.questionnaires.models import QuestionnaireTemplate
 from mystery_shopping.questionnaires.models import Questionnaire
 from mystery_shopping.projects.project_statuses import ProjectStatus
-# from mystery_shopping.users.models import Shopper
-# from mystery_shopping.users.models import TenantProjectManager
 
 
 class PlaceToAssess(models.Model):

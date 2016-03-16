@@ -34,6 +34,9 @@ class QuestionnaireAbstract(models.Model):
     """
     # Attributes
     title = models.CharField(max_length=100)
+    type_questionnaire = Choices(('m', 'Mystery Questionnaire'),
+                                 ('n', 'NPS Questionnaire'))
+    type = models.CharField(max_length=1, choices=type_questionnaire, default=type_questionnaire.m)
 
     class Meta:
         abstract = True
@@ -75,6 +78,10 @@ class Questionnaire(QuestionnaireAbstract):
         return 'Title: {}'.format(self.title)
 
     def calculate_score(self):
+        self.score = getattr(self, 'calculate_score_for_{}'.format(self.type))()
+        self.save()
+
+    def calculate_score_for_m(self):
         self.score = 0
         blocks = self.blocks.filter(parent_block=None)
 
@@ -159,7 +166,8 @@ class QuestionAbstract(models.Model):
     type_choices = Choices(('t', 'Text Field'),
                            ('d', 'Date Field'),
                            ('s', 'Single Choice'),
-                           ('m', 'Multiple Choice'))
+                           ('m', 'Multiple Choice'),
+                           ('n', 'NPS'))
     type = models.CharField(max_length=1, choices=type_choices, default=type_choices.t)
     max_score = models.PositiveSmallIntegerField(null=True, blank=True)
     order = models.PositiveIntegerField()
