@@ -160,10 +160,10 @@ class EvaluationSpreadsheet:
                 check = question_choice.id in question.answer_choices if question.answer_choices else False
                 self.write_question_choice(question_choice, question.type, check=check)
         else:
-            self.row += 1
+            self.write_question_choice_text()
 
     def write_question_choice(self, question_choice, type, check=False):
-        type_of_shape = {'t': {True:  u"\u25A3",
+        type_of_shape = {'m': {True:  u"\u25A3",
                                False: u"\u25A1"},
                          's': {True:  u"\u25CF",
                                False: u"\u25CB"}}
@@ -187,6 +187,15 @@ class EvaluationSpreadsheet:
             height = self.default_height_multiline * rows_to_write
         self.sheet.row_dimensions[self.row].height = height
         self.row += 1
+
+    def write_question_choice_text(self):
+        # if self.divide:
+        #     pass
+        # else:
+        self.sheet.merge_cells(start_row=self.row, end_row=self.row + 5,
+                                   start_column=self.column,
+                                   end_column=self.column+(self.big_merged_cell+self.small_merged_cell))
+        self.row += 6
 
     def iterate_block(self, block):
         block_score = round(block.score / block.weight * 100, 2) if block.weight and block.score else 0
