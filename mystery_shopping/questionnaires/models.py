@@ -3,6 +3,7 @@ from decimal import Decimal
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from model_utils import Choices
+from model_utils.models import TimeStampedModel
 
 from mptt.models import MPTTModel, TreeForeignKey
 
@@ -59,7 +60,7 @@ class QuestionnaireTemplate(QuestionnaireAbstract):
         return 'Title: {}'.format(self.title)
 
 
-class Questionnaire(QuestionnaireAbstract):
+class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
     """
     The questionnaires that will contain answers.
 
