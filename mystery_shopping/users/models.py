@@ -219,6 +219,15 @@ class Shopper(models.Model):
     def __str__(self):
         return u'{}'.format(self.user.username)
 
+class Collector(models.Model):
+    '''
+    A user model for the persons who will input the NPS questionnaires
+    '''
+    user = models.OneToOneField(User, related_name='collector')
+
+    def __str__(self):
+        return u'{}'.format(self.user.username)
+
 
 class PersonToAssess(models.Model):
     """

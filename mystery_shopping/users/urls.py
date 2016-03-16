@@ -12,6 +12,7 @@ from .views import UserViewSet
 from .views import ClientEmployeeViewSet
 from .views import ClientManagerViewSet
 from .views import ShopperViewSet
+from .views import CollectorViewSet
 from .views import TenantProductManagerViewSet
 from .views import TenantProjectManagerViewSet
 from .views import TenantConsultantViewSet
@@ -55,6 +56,7 @@ router.register(r'users', UserViewSet)
 router.register(r'clientemployees', ClientEmployeeViewSet)
 router.register(r'clientmanagers', ClientManagerViewSet)
 router.register(r'shoppers', ShopperViewSet)
+router.register(r'collectors', CollectorViewSet)
 router.register(r'tenantproductmanagers', TenantProductManagerViewSet)
 router.register(r'tenantprojectmanagers', TenantProjectManagerViewSet)
 router.register(r'tenantconsultants', TenantConsultantViewSet)

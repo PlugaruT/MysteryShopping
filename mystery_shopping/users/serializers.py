@@ -11,6 +11,7 @@ from .models import ClientManager
 from .models import ClientEmployee
 from .models import PersonToAssess
 from .models import Shopper
+from .models import Collector
 
 from mystery_shopping.companies.models import Company
 from mystery_shopping.tenants.serializers import TenantSerializer
@@ -213,6 +214,15 @@ class ShopperSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSer
 
     class Meta:
         model = Shopper
+        fields = '__all__'
+
+class CollectorSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):
+    """Serializer class for Shopper user model.
+    """
+    user = UserSerializer()
+
+    class Meta:
+        model = Collector
         fields = '__all__'
 
 
