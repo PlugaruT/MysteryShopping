@@ -211,7 +211,9 @@ class Shopper(models.Model):
     """
     # Relations
     user = models.OneToOneField(User, related_name='shopper')
+
     # Attributes
+    is_collector = models.BooleanField(default=False)
     date_of_birth = models.DateField()
     gender = models.CharField(max_length=1)
     has_drivers_license = models.BooleanField(default=False)
