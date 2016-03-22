@@ -36,7 +36,7 @@ class QuestionnaireAbstract(models.Model):
     # Attributes
     title = models.CharField(max_length=100)
     type_questionnaire = Choices(('m', 'Mystery Questionnaire'),
-                                 ('n', 'NPS Questionnaire'))
+                                 ('c', 'Customer Experience Index Questionnaire'))
     type = models.CharField(max_length=1, choices=type_questionnaire, default=type_questionnaire.m)
 
     class Meta:
@@ -79,6 +79,9 @@ class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
         return 'Title: {}'.format(self.title)
 
     def calculate_score_for_m(self):
+        '''
+        Function for calculating the score of a Mystery Shopping Questionnaire
+        '''
         self.score = 0
         blocks = self.blocks.filter(parent_block=None)
 
@@ -89,10 +92,16 @@ class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
 
         return self.score
 
-    def calculate_score_for_n(self):
+    def calculate_score_for_c(self):
+        '''
+        Function for making calculations on Customer Experience Index Questionnaires. (now it does nothing)
+        '''
         pass
 
     def calculate_score(self):
+        '''
+        Function for determining what type of calculation to perform on the questionnaire taking into consideration the type
+        '''
         self.score = getattr(self, 'calculate_score_for_{}'.format(self.type))()
         self.save()
 
