@@ -10,13 +10,12 @@ from collections import defaultdict
 #                 if question.score > 8:
 #                     appreciation_causes[question.question_body]
 
-def get_nps_marks(questionnaire_template, project_id):
+def get_nps_marks(questionnaire_template):
     nps_dict = defaultdict(list)
     for questionnaire in questionnaire_template.questionnaires.all():
-        if questionnaire.evaluation.project_id == project_id:
-            for question in questionnaire.questions.all():
-                if question.type == 'n':
-                    nps_dict['scores'].append(question.score)
+        for question in questionnaire.questions.all():
+            if question.type == 'n':
+                nps_dict['scores'].append(question.score)
     return nps_dict
 
 
