@@ -105,7 +105,7 @@ class Evaluation(TimeStampedModel, models.Model):
     employee = GenericForeignKey('employee_type', 'employee_id')
 
     # For "Accomplished"
-    questionnaire = models.OneToOneField(Questionnaire, null=True, blank=True)
+    questionnaire = models.OneToOneField(Questionnaire, null=True, blank=True, related_name='evaluation')
     evaluation_assessment_level = models.ForeignKey('EvaluationAssessmentLevel', null=True, blank=True)
 
     # Attributes

@@ -66,7 +66,7 @@ class IsShopper(permissions.BasePermission):
         return False
 
 
-class HasAccessToEvaluations(permissions.BasePermission):
+class HasAccessToProjectsOrEvaluations(permissions.BasePermission):
     """Check if tenant project manager, tenant product manager, tenant consultant or shopper has access to either it's Planned or Accomplished evaluations.
     """
     def has_permission(self, request, view):

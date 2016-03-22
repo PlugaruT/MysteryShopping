@@ -78,10 +78,6 @@ class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
     def __str__(self):
         return 'Title: {}'.format(self.title)
 
-    def calculate_score(self):
-        self.score = getattr(self, 'calculate_score_for_{}'.format(self.type))()
-        self.save()
-
     def calculate_score_for_m(self):
         self.score = 0
         blocks = self.blocks.filter(parent_block=None)
@@ -92,6 +88,13 @@ class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
         self.save()
 
         return self.score
+
+    def calculate_score_for_n(self):
+        pass
+
+    def calculate_score(self):
+        self.score = getattr(self, 'calculate_score_for_{}'.format(self.type))()
+        self.save()
 
 
 class QuestionnaireBlockAbstract(models.Model):

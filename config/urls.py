@@ -35,6 +35,8 @@ urlpatterns = [
 
     url(r'^api/v1/common/', include('mystery_shopping.common.urls', namespace='common')),
 
+    url(r'^api/v1/', include('mystery_shopping.nps.urls', namespace='nps')),
+
     # Your stuff: custom urls includes go here
     url(r'^api/v1/', include(common_router.urls)),
 

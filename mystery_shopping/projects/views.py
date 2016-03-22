@@ -30,7 +30,7 @@ from mystery_shopping.users.permissions import IsTenantProductManager
 from mystery_shopping.users.permissions import IsTenantProjectManager
 from mystery_shopping.users.permissions import IsTenantConsultant
 from mystery_shopping.users.permissions import IsShopper
-from mystery_shopping.users.permissions import HasAccessToEvaluations
+from mystery_shopping.users.permissions import HasAccessToProjectsOrEvaluations
 
 
 class PlaceToAssessViewSet(viewsets.ModelViewSet):
@@ -52,8 +52,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
 
 class ProjectPerCompanyViewSet(viewsets.ViewSet):
-    permission_classes = (HasAccessToEvaluations,)
-    # TODO check whether this permission is appropriate here (maybe it should be HasAccessToProjects?
+    permission_classes = (HasAccessToProjectsOrEvaluations,)
 
     def list(self, request, company_pk=None):
         queryset = Project.objects.filter(company=company_pk)
@@ -136,7 +135,7 @@ class EvaluationViewSet(viewsets.ModelViewSet):
 
 
 class EvaluationPerShopperViewSet(viewsets.ViewSet):
-    permission_classes = (IsAuthenticated, HasAccessToEvaluations, )
+    permission_classes = (IsAuthenticated, HasAccessToProjectsOrEvaluations, )
 
     def list(self, request, shopper_pk=None):
         queryset = Evaluation.objects.filter(shopper=shopper_pk)
@@ -151,7 +150,7 @@ class EvaluationPerShopperViewSet(viewsets.ViewSet):
 
 
 class EvaluationPerProjectViewSet(viewsets.ViewSet):
-    permission_classes = (IsAuthenticated, HasAccessToEvaluations, )
+    permission_classes = (IsAuthenticated, HasAccessToProjectsOrEvaluations, )
     serializer_class = EvaluationSerializer
 
     # def get_serializer(self):
