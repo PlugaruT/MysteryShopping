@@ -105,6 +105,9 @@ class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
         self.score = getattr(self, 'calculate_score_for_{}'.format(self.type))()
         self.save()
 
+    # def get_indicator_question(self, indicator_question_type):
+    #     return self..question.get(type=indicator_question_type)
+
 
 class QuestionnaireBlockAbstract(models.Model):
     """

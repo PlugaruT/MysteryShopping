@@ -1,15 +1,6 @@
 from collections import defaultdict
 
 
-# def separate_causes(questionnaire_template):
-#     appreciation_causes = defaultdict(list)
-#     frustration_causes = defaultdict(list)
-#     for questionnaire in questionnaire_template.questionnaires.all():
-#         for question in questionnaire.questions.all():
-#             if question.type == 'n' and question.order == 1:
-#                 if question.score > 8:
-#                     appreciation_causes[question.question_body]
-
 def get_nps_marks(questionnaire_template):
     nps_dict = defaultdict(list)
     for questionnaire in questionnaire_template.questionnaires.all():
@@ -46,3 +37,16 @@ def calculate_nps_score(nps_marks):
     nps_score = promoters_percentage - detractors_percentage
 
     return round(nps_score, 2),round(promoters_percentage, 2), round(passives_percentage, 2), round(detractors_percentage, 2)
+
+
+def group_questions_by_answer(questionnaire_template):
+    nps_details = defaultdict(lambda: defaultdict(list))
+    for questionnaire in questionnaire_template.questionnaires.all():
+        questionnaire_nps_score = questionnaire.questions.get(type='n')
+
+        # print(questionnaire_nps_score.score)
+        for question in questionnaire.questions.all():
+            if question.type != 'n':
+                nps_details[question.question_body][question.answer].append(questionnaire_nps_score.score)
+
+    return nps_details

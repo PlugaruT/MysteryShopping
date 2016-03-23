@@ -4,6 +4,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_condition import Or
 
+from .algorithms import group_questions_by_answer
 from .algorithms import get_nps_marks
 from .algorithms import calculate_nps_score
 from .models import CodedCauseLabel
@@ -44,9 +45,9 @@ class NPSDashboard(views.APIView):
 
                 nps_dict = get_nps_marks(questionnaire_template)
                 nps_score, promoters_percentage, passives_percentage, detractors_percentage = calculate_nps_score(nps_dict['scores'])
-
+                nps_categories = group_questions_by_answer(questionnaire_template)
                 return Response({
-                    'nps_score': nps_score,
+                    'indicator': nps_score,
                     'promoters': promoters_percentage,
                     'detractors': detractors_percentage,
                     'passives': passives_percentage,
