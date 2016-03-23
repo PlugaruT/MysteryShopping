@@ -1,16 +1,32 @@
 from rest_framework import status
 from rest_framework import views
+from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_condition import Or
 
 from .algorithms import get_nps_marks
 from .algorithms import calculate_nps_score
+from .models import CodedCauseLabel
+from .models import CodedCause
+from .serializers import CodedCauseLabelSerializer
+from .serializers import CodedCauseSerializer
 
 from mystery_shopping.questionnaires.models import QuestionnaireTemplate
 from mystery_shopping.projects.models import Project
 
 from mystery_shopping.users.permissions import IsTenantProductManager
 from mystery_shopping.users.permissions import IsTenantProjectManager
+
+
+class CodedCauseLabelViewSet(viewsets.ModelViewSet):
+    queryset = CodedCauseLabel.objects.all()
+    serializer_class = CodedCauseLabelSerializer
+
+
+class CodedCauseViewSet(viewsets.ModelViewSet):
+    queryset = CodedCause.objects.all()
+    serializer_class = CodedCauseSerializer
+
 
 class NPSDashboard(views.APIView):
 
@@ -30,7 +46,11 @@ class NPSDashboard(views.APIView):
                 nps_score, promoters_percentage, passives_percentage, detractors_percentage = calculate_nps_score(nps_dict['scores'])
 
                 return Response({
-                    'nps_score': nps_score
+                    'nps_score': nps_score,
+                    'promoters': promoters_percentage,
+                    'detractors': detractors_percentage,
+                    'passives': passives_percentage,
+                    'number_of_respondents': len(nps_dict['scores'])
                 }, status.HTTP_200_OK)
             except Project.DoesNotExist:
                 return Response({'detail': 'No Project with this id exists'},

@@ -45,4 +45,4 @@ def calculate_nps_score(nps_marks):
 
     nps_score = promoters_percentage - detractors_percentage
 
-    return nps_score, promoters_percentage, passives_percentage, detractors_percentage
+    return round(nps_score, 2),round(promoters_percentage, 2), round(passives_percentage, 2), round(detractors_percentage, 2)

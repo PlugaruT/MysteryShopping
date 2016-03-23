@@ -17,6 +17,7 @@ from mystery_shopping.projects.urls import project_evaluation
 from mystery_shopping.questionnaires.urls import router as questionnaire_router
 from mystery_shopping.users.urls import router as user_router
 from mystery_shopping.users.urls import shopper_evaluation
+from mystery_shopping.nps.urls import router as nps_router
 
 
 urlpatterns = [
@@ -50,6 +51,7 @@ urlpatterns = [
     url(r'^api/v1/', include(user_router.urls)),
 
     url(r'^api/v1/', include(shopper_evaluation.urls)),
+    url(r'^api/v1/', include(nps_router.urls)),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
