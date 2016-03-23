@@ -25,7 +25,7 @@ from mystery_shopping.users.serializers import TenantProjectManagerSerializer
 from mystery_shopping.users.serializers import TenantConsultantSerializer
 from mystery_shopping.users.serializer_fields import TenantUserRelatedField
 from mystery_shopping.users.serializer_fields import ClientUserRelatedField
-from mystery_shopping.projects.project_statuses import ProjectStatus
+from mystery_shopping.projects.constants import ProjectStatus
 
 from mystery_shopping.users.models import PersonToAssess
 from mystery_shopping.users.models import Shopper

@@ -12,7 +12,7 @@ from mystery_shopping.questionnaires.models import QuestionnaireScript, Question
 from mystery_shopping.tenants.models import Tenant
 from mystery_shopping.questionnaires.models import QuestionnaireTemplate
 from mystery_shopping.questionnaires.models import Questionnaire
-from mystery_shopping.projects.project_statuses import ProjectStatus
+from mystery_shopping.projects.constants import ProjectStatus
 
 
 class PlaceToAssess(models.Model):
@@ -75,6 +75,9 @@ class Project(models.Model):
     # Attributes
     period_start = models.DateField()
     period_end = models.DateField()
+    type_questionnaire = Choices(('m', 'Mystery Questionnaire'),
+                                 ('c', 'Customer Experience Index Questionnaire'))
+    type = models.CharField(max_length=1, choices=type_questionnaire, default=type_questionnaire.m)
 
     objects = PassThroughManager.for_queryset_class(ProjectQuerySet)()
 

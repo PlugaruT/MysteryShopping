@@ -8,3 +8,8 @@ class ProjectStatus:
     REJECTED = 'rejected'
 
     EDITABLE_STATUSES = [PLANNED, DRAFT, DECLINED]
+
+
+class ProjectType:
+    MYSTERY_SHOPPING = 'm'
+    CUSTOMER_XP_INDEX = 'c'
