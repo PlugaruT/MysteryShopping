@@ -78,4 +78,12 @@ class HasAccessToProjectsOrEvaluations(permissions.BasePermission):
         return False
 
 
+class IsShopperAccountOwner(permissions.BasePermission):
+    """Permission for own Shopper user account.
+    """
+    def has_object_permission(self, request, view, shopper):
+        if request.user:
+            return shopper == request.user.shopper
+        return False
+
 # TODO[iulian] add other permissions as needed.

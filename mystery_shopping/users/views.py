@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
+import json
 
 from django.core.urlresolvers import reverse
 from django.views.generic import DetailView, ListView, RedirectView, UpdateView
-from rest_framework import viewsets
-from rest_condition import Or
 
+from rest_framework import viewsets
+from rest_framework import status
+from rest_condition import Or
 from braces.views import LoginRequiredMixin
+from rest_framework.decorators import detail_route, list_route
+from rest_framework.response import Response
 
 from .models import ClientEmployee
 from .models import ClientManager
@@ -17,6 +21,7 @@ from .models import TenantProductManager
 from .models import TenantConsultant
 from .models import User
 from .models import PersonToAssess
+from mystery_shopping.users.services import ShopperService
 
 from .serializers import UserSerializer
 from .serializers import ClientEmployeeSerializer
@@ -27,7 +32,7 @@ from .serializers import TenantProductManagerSerializer
 from .serializers import TenantProjectManagerSerializer
 from .serializers import TenantConsultantSerializer
 from .serializers import PersonToAssessSerializer
-from mystery_shopping.users.permissions import IsTenantProductManager
+from mystery_shopping.users.permissions import IsTenantProductManager, IsShopperAccountOwner
 from mystery_shopping.users.permissions import IsTenantProjectManager
 from mystery_shopping.users.permissions import IsTenantConsultant
 
@@ -108,6 +113,26 @@ class ShopperViewSet(viewsets.ModelViewSet):
     queryset = Shopper.objects.all()
     serializer_class = ShopperSerializer
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
+
+    @detail_route(permission_classes=(IsShopperAccountOwner,))
+    def imacollector(self, request, *args, **kwargs):
+        """A view to return a list of entities paired up with their corresponding
+        questionnaires.
+
+        The view serves calls from Customer Experience Index project and returns the
+        list of available entities with all the required information to fill in a
+        questionnaire and create a realized evaluation.
+
+        :returns: List of ids and serialized objects.
+        :rtype: list
+        """
+        shopper_service = ShopperService(request.user.shopper)
+        available_list_of_places = shopper_service.get_available_list_of_places_with_questionnaires()
+
+        json_data = json.dumps(available_list_of_places)
+
+        return Response(available_list_of_places, status=status.HTTP_200_OK)
+
 
 class CollectorViewSet(viewsets.ModelViewSet):
     queryset = Collector.objects.all()

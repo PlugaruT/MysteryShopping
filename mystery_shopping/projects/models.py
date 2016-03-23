@@ -2,10 +2,12 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.db import models
 from model_utils import Choices
+from model_utils.managers import PassThroughManager
 from model_utils.models import TimeStampedModel
 from model_utils.fields import StatusField
 
 from mystery_shopping.companies.models import Company, Department, Entity, Section
+from mystery_shopping.projects.managers import ProjectQuerySet
 from mystery_shopping.questionnaires.models import QuestionnaireScript, QuestionnaireTemplate
 from mystery_shopping.tenants.models import Tenant
 from mystery_shopping.questionnaires.models import QuestionnaireTemplate
@@ -73,6 +75,8 @@ class Project(models.Model):
     # Attributes
     period_start = models.DateField()
     period_end = models.DateField()
+
+    objects = PassThroughManager.for_queryset_class(ProjectQuerySet)()
 
     class Meta:
         default_related_name = 'projects'
