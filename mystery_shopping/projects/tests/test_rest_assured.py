@@ -11,7 +11,7 @@ from mystery_shopping.questionnaires.models import Questionnaire
 
 from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializer
 from mystery_shopping.projects.serializers import EvaluationSerializer
-from mystery_shopping.projects.project_statuses import ProjectStatus
+from mystery_shopping.projects.constants import ProjectStatus
 
 from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFactory
 from mystery_shopping.factories.projects import ProjectFactory

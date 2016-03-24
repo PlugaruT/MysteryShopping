@@ -19,7 +19,7 @@ from .companies import SectionFactory
 
 from mystery_shopping.projects.models import ResearchMethodology
 from mystery_shopping.projects.models import Project
-from mystery_shopping.projects.project_statuses import ProjectStatus
+from mystery_shopping.projects.constants import ProjectStatus
 from mystery_shopping.projects.models import Evaluation
 
 

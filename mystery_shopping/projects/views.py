@@ -18,6 +18,7 @@ from .models import ResearchMethodology
 from .models import Evaluation
 from .models import EvaluationAssessmentLevel
 from .models import EvaluationAssessmentComment
+from mystery_shopping.projects.constants import ProjectType
 from .serializers import PlaceToAssessSerializer
 from .serializers import ProjectSerializer
 from .serializers import ResearchMethodologySerializer
@@ -169,8 +170,8 @@ class EvaluationPerProjectViewSet(viewsets.ViewSet):
         current_number_of_evaluations = Evaluation.objects.filter(project=project_id).count()
         evaluations_left = total_number_of_evaluations - current_number_of_evaluations
         evaluations_to_create = len(request.data) if is_many else 1
-        print(evaluations_left, evaluations_to_create)
-        if evaluations_to_create > evaluations_left:
+        project_type = Project.objects.get_project_type(project_id)
+        if evaluations_to_create > evaluations_left and project_type == ProjectType.MYSTERY_SHOPPING:
             raise ValidationError('Number of evaluations exceeded. Left: {}.'.format(evaluations_left))
 
         serializer = EvaluationSerializer(data=request.data, many=is_many)
