@@ -6,7 +6,7 @@ from openpyxl.styles import Font
 from openpyxl.styles import PatternFill
 
 from .models import Evaluation
-from .constants import ProjectStatus
+from mystery_shopping.projects.constants import ProjectStatus
 
 
 class EvaluationSpreadsheet:

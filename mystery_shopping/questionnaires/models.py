@@ -7,6 +7,9 @@ from model_utils.models import TimeStampedModel
 
 from mptt.models import MPTTModel, TreeForeignKey
 
+from .constants import QuestionType
+from .constants import IndicatorQuestionType as IndQuestType
+
 from mystery_shopping.tenants.models import Tenant
 
 # REMINDER: don't use newline characters in the representation
@@ -179,11 +182,14 @@ class QuestionAbstract(models.Model):
     """
     # Attributes
     question_body = models.CharField(max_length=200)  # TODO: find optimal length
-    type_choices = Choices(('t', 'Text Field'),
-                           ('d', 'Date Field'),
-                           ('s', 'Single Choice'),
-                           ('m', 'Multiple Choice'),
-                           ('n', 'NPS'))
+    type_choices = Choices((QuestionType.TEXT_FIELD, 'Text Field'),
+                           (QuestionType.DATE_FIELD, 'Date Field'),
+                           (QuestionType.SINGLE_CHOICE, 'Single Choice'),
+                           (QuestionType.MULTIPLE_CHOICE, 'Multiple Choice'),
+                           (IndQuestType.NPS_QUESTION, 'NPS Question'),
+                           (IndQuestType.ENJOYABILITY_QUESTION, ' Enjoyability Question'),
+                           (IndQuestType.EASINESS_QUESTION, 'Easiness Question'),
+                           (IndQuestType.USEFULNESS_QUESTION, 'Usefulness Question'))
     type = models.CharField(max_length=1, choices=type_choices, default=type_choices.t)
     max_score = models.PositiveSmallIntegerField(null=True, blank=True)
     order = models.PositiveIntegerField()

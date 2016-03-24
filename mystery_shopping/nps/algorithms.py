@@ -1,11 +1,13 @@
 from collections import defaultdict
 
+from mystery_shopping.questionnaires.constants import IndicatorQuestionType
+
 
 def get_nps_marks(questionnaire_template):
     nps_dict = defaultdict(list)
     for questionnaire in questionnaire_template.questionnaires.all():
         for question in questionnaire.questions.all():
-            if question.type == 'n':
+            if question.type in {IndicatorQuestionType.NPS_QUESTION, }:
                 nps_dict['scores'].append(question.score)
     return nps_dict
 
@@ -39,14 +41,12 @@ def calculate_nps_score(nps_marks):
     return round(nps_score, 2),round(promoters_percentage, 2), round(passives_percentage, 2), round(detractors_percentage, 2)
 
 
-def group_questions_by_answer(questionnaire_template):
+def group_questions_by_answer(questionnaire_template, indicator_question):
     nps_details = defaultdict(lambda: defaultdict(list))
     for questionnaire in questionnaire_template.questionnaires.all():
-        questionnaire_nps_score = questionnaire.questions.get(type='n')
-
-        # print(questionnaire_nps_score.score)
+        questionnaire_nps_score = questionnaire.questions.get(type=indicator_question)
         for question in questionnaire.questions.all():
-            if question.type != 'n':
+            if question.type not in IndicatorQuestionType.INDICATORS_DICT:
                 nps_details[question.question_body][question.answer].append(questionnaire_nps_score.score)
 
     return nps_details
