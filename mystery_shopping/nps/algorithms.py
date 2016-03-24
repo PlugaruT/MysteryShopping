@@ -12,7 +12,7 @@ def get_nps_marks(questionnaire_template):
     return nps_dict
 
 
-def calculate_nps_score(nps_marks):
+def calculate_indicator_score(nps_marks):
 
     if len(nps_marks) == 0:
         return None, None, None, None
@@ -36,9 +36,10 @@ def calculate_nps_score(nps_marks):
     passives_percentage = len(passives_marks) / total_marks * 100
     promoters_percentage = len(promoters_marks) / total_marks * 100
 
-    nps_score = promoters_percentage - detractors_percentage
+    indicator_score = promoters_percentage - detractors_percentage
 
-    return round(nps_score, 2),round(promoters_percentage, 2), round(passives_percentage, 2), round(detractors_percentage, 2)
+    return round(indicator_score, 2), round(promoters_percentage, 2),\
+           round(passives_percentage, 2), round(detractors_percentage, 2)
 
 
 def group_questions_by_answer(questionnaire_template, indicator_question):

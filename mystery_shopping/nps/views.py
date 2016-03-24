@@ -6,7 +6,7 @@ from rest_condition import Or
 
 from .algorithms import group_questions_by_answer
 from .algorithms import get_nps_marks
-from .algorithms import calculate_nps_score
+from .algorithms import calculate_indicator_score
 from .models import CodedCauseLabel
 from .models import CodedCause
 from .serializers import CodedCauseLabelSerializer
@@ -32,6 +32,7 @@ class CodedCauseViewSet(viewsets.ModelViewSet):
 class NPSDashboard(views.APIView):
 
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager),)
+
     def get(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
 
@@ -43,15 +44,15 @@ class NPSDashboard(views.APIView):
                 # only one questionnaire template
                 questionnaire_template = project.research_methodology.questionnaires.first()
 
-                nps_dict = get_nps_marks(questionnaire_template)
-                nps_score, promoters_percentage, passives_percentage, detractors_percentage = calculate_nps_score(nps_dict['scores'])
+                indicator_dict = get_nps_marks(questionnaire_template)
+                indicator_score, promoters_percentage, passives_percentage, detractors_percentage = calculate_indicator_score(indicator_dict['scores'])
                 nps_categories = group_questions_by_answer(questionnaire_template)
                 return Response({
-                    'indicator': nps_score,
+                    'indicator': indicator_score,
                     'promoters': promoters_percentage,
                     'detractors': detractors_percentage,
                     'passives': passives_percentage,
-                    'number_of_respondents': len(nps_dict['scores'])
+                    'number_of_respondents': len(indicator_dict['scores'])
                 }, status.HTTP_200_OK)
             except Project.DoesNotExist:
                 return Response({'detail': 'No Project with this id exists'},
