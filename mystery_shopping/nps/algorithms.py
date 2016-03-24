@@ -38,16 +38,29 @@ def calculate_indicator_score(nps_marks):
 
     indicator_score = promoters_percentage - detractors_percentage
 
-    return round(indicator_score, 2), round(promoters_percentage, 2),\
-           round(passives_percentage, 2), round(detractors_percentage, 2)
+    score = dict()
+    score['indicator'] = round(indicator_score, 2)
+    score['promoters'] = round(promoters_percentage, 2)
+    score['passives'] = round(passives_percentage, 2)
+    score['detractors'] = round(detractors_percentage, 2)
+    return score
 
 
-def group_questions_by_answer(questionnaire_template, indicator_question):
-    nps_details = defaultdict(lambda: defaultdict(list))
+def group_questions_by_answer(questionnaire_template, indicator_type):
+    """
+
+    :param questionnaire_template:
+    :param indicator_type:
+    :return:
+    """
+    indicator_details = defaultdict(lambda: defaultdict(list))
     for questionnaire in questionnaire_template.questionnaires.all():
-        questionnaire_nps_score = questionnaire.questions.get(type=indicator_question)
-        for question in questionnaire.questions.all():
-            if question.type not in IndicatorQuestionType.INDICATORS_DICT:
-                nps_details[question.question_body][question.answer].append(questionnaire_nps_score.score)
+        # TODO: change get to filter
+        questionnaire_indicator_score = questionnaire.questions.filter(type=indicator_type).first()
+        if questionnaire_indicator_score:
+            for question in questionnaire.questions.all():
+                if question.type not in IndicatorQuestionType.INDICATORS_LIST:
+                    indicator_details[question.question_body][question.answer].append(
+                        questionnaire_indicator_score.score)
 
-    return nps_details
+    return indicator_details

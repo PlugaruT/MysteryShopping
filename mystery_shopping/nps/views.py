@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from rest_framework import status
 from rest_framework import views
 from rest_framework import viewsets
@@ -29,13 +31,15 @@ class CodedCauseViewSet(viewsets.ModelViewSet):
     serializer_class = CodedCauseSerializer
 
 
+# Rename View
 class NPSDashboard(views.APIView):
 
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager),)
 
     def get(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
-
+        indicator_type = request.query_params.get('indicator', None)
+        response = dict()
         if project_id:
             try:
                 project = Project.objects.get(pk=project_id)
@@ -45,15 +49,31 @@ class NPSDashboard(views.APIView):
                 questionnaire_template = project.research_methodology.questionnaires.first()
 
                 indicator_dict = get_nps_marks(questionnaire_template)
-                indicator_score, promoters_percentage, passives_percentage, detractors_percentage = calculate_indicator_score(indicator_dict['scores'])
-                nps_categories = group_questions_by_answer(questionnaire_template)
-                return Response({
-                    'indicator': indicator_score,
-                    'promoters': promoters_percentage,
-                    'detractors': detractors_percentage,
-                    'passives': passives_percentage,
-                    'number_of_respondents': len(indicator_dict['scores'])
-                }, status.HTTP_200_OK)
+                indicator_score = calculate_indicator_score(indicator_dict['scores'])
+
+                response['general'] = dict()
+                # response['general']['indicator_type'] = 'NPS Question'
+                response['general']['score'] = indicator_score
+
+                nps_categories = group_questions_by_answer(questionnaire_template, indicator_type)
+                response['details'] = list()
+
+                # Todo: move this into function
+                for item_label, responses in nps_categories.items():
+                    detail_item = dict()
+                    detail_item['results'] = list()
+
+                    for answer_choice in responses:
+                        answer_choice_result = dict()
+                        answer_choice_result['choice'] = answer_choice
+                        answer_choice_result['score'] = calculate_indicator_score(responses[answer_choice])
+                        answer_choice_result['number_of_respondents'] = len(responses[answer_choice])
+                        detail_item['results'].append(answer_choice_result)
+
+                    detail_item['item_label'] = item_label
+                    response['details'].append(detail_item)
+
+                return Response(response, status.HTTP_200_OK)
             except Project.DoesNotExist:
                 return Response({'detail': 'No Project with this id exists'},
                                 status.HTTP_404_NOT_FOUND)
