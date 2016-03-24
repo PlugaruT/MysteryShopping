@@ -46,17 +46,27 @@ class ProjectViewSet(viewsets.ModelViewSet):
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager),)
 
     def get_queryset(self):
-        queryset = Project.objects.all()
+        """Filter queryset based on Project type ('c' or by default 'm') and according
+        to the Tenant the current user belongs to.
+        """
+        queryset = self.queryset
+        project_type = self.request.query_params.get('type', 'm')
+        project_type = project_type[0] if isinstance(project_type, list) else project_type
+        queryset = queryset.filter(type=project_type)
         # queryset = self.get_serializer_class().setup_eager_loading(queryset)
-        queryset = queryset.filter(tenant=self.request.user.user_type_attr.tenant)
+        queryset = queryset.filter(tenant=self.request.user.tenant)
         return queryset
 
 
 class ProjectPerCompanyViewSet(viewsets.ViewSet):
+    queryset = Project.objects.all()
     permission_classes = (HasAccessToProjectsOrEvaluations,)
 
     def list(self, request, company_pk=None):
-        queryset = Project.objects.filter(company=company_pk)
+        project_type = self.request.query_params.get('type', 'm')
+        project_type = project_type[0] if isinstance(project_type, list) else project_type
+        queryset = self.queryset.filter(company=company_pk, type=project_type,
+                                        tenant=self.request.user.tenant)
         serializer = ProjectSerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -67,14 +77,14 @@ class ProjectPerCompanyViewSet(viewsets.ViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def retrieve(self, request, pk=None, company_pk=None):
-        queryset = Project.objects.filter(pk=pk, company=company_pk)
+        queryset = self.queryset.filter(pk=pk, company=company_pk)
         project = get_object_or_404(queryset, pk=pk)
         self.check_object_permissions(request, project)
         serializer = ProjectSerializer(project)
         return Response(serializer.data)
 
     def update(self, request, pk=None, company_pk=None):
-        queryset = Project.objects.filter(pk=pk, company=company_pk)
+        queryset = self.queryset.filter(pk=pk, company=company_pk)
         evaluation = get_object_or_404(queryset, pk=pk)
         serializer = ProjectSerializer(evaluation, data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -89,7 +99,7 @@ class ResearchMethodologyViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = ResearchMethodology.objects.all()
-        queryset = queryset.filter(tenant=self.request.user.user_type_attr.tenant)
+        queryset = queryset.filter(tenant=self.request.user.tenant)
         return queryset
 
 
@@ -102,7 +112,7 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         queryset = Evaluation.objects.all()
         queryset = self.get_serializer_class().setup_eager_loading(queryset)
         if self.request.user.user_type in ['tenantproductmanager', 'tenantprojectmanager', 'tenantconsultant']:
-            queryset = queryset.filter(project__tenant=self.request.user.get_tenant)
+            queryset = queryset.filter(project__tenant=self.request.user.tenant)
         elif self.request.user.user_type is 'shopper':
             queryset = queryset.filter(shopper__user=self.request.user)
         return queryset

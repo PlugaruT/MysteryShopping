@@ -75,7 +75,7 @@ class User(AbstractUser):
 
     # TODO: add a get_tenant method
     @property
-    def get_tenant(self):
+    def tenant(self):
         return self.user_type_attr.tenant
 
 

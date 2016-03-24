@@ -40,9 +40,12 @@ class QuestionnaireTemplateViewSet(viewsets.ModelViewSet):
     permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)
 
     def get_queryset(self):
+        """Filter queryset by Questionnaire type ('c' or 'm') and by Tenant the user belongs to.
+        """
         queryset = self.queryset
         questionnaire_type = self.request.query_params.get('type', 'm')
-        queryset = queryset.filter(type=questionnaire_type)
+        questionnaire_type = questionnaire_type[0] if isinstance(questionnaire_type, list) else questionnaire_type
+        queryset = queryset.filter(type=questionnaire_type, tenant=self.request.user.tenant)
         queryset = self.get_serializer_class().setup_eager_loading(queryset)
         return queryset
 

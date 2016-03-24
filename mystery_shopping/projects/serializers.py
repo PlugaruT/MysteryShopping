@@ -17,7 +17,7 @@ from mystery_shopping.companies.serializers import CompanySerializer
 from mystery_shopping.questionnaires.serializers import QuestionnaireScriptSerializer
 from mystery_shopping.questionnaires.serializers import QuestionnaireSerializer
 from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializer
-from mystery_shopping.questionnaires.models import QuestionnaireQuestion
+from mystery_shopping.questionnaires.models import QuestionnaireQuestion, QuestionnaireScript
 from mystery_shopping.questionnaires.models import Questionnaire
 from mystery_shopping.users.serializers import ShopperSerializer
 from mystery_shopping.users.serializers import PersonToAssessSerializer
@@ -93,6 +93,7 @@ class ResearchMethodologySerializer(serializers.ModelSerializer):
     """
 
     """
+    scripts = serializers.PrimaryKeyRelatedField(queryset=QuestionnaireScript.objects.all(), required=False, many=True)
     scripts_repr = QuestionnaireScriptSerializer(source='scripts', many=True, read_only=True)
     questionnaires_repr = QuestionnaireTemplateSerializer(source='questionnaires', many=True, read_only=True)
     places_to_assess_repr = PlaceToAssessSerializer(source='places_to_assess', many=True, required=False)
