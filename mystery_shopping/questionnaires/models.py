@@ -185,6 +185,7 @@ class QuestionAbstract(models.Model):
     max_score = models.PositiveSmallIntegerField(null=True, blank=True)
     order = models.PositiveIntegerField()
     weight = models.DecimalField(max_digits=5, decimal_places=2)
+    show_comment = models.BooleanField(default=True)
 
     class Meta:
         abstract = True
@@ -219,7 +220,6 @@ class QuestionnaireQuestion(QuestionAbstract):
     # Attributes
     score = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     answer = models.TextField(null=True, blank=True)
-    show_comment = models.BooleanField(default=True)
     comment = models.TextField(null=True, blank=True)
     answer_choices = ArrayField(models.IntegerField(), null=True, blank=True)
 
