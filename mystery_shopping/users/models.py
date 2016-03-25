@@ -62,7 +62,10 @@ class User(AbstractUser):
         if hasattr(self, 'tenantconsultant'):
             roles.append('tenantconsultant')
         if hasattr(self, 'shopper'):
-            roles.append('shopper')
+            if self.shopper.is_collector:
+                roles.append('collector')
+            else:
+                roles.append('shopper')
         if hasattr(self, 'clientprojectmanager'):
             roles.append('clientprojectmanager')
         if hasattr(self, 'clientmanager'):
@@ -73,7 +76,6 @@ class User(AbstractUser):
             roles.append('admin')
         return roles
 
-    # TODO: add a get_tenant method
     @property
     def tenant(self):
         return self.user_type_attr.tenant
