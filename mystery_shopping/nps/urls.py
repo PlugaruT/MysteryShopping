@@ -14,7 +14,7 @@ router.register(r'codedcauselabels', CodedCauseLabelViewSet)
 router.register(r'codedcauses', CodedCauseViewSet)
 
 urlpatterns = [
-    url(r'^nps/$',
+    url(r'^dashboard/$',
         IndicatorDashboard.as_view(),
         name='nps-general-score'),
 ]
