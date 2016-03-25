@@ -1,25 +1,18 @@
 from collections import defaultdict
 
+from mystery_shopping.questionnaires.constants import IndicatorQuestionType
 
-# def separate_causes(questionnaire_template):
-#     appreciation_causes = defaultdict(list)
-#     frustration_causes = defaultdict(list)
-#     for questionnaire in questionnaire_template.questionnaires.all():
-#         for question in questionnaire.questions.all():
-#             if question.type == 'n' and question.order == 1:
-#                 if question.score > 8:
-#                     appreciation_causes[question.question_body]
 
 def get_nps_marks(questionnaire_template):
     nps_dict = defaultdict(list)
     for questionnaire in questionnaire_template.questionnaires.all():
         for question in questionnaire.questions.all():
-            if question.type == 'n':
+            if question.type in {IndicatorQuestionType.NPS_QUESTION, }:
                 nps_dict['scores'].append(question.score)
     return nps_dict
 
 
-def calculate_nps_score(nps_marks):
+def calculate_indicator_score(nps_marks):
 
     if len(nps_marks) == 0:
         return None, None, None, None
@@ -43,6 +36,31 @@ def calculate_nps_score(nps_marks):
     passives_percentage = len(passives_marks) / total_marks * 100
     promoters_percentage = len(promoters_marks) / total_marks * 100
 
-    nps_score = promoters_percentage - detractors_percentage
+    indicator_score = promoters_percentage - detractors_percentage
 
-    return round(nps_score, 2),round(promoters_percentage, 2), round(passives_percentage, 2), round(detractors_percentage, 2)
+    score = dict()
+    score['indicator'] = round(indicator_score, 2)
+    score['promoters'] = round(promoters_percentage, 2)
+    score['passives'] = round(passives_percentage, 2)
+    score['detractors'] = round(detractors_percentage, 2)
+    return score
+
+
+def group_questions_by_answer(questionnaire_template, indicator_type):
+    """
+
+    :param questionnaire_template:
+    :param indicator_type:
+    :return:
+    """
+    indicator_details = defaultdict(lambda: defaultdict(list))
+    for questionnaire in questionnaire_template.questionnaires.all():
+        # TODO: change get to filter
+        questionnaire_indicator_score = questionnaire.questions.filter(type=indicator_type).first()
+        if questionnaire_indicator_score:
+            for question in questionnaire.questions.all():
+                if question.type not in IndicatorQuestionType.INDICATORS_LIST:
+                    indicator_details[question.question_body][question.answer].append(
+                        questionnaire_indicator_score.score)
+
+    return indicator_details

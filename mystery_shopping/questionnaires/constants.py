@@ -1,0 +1,14 @@
+class QuestionType:
+    TEXT_FIELD = 't'
+    DATE_FIELD = 'd'
+    SINGLE_CHOICE = 's'
+    MULTIPLE_CHOICE = 'm'
+
+
+class IndicatorQuestionType:
+    NPS_QUESTION = 'n'
+    ENJOYABILITY_QUESTION = 'j'
+    EASINESS_QUESTION = 'e'
+    USEFULNESS_QUESTION = 'u'
+    INDICATORS_LIST = [NPS_QUESTION, ENJOYABILITY_QUESTION,
+                      EASINESS_QUESTION, USEFULNESS_QUESTION]
