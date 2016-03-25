@@ -6,7 +6,7 @@ from rest_framework.routers import DefaultRouter
 
 from .views import CodedCauseLabelViewSet
 from .views import CodedCauseViewSet
-from .views import NPSDashboard
+from .views import IndicatorDashboard
 
 
 router = DefaultRouter()
@@ -15,6 +15,6 @@ router.register(r'codedcauses', CodedCauseViewSet)
 
 urlpatterns = [
     url(r'^nps/$',
-        NPSDashboard.as_view(),
+        IndicatorDashboard.as_view(),
         name='nps-general-score'),
 ]

@@ -4,11 +4,13 @@ from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
+from model_utils.managers import PassThroughManager
 
 from mptt.models import MPTTModel, TreeForeignKey
 
 from .constants import QuestionType
 from .constants import IndicatorQuestionType as IndQuestType
+from .managers import QuestionnaireQuerySet
 
 from mystery_shopping.tenants.models import Tenant
 
@@ -74,6 +76,8 @@ class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
     # Attributes
     score = models.DecimalField(max_digits=5, decimal_places=2, null=True)
     weight = models.PositiveSmallIntegerField(default=100)
+
+    objects = PassThroughManager.for_queryset_class(QuestionnaireQuerySet)()
 
     class Meta:
         default_related_name = 'questionnaires'

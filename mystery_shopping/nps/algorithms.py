@@ -3,13 +3,13 @@ from collections import defaultdict
 from mystery_shopping.questionnaires.constants import IndicatorQuestionType
 
 
-def get_nps_marks(questionnaire_template):
-    nps_dict = defaultdict(list)
-    for questionnaire in questionnaire_template.questionnaires.all():
+def get_nps_marks(questionnaire_list, indicator_type):
+    indicator_scores = list()
+    for questionnaire in questionnaire_list:
         for question in questionnaire.questions.all():
-            if question.type in {IndicatorQuestionType.NPS_QUESTION, }:
-                nps_dict['scores'].append(question.score)
-    return nps_dict
+            if question.type in {indicator_type, }:
+                indicator_scores.append(question.score)
+    return indicator_scores
 
 
 def calculate_indicator_score(nps_marks):
@@ -46,16 +46,15 @@ def calculate_indicator_score(nps_marks):
     return score
 
 
-def group_questions_by_answer(questionnaire_template, indicator_type):
+def group_questions_by_answer(questionnaire_list, indicator_type):
     """
 
-    :param questionnaire_template:
+    :param questionnaire_list:
     :param indicator_type:
     :return:
     """
     indicator_details = defaultdict(lambda: defaultdict(list))
-    for questionnaire in questionnaire_template.questionnaires.all():
-        # TODO: change get to filter
+    for questionnaire in questionnaire_list:
         questionnaire_indicator_score = questionnaire.questions.filter(type=indicator_type).first()
         if questionnaire_indicator_score:
             for question in questionnaire.questions.all():
@@ -64,3 +63,24 @@ def group_questions_by_answer(questionnaire_template, indicator_type):
                         questionnaire_indicator_score.score)
 
     return indicator_details
+
+
+def get_indicator_details(questionnaire_list, indicator_type):
+    details = list()
+    nps_categories = group_questions_by_answer(questionnaire_list, indicator_type)
+
+    for item_label, responses in nps_categories.items():
+        detail_item = dict()
+        detail_item['results'] = list()
+
+        for answer_choice in responses:
+            answer_choice_result = dict()
+            answer_choice_result['choice'] = answer_choice
+            answer_choice_result['score'] = calculate_indicator_score(responses[answer_choice])
+            answer_choice_result['number_of_respondents'] = len(responses[answer_choice])
+            detail_item['results'].append(answer_choice_result)
+
+        detail_item['item_label'] = item_label
+        details.append(detail_item)
+
+    return details
