@@ -129,8 +129,6 @@ class ShopperViewSet(viewsets.ModelViewSet):
         shopper_service = ShopperService(request.user.shopper)
         available_list_of_places = shopper_service.get_available_list_of_places_with_questionnaires()
 
-        json_data = json.dumps(available_list_of_places)
-
         return Response(available_list_of_places, status=status.HTTP_200_OK)
 
 

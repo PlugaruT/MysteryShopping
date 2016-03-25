@@ -1,6 +1,6 @@
 from mystery_shopping.companies.serializers import EntitySerializer, SectionSerializer
 from mystery_shopping.projects.models import Project
-from mystery_shopping.questionnaires.serializers import QuestionnaireSerializer
+from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializer
 
 
 class ShopperService:
@@ -32,12 +32,12 @@ class ShopperService:
             "section": SectionSerializer
         }
 
-        for place in places_to_assess:
+        for place_to_assess in places_to_assess:
             result.append({
-                "entity_repr": place_serializer_dispatcher[place.__class__.__name__](place),
-                "questionnaire": QuestionnaireSerializer(questionnaire),
+                "entity_repr": place_serializer_dispatcher[place_to_assess.place_type.name](place_to_assess.place).data,
+                "questionnaire": QuestionnaireTemplateSerializer(questionnaire).data,
                 "project": project.pk,
-                "questionnaire_template": questionnaire.template_id
+                "questionnaire_template": questionnaire.id
             })
 
         return result

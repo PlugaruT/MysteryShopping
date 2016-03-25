@@ -10,8 +10,8 @@ class ProjectQuerySet(QuerySet):
         """
         today = datetime.date.today()
         return self.filter(shoppers=shopper,
-                           period_start__gte=today,
-                           period_end__lte=today)
+                           period_start__lte=today,
+                           period_end__gte=today)
 
     def current_projects_for_a_collector(self, collector):
         """Return projects assigned to a specific Collector that are active now.
