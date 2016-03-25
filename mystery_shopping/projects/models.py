@@ -100,7 +100,7 @@ class Evaluation(TimeStampedModel, models.Model):
     # Relationships
     project = models.ForeignKey(Project)
     shopper = models.ForeignKey('users.Shopper')
-    questionnaire_script = models.ForeignKey(QuestionnaireScript)
+    questionnaire_script = models.ForeignKey(QuestionnaireScript, null=True)
     questionnaire_template = models.ForeignKey(QuestionnaireTemplate)
     entity = models.ForeignKey(Entity)
     section = models.ForeignKey(Section, null=True, blank=True)
