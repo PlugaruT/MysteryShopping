@@ -87,7 +87,24 @@ def group_questions_by_answer(questionnaire_list, indicator_type, indicator_deta
     return indicator_details
 
 
+def group_questions_by_pos(questionnaire_list, indicator_type):
+    indicator_pos_details = defaultdict(lambda :defaultdict(list))
+    for questionnaire in questionnaire_list:
+        questionnaire_indicator_score = questionnaire.questions.filter(type=indicator_type).first()
+        indicator_pos_details['entities'][questionnaire.evaluation.entity.name].append(questionnaire_indicator_score.score)
+        if questionnaire.evaluation.section is not None:
+            indicator_pos_details['section'][questionnaire.evaluation.section.name].append(questionnaire_indicator_score.score)
+
+    return indicator_pos_details
+
+
 def create_details_skeleton(questionnaire_template):
+    """
+    Initialize structure of dict to contain all question choices
+
+    :param questionnaire_template: Template Questionnaire to extract the choices from
+    :return: initial structure of the indicator details
+    """
     indicator_skeleton = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
     for question in questionnaire_template.template_questions.all():
         for question_choice in question.template_question_choices.all():
@@ -106,6 +123,7 @@ def get_indicator_details(questionnaire_list, questionnaire_template, indicator_
     details = list()
     indicator_skeleton = create_details_skeleton(questionnaire_template)
     indicator_categories = group_questions_by_answer(questionnaire_list, indicator_type, indicator_skeleton)
+    indicators_per_pos = group_questions_by_pos(questionnaire_list, indicator_type)
 
     for item_label, responses in indicator_categories.items():
         detail_item = dict()
@@ -121,5 +139,30 @@ def get_indicator_details(questionnaire_list, questionnaire_template, indicator_
 
         detail_item['item_label'] = item_label
         details.append(detail_item)
+
+    detail_item = defaultdict(list)
+    detail_item['results'] = list()
+    detail_item['item_label'] = 'Entities'
+    for entity, marks in indicators_per_pos['entities'].items():
+        pos_detail = dict()
+        pos_detail['choice'] = entity
+        pos_detail['score'] = calculate_indicator_score(marks)
+        pos_detail['number_of_respondents'] = len(marks)
+        pos_detail['other_answer_choices'] = list()
+        detail_item['results'].append(pos_detail)
+
+    details.append(detail_item)
+
+    # detail_item = defaultdict(list)
+    # detail_item['results'] = list()
+    # detail_item['item_label'] = 'Sections'
+    # for entity, marks in indicators_per_pos['sections'].items():
+    #     pos_detail = dict()
+    #     pos_detail['choice'] = entity
+    #     pos_detail['score'] = calculate_indicator_score(marks)
+    #     pos_detail['number_of_respondents'] = len(marks)
+    #     pos_detail['other_answer_choices'] = list()
+    #     detail_item['results'].append(pos_detail)
+    # details.append(detail_item)
 
     return details
