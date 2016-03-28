@@ -7,8 +7,9 @@ from rest_framework.response import Response
 from rest_condition import Or
 
 from .algorithms import group_questions_by_answer
-from .algorithms import get_nps_marks
+from .algorithms import get_indicator_scores
 from .algorithms import calculate_indicator_score
+# from .algorithms import create_details_scheleton
 from .algorithms import get_indicator_details
 from .models import CodedCauseLabel
 from .models import CodedCause
@@ -35,6 +36,14 @@ class CodedCauseViewSet(viewsets.ModelViewSet):
 
 # Rename View
 class IndicatorDashboard(views.APIView):
+    """
+    View that returns indicator data for indicator type
+
+    It computes data like general scores and detailed scores (per answer choice)
+
+    :param project: will filter all questionnaires that are from this project
+    :param indicator: can be 'n', 'j', 'e' or 'u'
+    """
 
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager),)
 
@@ -48,15 +57,16 @@ class IndicatorDashboard(views.APIView):
                 # as each research methodology for a Customer Experience Index Project has
                 # only one questionnaire template
                 questionnaire_template = project.research_methodology.questionnaires.first()
+                # Get all the questionnaires from the requested project
                 questionnaire_list = Questionnaire.objects.get_project_questionnaires(questionnaire_template, project)
 
                 response = dict()
                 response['general'] = dict()
 
-                indicator_list = get_nps_marks(questionnaire_list, indicator_type)
+                indicator_list = get_indicator_scores(questionnaire_list, indicator_type)
                 response['general']['score'] = calculate_indicator_score(indicator_list)
 
-                response['details'] = get_indicator_details(questionnaire_list, indicator_type)
+                response['details'] = get_indicator_details(questionnaire_list, questionnaire_template, indicator_type)
 
                 return Response(response, status.HTTP_200_OK)
             except Project.DoesNotExist:
