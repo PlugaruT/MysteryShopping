@@ -6,6 +6,7 @@ from rest_framework.routers import DefaultRouter
 
 from .views import CodedCauseLabelViewSet
 from .views import CodedCauseViewSet
+from .views import OverviewDashboard
 from .views import IndicatorDashboard
 
 
@@ -14,7 +15,10 @@ router.register(r'codedcauselabels', CodedCauseLabelViewSet)
 router.register(r'codedcauses', CodedCauseViewSet)
 
 urlpatterns = [
+    url(r'^cxi/overview/$',
+        OverviewDashboard.as_view(),
+        name='overview-score'),
     url(r'^cxi/indicator/$',
         IndicatorDashboard.as_view(),
-        name='nps-general-score'),
+        name='indicator-score'),
 ]

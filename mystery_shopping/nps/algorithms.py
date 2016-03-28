@@ -28,10 +28,10 @@ def calculate_indicator_score(indicator_marks):
     """
     if len(indicator_marks) == 0:
         score = dict()
-        score['indicator'] = 0.0
-        score['promoters'] = 0.0
-        score['passives'] = 0.0
-        score['detractors'] = 0.0
+        score['indicator'] = None
+        score['promoters'] = None
+        score['passives'] = None
+        score['detractors'] = None
         return score
 
     detractors_marks = []
@@ -158,3 +158,12 @@ def get_indicator_details(questionnaire_list, questionnaire_template, indicator_
             details.append(detail_item)
 
     return details
+
+
+def calculate_overview_score(questionnaire_list):
+    overview_list = dict()
+    for indicator_type in IndicatorQuestionType.INDICATORS_LIST:
+        indicator_list = get_indicator_scores(questionnaire_list, indicator_type)
+        overview_list[indicator_type] = calculate_indicator_score(indicator_list)
+
+    return overview_list

@@ -9,7 +9,7 @@ from rest_condition import Or
 from .algorithms import group_questions_by_answer
 from .algorithms import get_indicator_scores
 from .algorithms import calculate_indicator_score
-# from .algorithms import create_details_scheleton
+from .algorithms import calculate_overview_score
 from .algorithms import get_indicator_details
 from .models import CodedCauseLabel
 from .models import CodedCause
@@ -34,7 +34,39 @@ class CodedCauseViewSet(viewsets.ModelViewSet):
     serializer_class = CodedCauseSerializer
 
 
-# Rename View
+class OverviewDashboard(views.APIView):
+    """
+
+    """
+
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager),)
+
+    def get(self, request, *args, **kwargs):
+        project_id = request.query_params.get('project', None)
+
+        response = None
+        if project_id:
+            try:
+                project = Project.objects.get(pk=project_id)
+                # I only get the first questionnaire_template from the research methodology
+                # as each research methodology for a Customer Experience Index Project has
+                # only one questionnaire template
+                questionnaire_template = project.research_methodology.questionnaires.first()
+                # Get all the questionnaires from the requested project
+                questionnaire_list = Questionnaire.objects.get_project_questionnaires(questionnaire_template, project)
+
+                response = calculate_overview_score(questionnaire_list)
+
+                return Response(response, status.HTTP_200_OK)
+
+            except Project.DoesNotExist:
+                return Response({'detail': 'No Project with this id exists'},
+                                status.HTTP_404_NOT_FOUND)
+        return Response({
+            'detail': 'Project was not provided'
+        }, status.HTTP_400_BAD_REQUEST)
+
+
 class IndicatorDashboard(views.APIView):
     """
     View that returns indicator data for indicator type
