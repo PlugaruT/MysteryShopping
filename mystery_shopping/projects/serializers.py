@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from rest_framework import serializers
 
 from .models import Project
@@ -306,23 +308,26 @@ class EvaluationSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         questionnaire_template = validated_data.get('questionnaire_template', None)
-        questionnaire_template_serialized = QuestionnaireTemplateSerializer(questionnaire_template)
-        import collections
-        questionnaire_to_create = collections.OrderedDict(questionnaire_template_serialized.data)
-        questionnaire_to_create['blocks'] = questionnaire_to_create.pop('template_blocks')
-        questionnaire_to_create['template'] = questionnaire_template.id
-        for block in questionnaire_to_create['blocks']:
-            block['order_number'] = block.pop('id')
-            block['parent_order_number'] = block.pop('parent_block')
-            block['questions'] = block.pop('template_questions')
-            for question in block['questions']:
-                question['question_choices'] = question.pop('template_question_choices')
+        if validated_data.get('type', 'm') == 'm':
+            questionnaire_template_serialized = QuestionnaireTemplateSerializer(questionnaire_template)
+            questionnaire_to_create = OrderedDict(questionnaire_template_serialized.data)
+            questionnaire_to_create['blocks'] = questionnaire_to_create.pop('template_blocks')
+            for block in questionnaire_to_create['blocks']:
+                block['order_number'] = block.pop('id')
+                block['parent_order_number'] = block.pop('parent_block')
+                block['questions'] = block.pop('template_questions')
+                for question in block['questions']:
+                    question['question_choices'] = question.pop('template_question_choices')
 
+        else:
+            questionnaire_to_create = validated_data.get('questionnaire', None)
+
+        questionnaire_to_create['template'] = questionnaire_template.id
         questionnaire_to_create_ser = QuestionnaireSerializer(data=questionnaire_to_create)
         questionnaire_to_create_ser.is_valid(raise_exception=True)
         questionnaire_to_create_ser.save()
-
         validated_data['questionnaire'] = questionnaire_to_create_ser.instance
+
         evaluation = Evaluation.objects.create(**validated_data)
         return evaluation
 

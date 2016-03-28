@@ -101,6 +101,11 @@ class Evaluation(TimeStampedModel, models.Model):
     project = models.ForeignKey(Project)
     shopper = models.ForeignKey('users.Shopper')
     questionnaire_script = models.ForeignKey(QuestionnaireScript, null=True)
+
+    type_questionnaire = Choices(('m', 'Mystery Evaluation'),
+                                 ('c', 'Customer Experience Index Evaluation'))
+    type = models.CharField(max_length=1, choices=type_questionnaire, default=type_questionnaire.m)
+
     questionnaire_template = models.ForeignKey(QuestionnaireTemplate)
     entity = models.ForeignKey(Entity)
     section = models.ForeignKey(Section, null=True, blank=True)
