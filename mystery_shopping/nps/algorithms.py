@@ -91,9 +91,11 @@ def group_questions_by_pos(questionnaire_list, indicator_type):
     indicator_pos_details = defaultdict(lambda :defaultdict(list))
     for questionnaire in questionnaire_list:
         questionnaire_indicator_score = questionnaire.questions.filter(type=indicator_type).first()
-        indicator_pos_details['entities'][questionnaire.evaluation.entity.name].append(questionnaire_indicator_score.score)
-        if questionnaire.evaluation.section is not None:
-            indicator_pos_details['sections'][questionnaire.evaluation.section.name].append(questionnaire_indicator_score.score)
+        if questionnaire_indicator_score:
+
+            indicator_pos_details['entities'][questionnaire.evaluation.entity.name].append(questionnaire_indicator_score.score)
+            if questionnaire.evaluation.section is not None:
+                indicator_pos_details['sections'][questionnaire.evaluation.section.name].append(questionnaire_indicator_score.score)
 
     return indicator_pos_details
 
