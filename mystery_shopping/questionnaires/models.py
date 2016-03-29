@@ -64,6 +64,12 @@ class QuestionnaireTemplate(QuestionnaireAbstract):
     def __str__(self):
         return 'Title: {}'.format(self.title)
 
+    def get_indicator_question(self, indicator_type):
+        try:
+            return self.template_questions.get(type=indicator_type)
+        except:
+            return None
+
 
 class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
     """
@@ -84,6 +90,12 @@ class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
 
     def __str__(self):
         return 'Title: {}'.format(self.title)
+
+    def get_indicator_question(self, indicator_type):
+        try:
+            return self.questions.get(type=indicator_type)
+        except:
+            return None
 
     def calculate_score_for_m(self):
         '''

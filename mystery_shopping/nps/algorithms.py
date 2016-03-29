@@ -1,7 +1,7 @@
 from collections import defaultdict
 
+from mystery_shopping.questionnaires.models import Questionnaire
 from mystery_shopping.questionnaires.constants import IndicatorQuestionType
-
 
 def get_indicator_scores(questionnaire_list, indicator_type):
     """
@@ -115,7 +115,7 @@ def create_details_skeleton(questionnaire_template):
     return indicator_skeleton
 
 
-def get_indicator_details(questionnaire_list, questionnaire_template, indicator_type):
+def get_indicator_details(questionnaire_list, indicator_type):
     """
     Collect detailed data about inticator_type
 
@@ -124,7 +124,7 @@ def get_indicator_details(questionnaire_list, questionnaire_template, indicator_
     :return: the indicator scores
     """
     details = list()
-    indicator_skeleton = create_details_skeleton(questionnaire_template)
+    indicator_skeleton = create_details_skeleton(questionnaire_list.first().template)
     indicator_categories = group_questions_by_answer(questionnaire_list, indicator_type, indicator_skeleton)
 
     for item_label, responses in indicator_categories.items():
@@ -169,3 +169,32 @@ def calculate_overview_score(questionnaire_list):
         overview_list[indicator_type] = calculate_indicator_score(indicator_list)
 
     return overview_list
+
+
+def collect_data_for_indicator_dashboard(project, indicator_type):
+    questionnaire_list = Questionnaire.objects.get_project_questionnaires(project)
+    indicator_question = None
+
+    # Extract the question with the desired indicator (if questionnaires exist)
+    if questionnaire_list:
+        indicator_question = questionnaire_list.first().get_indicator_question(indicator_type)
+
+    response = dict()
+    if indicator_question:
+        # Get all the questionnaires from the requested project
+        indicator_list = get_indicator_scores(questionnaire_list, indicator_type)
+        response['general'] = calculate_indicator_score(indicator_list)
+
+        response['details'] = get_indicator_details(questionnaire_list, indicator_type)
+    else:
+        response['general'] = calculate_indicator_score([])
+
+        response['details'] = []
+
+    return response
+
+
+def collect_data_for_overview_dashboard(project):
+    questionnaire_list = Questionnaire.objects.get_project_questionnaires(project)
+
+    return calculate_overview_score(questionnaire_list)

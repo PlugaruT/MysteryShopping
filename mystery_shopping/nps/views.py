@@ -11,14 +11,17 @@ from .algorithms import get_indicator_scores
 from .algorithms import calculate_indicator_score
 from .algorithms import calculate_overview_score
 from .algorithms import get_indicator_details
+from .algorithms import collect_data_for_indicator_dashboard
+from .algorithms import collect_data_for_overview_dashboard
 from .models import CodedCauseLabel
 from .models import CodedCause
 from .serializers import CodedCauseLabelSerializer
 from .serializers import CodedCauseSerializer
 
-from mystery_shopping.questionnaires.models import QuestionnaireTemplate
+# from mystery_shopping.questionnaires.models import QuestionnaireTemplate
 from mystery_shopping.projects.models import Project
-from mystery_shopping.questionnaires.models import Questionnaire
+# from mystery_shopping.questionnaires.models import Questionnaire
+from mystery_shopping.questionnaires.constants import IndicatorQuestionType
 
 from mystery_shopping.users.permissions import IsTenantProductManager
 from mystery_shopping.users.permissions import IsTenantProjectManager
@@ -38,7 +41,6 @@ class OverviewDashboard(views.APIView):
     """
 
     """
-
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager),)
 
     def get(self, request, *args, **kwargs):
@@ -48,14 +50,11 @@ class OverviewDashboard(views.APIView):
         if project_id:
             try:
                 project = Project.objects.get(pk=project_id)
-                # I only get the first questionnaire_template from the research methodology
-                # as each research methodology for a Customer Experience Index Project has
-                # only one questionnaire template
-                questionnaire_template = project.research_methodology.questionnaires.first()
-                # Get all the questionnaires from the requested project
-                questionnaire_list = Questionnaire.objects.get_project_questionnaires(questionnaire_template, project)
+                if request.user.tenant != project.tenant:
+                    return Response({'detail': 'You do not have permission to access to this project.'},
+                                    status.HTTP_403_FORBIDDEN)
 
-                response = calculate_overview_score(questionnaire_list)
+                response = collect_data_for_overview_dashboard(project)
 
                 return Response(response, status.HTTP_200_OK)
 
@@ -82,23 +81,19 @@ class IndicatorDashboard(views.APIView):
     def get(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
         indicator_type = request.query_params.get('indicator', None)
+
+        # As this requires no database hit, check if indicator sent is a valid one
+        if indicator_type not in IndicatorQuestionType.INDICATORS_LIST:
+            return Response({'detail': 'Indicator type sent is not a valid option'})
+
         if project_id:
             try:
                 project = Project.objects.get(pk=project_id)
-                # I only get the first questionnaire_template from the research methodology
-                # as each research methodology for a Customer Experience Index Project has
-                # only one questionnaire template
-                questionnaire_template = project.research_methodology.questionnaires.first()
-                # Get all the questionnaires from the requested project
-                questionnaire_list = Questionnaire.objects.get_project_questionnaires(questionnaire_template, project)
+                if request.user.tenant != project.tenant:
+                    return Response({'detail': 'You do not have permission to access to this project.'},
+                                    status.HTTP_403_FORBIDDEN)
 
-                response = dict()
-                response['general'] = dict()
-
-                indicator_list = get_indicator_scores(questionnaire_list, indicator_type)
-                response['general']['score'] = calculate_indicator_score(indicator_list)
-
-                response['details'] = get_indicator_details(questionnaire_list, questionnaire_template, indicator_type)
+                response = collect_data_for_indicator_dashboard(project, indicator_type)
 
                 return Response(response, status.HTTP_200_OK)
             except Project.DoesNotExist:
