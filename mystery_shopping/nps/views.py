@@ -45,6 +45,8 @@ class OverviewDashboard(views.APIView):
 
     def get(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
+        entity_id = request.query_params.get('entity', None)
+        # section_id = request.query_params.get('section', None)
 
         response = None
         if project_id:
@@ -54,7 +56,7 @@ class OverviewDashboard(views.APIView):
                     return Response({'detail': 'You do not have permission to access to this project.'},
                                     status.HTTP_403_FORBIDDEN)
 
-                response = collect_data_for_overview_dashboard(project)
+                response = collect_data_for_overview_dashboard(project, entity_id)
 
                 return Response(response, status.HTTP_200_OK)
 
@@ -80,6 +82,8 @@ class IndicatorDashboard(views.APIView):
 
     def get(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
+        entity_id = request.query_params.get('entity', None)
+        # section_id = request.query_params.get('section', None)
         indicator_type = request.query_params.get('indicator', None)
 
         # As this requires no database hit, check if indicator sent is a valid one
@@ -93,7 +97,7 @@ class IndicatorDashboard(views.APIView):
                     return Response({'detail': 'You do not have permission to access to this project.'},
                                     status.HTTP_403_FORBIDDEN)
 
-                response = collect_data_for_indicator_dashboard(project, indicator_type)
+                response = collect_data_for_indicator_dashboard(project, entity_id, indicator_type)
 
                 return Response(response, status.HTTP_200_OK)
             except Project.DoesNotExist:

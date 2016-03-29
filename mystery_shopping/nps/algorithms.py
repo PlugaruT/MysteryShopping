@@ -2,6 +2,7 @@ from collections import defaultdict
 
 from mystery_shopping.questionnaires.models import Questionnaire
 from mystery_shopping.questionnaires.constants import IndicatorQuestionType
+from mystery_shopping.projects.models import Entity
 
 def get_indicator_scores(questionnaire_list, indicator_type):
     """
@@ -171,8 +172,13 @@ def calculate_overview_score(questionnaire_list):
     return overview_list
 
 
-def collect_data_for_indicator_dashboard(project, indicator_type):
-    questionnaire_list = Questionnaire.objects.get_project_questionnaires(project)
+def collect_data_for_indicator_dashboard(project, entity_id, indicator_type):
+    try:
+        entity = Entity.objects.get(pk=entity_id)
+    except Entity.DoesNotExist:
+        entity = None
+
+    questionnaire_list = Questionnaire.objects.get_project_questionnaires(project, entity)
     indicator_question = None
 
     # Extract the question with the desired indicator (if questionnaires exist)
@@ -194,7 +200,12 @@ def collect_data_for_indicator_dashboard(project, indicator_type):
     return response
 
 
-def collect_data_for_overview_dashboard(project):
-    questionnaire_list = Questionnaire.objects.get_project_questionnaires(project)
+def collect_data_for_overview_dashboard(project, entity_id):
+    try:
+        entity = Entity.objects.get(pk=entity_id)
+    except Entity.DoesNotExist:
+        entity = None
+
+    questionnaire_list = Questionnaire.objects.get_project_questionnaires(project, entity)
 
     return calculate_overview_score(questionnaire_list)
