@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from rest_framework import serializers
 
 from .models import QuestionnaireScript
@@ -337,6 +339,12 @@ class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
         return questionnaire_template
 
     def update(self, instance, validated_data):
+        # If template blocks is a list of ordered dicts, pop it from validated_data
+        # so that it won't throw an error on update.
+        template_blocks = validated_data.get('template_blocks', [])
+        pop_blocks = len(template_blocks) > 0 and isinstance(template_blocks[0], OrderedDict)
+        if pop_blocks:
+            validated_data.pop('template_blocks')
         if self.instance.is_editable:
             for attr, value in validated_data.items():
                 setattr(instance, attr, value)
