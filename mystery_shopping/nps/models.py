@@ -21,4 +21,4 @@ class CodedCause(models.Model):
                            'j', 'Enjoyability questions',
                            'e', 'Easiness questions',
                            'u', 'Usefulness questions')
-    cause_type = models.CharField(max_length=1, choices=type_choices, default=type_choices.n)
+    type = models.CharField(max_length=1, choices=type_choices, default=type_choices.n)

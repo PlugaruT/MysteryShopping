@@ -3,6 +3,7 @@ from collections import defaultdict
 from rest_framework import status
 from rest_framework import views
 from rest_framework import viewsets
+from rest_framework.decorators import list_route
 from rest_framework.response import Response
 from rest_condition import Or
 
@@ -15,6 +16,8 @@ from .algorithms import collect_data_for_indicator_dashboard
 from .algorithms import collect_data_for_overview_dashboard
 from .models import CodedCauseLabel
 from .models import CodedCause
+from mystery_shopping.nps.serializers import QuestionnaireQuestionToEncodeSerializer
+from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from .serializers import CodedCauseLabelSerializer
 from .serializers import CodedCauseSerializer
 
@@ -35,6 +38,20 @@ class CodedCauseLabelViewSet(viewsets.ModelViewSet):
 class CodedCauseViewSet(viewsets.ModelViewSet):
     queryset = CodedCause.objects.all()
     serializer_class = CodedCauseSerializer
+    question_serializer_class = QuestionnaireQuestionToEncodeSerializer
+
+    @list_route()
+    def raw(self, request, *args, **kwargs):
+        project = request.query_params.get('project', None)
+        if project is None:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        questions = QuestionnaireQuestion.objects.filter(questionnaire__evaluation__project=project,
+                                                         type__in=IndicatorQuestionType.INDICATORS_LIST)
+
+        serializer = self.question_serializer_class(questions, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class OverviewDashboard(views.APIView):
