@@ -12,6 +12,7 @@ class CodedCauseLabelSerializer(serializers.ModelSerializer):
     class Meta:
         model = CodedCauseLabel
         fields = '__all__'
+        extra_kwargs = {'tenant' : {'required': False}}
 
 
 class CodedCauseSerializer(serializers.ModelSerializer):
@@ -24,14 +25,21 @@ class CodedCauseSerializer(serializers.ModelSerializer):
         model = CodedCause
         # fields = '__all__'
         exclude = ('raw_causes',)
+        extra_kwargs = {'tenant' : {'required': False}}
 
     def create(self, validated_data):
-
         coded_cause_label = validated_data.get('coded_label', None)
-        coded_cause_label_ser = CodedCauseLabelSerializer(data=coded_cause_label)
-        coded_cause_label_ser.is_valid(raise_exception=True)
-        coded_cause_label_ser.save()
-        validated_data['coded_label'] = coded_cause_label_ser.instance
+        try:
+            existent_coded_cause_label = CodedCauseLabel.objects.get(
+                name=coded_cause_label.get('name', None),
+                tenant=validated_data.get('tenant', None))
+            validated_data['coded_label'] = existent_coded_cause_label
+        except CodedCauseLabel.DoesNotExist:
+            coded_cause_label_ser = CodedCauseLabelSerializer(data=coded_cause_label)
+            coded_cause_label_ser.is_valid(raise_exception=True)
+            coded_cause_label_ser.save()
+            validated_data['coded_label'] = coded_cause_label_ser.instance
+
         coded_cause = CodedCause.objects.create(**validated_data)
 
         return coded_cause

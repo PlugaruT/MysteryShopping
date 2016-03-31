@@ -40,6 +40,15 @@ class CodedCauseViewSet(viewsets.ModelViewSet):
     serializer_class = CodedCauseSerializer
     question_serializer_class = QuestionnaireQuestionToEncodeSerializer
 
+    def create(self, request, *args, **kwargs):
+        # add tenant from the request.user to the request.data that is sent to the Coded CauseSerializer
+        request.data['tenant'] = request.user.tenant.id
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
 
 class OverviewDashboard(views.APIView):
     """
