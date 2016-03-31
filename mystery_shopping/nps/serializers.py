@@ -26,6 +26,7 @@ class CodedCauseSerializer(serializers.ModelSerializer):
         exclude = ('raw_causes',)
 
     def create(self, validated_data):
+
         coded_cause_label = validated_data.get('coded_label', None)
         coded_cause_label_ser = CodedCauseLabelSerializer(data=coded_cause_label)
         coded_cause_label_ser.is_valid(raise_exception=True)

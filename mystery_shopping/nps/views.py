@@ -40,19 +40,6 @@ class CodedCauseViewSet(viewsets.ModelViewSet):
     serializer_class = CodedCauseSerializer
     question_serializer_class = QuestionnaireQuestionToEncodeSerializer
 
-    @list_route()
-    def raw(self, request, *args, **kwargs):
-        project = request.query_params.get('project', None)
-        if project is None:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
-        questions = QuestionnaireQuestion.objects.filter(questionnaire__evaluation__project=project,
-                                                         type__in=IndicatorQuestionType.INDICATORS_LIST)
-
-        serializer = self.question_serializer_class(questions, many=True)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
 
 class OverviewDashboard(views.APIView):
     """
