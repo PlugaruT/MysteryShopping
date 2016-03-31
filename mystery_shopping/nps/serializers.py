@@ -18,12 +18,22 @@ class CodedCauseSerializer(serializers.ModelSerializer):
     """
 
     """
-    coded_label = CodedCauseLabelSerializer(read_only=True)
+    coded_label = CodedCauseLabelSerializer()
 
     class Meta:
         model = CodedCause
         # fields = '__all__'
         exclude = ('raw_causes',)
+
+    def create(self, validated_data):
+        coded_cause_label = validated_data.get('coded_label', None)
+        coded_cause_label_ser = CodedCauseLabelSerializer(data=coded_cause_label)
+        coded_cause_label_ser.is_valid(raise_exception=True)
+        coded_cause_label_ser.save()
+        validated_data['coded_label'] = coded_cause_label_ser.instance
+        coded_cause = CodedCause.objects.create(**validated_data)
+
+        return coded_cause
 
 
 class QuestionnaireQuestionToEncodeSerializer(serializers.ModelSerializer):
