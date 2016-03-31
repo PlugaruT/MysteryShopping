@@ -11,6 +11,7 @@ from mptt.models import MPTTModel, TreeForeignKey
 from .constants import QuestionType
 from .constants import IndicatorQuestionType as IndQuestType
 from .managers import QuestionnaireQuerySet
+from .managers import QuestionnaireQuestionQuerySet
 
 from mystery_shopping.tenants.models import Tenant
 
@@ -248,6 +249,8 @@ class QuestionnaireQuestion(QuestionAbstract):
     comment = models.TextField(null=True, blank=True)
     answer_choices = ArrayField(models.IntegerField(), null=True, blank=True)
 
+    objects = PassThroughManager.for_queryset_class(QuestionnaireQuestionQuerySet)()
+
     class Meta:
         default_related_name = 'questions'
 
@@ -285,6 +288,9 @@ class QuestionnaireQuestion(QuestionAbstract):
         self.score = getattr(self, 'calculate_score_for_{}'.format(self.type))()
         self.save()
         return (self.score * self.weight) / 100
+
+    def coded_cause(self):
+        return self.coded_causes.first()
 
 
 class QuestionChoiceAbstract(models.Model):

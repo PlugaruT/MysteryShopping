@@ -1,3 +1,9 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import CodedCauseLabel
+from .models import CodedCause
+
+
+@admin.register(CodedCauseLabel, CodedCause)
+class CodedCause(admin.ModelAdmin):
+    pass
