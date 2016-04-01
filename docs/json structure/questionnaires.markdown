@@ -2,7 +2,7 @@
 
 **`POST`**:
 
-- `title` : *string* (`max_length = 100`)
+- `title` : *char* (`max_length = 100`)
 - `description` : *string*
 
 > example:
@@ -14,7 +14,8 @@
 ```
 
 **`GET`**:
-- `title` : *string* (`max_length = 100`)
+- `id` : *int*
+- `title` : *char* (`max_length = 100`)
 - `description` : *string*
 
 > example:
@@ -32,6 +33,7 @@
 
 - `title` : *string* (`max_length = 100`)
 - `tenant` : *id*
+- `type`: *char* (`max_length = 1`, can be either `m` for Mystery Shopping Questionnaire, and `c` for Customer Experience Index Questionnaire)
 - `description` : *string*
 - `template_blocks` : *representation* for `QuestionnaireTemplateBlock` (`many = True, required = False`)
 
@@ -40,6 +42,7 @@
 {
     "template_blocks": [],
     "title": "",
+    "type": null,
     "description": "",
     "tenant": null
 }
@@ -49,8 +52,9 @@
 
 - `title` : *string* (`max_length = 100`)
 - `tenant` : *id*
+- `type`: *char* (`max_length = 1`, can be either `m` for Mystery Shopping Questionnaire, and `c` for Customer Experience Index Questionnaire)
 - `description` : *string*
-- `template_blocks` : *representation* for `QuestionnaireTemplateBlock` (`many = True, required = False`)
+- `template_blocks` : *representation* for `QuestionnaireTemplateBlock`
 
 > [example](questionnaires\ example/templatequestionnaire.json)
 
@@ -61,11 +65,12 @@
 - `title` : *string* (`max_length = 50`)
 - `weight` : *DecimalField* (`max_digits=5, decimal_places=4`, example: `0.4552`)
 - `questionnaire_template` : *id*
-- `parent_order_number` : *integer* to that shows the theoretical `parent_block` (`null = True`)
-- `order_number` : *integer* (identifier of the block inside the *sent* template `questionnaire`)
-- `template_block_questions` : *representation* of `QuestionnaireTemplateBlock` (`many = True`)
-
-The `lft`, `rght`, `level` and `tree_id` fields are used by the **mptt** algorithm. If provided, the data will override the data calculated by the algorithm, if not, the values will be set by the algorithm.
+- `parent_order_number` : *integer* to that shows the theoretical `parent_block` (`required = False, null = True`, only used when within `Questionnaire Template` JSON)
+- `order_number` : *integer* (`required = False`, identifier of the block inside the *sent* template `questionnaire`, only used when within `Questionnaire Template` JSON)
+- `template_questions` : *representation* of `QuestionnaireTemplateBlock` (`many = True`)
+- `parent_block` : *id* (`required = False`, for `QuestionnaireTemplateBlock`)
+- `order` : *integer* (used to define the order of the block within the `Questionnaire Template`)
+- `siblings` : *JSON*
 
 > example:
 ```json
@@ -73,8 +78,10 @@ The `lft`, `rght`, `level` and `tree_id` fields are used by the **mptt** algorit
     "template_questions": [],
     "parent_order_number": null,
     "order_number": null,
+    "siblings": null,
     "title": "",
     "weight": null,
+    "order": null,
     "questionnaire_template": null,
     "parent_block": null
 }
@@ -82,36 +89,44 @@ The `lft`, `rght`, `level` and `tree_id` fields are used by the **mptt** algorit
 
 **`GET`**:
 
+- `id` : *int*
 - `title` : *string*
 - `weight` : *DecimalField*
 - `questionnaire_template` : *id*
 - `parent_block` : *id* to `self`
-- `lft` : *integer*
-- `rght` : *integer*
-- `level` : *integer*
-- `tree_id` : *integer*
+- `lft` : *int*
+- `rght` : *int*
+- `level` : *int*
+- `tree_id` : *int*
 - `template_block_questions` : *representation* of `QuestionnaireTemplateBlock` (`many = True`)
+- `order` : *integer* (used to define the order of the block within the `Questionnaire Template`)
 
-> [example](projects\ example/questionnairetemplateblock.json)
+> [example](questionnaires\ example/questionnairetemplateblock.json)
 
 ## Questionnaire Template Question
 
 **`POST`**:
 
 - `question_body` : *string* (`max_length = 200`)
-- `type` : *string*
+- `type` : *string* (can be one of: ```text_field = 't', date_field = 'd', single_choice = 's', multiple_choice = 'm', nps_question = 'n', enjoyability_question = 'j', easiness_question = 'e', usefulness_question = 'u'```)
 - `max_score` : *integer* (`null = True`)
 - `questionnaire_template` : *id*
 - `template_block` : *id*
+- `order` : *integer* (used to define the order of the question within the `Questionnaire Template Block`)
 
 > example:
 ```json
 {
-    "questionnaire_template": null,
-    "template_block": null,
+    "template_question_choices": [],
+    "siblings": null,
     "question_body": "",
-    "type": "",
-    "max_score": null
+    "type": null,
+    "max_score": null,
+    "order": null,
+    "weight": null,
+    "show_comment": false,
+    "questionnaire_template": null,
+    "template_block": null
 }
 ```
 
