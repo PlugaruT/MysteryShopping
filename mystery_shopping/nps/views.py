@@ -43,6 +43,7 @@ class CodedCauseViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         # add tenant from the request.user to the request.data that is sent to the Coded CauseSerializer
         request.data['tenant'] = request.user.tenant.id
+        request.data['coded_label']['tenant'] = request.user.tenant.id
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)

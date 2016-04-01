@@ -29,6 +29,7 @@ class CodedCauseSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         coded_cause_label = validated_data.get('coded_label', None)
+        coded_cause_label['tenant'] = coded_cause_label['tenant'].pk
         try:
             existent_coded_cause_label = CodedCauseLabel.objects.get(
                 name=coded_cause_label.get('name', None),
@@ -49,9 +50,7 @@ class QuestionnaireQuestionToEncodeSerializer(serializers.ModelSerializer):
     """Serializes only the minimal required fields to be able to encode a question's answer
     for the Customer Experience Index indicators.
     """
-    coded_cause = CodedCauseSerializer(read_only=True)
-
     class Meta:
         model = QuestionnaireQuestion
-        fields = ('answer', 'type', 'id', 'coded_cause')
-        read_only_fields = ('answer', 'type', 'id', 'coded_cause')
+        fields = ('answer', 'type', 'id', 'coded_cause', 'score')
+        read_only_fields = ('answer', 'type', 'id', 'coded_cause', 'score')
