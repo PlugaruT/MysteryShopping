@@ -1,87 +1,72 @@
 {
-    "id": 3,
+    "id": 15,
     "template_questions": [
         {
-            "id": 1,
+            "id": 38,
             "template_question_choices": [
                 {
-                    "id": 1,
-                    "template_question": 1,
-                    "text": "bla, blab, bla",
-                    "score": "1.00",
-                    "weight": "0.99"
+                    "id": 69,
+                    "text": "Yes",
+                    "score": "2.00",
+                    "weight": "0.50",
+                    "order": 1,
+                    "template_question": 38
                 },
                 {
-                    "id": 2,
-                    "template_question": 1,
-                    "text": "123 sf sfafjksld fjskdlfjaks",
-                    "score": "3.00",
-                    "weight": "0.00"
-                },
-                {
-                    "id": 3,
-                    "template_question": 1,
-                    "text": "this is some interesting answer",
-                    "score": "3.00",
-                    "weight": "0.00"
+                    "id": 70,
+                    "text": "No",
+                    "score": "0.00",
+                    "weight": "0.50",
+                    "order": 2,
+                    "template_question": 38
                 }
             ],
-            "question_body": "Question#1",
+            "question_body": "Like tea?",
             "type": "s",
             "max_score": 2,
-            "position": null,
-            "weight": "1.00",
-            "questionnaire_template": 2,
-            "template_block": 3
+            "order": 2,
+            "weight": "50.00",
+            "show_comment": true,
+            "questionnaire_template": 8,
+            "template_block": 15
         },
         {
-            "id": 2,
-            "template_question_choices": [],
-            "question_body": "Question#2",
-            "type": "s",
-            "max_score": 5,
-            "position": null,
-            "weight": "1.00",
-            "questionnaire_template": 2,
-            "template_block": 3
-        },
-        {
-            "id": 5,
-            "template_question_choices": [],
-            "question_body": "Question%32",
-            "type": "t",
-            "max_score": 4,
-            "position": null,
-            "weight": "1.00",
-            "questionnaire_template": 2,
-            "template_block": 3
-        },
-        {
-            "id": 8,
+            "id": 39,
             "template_question_choices": [
                 {
-                    "id": 4,
-                    "template_question": 8,
-                    "text": "bla, blab, bla 3",
-                    "score": "1.00",
-                    "weight": "0.99"
+                    "id": 71,
+                    "text": "Yes",
+                    "score": "2.00",
+                    "weight": "0.50",
+                    "order": 1,
+                    "template_question": 39
+                },
+                {
+                    "id": 72,
+                    "text": "No",
+                    "score": "0.00",
+                    "weight": "0.50",
+                    "order": 2,
+                    "template_question": 39
                 }
             ],
-            "question_body": "Question%3fsdafsd 2",
-            "type": "t",
-            "max_score": 44,
-            "position": null,
-            "weight": "1.00",
-            "questionnaire_template": 2,
-            "template_block": 3
+            "question_body": "Like coffee?",
+            "type": "s",
+            "max_score": 2,
+            "order": 1,
+            "weight": "50.00",
+            "show_comment": true,
+            "questionnaire_template": 8,
+            "template_block": 15
         }
     ],
-    "title": "Bert",
-    "weight": "1.00",
-    "lft": 2,
-    "rght": 3,
-    "tree_id": 4,
-    "level": 1,
-    "questionnaire_template": 2,
-    "parent_block": 2
+    "title": "Bloc 1",
+    "weight": "50.00",
+    "order": 1,
+    "lft": 3,
+    "rght": 4,
+    "tree_id": 13,
+    "level": 2,
+    "questionnaire_template": 8,
+    "parent_block": 14
 }

@@ -80,6 +80,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'change_username',
                   'roles', 'password', 'confirm_password', 'tenant_repr', 'shopper')
         extra_kwargs = {'username': {'validators': []},
+                        'shopper': {'read_only': True},
                         'help_text': 'Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.'}
 
     @staticmethod
