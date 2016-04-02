@@ -1,196 +1,210 @@
 {
-    "id": 1,
+    "id": 10,
     "company_repr": {
         "id": 1,
         "departments_repr": [
-            {
-                "id": 2,
-                "managers": [],
-                "entities": [],
-                "name": "fsd",
-                "company": 1,
-                "tenant": 1
-            },
             {
                 "id": 1,
                 "managers": [
                     {
                         "id": 1,
                         "user": {
-                            "id": 2,
-                            "username": "ion_client_manager",
+                            "id": 7,
+                            "username": "client_manager1",
+                            "email": "",
+                            "first_name": "Client 1",
+                            "last_name": "Manager",
+                            "roles": [
+                                "clientmanager"
+                            ],
+                            "shopper": null
+                        },
+                        "first_name": "Client",
+                        "last_name": "Manager",
+                        "job_title": "department clientmanager",
+                        "place_id": 1,
+                        "tenant": 1,
+                        "company": 1,
+                        "place_type": 24
+                    },
+                    {
+                        "id": 3,
+                        "user": {
+                            "id": 8,
+                            "username": "client_manager2",
+                            "email": "",
                             "first_name": "",
-                            "last_name": ""
+                            "last_name": "",
+                            "roles": [
+                                "clientmanager"
+                            ],
+                            "shopper": null
                         },
                         "first_name": "",
                         "last_name": "",
                         "job_title": "",
                         "place_id": 1,
+                        "tenant": 1,
+                        "company": 1,
+                        "place_type": 24
+                    },
+                    {
+                        "id": 4,
+                        "user": {
+                            "id": 25,
+                            "username": "client_manager",
+                            "email": "client@manager.com",
+                            "first_name": "Client",
+                            "last_name": "Manager",
+                            "roles": [
+                                "clientmanager"
+                            ],
+                            "shopper": null
+                        },
+                        "first_name": "Client",
+                        "last_name": "Manger",
+                        "job_title": "very important manager",
+                        "place_id": 1,
+                        "tenant": 1,
+                        "company": 1,
+                        "place_type": 24
+                    },
+                    {
+                        "id": 2,
+                        "user": null,
+                        "first_name": "Client (without user)",
+                        "last_name": "Manager",
+                        "job_title": "",
+                        "place_id": 1,
+                        "tenant": 1,
                         "company": 1,
                         "place_type": 24
                     }
                 ],
                 "entities": [
                     {
-                        "id": 1,
-                        "managers": [
+                        "id": 6,
+                        "city_repr": {
+                            "id": 1,
+                            "sectors": [
+                                {
+                                    "id": 1,
+                                    "name": "Ciocana",
+                                    "city": 1
+                                }
+                            ],
+                            "name": "Chişinău",
+                            "zip_code": "",
+                            "county": 1
+                        },
+                        "managers": [],
+                        "employees": [],
+                        "sections": [
                             {
-                                "id": 2,
-                                "user": {
-                                    "id": 7,
-                                    "username": "mark_entity_manager",
-                                    "first_name": "",
-                                    "last_name": ""
-                                },
-                                "first_name": "",
-                                "last_name": "",
-                                "job_title": "",
-                                "place_id": 1,
-                                "company": 1,
-                                "place_type": 25
-                            },
-                            {
-                                "id": 5,
-                                "user": {
-                                    "id": 19,
-                                    "username": "123",
-                                    "first_name": "",
-                                    "last_name": ""
-                                },
-                                "first_name": "Ion",
-                                "last_name": "Primul",
-                                "job_title": "",
-                                "place_id": 1,
-                                "company": 1,
-                                "place_type": 25
-                            },
-                            {
-                                "id": 6,
-                                "user": {
-                                    "id": 20,
-                                    "username": "axintii_client_manager",
-                                    "first_name": "",
-                                    "last_name": ""
-                                },
-                                "first_name": "",
-                                "last_name": "",
-                                "job_title": "",
-                                "place_id": 1,
-                                "company": 1,
-                                "place_type": 25
+                                "id": 1,
+                                "managers": [],
+                                "employees": [],
+                                "name": "Europe",
+                                "entity": 6,
+                                "tenant": 1
                             }
                         ],
+                        "name": "Earth Stuff",
+                        "address": "Earth",
+                        "coordinates": "",
+                        "department": 1,
+                        "sector": 1,
+                        "city": 1,
+                        "tenant": 1
+                    },
+                    {
+                        "id": 1,
+                        "city_repr": {
+                            "id": 1,
+                            "sectors": [
+                                {
+                                    "id": 1,
+                                    "name": "Ciocana",
+                                    "city": 1
+                                }
+                            ],
+                            "name": "Chişinău",
+                            "zip_code": "",
+                            "county": 1
+                        },
+                        "managers": [],
                         "employees": [
                             {
                                 "id": 1,
                                 "user": {
-                                    "id": 6,
-                                    "username": "andrei_client_employee",
+                                    "id": 9,
+                                    "username": "client_employee",
+                                    "email": "",
                                     "first_name": "",
-                                    "last_name": ""
+                                    "last_name": "",
+                                    "roles": [],
+                                    "shopper": null
                                 },
-                                "first_name": "",
-                                "last_name": "",
+                                "company_repr": {
+                                    "id": 1,
+                                    "name": "NASA",
+                                    "contact_person": "Leroy Jenkins",
+                                    "contact_phone": "1234",
+                                    "contact_email": "help@nasa.com",
+                                    "domain": "nasa.com",
+                                    "logo": null,
+                                    "industry": 1,
+                                    "country": 1,
+                                    "tenant": 1
+                                },
+                                "first_name": "Client",
+                                "last_name": "Employee",
                                 "job_title": "",
+                                "tenant": 1,
                                 "company": 1,
                                 "entity": 1,
-                                "section": 1
+                                "section": null
                             },
                             {
                                 "id": 2,
                                 "user": {
-                                    "id": 18,
-                                    "username": "volodea_cilent_employee",
-                                    "first_name": "Volodea",
-                                    "last_name": ""
+                                    "id": 26,
+                                    "username": "client_employee1",
+                                    "email": "client@employee.com",
+                                    "first_name": "Client",
+                                    "last_name": "Employee",
+                                    "roles": [],
+                                    "shopper": null
                                 },
-                                "first_name": "",
-                                "last_name": "",
-                                "job_title": "",
+                                "company_repr": {
+                                    "id": 1,
+                                    "name": "NASA",
+                                    "contact_person": "Leroy Jenkins",
+                                    "contact_phone": "1234",
+                                    "contact_email": "help@nasa.com",
+                                    "domain": "nasa.com",
+                                    "logo": null,
+                                    "industry": 1,
+                                    "country": 1,
+                                    "tenant": 1
+                                },
+                                "first_name": "Client",
+                                "last_name": "Employee",
+                                "job_title": "barman",
+                                "tenant": 1,
                                 "company": 1,
                                 "entity": 1,
-                                "section": 1
+                                "section": null
                             }
                         ],
-                        "sections": [
-                            {
-                                "id": 1,
-                                "managers": [
-                                    {
-                                        "id": 3,
-                                        "user": {
-                                            "id": 8,
-                                            "username": "vera_section_manager",
-                                            "first_name": "",
-                                            "last_name": ""
-                                        },
-                                        "first_name": "",
-                                        "last_name": "",
-                                        "job_title": "",
-                                        "place_id": 1,
-                                        "company": 1,
-                                        "place_type": 26
-                                    },
-                                    {
-                                        "id": 4,
-                                        "user": {
-                                            "id": 16,
-                                            "username": "test_user2",
-                                            "first_name": "User",
-                                            "last_name": "Test"
-                                        },
-                                        "first_name": "",
-                                        "last_name": "",
-                                        "job_title": "",
-                                        "place_id": 1,
-                                        "company": 1,
-                                        "place_type": 26
-                                    }
-                                ],
-                                "employees": [
-                                    {
-                                        "id": 1,
-                                        "user": {
-                                            "id": 6,
-                                            "username": "andrei_client_employee",
-                                            "first_name": "",
-                                            "last_name": ""
-                                        },
-                                        "first_name": "",
-                                        "last_name": "",
-                                        "job_title": "",
-                                        "company": 1,
-                                        "entity": 1,
-                                        "section": 1
-                                    },
-                                    {
-                                        "id": 2,
-                                        "user": {
-                                            "id": 18,
-                                            "username": "volodea_cilent_employee",
-                                            "first_name": "Volodea",
-                                            "last_name": ""
-                                        },
-                                        "first_name": "",
-                                        "last_name": "",
-                                        "job_title": "",
-                                        "company": 1,
-                                        "entity": 1,
-                                        "section": 1
-                                    }
-                                ],
-                                "entity": 1,
-                                "name": "Mars",
-                                "tenant": 2
-                            }
-                        ],
+                        "sections": [],
+                        "name": "Space Stuff",
+                        "address": "Earth",
+                        "coordinates": "",
                         "department": 1,
-                        "name": "Space Exploration",
-                        "address": "lalala, classified",
-                        "coordinates": "123 123",
                         "sector": 1,
                         "city": 1,
-                        "tenant": 2
+                        "tenant": 1
                     }
                 ],
                 "name": "Space Rockets",
@@ -200,7 +214,7 @@
         ],
         "industry_repr": {
             "id": 1,
-            "name": "Astronomică"
+            "name": "Space Exploration"
         },
         "country_repr": {
             "id": 1,
@@ -208,9 +222,9 @@
         },
         "name": "NASA",
         "contact_person": "Leroy Jenkins",
-        "contact_phone": "+123",
+        "contact_phone": "1234",
         "contact_email": "help@nasa.com",
-        "domain": "nasa",
+        "domain": "nasa.com",
         "logo": null,
         "industry": 1,
         "country": 1,
@@ -220,12 +234,18 @@
         {
             "id": 1,
             "user": {
-                "id": 4,
-                "username": "alex_shopper",
+                "id": 3,
+                "username": "shopper_1",
+                "email": "",
                 "first_name": "",
-                "last_name": ""
+                "last_name": "",
+                "roles": [
+                    "shopper"
+                ],
+                "shopper": 1
             },
-            "date_of_birth": "2016-01-25",
+            "is_collector": false,
+            "date_of_birth": "2016-03-01",
             "gender": "m",
             "has_drivers_license": false
         }
@@ -235,281 +255,210 @@
         "user": {
             "id": 1,
             "username": "mihai",
+            "email": "",
             "first_name": "",
-            "last_name": ""
+            "last_name": "",
+            "roles": [
+                "tenantproductmanager",
+                "tenantprojectmanager",
+                "admin"
+            ],
+            "shopper": null
         },
-        "tenant": {
+        "tenant_repr": {
             "id": 1,
             "name": "SparkLabs"
         },
-        "type": "tenantproductmanager"
+        "type": "tenantprojectmanager",
+        "tenant": 1
     },
-    "project_workers_repr": [
-        {
-            "id": 26,
-            "project_worker_repr": {
-                "id": 1,
-                "user": {
-                    "id": 3,
-                    "username": "alex_tenant_consultant",
-                    "first_name": "",
-                    "last_name": ""
-                },
-                "tenant": {
-                    "id": 2,
-                    "name": "Magenta"
-                },
-                "type": "tenantconsultant"
-            },
-            "project_worker_id": 1,
-            "project_worker_type": 15,
-            "project": 1
-        },
-        {
-            "id": 27,
-            "project_worker_repr": {
-                "id": 1,
-                "user": {
-                    "id": 1,
-                    "username": "mihai",
-                    "first_name": "",
-                    "last_name": ""
-                },
-                "tenant": {
-                    "id": 1,
-                    "name": "SparkLabs"
-                },
-                "type": "tenantproductmanager"
-            },
-            "project_worker_id": 1,
-            "project_worker_type": 13,
-            "project": 1
-        }
-    ],
     "research_methodology": {
-        "id": 1,
+        "id": 3,
+        "scripts": [
+            2
+        ],
         "scripts_repr": [
             {
-                "id": 1,
-                "title": "Script#1",
-                "description": "Bacon ipsum dolor amet rump bresaola kielbasa, cow turducken venison pig pork jerky strip steak spare ribs sirloin ham bacon capicola. Ham hock cow frankfurter porchetta. Swine filet mignon t-bone capicola salami sirloin, ham hock bacon. Pancetta drumstick brisket chicken, picanha pig venison salami prosciutto tail. Boudin beef bresaola ribeye pig, tongue brisket sausage sirloin porchetta venison beef ribs short ribs picanha. Salami venison shank chicken sirloin."
-            },
-            {
                 "id": 2,
-                "title": "Script#2",
-                "description": "Kevin venison cupim salami pork belly swine tail sausage meatloaf picanha pig capicola. Meatloaf kevin turkey, fatback strip steak rump beef bresaola beef ribs pork chop boudin pork loin. Shoulder ham pork tenderloin pastrami. Biltong meatloaf porchetta cow swine beef prosciutto cupim kielbasa spare ribs brisket. Ball tip kevin pastrami kielbasa. Sirloin salami meatball strip steak shoulder bacon, beef meatloaf capicola pig."
+                "title": "Best Script Ever 2",
+                "description": "Nullam sapien turpis, cursus eu dolor non, faucibus mollis tortor. Nunc vel lobortis felis. Morbi commodo, neque in cursus pulvinar, lorem quam elementum lacus, et tincidunt elit velit vitae mauris. Sed consectetur lectus vitae molestie molestie. Morbi mauris lectus, fermentum scelerisque augue a, imperdiet egestas justo. Nullam ante mi, mattis at commodo in, efficitur eu turpis. Donec ut turpis feugiat, venenatis risus sed, tincidunt erat. Curabitur feugiat lobortis eros quis viverra."
             }
         ],
         "questionnaires_repr": [
             {
-                "id": 2,
+                "id": 10,
                 "template_blocks": [
                     {
-                        "id": 2,
-                        "template_block_questions": [],
-                        "questionnaire_template": 2,
-                        "lft": 1,
-                        "rght": 12,
-                        "tree_id": 1,
-                        "level": 0,
-                        "title": "Albert",
-                        "weight": "0.9000",
-                        "parent_block": null
-                    },
-                    {
-                        "id": 3,
-                        "template_block_questions": [
+                        "id": 26,
+                        "template_questions": [
                             {
-                                "id": 1,
-                                "questionnaire_template": 2,
-                                "template_block": 3,
+                                "id": 55,
+                                "template_question_choices": [],
+                                "question_body": "How would you assess this service?",
+                                "type": "n",
+                                "max_score": null,
+                                "order": 1,
+                                "weight": "1.00",
+                                "show_comment": true,
+                                "questionnaire_template": 10,
+                                "template_block": 26
+                            },
+                            {
+                                "id": 56,
                                 "template_question_choices": [
                                     {
-                                        "id": 3,
-                                        "template_question": 1,
-                                        "text": "this is some interesting answer",
-                                        "score": 3,
-                                        "weight": "0.0001"
+                                        "id": 93,
+                                        "text": "Româna",
+                                        "score": "0.00",
+                                        "weight": "0.00",
+                                        "order": 1,
+                                        "template_question": 56
                                     },
                                     {
-                                        "id": 2,
-                                        "template_question": 1,
-                                        "text": "123 sf sfafjksld fjskdlfjaks",
-                                        "score": 3,
-                                        "weight": "0.0001"
-                                    },
-                                    {
-                                        "id": 1,
-                                        "template_question": 1,
-                                        "text": "bla, blab, bla",
-                                        "score": 1,
-                                        "weight": "0.9900"
+                                        "id": 94,
+                                        "text": "Engleza",
+                                        "score": "0.00",
+                                        "weight": "0.00",
+                                        "order": 2,
+                                        "template_question": 56
                                     }
                                 ],
-                                "question_body": "Question#1",
+                                "question_body": "What language do you speak",
                                 "type": "s",
-                                "max_score": 2
+                                "max_score": null,
+                                "order": 2,
+                                "weight": "1.00",
+                                "show_comment": true,
+                                "questionnaire_template": 10,
+                                "template_block": 26
                             },
                             {
-                                "id": 2,
-                                "questionnaire_template": 2,
-                                "template_block": 3,
-                                "template_question_choices": [],
-                                "question_body": "Question#2",
-                                "type": "s",
-                                "max_score": 5
-                            },
-                            {
-                                "id": 5,
-                                "questionnaire_template": 2,
-                                "template_block": 3,
-                                "template_question_choices": [],
-                                "question_body": "Question%32",
-                                "type": "t",
-                                "max_score": 4
-                            },
-                            {
-                                "id": 8,
-                                "questionnaire_template": 2,
-                                "template_block": 3,
+                                "id": 57,
                                 "template_question_choices": [
                                     {
-                                        "id": 4,
-                                        "template_question": 8,
-                                        "text": "bla, blab, bla 3",
-                                        "score": 1,
-                                        "weight": "0.9900"
+                                        "id": 95,
+                                        "text": "14-18",
+                                        "score": "0.00",
+                                        "weight": "0.00",
+                                        "order": 1,
+                                        "template_question": 57
+                                    },
+                                    {
+                                        "id": 96,
+                                        "text": "19-25",
+                                        "score": "0.00",
+                                        "weight": "0.00",
+                                        "order": 2,
+                                        "template_question": 57
+                                    },
+                                    {
+                                        "id": 97,
+                                        "text": "26-100",
+                                        "score": "0.00",
+                                        "weight": "0.00",
+                                        "order": 3,
+                                        "template_question": 57
                                     }
                                 ],
-                                "question_body": "Question%3fsdafsd 2",
-                                "type": "t",
-                                "max_score": 44
+                                "question_body": "Vârsta",
+                                "type": "s",
+                                "max_score": null,
+                                "order": 3,
+                                "weight": "0.00",
+                                "show_comment": true,
+                                "questionnaire_template": 10,
+                                "template_block": 26
+                            },
+                            {
+                                "id": 58,
+                                "template_question_choices": [
+                                    {
+                                        "id": 98,
+                                        "text": "Masculin",
+                                        "score": "0.00",
+                                        "weight": "0.00",
+                                        "order": 1,
+                                        "template_question": 58
+                                    },
+                                    {
+                                        "id": 99,
+                                        "text": "Feminin",
+                                        "score": "0.00",
+                                        "weight": "0.00",
+                                        "order": 2,
+                                        "template_question": 58
+                                    }
+                                ],
+                                "question_body": "Sexul",
+                                "type": "s",
+                                "max_score": null,
+                                "order": 4,
+                                "weight": "0.00",
+                                "show_comment": true,
+                                "questionnaire_template": 10,
+                                "template_block": 26
                             }
                         ],
-                        "questionnaire_template": 2,
-                        "lft": 2,
-                        "rght": 3,
-                        "tree_id": 1,
-                        "level": 1,
-                        "title": "Bert",
-                        "weight": "1.0000",
-                        "parent_block": 2
-                    },
-                    {
-                        "id": 4,
-                        "template_block_questions": [],
-                        "questionnaire_template": 2,
-                        "lft": 4,
-                        "rght": 11,
-                        "tree_id": 1,
-                        "level": 1,
-                        "title": "Chuck",
-                        "weight": "1.0000",
-                        "parent_block": 2
-                    },
-                    {
-                        "id": 5,
-                        "template_block_questions": [],
-                        "questionnaire_template": 2,
-                        "lft": 5,
-                        "rght": 6,
-                        "tree_id": 1,
-                        "level": 2,
-                        "title": "Donna",
-                        "weight": "1.0000",
-                        "parent_block": 4
-                    },
-                    {
-                        "id": 6,
-                        "template_block_questions": [],
-                        "questionnaire_template": 2,
-                        "lft": 7,
-                        "rght": 8,
-                        "tree_id": 1,
-                        "level": 2,
-                        "title": "Eddie",
-                        "weight": "1.0000",
-                        "parent_block": 4
-                    },
-                    {
-                        "id": 7,
-                        "template_block_questions": [],
-                        "questionnaire_template": 2,
-                        "lft": 9,
-                        "rght": 10,
-                        "tree_id": 1,
-                        "level": 2,
-                        "title": "Fred",
-                        "weight": "1.0000",
-                        "parent_block": 4
-                    }
-                ],
-                "title": "Questionnaire#2",
-                "description": "Shank pastrami pork chop alcatra rump, pork belly pig tongue shankle cupim. Prosciutto venison meatloaf leberkas. Beef ribs shankle cow alcatra jerky. Doner boudin swine turkey turducken. Cupim ball tip brisket doner, sausage prosciutto ham hock tongue pork chuck. Pork tail prosciutto, doner ribeye alcatra frankfurter pastrami.",
-                "tenant": 1
-            },
-            {
-                "id": 1,
-                "template_blocks": [
-                    {
-                        "id": 1,
-                        "template_block_questions": [],
-                        "questionnaire_template": 1,
+                        "title": "NPS main block",
+                        "weight": "1.00",
+                        "order": 1,
                         "lft": 1,
                         "rght": 2,
-                        "tree_id": 1,
+                        "tree_id": 17,
                         "level": 0,
-                        "title": "TestBlock#1",
-                        "weight": "1.0000",
+                        "questionnaire_template": 10,
                         "parent_block": null
                     }
                 ],
-                "title": "QuestionnaireTemplate#1",
-                "description": "gksdjfklas;fjksld;fsdfsd",
+                "title": "NPS Questionnaire v2",
+                "type": "m",
+                "description": "NPS Template 2",
+                "is_editable": true,
                 "tenant": 1
             }
         ],
-        "people_to_assess_repr": [
-            {
-                "id": 1,
-                "person_repr": {
-                    "id": 1,
-                    "user": {
-                        "id": 6,
-                        "username": "andrei_client_employee",
-                        "first_name": "",
-                        "last_name": ""
-                    },
-                    "first_name": "",
-                    "last_name": "",
-                    "job_title": "",
-                    "company": 1,
-                    "entity": 1,
-                    "section": 1
-                },
-                "person_id": 1,
-                "person_type": 18,
-                "research_methodology": 1
-            }
-        ],
-        "number_of_evaluations": 3,
-        "description": "Tail swine prosciutto fatback rump ground round pig ham hock short loin jowl frankfurter tri-tip capicola. Salami meatloaf pork frankfurter, sirloin ground round andouille. Brisket capicola strip steak biltong frankfurter. Meatball shank doner filet mignon turkey tenderloin chuck jowl short ribs landjaeger ham. Pancetta swine turkey cupim prosciutto, leberkas brisket.",
-        "scripts": [
-            1,
-            2
-        ],
+        "places_to_assess_repr": [],
+        "people_to_assess_repr": [],
+        "number_of_evaluations": 100,
+        "description": "NPS Research v2",
+        "tenant": 1,
         "questionnaires": [
-            2,
-            1
+            10
         ]
     },
-    "project_manager_id": 1,
-    "period_start": "2016-01-25",
-    "period_end": "2016-01-25",
-    "tenant": 2,
-    "company": 1,
-    "project_manager_type": 13,
     "shoppers": [
         1
+    ],
+    "consultants_repr": [
+        {
+            "id": 2,
+            "user": {
+                "id": 6,
+                "username": "tenant_consultant",
+                "email": "",
+                "first_name": "Tenant",
+                "last_name": "Consultant",
+                "roles": [
+                    "tenantconsultant"
+                ],
+                "shopper": null
+            },
+            "tenant_repr": {
+                "id": 1,
+                "name": "SparkLabs"
+            },
+            "type": "tenantconsultant",
+            "tenant": 1
+        }
+    ],
+    "evaluation_assessment_levels_repr": [],
+    "period_start": "2016-03-17",
+    "period_end": "2016-03-17",
+    "type": "m",
+    "tenant": 1,
+    "company": 1,
+    "project_manager": 1,
+    "consultants": [
+        2
     ]
 }
