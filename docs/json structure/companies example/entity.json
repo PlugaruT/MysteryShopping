@@ -1,46 +1,89 @@
 {
     "id": 1,
-    "manager": [
-        {
-            "id": 2,
-            "manager_repr": {
-                "username": "mark_entity_manager",
-                "first_name": "",
-                "last_name": ""
-            },
-            "place_id": 1,
-            "user": 7,
-            "company": 1,
-            "place_type": 25
-        }
-    ],
-    "sections": [
+    "city_repr": {
+        "id": 1,
+        "sectors": [
+            {
+                "id": 1,
+                "name": "Ciocana",
+                "city": 1
+            }
+        ],
+        "name": "Chişinău",
+        "zip_code": "",
+        "county": 1
+    },
+    "managers": [],
+    "employees": [
         {
             "id": 1,
-            "manager": [
-                {
-                    "id": 3,
-                    "manager_repr": {
-                        "username": "vera_section_manager",
-                        "first_name": "",
-                        "last_name": ""
-                    },
-                    "place_id": 1,
-                    "user": 8,
-                    "company": 1,
-                    "place_type": 26
-                }
-            ],
+            "user": {
+                "id": 9,
+                "username": "client_employee",
+                "email": "",
+                "first_name": "",
+                "last_name": "",
+                "roles": [],
+                "shopper": null
+            },
+            "company_repr": {
+                "id": 1,
+                "name": "NASA",
+                "contact_person": "Leroy Jenkins",
+                "contact_phone": "1234",
+                "contact_email": "help@nasa.com",
+                "domain": "nasa.com",
+                "logo": null,
+                "industry": 1,
+                "country": 1,
+                "tenant": 1
+            },
+            "first_name": "Client",
+            "last_name": "Employee",
+            "job_title": "",
+            "tenant": 1,
+            "company": 1,
             "entity": 1,
-            "tenant": 2,
-            "name": "Mars"
+            "section": null
+        },
+        {
+            "id": 2,
+            "user": {
+                "id": 26,
+                "username": "client_employee1",
+                "email": "client@employee.com",
+                "first_name": "Client",
+                "last_name": "Employee",
+                "roles": [],
+                "shopper": null
+            },
+            "company_repr": {
+                "id": 1,
+                "name": "NASA",
+                "contact_person": "Leroy Jenkins",
+                "contact_phone": "1234",
+                "contact_email": "help@nasa.com",
+                "domain": "nasa.com",
+                "logo": null,
+                "industry": 1,
+                "country": 1,
+                "tenant": 1
+            },
+            "first_name": "Client",
+            "last_name": "Employee",
+            "job_title": "barman",
+            "tenant": 1,
+            "company": 1,
+            "entity": 1,
+            "section": null
         }
     ],
-    "tenant": 2,
+    "sections": [],
+    "name": "Space Stuff",
+    "address": "Earth",
+    "coordinates": "",
     "department": 1,
-    "name": "Space Exploration",
-    "address": "lalala, classified",
-    "coordinates": "123 123",
     "sector": 1,
-    "city": 1
+    "city": 1,
+    "tenant": 1
 }

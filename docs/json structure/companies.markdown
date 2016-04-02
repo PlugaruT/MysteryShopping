@@ -1,3 +1,28 @@
+# Industry
+
+**`POST`**:
+
+- `name` : *string*
+
+> example:
+```json
+{
+    "name": ""
+}
+```
+
+**`GET`**:
+
+- `name` : *string*
+
+> example:
+```json
+{
+    "id": 13,
+    "name": "Industrie textilă"
+}
+```
+
 # Company
 
 **`POST`**:
@@ -75,10 +100,10 @@
 
 **`POST`**:
 
-- `department` : *id* (`required = False`)
+- `department` : *id* (`required = False`, it's not required when you create in bulk: you send to the `department` endpoint the data about `entities`)
 - `sector` : *id* (`null = True`)
 - `city` : *id* 
-- `tenant` : *id* (`required = False`)
+- `tenant` : *id*
 - `sections` : `SectionSerializer` (`many=True`)
 - `name` : *string*
 - `address` : *string*
@@ -88,26 +113,26 @@
 ```json
 {
     "sections": [],
-    "tenant": null,
-    "department": null,
     "name": "",
     "address": "",
     "coordinates": "",
+    "department": null,
     "sector": null,
-    "city": null
+    "city": null,
+    "tenant": null
 }
 ```
 
 **`GET`**:
-- `department` : *id* 
-- `sector` : *id* (`null = True`)
+- `department` : *id*
+- `sector` : *id*
 - `city` : *id*
 - `tenant` : *id*
 - `manager` : `GenericRelation` of `Entity` manager
 - `sections` : `SectionSerializer` (`many=True`)
 - `name` : *string*
 - `address` : *string*
-- `coordinates` : *string* (`null = True`)
+- `coordinates` : *string*
 
 > [example](comanies\ example/entity.json)
 
@@ -115,8 +140,8 @@
 
 **`POST`**:
 
-- `entity` : *id* (`required = False`)
-- `tenant` : *id* (`required = False`)
+- `entity` : *id* (`required = False`, it's not required when you create in bulk: you send to the `department` endpoint the data about the `sections` which are within `entities`)
+- `tenant` : *id*
 - `name` : *string*
 
 > example:
