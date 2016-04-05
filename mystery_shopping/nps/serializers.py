@@ -52,5 +52,5 @@ class QuestionnaireQuestionToEncodeSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = QuestionnaireQuestion
-        fields = ('answer', 'type', 'id', 'coded_cause', 'score')
-        read_only_fields = ('answer', 'type', 'id', 'coded_cause', 'score')
+        fields = ('answer', 'type', 'id', 'coded_causes', 'score')
+        read_only_fields = ('answer', 'type', 'id', 'coded_causes', 'score')

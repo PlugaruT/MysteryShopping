@@ -122,7 +122,7 @@ class QuestionnaireQuestionViewSet(viewsets.ModelViewSet):
     permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)
     encode_serializer_class = QuestionnaireQuestionToEncodeSerializer
 
-    @list_route(['GET', 'PATCH'])
+    @list_route(['GET', 'PUT'])
     def encode(self, request):
         project_id = request.query_params.get('project', None)
         if project_id is None:
@@ -143,8 +143,8 @@ class QuestionnaireQuestionViewSet(viewsets.ModelViewSet):
 
             serializer = self.encode_serializer_class(questions, many=True)
 
-        elif request.method == 'PATCH':
-            question_changes = {x['id']: x.get('coded_cause', None) for x in request.data}
+        elif request.method == 'PUT':
+            question_changes = {x['id']: x.get('coded_causes', [None])[0] for x in request.data}
             questions = QuestionnaireQuestion.objects.filter(pk__in=question_changes.keys(),
                                                              questionnaire__evaluation__project=project_id)
             for question in questions:

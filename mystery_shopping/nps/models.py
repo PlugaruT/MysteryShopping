@@ -4,6 +4,7 @@ from model_utils import Choices
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from mystery_shopping.tenants.models import Tenant
 
+
 class CodedCauseLabel(models.Model):
     """
     Model of a Coded Cause name (label) that would allow to use the same name for different Coded Causes
@@ -26,8 +27,12 @@ class CodedCause(models.Model):
     parent = models.ForeignKey('self', null=True, blank=True)
 
     # Attributes
-    type_choices = Choices('n', 'NPS questions',
-                           'j', 'Enjoyability questions',
-                           'e', 'Easiness questions',
-                           'u', 'Usefulness questions')
+    type_choices = Choices(('n', 'NPS questions'),
+                           ('j', 'Enjoyability questions'),
+                           ('e', 'Easiness questions'),
+                           ('u', 'Usefulness questions'))
     type = models.CharField(max_length=1, choices=type_choices, default=type_choices.n)
+
+    sentiment_choices = Choices(('a', 'Appreciation'),
+                                ('f', 'Frustration'))
+    sentiment = models.CharField(max_length=1, choices=sentiment_choices, default=sentiment_choices.a)
