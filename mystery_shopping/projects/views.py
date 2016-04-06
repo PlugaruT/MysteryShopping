@@ -28,6 +28,7 @@ from .serializers import EvaluationAssessmentCommentSerializer
 from .spreadsheets import EvaluationSpreadsheet
 
 from mystery_shopping.users.permissions import IsTenantProductManager
+from mystery_shopping.users.permissions import HasReadOnlyAccessToProjectsOrEvaluations
 from mystery_shopping.users.permissions import IsTenantProjectManager
 from mystery_shopping.users.permissions import IsTenantConsultant
 from mystery_shopping.users.permissions import IsShopper
@@ -60,7 +61,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
 class ProjectPerCompanyViewSet(viewsets.ViewSet):
     queryset = Project.objects.all()
-    permission_classes = (HasAccessToProjectsOrEvaluations,)
+    permission_classes = (Or(HasAccessToProjectsOrEvaluations, HasReadOnlyAccessToProjectsOrEvaluations),)
 
     def list(self, request, company_pk=None):
         project_type = self.request.query_params.get('type', 'm')

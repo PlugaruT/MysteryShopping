@@ -73,7 +73,27 @@ class HasAccessToProjectsOrEvaluations(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.user:
             # print(request.user.user_type)
-            if request.user.user_type in UserRole.TENANT_USERS:
+            is_tenant_user = False
+            for role in request.user.user_roles:
+                if role in UserRole.TENANT_USERS:
+                    is_tenant_user = True
+            if is_tenant_user:
+                return True
+            return False
+        return False
+
+
+class HasReadOnlyAccessToProjectsOrEvaluations(permissions.BasePermission):
+    """Check if tenant project manager, tenant product manager, tenant consultant or shopper has access to either it's Planned or Accomplished evaluations.
+    """
+    def has_permission(self, request, view):
+        if request.user:
+            print(request.user.user_type)
+            is_client_user = False
+            for role in request.user.user_roles:
+                if role in UserRole.CLIENT_USERS:
+                    is_client_user = True
+            if is_client_user and request.method in permissions.SAFE_METHODS:
                 return True
             return False
         return False

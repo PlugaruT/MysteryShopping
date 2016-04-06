@@ -52,6 +52,12 @@ class User(AbstractUser):
             return getattr(self, 'tenantprojectmanager')
         elif hasattr(self, 'tenantconsultant'):
             return getattr(self, 'tenantconsultant')
+        elif hasattr(self, UserRole.CLIENT_PROJECT_MANAGER):
+            return getattr(self, UserRole.CLIENT_PROJECT_MANAGER)
+        elif hasattr(self, UserRole.CLIENT_MANAGER):
+            return getattr(self, UserRole.CLIENT_MANAGER)
+        elif hasattr(self, UserRole.CLIENT_EMPLOYEE):
+            return getattr(self, UserRole.CLIENT_EMPLOYEE)
         else:
             return None
 
