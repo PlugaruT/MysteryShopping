@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from rest_framework import permissions
+from mystery_shopping.users.roles import UserRole
 
 
 class IsAccountOwner(permissions.BasePermission):
@@ -16,7 +17,7 @@ class IsTenantProductManager(permissions.BasePermission):
     """
     def has_permission(self, request, view):
         if request.user:
-            if hasattr(request.user, "tenantproductmanager"):
+            if hasattr(request.user, UserRole.TENANT_PRODUCT_MANAGER):
                 return True
             return False
         return False
@@ -27,7 +28,7 @@ class IsTenantProjectManager(permissions.BasePermission):
     """
     def has_permission(self, request, view):
         if request.user:
-            if hasattr(request.user, "tenantprojectmanager"):
+            if hasattr(request.user, UserRole.TENANT_PROJECT_MANAGER):
                 return True
             return False
         return False
@@ -38,7 +39,7 @@ class IsTenantConsultantViewOnly(permissions.BasePermission):
     """
     def has_permission(self, request, view):
         if request.user:
-            if hasattr(request.user, "tenantconsultant") and request.method in permissions.SAFE_METHODS:
+            if hasattr(request.user, UserRole.TENANT_CONSULTANT) and request.method in permissions.SAFE_METHODS:
                 return True
             return False
         return False
@@ -49,7 +50,7 @@ class IsTenantConsultant(permissions.BasePermission):
     """
     def has_permission(self, request, view):
         if request.user:
-            if hasattr(request.user, "tenantconsultant"):
+            if hasattr(request.user, UserRole.TENANT_CONSULTANT):
                 return True
             return False
         return False
@@ -60,7 +61,7 @@ class IsShopper(permissions.BasePermission):
     """
     def has_permission(self, request, view):
         if request.user:
-            if hasattr(request.user, "shopper"):
+            if hasattr(request.user, UserRole.SHOPPER):
                 return True
             return False
         return False
@@ -72,7 +73,7 @@ class HasAccessToProjectsOrEvaluations(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.user:
             # print(request.user.user_type)
-            if request.user.user_type in ['tenantproductmanager', 'tenantprojectmanager', 'tenantconsultant']:
+            if request.user.user_type in UserRole.TENANT_USERS:
                 return True
             return False
         return False
@@ -85,5 +86,18 @@ class IsShopperAccountOwner(permissions.BasePermission):
         if request.user:
             return shopper == request.user.shopper
         return False
+
+
+class IsCompanyProjectManager(permissions.BasePermission):
+    """Permission for TenantProjectManager user.
+    """
+    def has_permission(self, request, view):
+        if request.user:
+            if hasattr(request.user, UserRole.CLIENT_PROJECT_MANAGER):
+                return True
+            return False
+        return False
+
+
 
 # TODO[iulian] add other permissions as needed.

@@ -26,6 +26,7 @@ from mystery_shopping.projects.models import Project
 # from mystery_shopping.questionnaires.models import Questionnaire
 from mystery_shopping.questionnaires.constants import IndicatorQuestionType
 
+from mystery_shopping.users.permissions import IsCompanyProjectManager
 from mystery_shopping.users.permissions import IsTenantProductManager
 from mystery_shopping.users.permissions import IsTenantProjectManager
 
@@ -92,31 +93,41 @@ class IndicatorDashboard(views.APIView):
     :param indicator: can be 'n', 'j', 'e' or 'u'
     """
 
-    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager),)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager),)
 
     def get(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
         entity_id = request.query_params.get('entity', None)
+        company_id = request.query_params.get('company', None)
         # section_id = request.query_params.get('section', None)
         indicator_type = request.query_params.get('indicator', None)
+        project = None
 
         # As this requires no database hit, check if indicator sent is a valid one
         if indicator_type not in IndicatorQuestionType.INDICATORS_LIST:
             return Response({'detail': 'Indicator type sent is not a valid option'})
 
-        if project_id:
+        if project_id is None:
+            if request.user.is_client_user():
+                company = request.user.user_company()
+                project = Project.objects.get_latest_project_for_client(tenant=request.user.tenant, company=company)
+            elif request.user.is_tenant_user() and company_id is not None:
+                project = Project.objects.get_latest_project_for_client(tenant=request.user.tenant, company=company_id)
+        else:
             try:
                 project = Project.objects.get(pk=project_id)
-                if request.user.tenant != project.tenant:
-                    return Response({'detail': 'You do not have permission to access to this project.'},
-                                    status.HTTP_403_FORBIDDEN)
-
-                response = collect_data_for_indicator_dashboard(project, entity_id, indicator_type)
-
-                return Response(response, status.HTTP_200_OK)
             except Project.DoesNotExist:
                 return Response({'detail': 'No Project with this id exists'},
                                 status.HTTP_404_NOT_FOUND)
+
+            if request.user.tenant != project.tenant:
+                return Response({'detail': 'You do not have permission to access to this project.'},
+                                status.HTTP_403_FORBIDDEN)
+
+        if project is not None:
+            response = collect_data_for_indicator_dashboard(project, entity_id, indicator_type)
+
+            return Response(response, status.HTTP_200_OK)
 
         return Response({
             'detail': 'Project was not provided'

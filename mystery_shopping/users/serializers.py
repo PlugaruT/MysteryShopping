@@ -74,13 +74,15 @@ class UserSerializer(serializers.ModelSerializer):
     tenant_repr = TenantSerializer(source='get_tenant', read_only=True)
     roles = serializers.ListField(read_only=True, source='user_roles')
     change_username = serializers.BooleanField(write_only=True, required=False)
+    company = SimpleCompanySerializer(source='user_company', read_only=True)
 
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'change_username',
-                  'roles', 'password', 'confirm_password', 'tenant_repr', 'shopper')
+                  'roles', 'password', 'confirm_password', 'tenant_repr', 'shopper', 'company')
         extra_kwargs = {'username': {'validators': []},
                         'shopper': {'read_only': True},
+                        'company': {'read_only': True},
                         'help_text': 'Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.'}
 
     @staticmethod

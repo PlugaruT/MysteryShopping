@@ -16,6 +16,9 @@ from mystery_shopping.tenants.models import Tenant
 
 
 # @python_2_unicode_compatible
+from mystery_shopping.users.roles import UserRole
+
+
 class User(AbstractUser):
 
     # First Name and Last Name do not cover name patterns
@@ -75,6 +78,27 @@ class User(AbstractUser):
         if getattr(self, 'is_staff', False) is True:
             roles.append('admin')
         return roles
+
+    def is_client_user(self):
+        return hasattr(self, UserRole.CLIENT_PROJECT_MANAGER) \
+               or hasattr(self, UserRole.CLIENT_MANAGER) \
+               or hasattr(self, UserRole.CLIENT_EMPLOYEE)
+
+    def is_tenant_user(self):
+        return hasattr(self, UserRole.TENANT_PRODUCT_MANAGER) \
+               or hasattr(self, UserRole.TENANT_PROJECT_MANAGER) \
+               or hasattr(self, UserRole.TENANT_CONSULTANT)
+
+    def user_company(self):
+        company = None
+        if hasattr(self, UserRole.CLIENT_PROJECT_MANAGER):
+            company = getattr(self, UserRole.CLIENT_PROJECT_MANAGER, None).company
+        if hasattr(self, UserRole.CLIENT_MANAGER):
+            company = getattr(self, UserRole.CLIENT_MANAGER, None).company
+        if hasattr(self, UserRole.CLIENT_EMPLOYEE):
+            company = getattr(self, UserRole.CLIENT_EMPLOYEE, None).company
+        print(company)
+        return company
 
     @property
     def tenant(self):

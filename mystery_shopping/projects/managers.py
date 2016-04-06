@@ -22,3 +22,8 @@ class ProjectQuerySet(QuerySet):
         """Return the type of the provided project.
         """
         return self.get(pk=project_id).type
+
+    def get_latest_project_for_client_user(self, tenant, company):
+        """Return the latest project for which to extract and show data on dashboard.
+        """
+        return self.filter(tenant=tenant, company=company).latest('period_start')
