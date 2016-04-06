@@ -3,6 +3,9 @@ from collections import defaultdict
 from mystery_shopping.questionnaires.models import Questionnaire
 from mystery_shopping.questionnaires.constants import IndicatorQuestionType
 from mystery_shopping.projects.models import Entity
+from mystery_shopping.nps.models import CodedCause
+from mystery_shopping.nps.serializers import CodedCauseSerializer
+
 
 def get_indicator_scores(questionnaire_list, indicator_type):
     """
@@ -172,6 +175,32 @@ def calculate_overview_score(questionnaire_list):
     return overview_list
 
 
+def sort_question_by_coded_cause(questionnaire_list, indicator_type):
+    coded_causes_dict = defaultdict(list)
+    coded_causes_response = list()
+
+    for questionnaire in questionnaire_list:
+        indicator_question = questionnaire.questions.filter(type=indicator_type).first()
+        if indicator_question.coded_causes.first():
+            coded_causes_dict[indicator_question.coded_causes.first().id].append(indicator_question.id)
+        else:
+            coded_causes_dict['unsorted'].append(indicator_question.id)
+
+    for coded_cause in coded_causes_dict:
+        temp_dict = dict()
+        if coded_cause != 'unsorted':
+            coded_cause_inst = CodedCause.objects.get(pk=coded_cause)
+            coded_cause_serialized = CodedCauseSerializer(coded_cause_inst)
+            temp_dict['coded_cause'] = coded_cause_serialized.data
+            temp_dict['count'] = len(coded_causes_dict[coded_cause])
+            coded_causes_response.append(temp_dict)
+        else:
+            temp_dict['coded_cause'] = coded_cause
+            temp_dict['count'] = len(coded_causes_dict[coded_cause])
+            coded_causes_response.append(temp_dict)
+    return coded_causes_response
+
+
 def collect_data_for_indicator_dashboard(project, entity_id, indicator_type):
     try:
         entity = Entity.objects.get(pk=entity_id)
@@ -192,10 +221,14 @@ def collect_data_for_indicator_dashboard(project, entity_id, indicator_type):
         response['general'] = calculate_indicator_score(indicator_list)
 
         response['details'] = get_indicator_details(questionnaire_list, indicator_type)
+
+        response['coded_causes'] = sort_question_by_coded_cause(questionnaire_list, indicator_type)
     else:
         response['general'] = calculate_indicator_score([])
 
         response['details'] = []
+
+        response['coded_causes'] = []
 
     return response
 
