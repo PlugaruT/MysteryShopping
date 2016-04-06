@@ -14,6 +14,7 @@ from .models import Shopper
 from .models import ClientManager
 from .models import ClientEmployee
 from .models import PersonToAssess
+from mystery_shopping.users.models import ClientProjectManager
 
 
 class MyUserChangeForm(UserChangeForm):
@@ -45,7 +46,7 @@ class UserAdmin(AuthUserAdmin):
     add_form = MyUserCreationForm
 
 
-@admin.register(TenantProductManager, TenantProjectManager, TenantConsultant, ClientManager, ClientEmployee, PersonToAssess)
+@admin.register(TenantProductManager, TenantProjectManager, TenantConsultant, ClientProjectManager, ClientManager, ClientEmployee, PersonToAssess)
 class Tenants(admin.ModelAdmin):
     pass
 
