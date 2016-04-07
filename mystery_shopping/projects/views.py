@@ -85,6 +85,7 @@ class ProjectPerCompanyViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
     def update(self, request, pk=None, company_pk=None):
+        request.data['research_methodology']['tenant'] = request.user.tenant.pk
         queryset = self.queryset.filter(pk=pk, company=company_pk)
         evaluation = get_object_or_404(queryset, pk=pk)
         serializer = ProjectSerializer(evaluation, data=request.data)

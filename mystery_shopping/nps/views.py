@@ -56,7 +56,7 @@ class OverviewDashboard(views.APIView):
     """
 
     """
-    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager),)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager),)
 
     def get(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
