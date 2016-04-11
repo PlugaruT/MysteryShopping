@@ -246,8 +246,7 @@ ADMIN_URL = r'^admin/'
 
 # Your common stuff: Below this line define 3rd party library settings
 CORS_ORIGIN_WHITELIST = (
-    'localhost:3000',
-    'cxi.dapi.solutions'
+    'localhost:3000'
 )
 
 CORS_ORIGIN_REGEX_WHITELIST = ('^(https?://)?(\w+\.)?dapi\.solutions', )
