@@ -246,7 +246,7 @@ ADMIN_URL = r'^admin/'
 
 # Your common stuff: Below this line define 3rd party library settings
 CORS_ORIGIN_WHITELIST = (
-    'localhost:3000',
+    'localhost:3000'
 )
 
 CORS_ORIGIN_REGEX_WHITELIST = ('^(https?://)?(\w+\.)?dapi\.solutions', )
@@ -259,7 +259,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.BasicAuthentication',
+        # 'rest_framework.authentication.BasicAuthentication',
         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
     )
 #     'DEFAULT_PARSER_CLASSES': (
