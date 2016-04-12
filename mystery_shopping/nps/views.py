@@ -110,9 +110,9 @@ class IndicatorDashboard(views.APIView):
         if project_id is None:
             if request.user.is_client_user():
                 company = request.user.user_company()
-                project = Project.objects.get_latest_project_for_client(tenant=request.user.tenant, company=company)
+                project = Project.objects.get_latest_project_for_client_user(tenant=request.user.tenant, company=company)
             elif request.user.is_tenant_user() and company_id is not None:
-                project = Project.objects.get_latest_project_for_client(tenant=request.user.tenant, company=company_id)
+                project = Project.objects.get_latest_project_for_client_user(tenant=request.user.tenant, company=company_id)
         else:
             try:
                 project = Project.objects.get(pk=project_id)
