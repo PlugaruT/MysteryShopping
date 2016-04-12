@@ -40,9 +40,12 @@ class CompanyViewSet(viewsets.ModelViewSet):
             return self.serializer_class
 
     def get_queryset(self):
-        queryset = Company.objects.all()
-        queryset = queryset.filter(tenant=self.request.user.user_type_attr.tenant)
+        queryset = Company.objects.filter(tenant=self.request.user.tenant)
         return queryset
+
+    def create(self, request, *args, **kwargs):
+        request.data['tenant'] = request.user.tenant.pk
+        return super(CompanyViewSet, self).create(request, *args, **kwargs)
 
 
 class DepartmentViewSet(viewsets.ModelViewSet):
@@ -51,9 +54,12 @@ class DepartmentViewSet(viewsets.ModelViewSet):
     permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)
 
     def get_queryset(self):
-        queryset = Department.objects.all()
-        queryset = queryset.filter(tenant=self.request.user.user_type_attr.tenant)
+        queryset = Department.objects.filter(tenant=self.request.user.tenant)
         return queryset
+
+    def create(self, request, *args, **kwargs):
+        request.data['tenant'] = request.user.tenant.pk
+        return super(DepartmentViewSet, self).create(request, *args, **kwargs)
 
 
 class EntityViewSet(viewsets.ModelViewSet):
@@ -62,9 +68,12 @@ class EntityViewSet(viewsets.ModelViewSet):
     permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)
 
     def get_queryset(self):
-        queryset = Entity.objects.all()
-        queryset = queryset.filter(tenant=self.request.user.user_type_attr.tenant)
+        queryset = Entity.objects.filter(tenant=self.request.user.tenant)
         return queryset
+
+    def create(self, request, *args, **kwargs):
+        request.data['tenant'] = request.user.tenant.pk
+        return super(EntityViewSet, self).create(request, *args, **kwargs)
 
 
 class SectionViewSet(viewsets.ModelViewSet):
@@ -73,6 +82,9 @@ class SectionViewSet(viewsets.ModelViewSet):
     permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)
 
     def get_queryset(self):
-        queryset = Section.objects.all()
-        queryset = queryset.filter(tenant=self.request.user.user_type_attr.tenant)
+        queryset = Section.objects.filter(tenant=self.request.user.tenant)
         return queryset
+
+    def create(self, request, *args, **kwargs):
+        request.data['tenant'] = request.user.tenant.pk
+        return super(SectionViewSet, self).create(request, *args, **kwargs)
