@@ -195,6 +195,8 @@ def sort_question_by_coded_cause(questionnaire_list, indicator_type):
             temp_dict['count'] = len(coded_causes_dict[coded_cause])
             coded_causes_response.append(temp_dict)
         else:
+            # skip adding 'unsorted' causes to the return JSON
+            continue
             temp_dict['coded_cause'] = coded_cause
             temp_dict['count'] = len(coded_causes_dict[coded_cause])
             coded_causes_response.append(temp_dict)
