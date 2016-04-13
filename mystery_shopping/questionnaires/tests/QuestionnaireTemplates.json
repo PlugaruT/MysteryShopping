@@ -1,0 +1,1584 @@
+[
+    {
+   "template_blocks":[
+      {
+         "template_questions":[
+            {
+               "template_question_choices":[
+                  {
+                     "text":"Da",
+                     "order":1,
+                     "score":"2.00",
+                     "weight":"0.50"
+                  },
+                  {
+                     "text":"Nu",
+                     "order":2,
+                     "score":"0.00",
+                     "weight":"0.50"
+                  }
+               ],
+               "question_body":"Iluminarea fațadei",
+               "order": 1,
+               "type":"s",
+               "max_score":2,
+               "order":null,
+               "weight":"40.00"
+            },
+            {
+               "template_question_choices":[
+                  {
+                     "text":"Da",
+                     "order":1,
+                     "score":"1.00",
+                     "weight":"0.50"
+
+                  },
+                  {
+                     "text":"Nu",
+                     "order":2,
+                     "score":"0.00",
+                     "weight":"0.50"
+
+                  }
+               ],
+               "question_body":"Iluminarea publicității",
+               "order": 2,
+               "type":"s",
+               "max_score":1,
+               "order":null,
+               "weight":"20.00"
+            },
+            {
+               "template_question_choices":[
+                  {
+                     "text":"Da",
+                     "order":1,
+                     "score":"2.00",
+                     "weight":"0.50"
+                  },
+                  {
+                     "text":"Nu",
+                     "order":2,
+                     "score":"0.00",
+                     "weight":"0.50"
+                  }
+               ],
+               "question_body":"Curățenie în fața reprezentanței",
+               "order": 3,
+               "type":"s",
+               "max_score":2,
+               "order":null,
+               "weight":"40.00"
+            }
+         ],
+         "title":"ASPECTUL EXTERIOR AL REPREZENTANȚEI",
+         "weight":"5.00",
+         "lft":1,
+         "rght":2,
+         "tree_id":12,
+         "level":0,
+         "parent_block":null,
+         "parent_order_number": null,
+         "order": 1
+      },
+      {
+         "template_questions":[
+            {
+               "template_question_choices":[
+                  {
+                     "text":"Da",
+                     "order":1,
+                     "score":"1.00",
+                     "weight":"0.50"
+
+                  },
+                  {
+                     "text":"Nu",
+                     "order": 2,
+                     "score":"0.00",
+                     "weight":"0.50"
+
+                  }
+               ],
+               "question_body":"Atmosfera corespunzătoare",
+               "order": 1,
+               "type":"s",
+               "max_score":1,
+               "order":null,
+               "weight":"20.00"
+            },
+            {
+               "template_question_choices":[
+                  {
+                     "text":"Da",
+                     "order":1,
+                     "score":"1.00",
+                     "weight":"0.50"
+
+                  },
+                  {
+                     "text":"Nu",
+                     "order":2,
+                     "score":"0.00",
+                     "weight":"0.50"
+
+                  }
+               ],
+               "question_body":"Lipsa golurilor în vitrine",
+               "order": 2,
+               "type":"s",
+               "max_score":1,
+               "order":null,
+               "weight":"20.00"
+            },
+            {
+               "template_question_choices":[
+                  {
+                     "text":"Da",
+                     "order":1,
+                     "score":"1.00",
+                     "weight":"0.50"
+
+                  },
+                  {
+                     "text":"Nu",
+                     "order":2,
+                     "score":"0.00",
+                     "weight":"0.50"
+
+                  }
+               ],
+               "question_body":"Prezența etichetelor de preț",
+               "order": 2,
+               "type":"s",
+               "max_score":1,
+               "order":null,
+               "weight":"20.00"
+            },
+            {
+               "template_question_choices":[
+                  {
+                     "text":"Da",
+                     "order":1,
+                     "score":"1.00",
+                     "weight":"0.50"
+
+                  },
+                  {
+                     "text":"Nu",
+                     "order":2,
+                     "score":"0.00",
+                     "weight":"0.50"
+
+                  }
+               ],
+               "question_body":"Disponibilitatea materialelor informative",
+               "order": 3,
+               "type":"s",
+               "max_score":1,
+               "order":null,
+               "weight":"20.00"
+            },
+            {
+               "template_question_choices":[
+                  {
+                     "text":"Da",
+                     "order":1,
+                     "score":"1.00",
+                     "weight":"0.50"
+
+                  },
+                  {
+                     "text":"Nu",
+                     "order":2,
+                     "score":"0.00",
+                     "weight":"0.50"
+
+                  }
+               ],
+               "question_body":"Curățenie în sală",
+               "order": 4,
+               "type":"s",
+               "max_score":1,
+               "order":null,
+               "weight":"20.00"
+            }
+         ],
+         "title":"ASPECTUL INTERIOR AL REPREZENTANȚEI",
+         "weight":"5.00",
+         "lft":1,
+         "rght":2,
+         "tree_id":13,
+         "level":0,
+         "parent_block":null,
+         "parent_order_number": null,
+         "order": 2
+      },
+      {
+         "template_questions":[
+            {
+               "template_question_choices":[
+                  {
+                     "text":"Da",
+                     "order":1,
+                     "score":"2.00",
+                     "weight":"0.50"
+
+                  },
+                  {
+                     "text":"Nu",
+                     "order":2,
+                     "score":"0.00",
+                     "weight":"0.50"
+
+                  }
+               ],
+               "question_body":"Prezența ecusonului",
+               "order": 1,
+               "type":"s",
+               "max_score":2,
+               "order":null,
+               "weight":"40.00"
+            },
+            {
+               "template_question_choices":[
+                  {
+                     "text":"Da",
+                     "order":1,
+                     "score":"1.00",
+                     "weight":"0.50"
+
+                  },
+                  {
+                     "text":"Nu",
+                     "order":2,
+                     "score":"0.00",
+                     "weight":"0.50"
+
+                  }
+               ],
+               "question_body":"Părul curat și îngrijit",
+               "order": 2,
+               "type":"s",
+               "max_score":1,
+               "order":null,
+               "weight":"20.00"
+            },
+            {
+               "template_question_choices":[
+                  {
+                     "text":"Da",
+                     "order":1,
+                     "score":"1.00",
+                     "weight":"0.50"
+
+                  },
+                  {
+                     "text":"Nu",
+                     "order":2,
+                     "score":"0.00",
+                     "weight":"0.50"
+
+                  }
+               ],
+               "question_body":"Machiajul discret/fața bărbierită",
+               "order": 3,
+               "type":"s",
+               "max_score":1,
+               "order":null,
+               "weight":"20.00"
+            },
+            {
+               "template_question_choices":[
+                  {
+                     "text":"Da",
+                     "order":1,
+                     "score":"1.00",
+                     "weight":"0.50"
+
+                  },
+                  {
+                     "text":"Nu",
+                     "order":2,
+                     "score":"0.00",
+                     "weight":"0.50"
+
+                  }
+               ],
+               "question_body":"Prezența uniformei",
+               "order": 4,
+               "type":"s",
+               "max_score":1,
+               "order":null,
+               "weight":"20.00"
+            }
+         ],
+         "title":"ASPECTUL ANGAJATULUI",
+         "weight":"5.00",
+         "lft":1,
+         "rght":2,
+         "tree_id":14,
+         "level":0,
+         "parent_block":null,
+         "parent_order_number": null,
+         "order": 3
+      },
+      {
+         "template_questions":[
+            {
+               "template_question_choices":[
+                  {
+                     "text":"Da",
+                     "order":1,
+                     "score":"3.00",
+                     "weight":"0.50"
+
+                  },
+                  {
+                     "text":"Nu",
+                     "order":2,
+                     "score":"0.00",
+                     "weight":"0.50"
+
+                  }
+               ],
+               "question_body":"Zâmbet",
+               "order": 1,
+               "type":"s",
+               "max_score":3,
+               "order":null,
+               "weight":"30.00"
+            },
+            {
+               "template_question_choices":[
+                  {
+                     "text":"Da",
+                     "order":1,
+                     "score":"2.00",
+                     "weight":"0.50"
+
+                  },
+                  {
+                     "text":"Nu",
+                     "order":2,
+                     "score":"0.00",
+                     "weight":"0.50"
+
+                  }
+               ],
+               "question_body":"Contact vizual",
+               "order": 2,
+               "type":"s",
+               "max_score":2,
+               "order":null,
+               "weight":"20.00"
+            },
+            {
+               "template_question_choices":[
+                  {
+                     "text":"Da",
+                     "order":1,
+                     "score":"2.00",
+                     "weight":"0.50"
+
+                  },
+                  {
+                     "text":"Nu",
+                     "order":2,
+                     "score":"0.00",
+                     "weight":"0.50"
+
+                  }
+               ],
+               "question_body":"Adresare cu Dvs.",
+               "order": 3,
+               "type":"s",
+               "max_score":2,
+               "order":null,
+               "weight":"20.00"
+            },
+            {
+               "template_question_choices":[
+                  {
+                     "text":"Da",
+                     "order":1,
+                     "score":"3.00",
+                     "weight":"0.50"
+
+                  },
+                  {
+                     "text":"Nu",
+                     "order":2,
+                     "score":"0.00",
+                     "weight":"0.50"
+
+                  }
+               ],
+               "question_body":"Salut",
+               "order": 4,
+               "type":"s",
+               "max_score":3,
+               "order":null,
+               "weight":"30.00"
+            }
+         ],
+         "title":"ÎNTÂMPINAREA CLIENTULUI",
+         "weight":"10.00",
+         "lft":1,
+         "rght":2,
+         "tree_id":15,
+         "level":0,
+         "parent_block":null,
+         "parent_order_number": null,
+         "order": 4
+      },
+      {
+         "template_questions":[
+            {
+               "template_question_choices":[
+                  {
+                     "text":"Da",
+                     "order":1,
+                     "score":"6.00",
+                     "weight":"0.50"
+
+                  },
+                  {
+                     "text":"Nu",
+                     "order":2,
+                     "score":"0.00",
+                     "weight":"0.50"
+
+                  }
+               ],
+               "question_body":"Up-selling/ Cross-selling",
+               "order": 1,
+               "type":"s",
+               "max_score":6,
+               "order":null,
+               "weight":"20.00"
+            },
+            {
+               "template_question_choices":[
+                  {
+                     "text":"Da",
+                     "order":1,
+                     "score":"4.00",
+                     "weight":"0.50"
+
+                  },
+                  {
+                     "text":"Nu",
+                     "order":2,
+                     "score":"0.00",
+                     "weight":"0.50"
+
+                  }
+               ],
+               "question_body":"Testarea echipamentului/device-urilor",
+               "order": 2,
+               "type":"s",
+               "max_score":4,
+               "order":null,
+               "weight":"13.33"
+            },
+            {
+               "template_question_choices":[
+                  {
+                     "text":"Da",
+                     "order":1,
+                     "score":"2.00",
+                     "weight":"0.50"
+
+                  },
+                  {
+                     "text":"Nu",
+                     "order":2,
+                     "score":"0.00",
+                     "weight":"0.50"
+
+                  }
+               ],
+               "question_body":"Testarea serviciilor",
+               "order": 3,
+               "type":"s",
+               "max_score":2,
+               "order":null,
+               "weight":"6.67"
+            },
+            {
+               "template_question_choices":[
+                  {
+                     "text":"Da",
+                     "order":1,
+                     "score":"3.00",
+                     "weight":"0.50"
+
+                  },
+                  {
+                     "text":"Nu",
+                     "order":2,
+                     "score":"0.00",
+                     "weight":"0.50"
+
+                  }
+               ],
+               "question_body":"Prezentarea soluțiilor",
+               "order": 4,
+               "type":"s",
+               "max_score":3,
+               "order":null,
+               "weight":"16.67"
+            },
+            {
+               "template_question_choices":[
+                  {
+                     "text":"Da",
+                     "order":1,
+                     "score":"5.00",
+                     "weight":"0.50"
+
+                  },
+                  {
+                     "text":"Nu",
+                     "order":2,
+                     "score":"0.00",
+                     "weight":"0.50"
+
+                  }
+               ],
+               "question_body":"Prezentarea beneficiilor companiei",
+               "order": 5,
+               "type":"s",
+               "max_score":5,
+               "order":null,
+               "weight":"16.66"
+            },
+            {
+               "template_question_choices":[
+                  {
+                     "text":"Da",
+                     "order":1,
+                     "score":"5.00",
+                     "weight":"0.50"
+
+                  },
+                  {
+                     "text":"Nu",
+                     "order":2,
+                     "score":"0.00",
+                     "weight":"0.50"
+
+                  }
+               ],
+               "question_body":"Determinarea nevoilor",
+               "order": 6,
+               "type":"s",
+               "max_score":5,
+               "order":null,
+               "weight":"10.00"
+            },
+            {
+               "template_question_choices":[
+                  {
+                     "text":"Da",
+                     "order":1,
+                     "score":"5.00",
+                     "weight":"0.50"
+
+                  },
+                  {
+                     "text":"Nu",
+                     "order":2,
+                     "score":"0.00",
+                     "weight":"0.50"
+
+                  }
+               ],
+               "question_body":"Prezentarea alternativelor",
+               "order": 7,
+               "type":"s",
+               "max_score":5,
+               "order":null,
+               "weight":"16.67"
+            }
+         ],
+         "title":"PREZENTAREA SOLUȚIILOR",
+         "weight":"30.00",
+         "lft":1,
+         "rght":2,
+         "tree_id":16,
+         "level":0,
+         "parent_block":null,
+         "parent_order_number": null,
+         "order": 5
+      },
+      {
+         "template_questions":[
+            {
+               "template_question_choices":[
+                  {
+                     "text":"Da",
+                     "order":1,
+                     "score":"3.00",
+                     "weight":"0.50"
+
+                  },
+                  {
+                     "text":"Nu",
+                     "order":2,
+                     "score":"0.00",
+                     "weight":"0.50"
+
+                  }
+               ],
+               "question_body":"Abilitatea de a asculta",
+               "order": 1,
+               "type":"s",
+               "max_score":3,
+               "order":null,
+               "weight":"15.00"
+            },
+            {
+               "template_question_choices":[
+                  {
+                     "text":"Da",
+                     "order":1,
+                     "score":"5.00",
+                     "weight":"0.50"
+
+                  },
+                  {
+                     "text":"Nu",
+                     "order":2,
+                     "score":"0.00",
+                     "weight":"0.50"
+
+                  }
+               ],
+               "question_body":"Orientare spre client",
+               "order": 2,
+               "type":"s",
+               "max_score":5,
+               "order":null,
+               "weight":"25.00"
+            },
+            {
+               "template_question_choices":[
+                  {
+                     "text":"Da",
+                     "order":1,
+                     "score":"3.00",
+                     "weight":"0.50"
+
+                  },
+                  {
+                     "text":"Nu",
+                     "order":2,
+                     "score":"0.00",
+                     "weight":"0.50"
+
+                  }
+               ],
+               "question_body":"Încredere în sine",
+               "order": 3,
+               "type":"s",
+               "max_score":3,
+               "order":null,
+               "weight":"15.00"
+            },
+            {
+               "template_question_choices":[
+                  {
+                     "text":"Da",
+                     "order":1,
+                     "score":"4.00",
+                     "weight":"0.50"
+
+                  },
+                  {
+                     "text":"Nu",
+                     "order":2,
+                     "score":"0.00",
+                     "weight":"0.50"
+
+                  }
+               ],
+               "question_body":"Vocabular adecvat",
+               "order": 4,
+               "type":"s",
+               "max_score":4,
+               "order":null,
+               "weight":"20.00"
+            },
+            {
+               "template_question_choices":[
+                  {
+                     "text":"Da",
+                     "order":1,
+                     "score":"5.00",
+                     "weight":"0.50"
+
+                  },
+                  {
+                     "text":"Nu",
+                     "order":2,
+                     "score":"0.00",
+                     "weight":"0.50"
+
+                  }
+               ],
+               "question_body":"Atitudine binevoitoare",
+               "order": 5,
+               "type":"s",
+               "max_score":5,
+               "order":null,
+               "weight":"25.00"
+            }
+         ],
+         "title":"COMPORTAMENTUL CONSULTANTULUI",
+         "weight":"20.00",
+         "lft":1,
+         "rght":2,
+         "tree_id":17,
+         "level":0,
+         "parent_block":null,
+         "parent_order_number": null,
+         "order": 6
+      },
+      {
+         "template_questions":[
+            {
+               "template_question_choices":[
+                  {
+                     "text":"Da",
+                     "order":1,
+                     "score":"5.00",
+                     "weight":"0.50"
+
+                  },
+                  {
+                     "text":"Nu",
+                     "order":2,
+                     "score":"0.00",
+                     "weight":"0.50"
+
+                  }
+               ],
+               "question_body":"Răspuns la obiecție",
+               "order": 1,
+               "type":"s",
+               "max_score":5,
+               "order":null,
+               "weight":"33.33"
+            },
+            {
+               "template_question_choices":[
+                  {
+                     "text":"Da",
+                     "order":1,
+                     "score":"7.00",
+                     "weight":"0.50"
+
+                  },
+                  {
+                     "text":"Nu",
+                     "order":2,
+                     "score":"0.00",
+                     "weight":"0.50"
+
+                  }
+               ],
+               "question_body":"Argumente convingătoare",
+               "order": 2,
+               "type":"s",
+               "max_score":7,
+               "order":null,
+               "weight":"46.67"
+            },
+            {
+               "template_question_choices":[
+                  {
+                     "text":"Da",
+                     "order":1,
+                     "score":"3.00",
+                     "weight":"0.50"
+
+                  },
+                  {
+                     "text":"Nu",
+                     "order":2,
+                     "score":"0.00",
+                     "weight":"0.50"
+
+                  }
+               ],
+               "question_body":"Oferirea materialelor informative",
+               "order": 3,
+               "type":"s",
+               "max_score":3,
+               "order":null,
+               "weight":"20.00"
+            }
+         ],
+         "title":"SUSȚINEREA ȘI PROMOVAREA IMAGINII COMPANIEI",
+         "weight":"15.00",
+         "lft":1,
+         "rght":2,
+         "tree_id":18,
+         "level":0,
+         "parent_block":null,
+         "parent_order_number": null,
+         "order": 7
+      },
+      {
+         "template_questions":[
+            {
+               "template_question_choices":[
+                  {
+                     "text":"Da",
+                     "order":1,
+                     "score":"4.00",
+                     "weight":"0.50"
+
+                  },
+                  {
+                     "text":"Nu",
+                     "order":2,
+                     "score":"0.00",
+                     "weight":"0.50"
+
+                  }
+               ],
+               "question_body":"Salutul de final",
+               "order": 1,
+               "type":"s",
+               "max_score":4,
+               "order":null,
+               "weight":"40.00"
+            },
+            {
+               "template_question_choices":[
+                  {
+                     "text":"Da",
+                     "order":1,
+                     "score":"3.00",
+                     "weight":"0.50"
+
+                  },
+                  {
+                     "text":"Nu",
+                     "order":2,
+                     "score":"0.00",
+                     "weight":"0.50"
+
+                  }
+               ],
+               "question_body":"Invitație la revenire",
+               "order": 2,
+               "type":"s",
+               "max_score":3,
+               "order":null,
+               "weight":"30.00"
+            },
+            {
+               "template_question_choices":[
+                  {
+                     "text":"Da",
+                     "order":1,
+                     "score":"3.00",
+                     "weight":"0.50"
+
+                  },
+                  {
+                     "text":"Nu",
+                     "order":2,
+                     "score":"0.00",
+                     "weight":"0.50"
+
+                  }
+               ],
+               "question_body":"Oferire ajutor în luarea unei decizii",
+               "order": 3,
+               "type":"s",
+               "max_score":3,
+               "order":null,
+               "weight":"30.00"
+            }
+         ],
+         "title":"ÎNCHEIEREA DISCUȚIEI",
+         "weight":"10.00",
+         "lft":1,
+         "rght":2,
+         "tree_id":19,
+         "level":0,
+         "parent_block":null,
+         "parent_order_number": null,
+         "order": 8
+      },
+      {
+         "template_questions":[
+            {
+               "template_question_choices":[
+
+               ],
+               "question_body":"Modul în care ați fost deservit",
+               "order": 1,
+               "type":"t",
+               "max_score":0,
+               "order":null,
+               "weight":"0.00"
+            },
+            {
+               "template_question_choices":[
+
+               ],
+               "question_body":"Predispunerea spre recomandare",
+               "order": 2,
+               "type":"t",
+               "max_score":0,
+               "order":null,
+               "weight":"0.00"
+            },
+            {
+               "template_question_choices":[
+
+               ],
+               "question_body":"Observații și sugestii",
+               "order": 3,
+               "type":"t",
+               "max_score":0,
+               "order":null,
+               "weight":"0.00"
+            }
+         ],
+         "title":"APRECIEREA PERSONALĂ",
+         "weight":"0.00",
+         "lft":1,
+         "rght":2,
+         "tree_id":20,
+         "level":0,
+         "parent_block":null,
+         "parent_order_number": null,
+         "order": 9
+      }
+   ],
+   "title":"Questionnaire for testing",
+   "description":"Chestionar pentru a testa algoritmul de calcul.",
+   "is_editable":true
+},
+{
+    "template_blocks": [],
+    "title": "Simple Template Questionnaire without blocks",
+    "description": "The best questionnaire"
+},
+{
+   "template_blocks":[
+      {
+         "id":37,
+         "template_questions":[
+
+         ],
+         "title":"Bloc 1",
+         "weight":"50.00",
+         "order":1,
+         "score":null,
+         "lft":1,
+         "rght":14,
+         "tree_id":15,
+         "level":0,
+         "order_number": 37,
+         "parent_order_number": null
+      },
+      {
+         "id":38,
+         "template_questions":[
+
+         ],
+         "title":"Sub-bloc 1",
+         "weight":"60.00",
+         "order":1,
+         "score":null,
+         "lft":2,
+         "rght":7,
+         "tree_id":15,
+         "level":1,
+         "order_number": 38,
+         "parent_order_number":37
+      },
+      {
+         "id":39,
+         "template_questions":[
+            {
+               "id":53,
+               "template_question_choices":[
+                  {
+                     "id":89,
+                     "text":"Yes",
+                     "score":"2.00",
+                     "weight":"0.50",
+                     "order":1
+
+                  },
+                  {
+                     "id":90,
+                     "text":"No",
+                     "score":"0.00",
+                     "weight":"0.50",
+                     "order":2
+
+                  }
+               ],
+               "question_body":"Like tea?",
+               "type":"s",
+               "max_score":2,
+               "order":2,
+               "weight":"50.00",
+               "score":null,
+               "answer":null,
+               "show_comment":true,
+               "comment":null
+
+
+
+            },
+            {
+               "id":54,
+               "template_question_choices":[
+                  {
+                     "id":91,
+                     "text":"Yes",
+                     "score":"2.00",
+                     "weight":"0.50",
+                     "order":1
+
+                  },
+                  {
+                     "id":92,
+                     "text":"No",
+                     "score":"0.00",
+                     "weight":"0.50",
+                     "order":2
+
+                  }
+               ],
+               "question_body":"Like coffee?",
+               "type":"s",
+               "max_score":2,
+               "order":1,
+               "weight":"50.00",
+               "score":null,
+               "answer":null,
+               "show_comment":true,
+               "comment":null
+
+
+
+            }
+         ],
+         "title":"Sub-sub-bloc 1",
+         "weight":"50.00",
+         "order":1,
+         "score":null,
+         "lft":3,
+         "rght":4,
+         "tree_id":15,
+         "level":2,
+         "order_number": 39,
+         "parent_order_number":38
+      },
+      {
+         "id":40,
+         "template_questions":[
+            {
+               "id":55,
+               "template_question_choices":[
+                  {
+                     "id":93,
+                     "text":"Yes",
+                     "score":"2.00",
+                     "weight":"0.50",
+                     "order":1
+
+                  },
+                  {
+                     "id":94,
+                     "text":"No",
+                     "score":"0.00",
+                     "weight":"0.50",
+                     "order":2
+
+                  }
+               ],
+               "question_body":"Like mountains?",
+               "type":"s",
+               "max_score":2,
+               "order":2,
+               "weight":"33.33",
+               "score":null,
+               "answer":null,
+               "show_comment":true,
+               "comment":null
+
+
+
+            },
+            {
+               "id":56,
+               "template_question_choices":[
+                  {
+                     "id":95,
+                     "text":"Yes",
+                     "score":"2.00",
+                     "weight":"0.50",
+                     "order":1
+
+                  },
+                  {
+                     "id":96,
+                     "text":"No",
+                     "score":"0.00",
+                     "weight":"0.50",
+                     "order":2
+
+                  }
+               ],
+               "question_body":"Like sea?",
+               "type":"s",
+               "max_score":2,
+               "order":1,
+               "weight":"66.67",
+               "score":null,
+               "answer":null,
+               "show_comment":true,
+               "comment":null
+
+
+
+            }
+         ],
+         "title":"Sub-sub-bloc 2",
+         "weight":"50.00",
+         "order":2,
+         "score":null,
+         "lft":5,
+         "rght":6,
+         "tree_id":15,
+         "level":2,
+         "order_number": 40,
+         "parent_order_number":38
+      },
+      {
+         "id":41,
+         "template_questions":[
+
+         ],
+         "title":"Sub-bloc 2",
+         "weight":"40.00",
+         "order":2,
+         "score":null,
+         "lft":8,
+         "rght":13,
+         "tree_id":15,
+         "level":1,
+         "order_number": 41,
+         "parent_order_number":37
+      },
+      {
+         "id":42,
+         "template_questions":[
+            {
+               "id":57,
+               "template_question_choices":[
+                  {
+                     "id":97,
+                     "text":"Yes",
+                     "score":"2.00",
+                     "weight":"0.50",
+                     "order":1
+
+                  },
+                  {
+                     "id":98,
+                     "text":"No",
+                     "score":"0.00",
+                     "weight":"0.50",
+                     "order":2
+
+                  }
+               ],
+               "question_body":"Or maybe cookies?",
+               "type":"s",
+               "max_score":2,
+               "order":2,
+               "weight":"50.00",
+               "score":null,
+               "answer":null,
+               "show_comment":true,
+               "comment":null
+
+
+
+            },
+            {
+               "id":58,
+               "template_question_choices":[
+                  {
+                     "id":99,
+                     "text":"Yes",
+                     "score":"2.00",
+                     "weight":"0.50",
+                     "order":1
+
+                  },
+                  {
+                     "id":100,
+                     "text":"No",
+                     "score":"0.00",
+                     "weight":"0.50",
+                     "order":2
+
+                  }
+               ],
+               "question_body":"Want some cake?",
+               "type":"s",
+               "max_score":2,
+               "order":1,
+               "weight":"50.00",
+               "score":null,
+               "answer":null,
+               "show_comment":true,
+               "comment":null
+
+
+
+            }
+         ],
+         "title":"Sub-sub-bloc 3",
+         "weight":"75.00",
+         "order":1,
+         "score":null,
+         "lft":9,
+         "rght":10,
+         "tree_id":15,
+         "level":2,
+         "order_number": 42,
+         "parent_order_number":41
+      },
+      {
+         "id":43,
+         "template_questions":[
+            {
+               "id":59,
+               "template_question_choices":[
+                  {
+                     "id":101,
+                     "text":"Yes",
+                     "score":"5.00",
+                     "weight":"0.50",
+                     "order":1
+
+                  },
+                  {
+                     "id":102,
+                     "text":"No",
+                     "score":"0.00",
+                     "weight":"0.50",
+                     "order":2
+
+                  }
+               ],
+               "question_body":"Are you a programmer?",
+               "type":"s",
+               "max_score":5,
+               "order":1,
+               "weight":"100.00",
+               "score":null,
+               "answer":null,
+               "show_comment":true,
+               "comment":null
+
+
+
+            }
+         ],
+         "title":"Sub-sub-bloc 4",
+         "weight":"25.00",
+         "order":2,
+         "score":null,
+         "lft":11,
+         "rght":12,
+         "tree_id":15,
+         "level":2,
+         "order_number": 43,
+         "parent_order_number":41
+      },
+      {
+         "id":44,
+         "template_questions":[
+
+         ],
+         "title":"Bloc 2",
+         "weight":"50.00",
+         "order":2,
+         "score":null,
+         "lft":1,
+         "rght":8,
+         "tree_id":18,
+         "level":0,
+         "order_number": 44,
+         "parent_order_number":null
+      },
+      {
+         "id":47,
+         "template_questions":[
+            {
+               "id":64,
+               "template_question_choices":[
+
+               ],
+               "question_body":"Comentarii",
+               "type":"t",
+               "max_score":0,
+               "order":1,
+               "weight":"0.00",
+               "score":null,
+               "answer":null,
+               "show_comment":true,
+               "comment":null
+
+
+
+            }
+         ],
+         "title":"Comments for Bloc 2",
+         "weight":"0.00",
+         "order":3,
+         "score":null,
+         "lft":2,
+         "rght":3,
+         "tree_id":18,
+         "level":1,
+         "order_number": 47,
+         "parent_order_number":44
+      },
+      {
+         "id":45,
+         "template_questions":[
+            {
+               "id":60,
+               "template_question_choices":[
+                  {
+                     "id":103,
+                     "text":"A",
+                     "score":"3.00",
+                     "weight":"0.50",
+                     "order":1
+
+                  },
+                  {
+                     "id":104,
+                     "text":"B",
+                     "score":"0.00",
+                     "weight":"0.50",
+                     "order":2
+
+                  }
+               ],
+               "question_body":"A sau B?",
+               "type":"s",
+               "max_score":3,
+               "order":2,
+               "weight":"60.00",
+               "score":null,
+               "answer":null,
+               "show_comment":true,
+               "comment":null
+
+
+
+            },
+            {
+               "id":61,
+               "template_question_choices":[
+                  {
+                     "id":105,
+                     "text":"Adevar",
+                     "score":"3.00",
+                     "weight":"0.50",
+                     "order":1
+
+                  },
+                  {
+                     "id":106,
+                     "text":"Provocare",
+                     "score":"0.00",
+                     "weight":"0.50",
+                     "order":2
+
+                  }
+               ],
+               "question_body":"Adevar sau provocare?",
+               "type":"s",
+               "max_score":3,
+               "order":1,
+               "weight":"40.00",
+               "score":null,
+               "answer":null,
+               "show_comment":true,
+               "comment":null
+
+
+
+            }
+         ],
+         "title":"Sub-bloc 3",
+         "weight":"50.00",
+         "order":1,
+         "score":null,
+         "lft":4,
+         "rght":5,
+         "tree_id":18,
+         "level":1,
+         "order_number": 45,
+         "parent_order_number":44
+      },
+      {
+         "id":46,
+         "template_questions":[
+            {
+               "id":62,
+               "template_question_choices":[
+                  {
+                     "id":107,
+                     "text":"Yes",
+                     "score":"3.00",
+                     "weight":"0.50",
+                     "order":1
+
+                  },
+                  {
+                     "id":108,
+                     "text":"No",
+                     "score":"0.00",
+                     "weight":"0.50",
+                     "order":2
+
+                  }
+               ],
+               "question_body":"E soare?",
+               "type":"s",
+               "max_score":3,
+               "order":2,
+               "weight":"50.00",
+               "score":null,
+               "answer":null,
+               "show_comment":true,
+               "comment":null
+
+
+
+            },
+            {
+               "id":63,
+               "template_question_choices":[
+                  {
+                     "id":109,
+                     "text":"Yes",
+                     "score":"3.00",
+                     "weight":"0.50",
+                     "order":1
+
+                  },
+                  {
+                     "id":110,
+                     "text":"No",
+                     "score":"0.00",
+                     "weight":"0.50",
+                     "order":2
+
+                  }
+               ],
+               "question_body":"Ha-ha?",
+               "type":"s",
+               "max_score":3,
+               "order":1,
+               "weight":"50.00",
+               "score":null,
+               "answer":null,
+               "show_comment":true,
+               "comment":null
+
+
+
+            }
+         ],
+         "title":"Sub-bloc 4",
+         "weight":"50.00",
+         "order":2,
+         "score":null,
+         "lft":6,
+         "rght":7,
+         "tree_id":18,
+         "level":1,
+         "order_number": 46,
+         "parent_order_number":44
+      },
+      {
+         "id":48,
+         "template_questions":[
+            {
+               "id":65,
+               "template_question_choices":[
+
+               ],
+               "question_body":"Comment 2",
+               "type":"t",
+               "max_score":0,
+               "order":2,
+               "weight":"0.00",
+               "score":null,
+               "answer":null,
+               "show_comment":true,
+               "comment":null
+
+
+
+            },
+            {
+               "id":66,
+               "template_question_choices":[
+
+               ],
+               "question_body":"Comment",
+               "type":"t",
+               "max_score":0,
+               "order":1,
+               "weight":"0.00",
+               "score":null,
+               "answer":null,
+               "show_comment":true,
+               "comment":null
+
+
+
+            }
+         ],
+         "title":"General comments for questionnaire",
+         "weight":"0.00",
+         "order":3,
+         "score":null,
+         "lft":1,
+         "rght":2,
+         "tree_id":21,
+         "level":0,
+         "order_number": 48,
+         "parent_order_number":null
+      }
+   ],
+   "title":"Test Questionnaire",
+   "description": "lalala",
+   "weight":100
+}
+]

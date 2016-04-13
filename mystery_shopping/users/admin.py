@@ -7,6 +7,14 @@ from django.contrib.auth.admin import UserAdmin as AuthUserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 
 from .models import User
+from .models import TenantProductManager
+from .models import TenantProjectManager
+from .models import TenantConsultant
+from .models import Shopper
+from .models import ClientManager
+from .models import ClientEmployee
+from .models import PersonToAssess
+from mystery_shopping.users.models import ClientProjectManager
 
 
 class MyUserChangeForm(UserChangeForm):
@@ -36,3 +44,12 @@ class MyUserCreationForm(UserCreationForm):
 class UserAdmin(AuthUserAdmin):
     form = MyUserChangeForm
     add_form = MyUserCreationForm
+
+
+@admin.register(TenantProductManager, TenantProjectManager, TenantConsultant, ClientProjectManager, ClientManager, ClientEmployee, PersonToAssess)
+class Tenants(admin.ModelAdmin):
+    pass
+
+@admin.register(Shopper)
+class Shoppers(admin.ModelAdmin):
+    pass

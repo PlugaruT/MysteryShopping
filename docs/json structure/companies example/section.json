@@ -1,0 +1,20 @@
+{
+    "id": 1,
+    "manager": [
+        {
+            "id": 3,
+            "manager_repr": {
+                "username": "vera_section_manager",
+                "first_name": "",
+                "last_name": ""
+            },
+            "place_id": 1,
+            "user": 8,
+            "company": 1,
+            "place_type": 26
+        }
+    ],
+    "entity": 1,
+    "tenant": 2,
+    "name": "Mars"
+}

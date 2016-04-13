@@ -1,0 +1,72 @@
+{
+    "id": 15,
+    "template_questions": [
+        {
+            "id": 38,
+            "template_question_choices": [
+                {
+                    "id": 69,
+                    "text": "Yes",
+                    "score": "2.00",
+                    "weight": "0.50",
+                    "order": 1,
+                    "template_question": 38
+                },
+                {
+                    "id": 70,
+                    "text": "No",
+                    "score": "0.00",
+                    "weight": "0.50",
+                    "order": 2,
+                    "template_question": 38
+                }
+            ],
+            "question_body": "Like tea?",
+            "type": "s",
+            "max_score": 2,
+            "order": 2,
+            "weight": "50.00",
+            "show_comment": true,
+            "questionnaire_template": 8,
+            "template_block": 15
+        },
+        {
+            "id": 39,
+            "template_question_choices": [
+                {
+                    "id": 71,
+                    "text": "Yes",
+                    "score": "2.00",
+                    "weight": "0.50",
+                    "order": 1,
+                    "template_question": 39
+                },
+                {
+                    "id": 72,
+                    "text": "No",
+                    "score": "0.00",
+                    "weight": "0.50",
+                    "order": 2,
+                    "template_question": 39
+                }
+            ],
+            "question_body": "Like coffee?",
+            "type": "s",
+            "max_score": 2,
+            "order": 1,
+            "weight": "50.00",
+            "show_comment": true,
+            "questionnaire_template": 8,
+            "template_block": 15
+        }
+    ],
+    "title": "Bloc 1",
+    "weight": "50.00",
+    "order": 1,
+    "lft": 3,
+    "rght": 4,
+    "tree_id": 13,
+    "level": 2,
+    "questionnaire_template": 8,
+    "parent_block": 14
+}

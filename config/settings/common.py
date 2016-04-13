@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/dev/ref/settings/
 from __future__ import absolute_import, unicode_literals
 
 import environ
+import datetime
 
 ROOT_DIR = environ.Path(__file__) - 3  # (/a/b/myfile.py - 3 = /)
 APPS_DIR = ROOT_DIR.path('mystery_shopping')
@@ -39,12 +40,23 @@ THIRD_PARTY_APPS = (
     'allauth',  # registration
     'allauth.account',  # registration
     'allauth.socialaccount',  # registration
+    'rest_framework',
+    'mptt',
+    'corsheaders',
 )
 
 # Apps specific for this project go here.
+
 LOCAL_APPS = (
     'mystery_shopping.users',  # custom users app
-    # Your stuff: custom apps go here
+    'mystery_shopping.companies',
+    'mystery_shopping.common',
+    'mystery_shopping.tenants',
+    'mystery_shopping.questionnaires',
+    'mystery_shopping.projects',
+    'mystery_shopping.mystery_shopping_utils',
+    'mystery_shopping.nps',
+    'mystery_shopping.dashboard',
 )
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -55,6 +67,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 MIDDLEWARE_CLASSES = (
     # Make sure djangosecure.middleware.SecurityMiddleware is listed first
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -233,3 +246,56 @@ BROKER_URL = env("CELERY_BROKER_URL", default='django://')
 ADMIN_URL = r'^admin/'
 
 # Your common stuff: Below this line define 3rd party library settings
+CORS_ORIGIN_WHITELIST = (
+    'localhost:3000'
+)
+
+CORS_ORIGIN_REGEX_WHITELIST = ('^(https?://)?(\w+\.)?dapi\.solutions', )
+
+CORS_ALLOW_CREDENTIALS = True
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+    )
+#     'DEFAULT_PARSER_CLASSES': (
+#         'rest_framework.parsers.JSONParser',
+#     )
+}
+
+
+JWT_AUTH = {
+    'JWT_ENCODE_HANDLER':
+    'rest_framework_jwt.utils.jwt_encode_handler',
+
+    'JWT_DECODE_HANDLER':
+    'rest_framework_jwt.utils.jwt_decode_handler',
+
+    'JWT_PAYLOAD_HANDLER':
+    'rest_framework_jwt.utils.jwt_payload_handler',
+
+    'JWT_PAYLOAD_GET_USER_ID_HANDLER':
+    'rest_framework_jwt.utils.jwt_get_user_id_from_payload_handler',
+
+    'JWT_RESPONSE_PAYLOAD_HANDLER':
+    'mystery_shopping.mystery_shopping_utils.jwt.jwt_response_payload_handler',
+
+    'JWT_SECRET_KEY': env("DJANGO_SECRET_KEY", default='&xc!toi_e027v29qxjw8medhv-fz!%36en=w=1@e9ug@9b_)*4'),
+    'JWT_ALGORITHM': 'HS256',
+    'JWT_VERIFY': True,
+    'JWT_VERIFY_EXPIRATION': False,
+    'JWT_LEEWAY': 0,
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=300),
+    'JWT_AUDIENCE': None,
+    'JWT_ISSUER': None,
+
+    'JWT_ALLOW_REFRESH': False,
+    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
+
+    'JWT_AUTH_HEADER_PREFIX': 'JWT',
+}

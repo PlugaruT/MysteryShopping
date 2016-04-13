@@ -61,3 +61,14 @@ mystery_shopping/media/
 
 # Hitch directory
 tests/.hitch
+
+# Ignore migrations
+
+
+test.html
+test_question.html
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml

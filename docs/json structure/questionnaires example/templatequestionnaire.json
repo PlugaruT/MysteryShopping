@@ -1,0 +1,131 @@
+{
+    "id": 10,
+    "template_blocks": [
+        {
+            "id": 26,
+            "template_questions": [
+                {
+                    "id": 55,
+                    "template_question_choices": [],
+                    "question_body": "How would you assess this service?",
+                    "type": "n",
+                    "max_score": null,
+                    "order": 1,
+                    "weight": "1.00",
+                    "show_comment": true,
+                    "questionnaire_template": 10,
+                    "template_block": 26
+                },
+                {
+                    "id": 56,
+                    "template_question_choices": [
+                        {
+                            "id": 93,
+                            "text": "Româna",
+                            "score": "0.00",
+                            "weight": "0.00",
+                            "order": 1,
+                            "template_question": 56
+                        },
+                        {
+                            "id": 94,
+                            "text": "Engleza",
+                            "score": "0.00",
+                            "weight": "0.00",
+                            "order": 2,
+                            "template_question": 56
+                        }
+                    ],
+                    "question_body": "What language do you speak",
+                    "type": "s",
+                    "max_score": null,
+                    "order": 2,
+                    "weight": "1.00",
+                    "show_comment": true,
+                    "questionnaire_template": 10,
+                    "template_block": 26
+                },
+                {
+                    "id": 57,
+                    "template_question_choices": [
+                        {
+                            "id": 95,
+                            "text": "14-18",
+                            "score": "0.00",
+                            "weight": "0.00",
+                            "order": 1,
+                            "template_question": 57
+                        },
+                        {
+                            "id": 96,
+                            "text": "19-25",
+                            "score": "0.00",
+                            "weight": "0.00",
+                            "order": 2,
+                            "template_question": 57
+                        },
+                        {
+                            "id": 97,
+                            "text": "26-100",
+                            "score": "0.00",
+                            "weight": "0.00",
+                            "order": 3,
+                            "template_question": 57
+                        }
+                    ],
+                    "question_body": "Vârsta",
+                    "type": "s",
+                    "max_score": null,
+                    "order": 3,
+                    "weight": "0.00",
+                    "show_comment": true,
+                    "questionnaire_template": 10,
+                    "template_block": 26
+                },
+                {
+                    "id": 58,
+                    "template_question_choices": [
+                        {
+                            "id": 98,
+                            "text": "Masculin",
+                            "score": "0.00",
+                            "weight": "0.00",
+                            "order": 1,
+                            "template_question": 58
+                        },
+                        {
+                            "id": 99,
+                            "text": "Feminin",
+                            "score": "0.00",
+                            "weight": "0.00",
+                            "order": 2,
+                            "template_question": 58
+                        }
+                    ],
+                    "question_body": "Sexul",
+                    "type": "s",
+                    "max_score": null,
+                    "order": 4,
+                    "weight": "0.00",
+                    "show_comment": true,
+                    "questionnaire_template": 10,
+                    "template_block": 26
+                }
+            ],
+            "title": "NPS main block",
+            "weight": "1.00",
+            "order": 1,
+            "lft": 1,
+            "rght": 2,
+            "tree_id": 17,
+            "level": 0,
+            "questionnaire_template": 10,
+            "parent_block": null
+        }
+    ],
+    "title": "NPS Questionnaire v2",
+    "type": "m",
+    "description": "NPS Template 2",
+    "is_editable": true,
+    "tenant": 1
+}

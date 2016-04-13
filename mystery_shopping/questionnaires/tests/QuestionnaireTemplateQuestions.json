@@ -1,0 +1,33 @@
+[
+  {
+     "template_question_choices":[
+        {
+           "text":"Da",
+           "order":1,
+           "score":"1.00",
+           "weight":"0.50"
+        },
+        {
+           "text":"Nu",
+           "order":2,
+           "score":"0.00",
+           "weight":"0.50"
+        }
+     ],
+     "question_body":"Curățenie în sală",
+     "order": 1,
+     "type":"s",
+     "max_score": 1,
+     "order": 1,
+     "weight":"20.00"
+  },
+  {
+     "template_question_choices": [],
+     "question_body":"Curățenie în sală",
+     "order": 1,
+     "type":"s",
+     "max_score": 1,
+     "order": 2,
+     "weight":"20.00"
+  }
+]
