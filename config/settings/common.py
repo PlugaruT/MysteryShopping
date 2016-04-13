@@ -56,6 +56,7 @@ LOCAL_APPS = (
     'mystery_shopping.projects',
     'mystery_shopping.mystery_shopping_utils',
     'mystery_shopping.nps',
+    'mystery_shopping.dashboard',
 )
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -259,7 +260,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        # 'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
     )
 #     'DEFAULT_PARSER_CLASSES': (
