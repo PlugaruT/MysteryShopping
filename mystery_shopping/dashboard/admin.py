@@ -1,3 +1,9 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import DashboardTemplate
+from .models import DashboardComment
+
+
+@admin.register(DashboardTemplate, DashboardComment)
+class CodedCause(admin.ModelAdmin):
+    pass
