@@ -95,27 +95,27 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
 
-class TenantProductManagerViewSet(FilterQuerysetOnTenantMixIn,viewsets.ModelViewSet):
+class TenantProductManagerViewSet(FilterQuerysetOnTenantMixIn, viewsets.ModelViewSet):
     queryset = TenantProductManager.objects.all()
     serializer_class = TenantProductManagerSerializer
 
 
-class TenantProjectManagerViewSet(FilterQuerysetOnTenantMixIn,viewsets.ModelViewSet):
+class TenantProjectManagerViewSet(FilterQuerysetOnTenantMixIn, viewsets.ModelViewSet):
     queryset = TenantProjectManager.objects.all()
     serializer_class = TenantProjectManagerSerializer
 
 
-class TenantConsultantViewSet(FilterQuerysetOnTenantMixIn,viewsets.ModelViewSet):
+class TenantConsultantViewSet(FilterQuerysetOnTenantMixIn, viewsets.ModelViewSet):
     queryset = TenantConsultant.objects.all()
     serializer_class = TenantConsultantSerializer
 
 
-class ClientEmployeeViewSet(FilterQuerysetOnTenantMixIn,viewsets.ModelViewSet):
+class ClientEmployeeViewSet(FilterQuerysetOnTenantMixIn,  viewsets.ModelViewSet):
     queryset = ClientEmployee.objects.all()
     serializer_class = ClientEmployeeSerializer
 
 
-class ClientManagerViewSet(FilterQuerysetOnTenantMixIn,viewsets.ModelViewSet):
+class ClientManagerViewSet(FilterQuerysetOnTenantMixIn, viewsets.ModelViewSet):
     queryset = ClientManager.objects.all()
     serializer_class = ClientManagerSerializer
 
@@ -156,7 +156,7 @@ class CollectorViewSet(viewsets.ModelViewSet):
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
 
 
-class PersonToAssessViewSet(FilterQuerysetOnTenantMixIn,viewsets.ModelViewSet):
+class PersonToAssessViewSet(FilterQuerysetOnTenantMixIn, viewsets.ModelViewSet):
     queryset = PersonToAssess.objects.all()
     serializer_class = PersonToAssessSerializer
 
