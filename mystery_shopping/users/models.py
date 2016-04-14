@@ -243,7 +243,8 @@ class Shopper(models.Model):
     """
     # Relations
     user = models.OneToOneField(User, related_name='shopper')
-
+    tenant = models.ForeignKey(Tenant, related_name='shoppers', null=True, blank=True)
+    
     # Attributes
     is_collector = models.BooleanField(default=False)
     date_of_birth = models.DateField()
