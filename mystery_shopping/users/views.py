@@ -4,6 +4,7 @@ import json
 
 from django.core.urlresolvers import reverse
 from django.views.generic import DetailView, ListView, RedirectView, UpdateView
+from django.db.models import Q
 
 from rest_framework import viewsets
 from rest_framework import status
@@ -35,6 +36,16 @@ from .serializers import PersonToAssessSerializer
 from mystery_shopping.users.permissions import IsTenantProductManager, IsShopperAccountOwner
 from mystery_shopping.users.permissions import IsTenantProjectManager
 from mystery_shopping.users.permissions import IsTenantConsultant
+
+
+class FilterQuerysetOnTenantMixIn:
+    """
+    Mixin class that adds 'get_queryset' that filters the queryset agains the request.user.tenant
+    """
+    def get_queryset(self):
+        queryset = self.queryset
+        queryset = queryset.filter(tenant=self.request.user.tenant)
+        return queryset
 
 
 class UserDetailView(LoginRequiredMixin, DetailView):
@@ -84,27 +95,27 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
 
-class TenantProductManagerViewSet(viewsets.ModelViewSet):
+class TenantProductManagerViewSet(FilterQuerysetOnTenantMixIn,viewsets.ModelViewSet):
     queryset = TenantProductManager.objects.all()
     serializer_class = TenantProductManagerSerializer
 
 
-class TenantProjectManagerViewSet(viewsets.ModelViewSet):
+class TenantProjectManagerViewSet(FilterQuerysetOnTenantMixIn,viewsets.ModelViewSet):
     queryset = TenantProjectManager.objects.all()
     serializer_class = TenantProjectManagerSerializer
 
 
-class TenantConsultantViewSet(viewsets.ModelViewSet):
+class TenantConsultantViewSet(FilterQuerysetOnTenantMixIn,viewsets.ModelViewSet):
     queryset = TenantConsultant.objects.all()
     serializer_class = TenantConsultantSerializer
 
 
-class ClientEmployeeViewSet(viewsets.ModelViewSet):
+class ClientEmployeeViewSet(FilterQuerysetOnTenantMixIn,viewsets.ModelViewSet):
     queryset = ClientEmployee.objects.all()
     serializer_class = ClientEmployeeSerializer
 
 
-class ClientManagerViewSet(viewsets.ModelViewSet):
+class ClientManagerViewSet(FilterQuerysetOnTenantMixIn,viewsets.ModelViewSet):
     queryset = ClientManager.objects.all()
     serializer_class = ClientManagerSerializer
 
@@ -113,6 +124,13 @@ class ShopperViewSet(viewsets.ModelViewSet):
     queryset = Shopper.objects.all()
     serializer_class = ShopperSerializer
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
+
+    def get_queryset(self):
+        """Filter the Shoppers by tenant (if they belong to the request.tenant or have no tenant)
+        """
+        queryset = self.queryset
+        queryset = queryset.filter(Q(tenant__isnull=True) | Q(tenant=self.request.user.tenant))
+        return queryset
 
     @detail_route(permission_classes=(IsShopperAccountOwner,))
     def imacollector(self, request, *args, **kwargs):
@@ -138,7 +156,7 @@ class CollectorViewSet(viewsets.ModelViewSet):
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
 
 
-class PersonToAssessViewSet(viewsets.ModelViewSet):
+class PersonToAssessViewSet(FilterQuerysetOnTenantMixIn,viewsets.ModelViewSet):
     queryset = PersonToAssess.objects.all()
     serializer_class = PersonToAssessSerializer
 
