@@ -40,6 +40,23 @@ class DashboardTemplateSerializer(serializers.ModelSerializer):
         dashboard.save()
         return dashboard
 
+    def update(self, instance, validated_data):
+        structure = validated_data.get('structure', [])
+
+        deserialized_structure = loads(structure)
+        for tile in deserialized_structure:
+            if tile.get('show_comment', False):
+                if tile.get('comment_source', None) is None:
+                    comment = DashboardComment.objects.create(dashboard=instance)
+                    tile['comment_source'] = comment.pk
+
+        structure = dumps(deserialized_structure)
+        instance.structure = structure
+        instance.save()
+        return instance
+
+
+
 
 class DashboardCommentSerializer(serializers.ModelSerializer):
     """
