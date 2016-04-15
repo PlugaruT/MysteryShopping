@@ -4,7 +4,6 @@ from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
-from model_utils.managers import PassThroughManager
 
 from mptt.models import MPTTModel, TreeForeignKey
 
@@ -84,7 +83,7 @@ class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
     score = models.DecimalField(max_digits=5, decimal_places=2, null=True)
     weight = models.PositiveSmallIntegerField(default=100)
 
-    objects = PassThroughManager.for_queryset_class(QuestionnaireQuerySet)()
+    objects = models.Manager.from_queryset(QuestionnaireQuerySet)()
 
     class Meta:
         default_related_name = 'questionnaires'
@@ -249,7 +248,7 @@ class QuestionnaireQuestion(QuestionAbstract):
     comment = models.TextField(null=True, blank=True)
     answer_choices = ArrayField(models.IntegerField(), null=True, blank=True)
 
-    objects = PassThroughManager.for_queryset_class(QuestionnaireQuestionQuerySet)()
+    objects = models.Manager.from_queryset(QuestionnaireQuestionQuerySet)()
 
     class Meta:
         default_related_name = 'questions'

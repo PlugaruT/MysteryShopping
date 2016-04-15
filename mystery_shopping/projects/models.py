@@ -2,7 +2,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.db import models
 from model_utils import Choices
-from model_utils.managers import PassThroughManager
 from model_utils.models import TimeStampedModel
 from model_utils.fields import StatusField
 
@@ -79,7 +78,7 @@ class Project(models.Model):
                                  ('c', 'Customer Experience Index Questionnaire'))
     type = models.CharField(max_length=1, choices=type_questionnaire, default=type_questionnaire.m)
 
-    objects = PassThroughManager.for_queryset_class(ProjectQuerySet)()
+    objects = models.Manager.from_queryset(ProjectQuerySet)()
 
     class Meta:
         default_related_name = 'projects'
