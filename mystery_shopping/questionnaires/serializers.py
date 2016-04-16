@@ -11,7 +11,8 @@ from .models import QuestionnaireQuestion
 from .models import QuestionnaireTemplateQuestion
 from .models import QuestionnaireTemplateQuestionChoice
 from .models import QuestionnaireQuestionChoice
-from .validators import ValidateQuestion
+from .models import CrossIndexTemplate
+from .models import CrossIndex
 
 
 class QuestionnaireTemplateQuestionChoiceSerializer(serializers.ModelSerializer):
@@ -350,3 +351,40 @@ class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
                 setattr(instance, attr, value)
             instance.save()
         return instance
+
+
+class CrossIndexTemplateSerializer(serializers.ModelSerializer):
+    """
+
+    """
+    class Meta:
+        model = CrossIndexTemplate
+        fields = '__all__'
+
+    def validate(self, attrs):
+        questionnaire_template = attrs.get('questionnaire_template', None)
+        question_templates = attrs.get('question_templates', [])
+
+        for template_question in question_templates:
+            if template_question.questionnaire_template.id != questionnaire_template.id:
+                raise serializers.ValidationError({'question_templates': 'Template Questions don\'t correspond to the Questionnaire Template'})
+        return attrs
+
+
+class CrossIndexSerializer(serializers.ModelSerializer):
+    """
+
+    """
+    class Meta:
+        model = CrossIndex
+        fields = '__all__'
+
+    def validate(self, attrs):
+        questionnaire = attrs.get('questionnaire', None)
+        question = attrs.get('questions', [])
+
+        for question in question:
+            if question.questionnaire.id != questionnaire.id:
+                raise serializers.ValidationError({'question': 'Questions don\'t correspond to the Questionnaire'})
+        return attrs
+

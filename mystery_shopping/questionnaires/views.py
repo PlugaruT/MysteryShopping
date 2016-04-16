@@ -15,6 +15,8 @@ from .models import QuestionnaireQuestion
 from .models import QuestionnaireTemplateQuestion
 from .models import QuestionnaireQuestionChoice
 from .models import QuestionnaireTemplateQuestionChoice
+from .models import CrossIndexTemplate
+from .models import CrossIndex
 from .serializers import QuestionnaireScriptSerializer
 from .serializers import QuestionnaireSerializer
 from .serializers import QuestionnaireTemplateSerializer
@@ -24,6 +26,8 @@ from .serializers import QuestionnaireQuestionSerializer
 from .serializers import QuestionnaireTemplateQuestionSerializer
 from .serializers import QuestionnaireQuestionChoiceSerializer
 from .serializers import QuestionnaireTemplateQuestionChoiceSerializer
+from .serializers import CrossIndexTemplateSerializer
+from .serializers import CrossIndexSerializer
 from .constants import IndicatorQuestionType
 
 from mystery_shopping.users.permissions import IsTenantProductManager
@@ -181,4 +185,15 @@ class QuestionnaireTemplateQuestionChoiceViewSet(viewsets.ModelViewSet):
 class QuestionnaireQuestionChoiceViewSet(viewsets.ModelViewSet):
     queryset = QuestionnaireQuestionChoice.objects.all()
     serializer_class = QuestionnaireQuestionChoiceSerializer
+    permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)
+
+
+class CrossIndexTemplateViewSet(viewsets.ModelViewSet):
+    queryset = CrossIndexTemplate.objects.all()
+    serializer_class = CrossIndexTemplateSerializer
+    permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)
+
+class CrossIndexViewSet(viewsets.ModelViewSet):
+    queryset = CrossIndex.objects.all()
+    serializer_class = CrossIndexSerializer
     permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)
