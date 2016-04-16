@@ -9,9 +9,11 @@ from .models import QuestionnaireTemplateQuestion
 from .models import QuestionnaireQuestion
 from .models import QuestionnaireTemplateQuestionChoice
 from .models import QuestionnaireQuestionChoice
+from .models import CrossIndexTemplate
+from .models import CrossIndex
 
 
-@admin.register(QuestionnaireScript, QuestionnaireTemplate, Questionnaire, QuestionnaireTemplateBlock, QuestionnaireBlock, QuestionnaireTemplateQuestion, QuestionnaireTemplateQuestionChoice, QuestionnaireQuestionChoice)
+@admin.register(QuestionnaireScript, QuestionnaireTemplate, Questionnaire, QuestionnaireTemplateBlock, QuestionnaireBlock, QuestionnaireTemplateQuestion, QuestionnaireTemplateQuestionChoice, QuestionnaireQuestionChoice, CrossIndexTemplate, CrossIndex)
 class QuestionnaireAdmin(admin.ModelAdmin):
     pass
 
