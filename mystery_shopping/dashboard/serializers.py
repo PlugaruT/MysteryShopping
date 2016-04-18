@@ -43,12 +43,24 @@ class DashboardTemplateSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         structure = validated_data.get('structure', [])
 
+        comment_set = set()
         deserialized_structure = loads(structure)
         for tile in deserialized_structure:
+            comment_set.add(tile.get('comment_source', None))
             if tile.get('show_comment', False):
                 if tile.get('comment_source', None) is None:
                     comment = DashboardComment.objects.create(dashboard=instance)
                     tile['comment_source'] = comment.pk
+
+        try:
+            comment_set.remove(None)
+        except KeyError:
+            pass
+
+        # Delete all comments whose tiles have been removed
+        for comment in instance.dashboard_comments.all():
+            if comment.id not in comment_set:
+                comment.delete()
 
         structure = dumps(deserialized_structure)
         instance.structure = structure
