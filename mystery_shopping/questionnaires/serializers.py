@@ -60,7 +60,6 @@ class QuestionnaireQuestionSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         question_choices = validated_data.pop('question_choices', None)
-
         question = QuestionnaireQuestion.objects.create(**validated_data)
 
         for question_choice in question_choices:
@@ -173,6 +172,7 @@ class QuestionnaireBlockSerializer(serializers.ModelSerializer):
 
         for question in questions:
             # print(question)
+            question['template_question'] = question['template_question'].id
             question['questionnaire'] = block.questionnaire.id
             question['block'] = block.id
             block_question_ser = QuestionnaireQuestionSerializer(data=question)
@@ -281,6 +281,11 @@ class QuestionnaireSerializer(serializers.ModelSerializer):
                     order_number = block.pop('order_number', None)
                     block.pop('parent_order_number', None)
                     block['parent_block'] = None
+                    # When sending id it get's the object, but this throws an error
+                    # so I'm "reverting" the process
+                    block['template_block'] = block['template_block'].id
+                    for question in block['questions']:
+                        question['template_question'] = question['template_question'].id
                     block_ser = QuestionnaireBlockSerializer(data=block)
                     block_ser.is_valid(raise_exception=True)
                     block_ser.save()
@@ -288,7 +293,12 @@ class QuestionnaireSerializer(serializers.ModelSerializer):
                 else:
                     block['parent_block'] = parents[block['parent_order_number']]
                     order_number = block.pop('order_number', None)
+                    # When sending id it get's the object, but this throws an error
+                    # so I'm "reverting" the process
                     block.pop('parent_order_number', None)
+                    block['template_block'] = block['template_block'].id
+                    for question in block['questions']:
+                        question['template_question'] = question['template_question'].id
                     block_ser = QuestionnaireBlockSerializer(data=block)
                     block_ser.is_valid(raise_exception=True)
                     block_ser.save()

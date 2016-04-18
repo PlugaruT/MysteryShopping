@@ -313,10 +313,12 @@ class EvaluationSerializer(serializers.ModelSerializer):
             questionnaire_to_create = OrderedDict(questionnaire_template_serialized.data)
             questionnaire_to_create['blocks'] = questionnaire_to_create.pop('template_blocks')
             for block in questionnaire_to_create['blocks']:
+                block['template_block'] = block.get('id')
                 block['order_number'] = block.pop('id')
                 block['parent_order_number'] = block.pop('parent_block')
                 block['questions'] = block.pop('template_questions')
                 for question in block['questions']:
+                    question['template_question'] = question.pop('id')
                     question['question_choices'] = question.pop('template_question_choices')
 
         else:
