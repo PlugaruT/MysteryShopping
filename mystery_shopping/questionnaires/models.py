@@ -163,6 +163,7 @@ class QuestionnaireBlock(QuestionnaireBlockAbstract, MPTTModel):
     # Relations
     questionnaire = models.ForeignKey(Questionnaire, related_name='blocks')
     parent_block = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
+    template_block = models.ForeignKey(QuestionnaireTemplateBlock, related_name='blocks')
 
     # Attributes
     score = models.DecimalField(max_digits=5, decimal_places=2, null=True)
@@ -241,6 +242,7 @@ class QuestionnaireQuestion(QuestionAbstract):
     """
     questionnaire = models.ForeignKey(Questionnaire)
     block = models.ForeignKey(QuestionnaireBlock)
+    template_question = models.ForeignKey(QuestionnaireTemplateQuestion)
 
     # Attributes
     score = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
