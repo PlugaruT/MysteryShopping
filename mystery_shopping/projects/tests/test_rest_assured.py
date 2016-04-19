@@ -75,6 +75,7 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
         evaluation_ser = EvaluationSerializer(data=evaluation_data)
         evaluation_ser.is_valid(raise_exception=True)
         evaluation_ser.save()
+
         questionnaire = Questionnaire.objects.get(pk=evaluation_ser.data['questionnaire']['id'])
         for question in questionnaire.questions.all():
             for question_choice in question.question_choices.all():
@@ -83,11 +84,22 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
                     question.answer_choices = [question_choice.id]
                     question.save()
 
-        evaluation_data = {
 
-        }
-        questionnaire.calculate_score()
-        self.assertEqual(questionnaire.score, Decimal(100))
+        # Get updated evaluation
+        evaluation_ser = EvaluationSerializer(evaluation_ser.instance)
+        for block in evaluation_ser.data['questionnaire']['blocks']:
+            for question in block['questions']:
+                question['question_id'] = question['id']
+        import copy
+        # create an editable copy
+        eval_data = copy.deepcopy(evaluation_ser.data)
+        eval_data['status'] = ProjectStatus.SUBMITTED
+
+        evaluation_ser = EvaluationSerializer(evaluation_ser.instance, data=eval_data)
+        evaluation_ser.is_valid(raise_exception=True)
+        evaluation_ser.save()
+
+        self.assertEqual(Decimal(evaluation_ser.data['questionnaire']['score']), Decimal(100))
 
     def test_questionnaire_score_75(self):
         template_questionnaire_json_data = json.load(open("mystery_shopping/questionnaires/tests/QuestionnaireTemplates.json"))
@@ -123,5 +135,18 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
                     question.answer_choices = [question_choice.id]
                     question.save()
 
-        questionnaire.calculate_score()
-        self.assertEqual(questionnaire.score, Decimal(75))
+        # Get updated evaluation
+        evaluation_ser = EvaluationSerializer(evaluation_ser.instance)
+        for block in evaluation_ser.data['questionnaire']['blocks']:
+            for question in block['questions']:
+                question['question_id'] = question['id']
+        import copy
+        # create an editable copy
+        eval_data = copy.deepcopy(evaluation_ser.data)
+        eval_data['status'] = ProjectStatus.SUBMITTED
+
+        evaluation_ser = EvaluationSerializer(evaluation_ser.instance, data=eval_data)
+        evaluation_ser.is_valid(raise_exception=True)
+        evaluation_ser.save()
+
+        self.assertEqual(Decimal(evaluation_ser.data['questionnaire']['score']), Decimal(75))
