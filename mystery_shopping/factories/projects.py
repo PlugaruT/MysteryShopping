@@ -21,6 +21,8 @@ from mystery_shopping.projects.models import ResearchMethodology
 from mystery_shopping.projects.models import Project
 from mystery_shopping.projects.constants import ProjectStatus
 from mystery_shopping.projects.models import Evaluation
+from mystery_shopping.projects.models import EvaluationAssessmentLevel
+from mystery_shopping.projects.models import EvaluationAssessmentComment
 
 
 class ResearchMethodologyFactory(DjangoModelFactory):
@@ -94,3 +96,21 @@ class EvaluationFactory(DjangoModelFactory):
     #                      ProjectStatus.REJECTED,)
     status = ProjectStatus.PLANNED
     time_accomplished = None
+
+
+class EvaluationAssessmentLevelFactory(DjangoModelFactory):
+    class Meta:
+        model = EvaluationAssessmentLevel
+
+    project = SubFactory(ProjectFactory)
+    previous_level = None
+    project_manager = SubFactory(TenantProjectManagerFactory)
+    level = 0
+
+    @post_generation
+    def consultants(self, create, consultants, **kwargs):
+        if not create:
+            return
+        if consultants:
+            for consultant in consultants:
+                self.consultants.add(consultant)

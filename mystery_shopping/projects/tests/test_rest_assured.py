@@ -16,6 +16,7 @@ from mystery_shopping.projects.constants import ProjectStatus
 from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFactory
 from mystery_shopping.factories.projects import ProjectFactory
 from mystery_shopping.factories.projects import EvaluationFactory
+from mystery_shopping.factories.projects import EvaluationAssessmentLevelFactory
 from mystery_shopping.factories.tenants import TenantFactory
 from mystery_shopping.factories.users import UserThatIsTenantProductManagerFactory
 
@@ -150,3 +151,56 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
         evaluation_ser.save()
 
         self.assertEqual(Decimal(evaluation_ser.data['questionnaire']['score']), Decimal(75))
+
+    def test_status_change_with_evaluation_ass_level(self):
+        template_questionnaire_json_data = json.load(open("mystery_shopping/questionnaires/tests/QuestionnaireTemplates.json"))
+        template_questionnaire_json = template_questionnaire_json_data[2]
+        tenant = TenantFactory()
+        template_questionnaire_json['tenant'] = tenant.id
+        template_questionnaire_ser = QuestionnaireTemplateSerializer(data=template_questionnaire_json)
+        template_questionnaire_ser.is_valid(raise_exception=True)
+        template_questionnaire_ser.save()
+        evaluation_assessment_level = EvaluationAssessmentLevelFactory(consultants=[])
+
+        evaluation_data = {
+            "evaluation_type": "visit",
+            "is_draft": False,
+            "suggested_start_date": datetime(2008, 1, 1),
+            "suggested_end_date": datetime(2016, 1, 1),
+            "status": ProjectStatus.PLANNED,
+            "time_accomplished": None,
+            "project": self.object.project.id,
+            "shopper": self.object.shopper.id,
+            "questionnaire_script": self.object.questionnaire_script.id,
+            "questionnaire_template": template_questionnaire_ser.instance.id,
+            "entity": self.object.entity.id,
+            "evaluation_assessment_level": evaluation_assessment_level.id
+        }
+        evaluation_ser = EvaluationSerializer(data=evaluation_data)
+        evaluation_ser.is_valid(raise_exception=True)
+        evaluation_ser.save()
+
+        questionnaire = Questionnaire.objects.get(pk=evaluation_ser.data['questionnaire']['id'])
+        for question in questionnaire.questions.all():
+            for question_choice in question.question_choices.all():
+                # Select all questions with "positive" score
+                if question_choice.text in {'A', 'Adevar', 'Yes'}:
+                    question.answer_choices = [question_choice.id]
+                    question.save()
+
+
+        # Get updated evaluation
+        evaluation_ser = EvaluationSerializer(evaluation_ser.instance)
+        for block in evaluation_ser.data['questionnaire']['blocks']:
+            for question in block['questions']:
+                question['question_id'] = question['id']
+        import copy
+        # create an editable copy
+        eval_data = copy.deepcopy(evaluation_ser.data)
+        eval_data['status'] = ProjectStatus.APPROVED
+
+        evaluation_ser = EvaluationSerializer(evaluation_ser.instance, data=eval_data)
+        evaluation_ser.is_valid(raise_exception=True)
+        evaluation_ser.save()
+
+        self.assertEqual(evaluation_ser.data['status'], ProjectStatus.SUBMITTED)
