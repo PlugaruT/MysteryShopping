@@ -116,21 +116,20 @@ class ResearchMethodologySerializer(serializers.ModelSerializer):
 
         research_methodology = ResearchMethodology.objects.create(**validated_data)
 
-        for script in scripts:
-            research_methodology.scripts.add(script)
+        research_methodology.scripts.set(scripts)
+        research_methodology.questionnaires.set(questionnaires)
 
-        for questionnaire in questionnaires:
-            research_methodology.questionnaires.add(questionnaire)
-
+        places_to_set = list()
         for place_to_assess in places_to_assess:
             place_to_assess['research_methodology'] = research_methodology
-            place_to_assess_instance = PlaceToAssess.objects.create(**place_to_assess)
-            research_methodology.places_to_assess.add(place_to_assess_instance)
+            places_to_set.append(PlaceToAssess.objects.create(**place_to_assess))
+        research_methodology.places_to_assess.set(places_to_set)
 
+        people_to_set = list()
         for person_to_assess in people_to_assess:
             person_to_assess['research_methodology'] = research_methodology
-            person_to_assess_instance = PersonToAssess.objects.create(**person_to_assess)
-            research_methodology.people_to_assess.add(person_to_assess_instance)
+            people_to_set.append(PersonToAssess.objects.create(**person_to_assess))
+        research_methodology.people_to_assess.set(people_to_set)
 
         if project_id:
             project_to_set = Project.objects.filter(pk=project_id).first()
@@ -151,21 +150,20 @@ class ResearchMethodologySerializer(serializers.ModelSerializer):
 
         instance.prepare_for_update()
 
-        for script in scripts:
-            instance.scripts.add(script)
+        instance.scripts.set(scripts)
+        instance.questionnaires.set(questionnaires)
 
-        for questionnaire in questionnaires:
-            instance.questionnaires.add(questionnaire)
-
+        places_to_set = list()
         for place_to_assess in places_to_assess:
             place_to_assess['research_methodology'] = instance
-            place_to_assess_instance = PlaceToAssess.objects.create(**place_to_assess)
-            instance.places_to_assess.add(place_to_assess_instance)
+            places_to_set.append(PlaceToAssess.objects.create(**place_to_assess))
+        instance.places_to_assess.set(places_to_set)
 
+        people_to_set = list()
         for person_to_assess in people_to_assess:
             person_to_assess['research_methodology'] = instance
-            person_to_assess_instance = PersonToAssess.objects.create(**person_to_assess)
-            instance.people_to_assess.add(person_to_assess_instance)
+            people_to_set.append(PersonToAssess.objects.create(**person_to_assess))
+        instance.people_to_assess.set(people_to_set)
 
         if project_id:
             project_to_set = Project.objects.filter(pk=project_id).first()
@@ -215,8 +213,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
         project = Project.objects.create(**validated_data)
 
-        for consultant in consultants:
-            project.consultants.add(consultant)
+        project.consultants.set(consultants)
 
         if research_methodology is not None:
             research_methodology['project_id'] = project.id
@@ -231,10 +228,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         consultants = validated_data.pop('consultants', [])
         research_methodology = validated_data.pop('research_methodology', None)
 
-        instance.prepare_for_update()
-
-        for consultant in consultants:
-            instance.consultants.add(consultant)
+        instance.consultants.set(consultants)
 
         if research_methodology is not None:
             research_methodology_instance = instance.research_methodology

@@ -228,7 +228,7 @@ def collect_data_for_indicator_dashboard(project, entity_id, indicator_type):
         response['general'] = calculate_indicator_score(indicator_list)
 
         indicator_details = get_indicator_details(questionnaire_list, indicator_type)
-        
+
         response['details'] = indicator_details['details']
 
         response['coded_causes'] = indicator_details['coded_causes']
