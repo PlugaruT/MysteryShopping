@@ -75,20 +75,30 @@ def group_questions_by_answer(questionnaire_list, indicator_type, indicator_deta
     :return: the indicator's marks distributed per question choice selected
     :rtype: defaultdict
     """
+
+    coded_causes_dict = defaultdict(list)
+
     # indicator_details = defaultdict(lambda: defaultdict(list))
     for questionnaire in questionnaire_list:
-        questionnaire_indicator_score = questionnaire.questions.filter(type=indicator_type).first()
-        if questionnaire_indicator_score:
+        questionnaire_indicator_question = questionnaire.questions.filter(type=indicator_type).first()
+
+        # get all coded causes
+        if questionnaire_indicator_question.coded_causes.first():
+            coded_causes_dict[questionnaire_indicator_question.coded_causes.first().id].append(questionnaire_indicator_question.id)
+        else:
+            coded_causes_dict['unsorted'].append(questionnaire_indicator_question.id)
+
+        if questionnaire_indicator_question:
             for question in questionnaire.questions.all():
                 if question.type not in IndicatorQuestionType.INDICATORS_LIST:
                     if question.answer_choices not in [None, []]:
-                        indicator_details[question.question_body][question.answer]['marks'].append(questionnaire_indicator_score.score)
+                        indicator_details[question.question_body][question.answer]['marks'].append(questionnaire_indicator_question.score)
                     else:
-                        indicator_details[question.question_body]['other']['marks'].append(questionnaire_indicator_score.score)
+                        indicator_details[question.question_body]['other']['marks'].append(questionnaire_indicator_question.score)
                         if question.answer.capitalize() not in indicator_details[question.question_body]['other']['other_choices']:
                             indicator_details[question.question_body]['other']['other_choices'].append(question.answer)
 
-    return indicator_details
+    return indicator_details, coded_causes_dict
 
 
 def group_questions_by_pos(questionnaire_list, indicator_type):
@@ -129,7 +139,7 @@ def get_indicator_details(questionnaire_list, indicator_type):
     """
     details = list()
     indicator_skeleton = create_details_skeleton(questionnaire_list.first().template)
-    indicator_categories = group_questions_by_answer(questionnaire_list, indicator_type, indicator_skeleton)
+    indicator_categories, coded_causes_dict = group_questions_by_answer(questionnaire_list, indicator_type, indicator_skeleton)
 
     for item_label, responses in indicator_categories.items():
         detail_item = dict()
@@ -163,7 +173,10 @@ def get_indicator_details(questionnaire_list, indicator_type):
 
             details.append(detail_item)
 
-    return details
+    return_dict = dict()
+    return_dict['details'] = details
+    return_dict['coded_causes'] = sort_question_by_coded_cause(questionnaire_list, indicator_type, coded_causes_dict)
+    return return_dict
 
 
 def calculate_overview_score(questionnaire_list):
@@ -175,16 +188,8 @@ def calculate_overview_score(questionnaire_list):
     return overview_list
 
 
-def sort_question_by_coded_cause(questionnaire_list, indicator_type):
-    coded_causes_dict = defaultdict(list)
+def sort_question_by_coded_cause(questionnaire_list, indicator_type, coded_causes_dict):
     coded_causes_response = list()
-
-    for questionnaire in questionnaire_list:
-        indicator_question = questionnaire.questions.filter(type=indicator_type).first()
-        if indicator_question.coded_causes.first():
-            coded_causes_dict[indicator_question.coded_causes.first().id].append(indicator_question.id)
-        else:
-            coded_causes_dict['unsorted'].append(indicator_question.id)
 
     for coded_cause in coded_causes_dict:
         temp_dict = dict()
@@ -222,9 +227,11 @@ def collect_data_for_indicator_dashboard(project, entity_id, indicator_type):
         indicator_list = get_indicator_scores(questionnaire_list, indicator_type)
         response['general'] = calculate_indicator_score(indicator_list)
 
-        response['details'] = get_indicator_details(questionnaire_list, indicator_type)
+        indicator_details = get_indicator_details(questionnaire_list, indicator_type)
+        
+        response['details'] = indicator_details['details']
 
-        response['coded_causes'] = sort_question_by_coded_cause(questionnaire_list, indicator_type)
+        response['coded_causes'] = indicator_details['coded_causes']
     else:
         response['general'] = calculate_indicator_score([])
 
