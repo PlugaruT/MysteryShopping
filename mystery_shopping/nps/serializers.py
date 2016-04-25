@@ -2,6 +2,8 @@ from rest_framework import serializers
 
 from .models import CodedCauseLabel
 from .models import CodedCause
+from .models import ProjectComment
+
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 
 
@@ -54,3 +56,12 @@ class QuestionnaireQuestionToEncodeSerializer(serializers.ModelSerializer):
         model = QuestionnaireQuestion
         fields = ('answer', 'type', 'id', 'coded_causes', 'score')
         read_only_fields = ('answer', 'type', 'id', 'coded_causes', 'score')
+
+
+class ProjectCommentSerializer(serializers.ModelSerializer):
+    """
+
+    """
+    class Meta:
+        model = ProjectComment
+        fields = '__all__'

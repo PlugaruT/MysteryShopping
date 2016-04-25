@@ -6,6 +6,7 @@ from rest_framework.routers import DefaultRouter
 
 from .views import CodedCauseLabelViewSet
 from .views import CodedCauseViewSet
+from .views import ProjectCommentViewSet
 from .views import OverviewDashboard
 from .views import IndicatorDashboard
 
@@ -13,6 +14,7 @@ from .views import IndicatorDashboard
 router = DefaultRouter()
 router.register(r'codedcauselabels', CodedCauseLabelViewSet)
 router.register(r'codedcauses', CodedCauseViewSet)
+router.register(r'projectcomments', ProjectCommentViewSet)
 
 urlpatterns = [
     url(r'^cxi/overview/$',

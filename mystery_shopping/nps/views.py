@@ -16,10 +16,12 @@ from .algorithms import collect_data_for_indicator_dashboard
 from .algorithms import collect_data_for_overview_dashboard
 from .models import CodedCauseLabel
 from .models import CodedCause
+from .models import ProjectComment
 from mystery_shopping.nps.serializers import QuestionnaireQuestionToEncodeSerializer
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from .serializers import CodedCauseLabelSerializer
 from .serializers import CodedCauseSerializer
+from .serializers import ProjectCommentSerializer
 
 # from mystery_shopping.questionnaires.models import QuestionnaireTemplate
 from mystery_shopping.projects.models import Project
@@ -50,6 +52,11 @@ class CodedCauseViewSet(viewsets.ModelViewSet):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class ProjectCommentViewSet(viewsets.ModelViewSet):
+    queryset = ProjectComment.objects.all()
+    serializer_class = ProjectCommentSerializer
 
 
 class OverviewDashboard(views.APIView):
