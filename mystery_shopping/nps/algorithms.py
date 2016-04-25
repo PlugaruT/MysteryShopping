@@ -43,7 +43,7 @@ def calculate_indicator_score(indicator_marks):
     promoters_marks = []
 
     for score in indicator_marks:
-        score = int(score)
+        # score = int(score)
         if score < 7:
             detractors_marks.append(score)
         elif score < 9:
