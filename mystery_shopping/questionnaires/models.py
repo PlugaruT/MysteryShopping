@@ -334,3 +334,40 @@ class QuestionnaireQuestionChoice(QuestionChoiceAbstract):
     def __str__(self):
         return "Question: {}. text: {}".format(self.question.question_body, self.text)
 
+
+class CrossIndexTemplate(models.Model):
+    """
+
+    """
+    # Relations
+    questionnaire_template = models.ForeignKey(QuestionnaireTemplate)
+    question_templates = models.ManyToManyField(QuestionnaireTemplateQuestion)
+
+    # Attributes
+    title = models.CharField(max_length=40)
+
+    class Meta:
+        default_related_name = 'cross_index_templates'
+
+    def __str__(self):
+        return '{}, TQuestionnaire: {}'.format(self.title, self.questionnaire_template.title)
+
+
+class CrossIndex(models.Model):
+    """
+
+    """
+    # Relations
+    cross_index_template = models.ForeignKey(CrossIndexTemplate)
+    questionnaire = models.ForeignKey(Questionnaire)
+    questions = models.ManyToManyField(QuestionnaireQuestion)
+
+    # Attributes
+    title = models.CharField(max_length=40)
+    score = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+
+    class Meta:
+        default_related_name = 'cross_indexes'
+
+    def __str__(self):
+        return '{}, Questionnaire: {}'.format(self.title, self.questionnaire.title)
