@@ -54,10 +54,11 @@ class ProjectComment(models.Model):
                                 ('j', 'Enjoyability questions'),
                                 ('e', 'Easiness questions'),
                                 ('u', 'Usefulness questions'))
-    general = models.TextField()
-    dynamics = models.TextField()
-    details = models.TextField()
-    causes = models.TextField()
+    indicator = models.CharField(max_length=1, choices=indicator_choices, null=True, blank=True)
+    general = models.TextField(blank=True)
+    dynamics = models.TextField(blank=True)
+    details = models.TextField(blank=True)
+    causes = models.TextField(blank=True)
 
     class Meta:
         default_related_name = 'project_comments'

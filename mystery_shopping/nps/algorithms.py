@@ -4,7 +4,9 @@ from mystery_shopping.questionnaires.models import Questionnaire
 from mystery_shopping.questionnaires.constants import IndicatorQuestionType
 from mystery_shopping.projects.models import Entity
 from mystery_shopping.nps.models import CodedCause
+from mystery_shopping.nps.models import ProjectComment
 from mystery_shopping.nps.serializers import CodedCauseSerializer
+from mystery_shopping.nps.serializers import ProjectCommentSerializer
 
 
 def get_indicator_scores(questionnaire_list, indicator_type):
@@ -179,11 +181,31 @@ def get_indicator_details(questionnaire_list, indicator_type):
     return return_dict
 
 
-def calculate_overview_score(questionnaire_list):
+def get_overview_project_comment(project, entity_id):
+    project_comment = ProjectComment.objects.filter(project=project, entity=entity_id, indicator__isnull=True).first()
+
+    if project_comment is None:
+        return None
+
+    return ProjectCommentSerializer(project_comment).data
+
+
+def get_indicator_project_comment(project, entity_id, indicator_type):
+    project_comment = ProjectComment.objects.filter(project=project, entity=entity_id, indicator=indicator_type).first()
+
+    if project_comment is None:
+        return None
+
+    return ProjectCommentSerializer(project_comment).data
+
+
+def calculate_overview_score(questionnaire_list, project, entity_id):
     overview_list = dict()
     for indicator_type in IndicatorQuestionType.INDICATORS_LIST:
         indicator_list = get_indicator_scores(questionnaire_list, indicator_type)
         overview_list[indicator_type] = calculate_indicator_score(indicator_list)
+
+    overview_list['project_comment'] = get_overview_project_comment(project, entity_id)
 
     return overview_list
 
@@ -232,12 +254,16 @@ def collect_data_for_indicator_dashboard(project, entity_id, indicator_type):
         response['details'] = indicator_details['details']
 
         response['coded_causes'] = indicator_details['coded_causes']
+
+        response['project_comment'] = get_indicator_project_comment(project, entity_id, indicator_type)
     else:
         response['general'] = calculate_indicator_score([])
 
         response['details'] = []
 
         response['coded_causes'] = []
+
+        response['project_comment'] = []
 
     return response
 
@@ -250,4 +276,4 @@ def collect_data_for_overview_dashboard(project, entity_id):
 
     questionnaire_list = Questionnaire.objects.get_project_questionnaires(project, entity)
 
-    return calculate_overview_score(questionnaire_list)
+    return calculate_overview_score(questionnaire_list, project, entity_id)

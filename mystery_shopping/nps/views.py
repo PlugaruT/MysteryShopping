@@ -16,17 +16,19 @@ from .algorithms import collect_data_for_indicator_dashboard
 from .algorithms import collect_data_for_overview_dashboard
 from .models import CodedCauseLabel
 from .models import CodedCause
+from .models import ProjectComment
 from mystery_shopping.nps.serializers import QuestionnaireQuestionToEncodeSerializer
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from .serializers import CodedCauseLabelSerializer
 from .serializers import CodedCauseSerializer
+from .serializers import ProjectCommentSerializer
 
 # from mystery_shopping.questionnaires.models import QuestionnaireTemplate
 from mystery_shopping.projects.models import Project
 # from mystery_shopping.questionnaires.models import Questionnaire
 from mystery_shopping.questionnaires.constants import IndicatorQuestionType
 
-from mystery_shopping.users.permissions import IsCompanyProjectManager
+from mystery_shopping.users.permissions import IsCompanyProjectManager, IsCompanyManager
 from mystery_shopping.users.permissions import IsTenantProductManager
 from mystery_shopping.users.permissions import IsTenantProjectManager
 
@@ -52,18 +54,22 @@ class CodedCauseViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
+class ProjectCommentViewSet(viewsets.ModelViewSet):
+    queryset = ProjectComment.objects.all()
+    serializer_class = ProjectCommentSerializer
+
+
 class OverviewDashboard(views.APIView):
     """
 
     """
-    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager),)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager, IsCompanyManager),)
 
     def get(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
         entity_id = request.query_params.get('entity', None)
         # section_id = request.query_params.get('section', None)
 
-        response = None
         if project_id:
             try:
                 project = Project.objects.get(pk=project_id)
@@ -93,7 +99,7 @@ class IndicatorDashboard(views.APIView):
     :param indicator: can be 'n', 'j', 'e' or 'u'
     """
 
-    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager),)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager, IsCompanyManager),)
 
     def get(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)

@@ -120,4 +120,16 @@ class IsCompanyProjectManager(permissions.BasePermission):
 
 
 
+class IsCompanyManager(permissions.BasePermission):
+    """Permission for TenantProjectManager user.
+    """
+    def has_permission(self, request, view):
+        if request.user:
+            if hasattr(request.user, UserRole.CLIENT_MANAGER):
+                return True
+            return False
+        return False
+
+
+
 # TODO[iulian] add other permissions as needed.
