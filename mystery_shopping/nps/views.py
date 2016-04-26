@@ -70,7 +70,6 @@ class OverviewDashboard(views.APIView):
         entity_id = request.query_params.get('entity', None)
         # section_id = request.query_params.get('section', None)
 
-        response = None
         if project_id:
             try:
                 project = Project.objects.get(pk=project_id)
