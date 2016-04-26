@@ -15,7 +15,11 @@ from .models import Collector
 
 from mystery_shopping.companies.models import Company
 from mystery_shopping.tenants.serializers import TenantSerializer
-
+# try:
+#     from mystery_shopping.companies.serializers import EntitySerializer
+# except ImportError:
+#     import sys
+#     EntitySerializer = sys.modules['mystery_shopping.companies.EntitySerializer']
 
 class SimpleCompanySerializer(serializers.ModelSerializer):
     """A Company serializer that does not have any nested serializer fields."""
@@ -75,11 +79,12 @@ class UserSerializer(serializers.ModelSerializer):
     roles = serializers.ListField(read_only=True, source='user_roles')
     change_username = serializers.BooleanField(write_only=True, required=False)
     company = SimpleCompanySerializer(source='user_company', read_only=True)
+    poses = serializers.ListField(source='list_of_poses', read_only=True)
 
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'change_username',
-                  'roles', 'password', 'confirm_password', 'tenant_repr', 'shopper', 'company')
+                  'roles', 'password', 'confirm_password', 'tenant_repr', 'shopper', 'company', 'poses')
         extra_kwargs = {'username': {'validators': []},
                         'shopper': {'read_only': True},
                         'company': {'read_only': True},

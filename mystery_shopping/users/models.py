@@ -85,6 +85,27 @@ class User(AbstractUser):
             roles.append('admin')
         return roles
 
+    @property
+    def list_of_poses(self):
+        return_list = list()
+        if hasattr(self, 'clientmanager'):
+            # Import it here as at the top it causes an ImportError
+            from mystery_shopping.companies.serializers import SimpleEntitySerializer
+            # Check if he's/she's a manager of a department
+            if self.clientmanager.place_type_id == ContentType.objects.get(app_label='companies', model='department').id:
+                # Return all the entities "under" the department
+                for entity in self.clientmanager.place.entities.all():
+                    # print('From dep {}'.format(entity))
+                    return_list.append(SimpleEntitySerializer(entity).data)
+
+            # else return the entity the manager is responsible for
+            elif self.clientmanager.place_type_id == ContentType.objects.get(app_label='companies', model='entity').id:
+                return_list.append(SimpleEntitySerializer(self.clientmanager.place).data)
+                pass
+            return return_list
+        else:
+            return return_list
+
     def is_client_user(self):
         return hasattr(self, UserRole.CLIENT_PROJECT_MANAGER) \
                or hasattr(self, UserRole.CLIENT_MANAGER) \
@@ -103,7 +124,6 @@ class User(AbstractUser):
             company = getattr(self, UserRole.CLIENT_MANAGER, None).company
         if hasattr(self, UserRole.CLIENT_EMPLOYEE):
             company = getattr(self, UserRole.CLIENT_EMPLOYEE, None).company
-        print(company)
         return company
 
     @property

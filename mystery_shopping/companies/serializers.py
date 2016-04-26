@@ -76,6 +76,16 @@ class EntitySerializer(serializers.ModelSerializer):
         return instance
 
 
+class SimpleEntitySerializer(serializers.ModelSerializer):
+    """
+    Simple Entity representation
+    """
+
+    class Meta:
+        model = Entity
+        fields = ('id', 'name',)
+
+
 class DepartmentSerializer(serializers.ModelSerializer):
     """
 
