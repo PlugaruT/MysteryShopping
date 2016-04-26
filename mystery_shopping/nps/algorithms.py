@@ -182,13 +182,19 @@ def get_indicator_details(questionnaire_list, indicator_type):
 
 
 def get_overview_project_comment(project, entity_id):
-    project_comment = ProjectComment.objects.filter(project=project, entity=entity_id).first()
+    project_comment = ProjectComment.objects.filter(project=project, entity=entity_id, indicator__isnull=True).first()
+
+    if project_comment is None:
+        return None
 
     return ProjectCommentSerializer(project_comment).data
 
 
 def get_indicator_project_comment(project, entity_id, indicator_type):
     project_comment = ProjectComment.objects.filter(project=project, entity=entity_id, indicator=indicator_type).first()
+
+    if project_comment is None:
+        return None
 
     return ProjectCommentSerializer(project_comment).data
 

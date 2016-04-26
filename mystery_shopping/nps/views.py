@@ -28,7 +28,7 @@ from mystery_shopping.projects.models import Project
 # from mystery_shopping.questionnaires.models import Questionnaire
 from mystery_shopping.questionnaires.constants import IndicatorQuestionType
 
-from mystery_shopping.users.permissions import IsCompanyProjectManager
+from mystery_shopping.users.permissions import IsCompanyProjectManager, IsCompanyManager
 from mystery_shopping.users.permissions import IsTenantProductManager
 from mystery_shopping.users.permissions import IsTenantProjectManager
 
@@ -63,7 +63,7 @@ class OverviewDashboard(views.APIView):
     """
 
     """
-    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager),)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager, IsCompanyManager),)
 
     def get(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
@@ -100,7 +100,7 @@ class IndicatorDashboard(views.APIView):
     :param indicator: can be 'n', 'j', 'e' or 'u'
     """
 
-    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager),)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager, IsCompanyManager),)
 
     def get(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
