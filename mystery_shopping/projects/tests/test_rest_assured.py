@@ -203,4 +203,4 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
         evaluation_ser.is_valid(raise_exception=True)
         evaluation_ser.save()
 
-        self.assertEqual(evaluation_ser.data['status'], ProjectStatus.SUBMITTED)
+        self.assertEqual(evaluation_ser.data['status'], ProjectStatus.APPROVED)
