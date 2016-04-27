@@ -80,11 +80,13 @@ class UserSerializer(serializers.ModelSerializer):
     change_username = serializers.BooleanField(write_only=True, required=False)
     company = SimpleCompanySerializer(source='user_company', read_only=True)
     managed_entities = serializers.ListField(source='list_of_poses', read_only=True)
+    has_overview_access = serializers.BooleanField(source='has_client_manager_overview_access')
 
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'change_username',
-                  'roles', 'password', 'confirm_password', 'tenant_repr', 'shopper', 'company', 'managed_entities')
+                  'roles', 'password', 'confirm_password', 'tenant_repr', 'shopper', 'company', 'managed_entities',
+                  'has_overview_access')
         extra_kwargs = {'username': {'validators': []},
                         'shopper': {'read_only': True},
                         'company': {'read_only': True},

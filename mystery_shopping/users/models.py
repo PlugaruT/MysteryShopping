@@ -106,6 +106,12 @@ class User(AbstractUser):
         else:
             return return_list
 
+    @property
+    def has_client_manager_overview_access(self):
+        if hasattr(self, 'clientmanager'):
+            return self.clientmanager.has_overview_access
+        return False
+
     def is_client_user(self):
         return hasattr(self, UserRole.CLIENT_PROJECT_MANAGER) \
                or hasattr(self, UserRole.CLIENT_MANAGER) \
@@ -237,6 +243,9 @@ class ClientManager(ClientUserAbstract):
     place_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='place_type', null=True, blank=True)
     place_id = models.PositiveIntegerField(null=True, blank=True)
     place = GenericForeignKey('place_type', 'place_id')
+
+    # Attributes
+    has_overview_access = models.BooleanField(default=False)
 
     def __str__(self):
         return u'{} {}'.format(self.user, self.place)
