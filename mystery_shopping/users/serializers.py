@@ -79,7 +79,7 @@ class UserSerializer(serializers.ModelSerializer):
     roles = serializers.ListField(read_only=True, source='user_roles')
     change_username = serializers.BooleanField(write_only=True, required=False)
     company = SimpleCompanySerializer(source='user_company', read_only=True)
-    poses = serializers.ListField(source='list_of_poses', read_only=True)
+    managed_entities = serializers.ListField(source='list_of_poses', read_only=True)
 
     class Meta:
         model = User

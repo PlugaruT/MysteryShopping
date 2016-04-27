@@ -80,10 +80,11 @@ class SimpleEntitySerializer(serializers.ModelSerializer):
     """
     Simple Entity representation
     """
+    place_id = serializers.IntegerField(source='id', read_only=True)
 
     class Meta:
         model = Entity
-        fields = ('id', 'name',)
+        fields = ('name', 'place_id')
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
