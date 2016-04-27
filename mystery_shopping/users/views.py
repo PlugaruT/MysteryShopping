@@ -132,6 +132,17 @@ class ShopperViewSet(viewsets.ModelViewSet):
         queryset = queryset.filter(Q(tenant__isnull=True) | Q(tenant=self.request.user.tenant))
         return queryset
 
+    def list(self, request, *args, **kwargs):
+        project_type = self.request.query_params.get('type', 'm')
+
+        if project_type == 'm':
+            queryset = self.queryset.filter(is_collector=False)
+        elif project_type == 'c':
+            queryset = self.queryset.filter(is_collector=True)
+
+        serializer = ShopperSerializer(queryset, many=True)
+        return Response(serializer.data)
+
     @detail_route(permission_classes=(IsShopperAccountOwner,))
     def imacollector(self, request, *args, **kwargs):
         """A view to return a list of entities paired up with their corresponding
