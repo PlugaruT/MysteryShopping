@@ -1,10 +1,16 @@
+from collections import defaultdict
 from decimal import Decimal
+from json import load
 from unittest.mock import MagicMock
 
 from django.test import TestCase
 
 from ..algorithms import calculate_indicator_score
+from ..algorithms import create_details_skeleton
 from ..algorithms import get_indicator_scores
+
+from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializer
+from mystery_shopping.factories.tenants import TenantFactory
 
 
 class AlgorithmsTestCase(TestCase):
@@ -74,3 +80,47 @@ class AlgorithmsTestCase(TestCase):
         return_score_list = get_indicator_scores(questionnaire_list, indicator)
 
         self.assertEqual(list(), return_score_list)
+
+    def test_create_details_skeleton(self):
+        # populate the test skeleton with the expected keys
+        test_indicator_skeleton = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
+        test_indicator_skeleton['Language'] = defaultdict()
+        test_indicator_skeleton['Language']['Romanian'] = defaultdict()
+        test_indicator_skeleton['Language']['English'] = defaultdict()
+
+        test_indicator_skeleton['Age'] = defaultdict()
+        test_indicator_skeleton['Age']['14-18'] = defaultdict()
+        test_indicator_skeleton['Age']['19-25'] = defaultdict()
+        test_indicator_skeleton['Age']['26-100'] = defaultdict()
+
+        test_indicator_skeleton['Gender'] = defaultdict()
+        test_indicator_skeleton['Gender']['Male'] = defaultdict()
+        test_indicator_skeleton['Gender']['Female'] = defaultdict()
+
+        for big_key in test_indicator_skeleton:
+            for small_key in test_indicator_skeleton[big_key]:
+                test_indicator_skeleton[big_key][small_key]['marks'] = []
+                test_indicator_skeleton[big_key][small_key]['other_choices'] = []
+
+        # create a template questionnaire
+        data = load(open("mystery_shopping/nps/tests/template_questionnaire_for_skeleton.json"))
+        tenant = TenantFactory()
+        data['tenant'] = tenant.id
+        template_ser = QuestionnaireTemplateSerializer(data=data)
+        template_ser.is_valid(raise_exception=True)
+        template_ser.save()
+        
+        indicator_skeleton = create_details_skeleton(template_ser.instance)
+
+        # Check the "outer" keys
+        if test_indicator_skeleton.keys() == indicator_skeleton.keys():
+            pass
+        else:
+            self.assertTrue(False)
+
+        # check whether the keys match
+        for big_key in indicator_skeleton:
+            for medium_key in indicator_skeleton[big_key]:
+                self.assertIn(medium_key, test_indicator_skeleton[big_key])
+                for small_key in indicator_skeleton[big_key][medium_key]:
+                    self.assertIn(small_key, test_indicator_skeleton[big_key][medium_key])
