@@ -93,7 +93,7 @@ def group_questions_by_answer(questionnaire_list, indicator_type, indicator_deta
 
         if questionnaire_indicator_question:
             for question in questionnaire.questions.all():
-                if question.type not in IndicatorQuestionType.INDICATORS_LIST:
+                if question.type is not IndicatorQuestionType.INDICATOR_QUESTION:
                     if question.answer_choices not in [None, []]:
                         indicator_details[question.question_body][question.answer]['marks'].append(questionnaire_indicator_question.score)
                     else:
