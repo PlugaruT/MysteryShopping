@@ -109,10 +109,6 @@ class IndicatorDashboard(views.APIView):
         indicator_type = request.query_params.get('indicator', None)
         project = None
 
-        # As this requires no database hit, check if indicator sent is a valid one
-        if indicator_type not in IndicatorQuestionType.INDICATORS_LIST:
-            return Response({'detail': 'Indicator type sent is not a valid option'})
-
         if project_id is None:
             if request.user.is_client_user():
                 company = request.user.user_company()

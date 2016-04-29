@@ -83,7 +83,7 @@ def group_questions_by_answer(questionnaire_list, indicator_type, indicator_deta
 
     # indicator_details = defaultdict(lambda: defaultdict(list))
     for questionnaire in questionnaire_list:
-        questionnaire_indicator_question = questionnaire.questions.filter(type=indicator_type).first()
+        questionnaire_indicator_question = questionnaire.questions.filter(type=IndicatorQuestionType.INDICATOR_QUESTION, additional_info=indicator_type).first()
 
         # get all coded causes
         if questionnaire_indicator_question.coded_causes.first():
@@ -107,7 +107,7 @@ def group_questions_by_answer(questionnaire_list, indicator_type, indicator_deta
 def group_questions_by_pos(questionnaire_list, indicator_type):
     indicator_pos_details = defaultdict(lambda :defaultdict(list))
     for questionnaire in questionnaire_list:
-        questionnaire_indicator_score = questionnaire.questions.filter(type=indicator_type).first()
+        questionnaire_indicator_score = questionnaire.questions.filter(type=IndicatorQuestionType.INDICATOR_QUESTION, additional_info=indicator_type).first()
         if questionnaire_indicator_score:
 
             indicator_pos_details['entities'][questionnaire.evaluation.entity.name].append(questionnaire_indicator_score.score)

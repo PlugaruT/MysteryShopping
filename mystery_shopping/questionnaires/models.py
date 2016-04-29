@@ -93,7 +93,7 @@ class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
 
     def get_indicator_question(self, indicator_type):
         try:
-            return self.questions.get(type=indicator_type)
+            return self.questions.get(type=IndQuestType.INDICATOR_QUESTION, additional_info=indicator_type)
         except:
             return None
 

@@ -109,7 +109,7 @@ class AlgorithmsTestCase(TestCase):
         template_ser = QuestionnaireTemplateSerializer(data=data)
         template_ser.is_valid(raise_exception=True)
         template_ser.save()
-        
+
         indicator_skeleton = create_details_skeleton(template_ser.instance)
 
         # Check the "outer" keys
