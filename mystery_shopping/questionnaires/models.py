@@ -203,15 +203,13 @@ class QuestionAbstract(models.Model):
                            (QuestionType.DATE_FIELD, 'Date Field'),
                            (QuestionType.SINGLE_CHOICE, 'Single Choice'),
                            (QuestionType.MULTIPLE_CHOICE, 'Multiple Choice'),
-                           (IndQuestType.NPS_QUESTION, 'NPS Question'),
-                           (IndQuestType.ENJOYABILITY_QUESTION, ' Enjoyability Question'),
-                           (IndQuestType.EASINESS_QUESTION, 'Easiness Question'),
-                           (IndQuestType.USEFULNESS_QUESTION, 'Usefulness Question'))
+                           (IndQuestType.INDICATOR_QUESTION, 'Indicator Question'))
     type = models.CharField(max_length=1, choices=type_choices, default=type_choices.t)
     max_score = models.PositiveSmallIntegerField(null=True, blank=True)
     order = models.PositiveIntegerField()
     weight = models.DecimalField(max_digits=5, decimal_places=2)
     show_comment = models.BooleanField(default=True)
+    additional_info = models.CharField(max_length=30, blank=Tenant)
 
     class Meta:
         abstract = True

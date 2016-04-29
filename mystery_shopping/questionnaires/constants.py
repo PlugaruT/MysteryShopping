@@ -6,6 +6,7 @@ class QuestionType:
 
 
 class IndicatorQuestionType:
+    INDICATOR_QUESTION = 'i'
     NPS_QUESTION = 'n'
     ENJOYABILITY_QUESTION = 'j'
     EASINESS_QUESTION = 'e'
