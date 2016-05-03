@@ -5,11 +5,12 @@
                 {
                     "template_question_choices": [],
                     "question_body": "How would you assess this service?",
-                    "type": "n",
+                    "type": "i",
                     "max_score": null,
                     "order": 1,
                     "weight": "1.00",
-                    "show_comment": true
+                    "show_comment": true,
+                    "additional_info": "NPS"
                 },
                 {
                     "template_question_choices": [
@@ -31,7 +32,8 @@
                     "max_score": null,
                     "order": 2,
                     "weight": "1.00",
-                    "show_comment": true
+                    "show_comment": true,
+                    "additional_info": ""
                 },
                 {
                     "template_question_choices": [
@@ -59,7 +61,8 @@
                     "max_score": null,
                     "order": 3,
                     "weight": "0.00",
-                    "show_comment": true
+                    "show_comment": true,
+                    "additional_info": ""
                 },
                 {
                     "template_question_choices": [
@@ -81,7 +84,8 @@
                     "max_score": null,
                     "order": 4,
                     "weight": "0.00",
-                    "show_comment": true
+                    "show_comment": true,
+                    "additional_info": ""
                 }
             ],
             "title": "NPS main block",

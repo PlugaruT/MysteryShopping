@@ -10,6 +10,7 @@ from ..algorithms import create_details_skeleton
 from ..algorithms import get_indicator_scores
 
 from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializer
+from mystery_shopping.questionnaires.constants import IndicatorQuestionType
 from mystery_shopping.factories.tenants import TenantFactory
 
 
@@ -41,13 +42,14 @@ class AlgorithmsTestCase(TestCase):
     def test_get_indicator_scores_with_some_return_elements(self):
         initial_score_list = [Decimal('8.00'), Decimal('6.00'), Decimal('10.00'), Decimal('6.00'), Decimal('5.00')]
         questionnaire_list = list()
-        indicator = 'n'
+        indicator_type = 'NPS'
 
         # Create the mocks for the questionnaires
         for i in range(len(initial_score_list) - 1):
             questionnaire_list.append(MagicMock())
             mock_question = MagicMock()
-            mock_question.type = indicator
+            mock_question.type = IndicatorQuestionType.INDICATOR_QUESTION
+            mock_question.additional_info = indicator_type
             mock_question.score = initial_score_list[i]
             # Assign questions to the questionnaire
             questionnaire_list[i].questions.all.return_value = [mock_question,]
@@ -55,11 +57,12 @@ class AlgorithmsTestCase(TestCase):
         # Add another questionnaire with a different type of cxi question
         questionnaire_list.append(MagicMock())
         mock_question = MagicMock()
-        mock_question.type = 'j'
+        mock_question.type = IndicatorQuestionType.INDICATOR_QUESTION
+        mock_question.additional_info = 'Enjoyability'
         mock_question.score = initial_score_list[-1]
         questionnaire_list[-1].questions.all.return_value = [mock_question,]
 
-        return_score_list = get_indicator_scores(questionnaire_list, indicator)
+        return_score_list = get_indicator_scores(questionnaire_list, indicator_type)
 
         self.assertEqual(initial_score_list[:-1], return_score_list)
 
