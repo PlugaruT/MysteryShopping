@@ -20,7 +20,7 @@ def get_indicator_scores(questionnaire_list, indicator_type):
     indicator_marks = list()
     for questionnaire in questionnaire_list:
         for question in questionnaire.questions.all():
-            if question.type in [indicator_type, ]:
+            if question.additional_info in [indicator_type, ]:
                 indicator_marks.append(question.score)
 
     return indicator_marks

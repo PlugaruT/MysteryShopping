@@ -29,15 +29,14 @@ class CodedCause(models.Model):
     parent = models.ForeignKey('self', null=True, blank=True)
 
     # Attributes
-    type_choices = Choices(('n', 'NPS questions'),
-                           ('j', 'Enjoyability questions'),
-                           ('e', 'Easiness questions'),
-                           ('u', 'Usefulness questions'))
-    type = models.CharField(max_length=1, choices=type_choices, default=type_choices.n)
+    type = models.CharField(max_length=30, blank=True)
 
     sentiment_choices = Choices(('a', 'Appreciation'),
                                 ('f', 'Frustration'))
     sentiment = models.CharField(max_length=1, choices=sentiment_choices, default=sentiment_choices.a)
+
+    def __str__(self):
+        return '{}, type: {}'.format(self.coded_label.name, self.type)
 
 
 class ProjectComment(models.Model):
@@ -50,11 +49,7 @@ class ProjectComment(models.Model):
     entity = models.ForeignKey(Entity, null=True, blank=True)
 
     # Attributes
-    indicator_choices = Choices(('n', 'NPS questions'),
-                                ('j', 'Enjoyability questions'),
-                                ('e', 'Easiness questions'),
-                                ('u', 'Usefulness questions'))
-    indicator = models.CharField(max_length=1, choices=indicator_choices, null=True, blank=True)
+    indicator = models.CharField(max_length=30, blank=True)
     general = models.TextField(blank=True)
     dynamics = models.TextField(blank=True)
     details = models.TextField(blank=True)
