@@ -183,7 +183,7 @@ def get_indicator_details(questionnaire_list, indicator_type):
 
 
 def get_overview_project_comment(project, entity_id):
-    project_comment = ProjectComment.objects.filter(project=project, entity=entity_id, indicator__isnull=True).first()
+    project_comment = ProjectComment.objects.filter(project=project, entity=entity_id, indicator="").first()
 
     if project_comment is None:
         return None
@@ -202,7 +202,12 @@ def get_indicator_project_comment(project, entity_id, indicator_type):
 
 def calculate_overview_score(questionnaire_list, project, entity_id):
     overview_list = dict()
-    for indicator_type in IndicatorQuestionType.INDICATORS_LIST:
+    indicator_types_set = set()
+    for questionnaire in questionnaire_list.all():
+        for indicator_question in questionnaire.questions.filter(type='i').all():
+            indicator_types_set.add(indicator_question.additional_info)
+
+    for indicator_type in indicator_types_set:
         indicator_list = get_indicator_scores(questionnaire_list, indicator_type)
         overview_list[indicator_type] = calculate_indicator_score(indicator_list)
 
