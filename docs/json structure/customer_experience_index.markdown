@@ -61,3 +61,135 @@ It returns a dictionary with `4` enties:
 - `project_comment` : *representation* of a `ProjectComment`
 
 > [example](cxi\ example/indicator_dashboard.json)
+
+
+## Coded Cause Label
+
+**`POST`**:
+
+- `name` : *char* (`max_length = 50`)
+- `tenant` : *id* to `Tenant`
+
+> example:
+```json
+{
+    "name": "",
+    "tenant": null
+}
+```
+
+**`GET`**:
+- `id` : *int*
+- `name` : *char* (`max_length = 50`)
+- `tenant` : *id* to `Tenant`
+
+> example:
+```json
+{
+    "id": 1,
+    "name": "Coded 1",
+    "tenant": 1
+}
+```
+
+
+## Coded Cause
+
+**`POST`**:
+
+- `coded_label` : *representation* for `CodedCauseLabel`
+- `type` : *string* (`max_length=30, blank=True`)
+- `sentiment` : *string* (`max_length=1`, choices: `a` (for 'apreciation') or `f` (for 'frustration'))
+- `tenant` : *id* to `Tenant`
+- `parent` : `id` to `self` (`null=True`)
+
+> example:
+```json
+{
+    "coded_label": {
+        "name": "",
+        "tenant": null
+    },
+    "type": "",
+    "sentiment": null,
+    "tenant": null,
+    "parent": null
+}
+```
+
+**`GET`**:
+
+- `id` : *int*
+- `coded_label` : *representation* for `CodedCauseLabel`
+- `type` : *string* (`max_length=30, blank=True`)
+- `sentiment` : *string* (`max_length=1`)
+- `tenant` : *id* to `Tenant`
+- `parent` : `id` to `self` (`null=True`)
+
+
+> example:
+```json
+{
+    "id": 8,
+    "coded_label": {
+        "id": 1,
+        "name": "Coded 1",
+        "tenant": 1
+    },
+    "type": "NPS",
+    "sentiment": "a",
+    "tenant": 1,
+    "parent": null
+}
+```
+
+## Project Comment
+
+**`POST`**:
+
+- `indicator` : *string* (`max_length=30, blank=True`, left blank if it's for the `overview`)
+- `general` : *string* (`blank=True`)
+- `dynamics` : *string* (`blank=True`)
+- `details` : *string* (`blank=True`)
+- `causes` : *string* (`blank=True`)
+- `project` : *id* for `Project`
+- `entity` : *id* for `Entity` (`null=True`)
+
+> example:
+```json
+{
+    "indicator": "",
+    "general": "",
+    "dynamics": "",
+    "details": "",
+    "causes": "",
+    "project": null,
+    "entity": null
+}
+```
+
+**`GET`**:
+
+- `id` : *int*
+- `indicator` : *string* (`max_length=30, blank=True`, left blank if it's for the `overview`)
+- `general` : *string* (`blank=True`)
+- `dynamics` : *string* (`blank=True`)
+- `details` : *string* (`blank=True`)
+- `causes` : *string* (`blank=True`)
+- `project` : *id* for `Project`
+- `entity` : *id* for `Entity` (`null=True`)
+
+> example:
+```json
+{
+    "id": 4,
+    "indicator": "NPS",
+    "general": "NPS comment important, no entity",
+    "dynamics": "",
+    "details": "",
+    "causes": "",
+    "project": 10,
+    "entity": null
+}
+```
+
