@@ -1,0 +1,165 @@
+{
+    "id": 33,
+    "blocks": [
+        {
+            "id": 72,
+            "questions": [
+                {
+                    "id": 164,
+                    "question_choices": [
+                        {
+                            "id": 267,
+                            "text": "Masculin",
+                            "score": "0.00",
+                            "weight": "0.00",
+                            "order": 1,
+                            "question": 164
+                        },
+                        {
+                            "id": 268,
+                            "text": "Feminin",
+                            "score": "0.00",
+                            "weight": "0.00",
+                            "order": 2,
+                            "question": 164
+                        }
+                    ],
+                    "question_body": "Sexul",
+                    "type": "s",
+                    "max_score": null,
+                    "order": 4,
+                    "weight": "0.00",
+                    "show_comment": true,
+                    "additional_info": "",
+                    "score": null,
+                    "answer": "Masculin",
+                    "comment": null,
+                    "answer_choices": [
+                        183
+                    ],
+                    "questionnaire": 33,
+                    "block": 72,
+                    "template_question": 1
+                },
+                {
+                    "id": 165,
+                    "question_choices": [
+                        {
+                            "id": 269,
+                            "text": "14-18",
+                            "score": "0.00",
+                            "weight": "0.00",
+                            "order": 17,
+                            "question": 165
+                        },
+                        {
+                            "id": 270,
+                            "text": "19-25",
+                            "score": "0.00",
+                            "weight": "0.00",
+                            "order": 2,
+                            "question": 165
+                        },
+                        {
+                            "id": 271,
+                            "text": "26-100",
+                            "score": "0.00",
+                            "weight": "0.00",
+                            "order": 3,
+                            "question": 165
+                        }
+                    ],
+                    "question_body": "Vârsta",
+                    "type": "s",
+                    "max_score": null,
+                    "order": 3,
+                    "weight": "0.00",
+                    "show_comment": true,
+                    "additional_info": "",
+                    "score": null,
+                    "answer": "19-25",
+                    "comment": null,
+                    "answer_choices": [
+                        186
+                    ],
+                    "questionnaire": 33,
+                    "block": 72,
+                    "template_question": 1
+                },
+                {
+                    "id": 166,
+                    "question_choices": [
+                        {
+                            "id": 272,
+                            "text": "Româna",
+                            "score": "0.00",
+                            "weight": "0.00",
+                            "order": 1,
+                            "question": 166
+                        },
+                        {
+                            "id": 273,
+                            "text": "Engleza",
+                            "score": "0.00",
+                            "weight": "0.00",
+                            "order": 2,
+                            "question": 166
+                        }
+                    ],
+                    "question_body": "What language do you speak",
+                    "type": "s",
+                    "max_score": null,
+                    "order": 2,
+                    "weight": "1.00",
+                    "show_comment": true,
+                    "additional_info": "",
+                    "score": null,
+                    "answer": "Engleza",
+                    "comment": null,
+                    "answer_choices": [
+                        189
+                    ],
+                    "questionnaire": 33,
+                    "block": 72,
+                    "template_question": 1
+                },
+                {
+                    "id": 167,
+                    "question_choices": [],
+                    "question_body": "How would you assess this service?",
+                    "type": "i",
+                    "max_score": null,
+                    "order": 1,
+                    "weight": "1.00",
+                    "show_comment": true,
+                    "additional_info": "NPS",
+                    "score": "6.00",
+                    "answer": "Ceai necalitativ",
+                    "comment": "",
+                    "answer_choices": [],
+                    "questionnaire": 33,
+                    "block": 72,
+                    "template_question": 1
+                }
+            ],
+            "title": "NPS main block",
+            "weight": "1.00",
+            "order": 1,
+            "score": null,
+            "lft": 1,
+            "rght": 2,
+            "tree_id": 59,
+            "level": 0,
+            "questionnaire": 33,
+            "parent_block": null,
+            "template_block": 1
+        }
+    ],
+    "created": "2016-04-18T10:44:31.137886Z",
+    "modified": "2016-04-18T10:44:31.138093Z",
+    "title": "NPS Questionnaire v2",
+    "type": "m",
+    "score": null,
+    "weight": 100,
+    "template": 10
+}

@@ -1,0 +1,121 @@
+{
+    "id": 93,
+    "questions": [
+        {
+            "id": 241,
+            "question_choices": [
+                {
+                    "id": 412,
+                    "text": "Da",
+                    "score": "5.00",
+                    "weight": "0.50",
+                    "order": 1,
+                    "question": 241
+                },
+                {
+                    "id": 413,
+                    "text": "Nu",
+                    "score": "0.00",
+                    "weight": "0.50",
+                    "order": 2,
+                    "question": 241
+                }
+            ],
+            "question_body": "Răspuns la obiecție",
+            "type": "s",
+            "max_score": 5,
+            "order": 1,
+            "weight": "33.33",
+            "show_comment": true,
+            "additional_info": "",
+            "score": null,
+            "answer": null,
+            "comment": null,
+            "answer_choices": null,
+            "questionnaire": 44,
+            "block": 93,
+            "template_question": 1
+        },
+        {
+            "id": 242,
+            "question_choices": [
+                {
+                    "id": 414,
+                    "text": "Da",
+                    "score": "7.00",
+                    "weight": "0.50",
+                    "order": 1,
+                    "question": 242
+                },
+                {
+                    "id": 415,
+                    "text": "Nu",
+                    "score": "0.00",
+                    "weight": "0.50",
+                    "order": 2,
+                    "question": 242
+                }
+            ],
+            "question_body": "Argumente convingătoare",
+            "type": "s",
+            "max_score": 7,
+            "order": 2,
+            "weight": "46.67",
+            "show_comment": true,
+            "additional_info": "",
+            "score": null,
+            "answer": null,
+            "comment": null,
+            "answer_choices": null,
+            "questionnaire": 44,
+            "block": 93,
+            "template_question": 1
+        },
+        {
+            "id": 243,
+            "question_choices": [
+                {
+                    "id": 416,
+                    "text": "Da",
+                    "score": "3.00",
+                    "weight": "0.50",
+                    "order": 1,
+                    "question": 243
+                },
+                {
+                    "id": 417,
+                    "text": "Nu",
+                    "score": "0.00",
+                    "weight": "0.50",
+                    "order": 2,
+                    "question": 243
+                }
+            ],
+            "question_body": "Oferirea materialelor informative",
+            "type": "s",
+            "max_score": 3,
+            "order": 3,
+            "weight": "20.00",
+            "show_comment": true,
+            "additional_info": "",
+            "score": null,
+            "answer": null,
+            "comment": null,
+            "answer_choices": null,
+            "questionnaire": 44,
+            "block": 93,
+            "template_question": 1
+        }
+    ],
+    "title": "Susţinerea şi promovarea imaginiii companiei",
+    "weight": "15.00",
+    "order": 7,
+    "score": null,
+    "lft": 1,
+    "rght": 2,
+    "tree_id": 66,
+    "level": 0,
+    "questionnaire": 44,
+    "parent_block": null,
+    "template_block": 1
+}
