@@ -6,44 +6,36 @@
 `entity` : (*not required*) indicates the `id` of the *entity*
 
 **`GET`**:
-It returns a dictionary with the *type indicator* of the `cxi` question (`'e'` - easiness, `'j'` - enjoyability, `'n'` - NPS, or `'u'` - usefulness) as the `key` and a *dictionary* for the `value`.
+It returns a dictionary with the *type indicators* of the `cxi` question as the `key` and a *dictionary* for the `value`.
 The each dictionary contains the same `4` values:
 - `promoters`
 - `passibes`
 - `detractors`
-- `indicator` (*final score*)
+- `indicator` (*final score*) <br>
+and the `project_comment`, if it exists, if not the value returned will be `null`
 
 > example
 ```json
 {
-    "e": {
-        "promoters": null,
-        "indicator": null,
-        "passives": null,
-        "detractors": null
+    "NPS": {
+        "detractors": 56.25,
+        "promoters": 37.5,
+        "passives": 6.25,
+        "indicator": -18.75
     },
-    "n": {
-        "promoters": 60.0,
-        "indicator": 30.0,
-        "passives": 10.0,
-        "detractors": 30.0
-    },
-    "u": {
-        "promoters": null,
-        "indicator": null,
-        "passives": null,
-        "detractors": null
-    },
-    "j": {
-        "promoters": null,
-        "indicator": null,
-        "passives": null,
-        "detractors": null
+    "project_comment": {
+        "id": 5,
+        "indicator": "",
+        "general": "Overview comment important",
+        "dynamics": "",
+        "details": "",
+        "causes": "",
+        "project": 10,
+        "entity": null
     }
 }
 ```
 
-In the above example, the `null` values indicate that the `Questionnaire` **does not** contain `e`, `u` or `j` type of questions.
 
 ## Indicator Dashboard
 ### *endpoint*: `^api/v1/cxi/indicator/`
@@ -54,7 +46,7 @@ In the above example, the `null` values indicate that the `Questionnaire` **does
 `entity` : (*not required*) indicates the `id` of the *entity*
 
 **`GET`**:
-It returns a dictionary with `3` enties:
+It returns a dictionary with `4` enties:
 - `general` : returns the same `4` fields like in `Overview Dashboard`
 - `coded_causes` : returns a `list` of *coded causes* and the number of times they are used.
 	- `count` : number of times is't used
@@ -66,5 +58,6 @@ It returns a dictionary with `3` enties:
 		- `choice` : the *choice* `text` (for the `"Entities"` field this will contain the `name` of the `Entity`)
 		- `number_of_respondents` : number of people that selected this `choice` (or responded for the particular `Entity`)
 		- `other_answer_choices` : usually left *empty*, used when the `"other"` choice was selected and contains a list of all those choices.
+- `project_comment` : *representation* of a `ProjectComment`
 
 > [example](cxi\ example/indicator_dashboard.json)

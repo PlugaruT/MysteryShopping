@@ -1,13 +1,12 @@
 {
     "general": {
-        "detractors": 36.36,
-        "promoters": 54.55,
-        "passives": 9.09,
-        "indicator": 18.18
+        "passives": 6.25,
+        "indicator": -18.75,
+        "promoters": 37.5,
+        "detractors": 56.25
     },
     "coded_causes": [
         {
-            "count": 10,
             "coded_cause": {
                 "id": 1,
                 "coded_label": {
@@ -15,50 +14,123 @@
                     "name": "Coded 1",
                     "tenant": 1
                 },
-                "type": "n",
+                "type": "NPS",
                 "sentiment": "a",
                 "tenant": 1,
                 "parent": null
-            }
-        },
-        {
-            "count": 1,
-            "coded_cause": "unsorted"
+            },
+            "count": 7
         }
     ],
+    "project_comment": {
+        "id": 4,
+        "indicator": "NPS",
+        "general": "NPS comment important, no entity",
+        "dynamics": "",
+        "details": "",
+        "causes": "",
+        "project": 10,
+        "entity": null
+    },
     "details": [
         {
             "results": [
                 {
                     "score": {
-                        "detractors": 0.0,
-                        "promoters": 100.0,
-                        "passives": 0.0,
-                        "indicator": 100.0
+                        "passives": 33.33,
+                        "indicator": 66.67,
+                        "promoters": 66.67,
+                        "detractors": 0.0
                     },
-                    "other_answer_choices": [
-                        "Franceza"
-                    ],
-                    "choice": "other",
-                    "number_of_respondents": 1
+                    "other_answer_choices": [],
+                    "choice": "Feminin",
+                    "number_of_respondents": 3
                 },
                 {
                     "score": {
-                        "detractors": 57.14,
-                        "promoters": 42.86,
                         "passives": 0.0,
-                        "indicator": -14.29
+                        "indicator": -38.46,
+                        "promoters": 30.77,
+                        "detractors": 69.23
+                    },
+                    "other_answer_choices": [],
+                    "choice": "Masculin",
+                    "number_of_respondents": 13
+                }
+            ],
+            "item_label": "Sexul"
+        },
+        {
+            "results": [
+                {
+                    "score": {
+                        "passives": 33.33,
+                        "indicator": 66.67,
+                        "promoters": 66.67,
+                        "detractors": 0.0
+                    },
+                    "other_answer_choices": [],
+                    "choice": "26-100",
+                    "number_of_respondents": 3
+                },
+                {
+                    "score": {
+                        "passives": null,
+                        "indicator": null,
+                        "promoters": null,
+                        "detractors": null
+                    },
+                    "other_answer_choices": [],
+                    "choice": "14-18",
+                    "number_of_respondents": 0
+                },
+                {
+                    "score": {
+                        "passives": 0.0,
+                        "indicator": -38.46,
+                        "promoters": 30.77,
+                        "detractors": 69.23
+                    },
+                    "other_answer_choices": [],
+                    "choice": "19-25",
+                    "number_of_respondents": 13
+                }
+            ],
+            "item_label": "Vârsta"
+        },
+        {
+            "results": [
+                {
+                    "score": {
+                        "passives": 0.0,
+                        "indicator": -40.0,
+                        "promoters": 30.0,
+                        "detractors": 70.0
                     },
                     "other_answer_choices": [],
                     "choice": "Engleza",
-                    "number_of_respondents": 7
+                    "number_of_respondents": 10
                 },
                 {
                     "score": {
-                        "detractors": 0.0,
-                        "promoters": 66.67,
+                        "passives": 0.0,
+                        "indicator": -33.33,
+                        "promoters": 33.33,
+                        "detractors": 66.67
+                    },
+                    "other_answer_choices": [
+                        "Franceza",
+                        "Chineza"
+                    ],
+                    "choice": "other",
+                    "number_of_respondents": 3
+                },
+                {
+                    "score": {
                         "passives": 33.33,
-                        "indicator": 66.67
+                        "indicator": 66.67,
+                        "promoters": 66.67,
+                        "detractors": 0.0
                     },
                     "other_answer_choices": [],
                     "choice": "Româna",
@@ -71,86 +143,21 @@
             "results": [
                 {
                     "score": {
-                        "detractors": 0.0,
-                        "promoters": 66.67,
-                        "passives": 33.33,
-                        "indicator": 66.67
-                    },
-                    "other_answer_choices": [],
-                    "choice": "Feminin",
-                    "number_of_respondents": 3
-                },
-                {
-                    "score": {
-                        "detractors": 50.0,
-                        "promoters": 50.0,
                         "passives": 0.0,
-                        "indicator": 0.0
-                    },
-                    "other_answer_choices": [],
-                    "choice": "Masculin",
-                    "number_of_respondents": 8
-                }
-            ],
-            "item_label": "Sexul"
-        },
-        {
-            "results": [
-                {
-                    "score": {
-                        "detractors": null,
-                        "promoters": null,
-                        "passives": null,
-                        "indicator": null
-                    },
-                    "other_answer_choices": [],
-                    "choice": "14-18",
-                    "number_of_respondents": 0
-                },
-                {
-                    "score": {
-                        "detractors": 50.0,
-                        "promoters": 50.0,
-                        "passives": 0.0,
-                        "indicator": 0.0
-                    },
-                    "other_answer_choices": [],
-                    "choice": "19-25",
-                    "number_of_respondents": 8
-                },
-                {
-                    "score": {
-                        "detractors": 0.0,
-                        "promoters": 66.67,
-                        "passives": 33.33,
-                        "indicator": 66.67
-                    },
-                    "other_answer_choices": [],
-                    "choice": "26-100",
-                    "number_of_respondents": 3
-                }
-            ],
-            "item_label": "Vârsta"
-        },
-        {
-            "results": [
-                {
-                    "score": {
-                        "detractors": 100.0,
+                        "indicator": -100.0,
                         "promoters": 0.0,
-                        "passives": 0.0,
-                        "indicator": -100.0
+                        "detractors": 100.0
                     },
                     "other_answer_choices": [],
                     "choice": "Earth Stuff",
-                    "number_of_respondents": 1
+                    "number_of_respondents": 6
                 },
                 {
                     "score": {
-                        "detractors": 30.0,
-                        "promoters": 60.0,
                         "passives": 10.0,
-                        "indicator": 30.0
+                        "indicator": 30.0,
+                        "promoters": 60.0,
+                        "detractors": 30.0
                     },
                     "other_answer_choices": [],
                     "choice": "Space Stuff",
