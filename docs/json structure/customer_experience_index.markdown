@@ -42,11 +42,11 @@ and the `project_comment`, if it exists, if not the value returned will be `null
 
 #### Query Parameters
 `project` : indicates the `id` of the *project* <br>
-`indicator` : indicates the `type` of the *questions* you want to get the indicator data <br>
+`indicator` : indicates the `type` of the *indicator question* you want to get the indicator data for<br>
 `entity` : (*not required*) indicates the `id` of the *entity*
 
 **`GET`**:
-It returns a dictionary with `4` enties:
+It returns a dictionary with `4` entries:
 - `general` : returns the same `4` fields like in `Overview Dashboard`
 - `coded_causes` : returns a `list` of *coded causes* and the number of times they are used.
 	- `count` : number of times is't used
@@ -62,6 +62,26 @@ It returns a dictionary with `4` enties:
 
 > [example](cxi\ example/indicator_dashboard.json)
 
+
+## Indicator Dashboard List
+### *endpoint*: `^api/v1/cxi/indicatorlist/`
+
+#### Query Parameters
+`project` : indicates the `id` of the *project* from which you want to get the `indicators` <br>
+`company` : indicates the `id` of the *company* from which *projects*  you want to get the `indicators`
+
+If both the `project` and the `company` have been sent as query params, the algorithm will use the `company`'s id, as it incapsulates the `project`'s one.
+
+**`GET`**:
+It returns a list with `variable` length which will contain `indicator` names
+
+> example:
+```json
+[
+    "NPS",
+    "Enjoyability"
+]
+```
 
 ## Coded Cause Label
 

@@ -14,6 +14,8 @@ from .algorithms import calculate_overview_score
 from .algorithms import get_indicator_details
 from .algorithms import collect_data_for_indicator_dashboard
 from .algorithms import collect_data_for_overview_dashboard
+from .algorithms import get_project_indicator_questions_list
+from .algorithms import get_company_indicator_questions_list
 from .models import CodedCauseLabel
 from .models import CodedCause
 from .models import ProjectComment
@@ -23,10 +25,8 @@ from .serializers import CodedCauseLabelSerializer
 from .serializers import CodedCauseSerializer
 from .serializers import ProjectCommentSerializer
 
-# from mystery_shopping.questionnaires.models import QuestionnaireTemplate
 from mystery_shopping.projects.models import Project
-# from mystery_shopping.questionnaires.models import Questionnaire
-from mystery_shopping.questionnaires.constants import IndicatorQuestionType
+from mystery_shopping.companies.models import Company
 
 from mystery_shopping.users.permissions import IsCompanyProjectManager, IsCompanyManager
 from mystery_shopping.users.permissions import IsTenantProductManager
@@ -96,7 +96,7 @@ class IndicatorDashboard(views.APIView):
     It computes data like general scores and detailed scores (per answer choice)
 
     :param project: will filter all questionnaires that are from this project
-    :param indicator: can be 'n', 'j', 'e' or 'u'
+    :param indicator: can be anything
     """
 
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager, IsCompanyManager),)
@@ -134,3 +134,39 @@ class IndicatorDashboard(views.APIView):
         return Response({
             'detail': 'Project was not provided'
         }, status.HTTP_400_BAD_REQUEST)
+
+
+class IndicatorDashboardList(views.APIView):
+    """
+
+    """
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager, IsCompanyManager),)
+
+    def get(self, request, *args, **kwargs):
+        project_id = request.query_params.get('project', None)
+        company_id = request.query_params.get('company', None)
+
+        # Since the company parameter "incapsulates" the project one
+        # it would be better to check for it first
+        if company_id:
+            try:
+                company = Company.objects.get(pk=company_id)
+            except Company.DoesNotExist:
+                return Response({'detail': 'No Company with this id exists'},
+                                status.HTTP_404_NOT_FOUND)
+            response = get_company_indicator_questions_list(company)
+            return Response(response, status.HTTP_200_OK)
+
+        elif project_id:
+            try:
+                project = Project.objects.get(pk=project_id)
+            except Project.DoesNotExist:
+                return Response({'detail': 'No Project with this id exists'},
+                                status.HTTP_404_NOT_FOUND)
+
+            response = get_project_indicator_questions_list(project)
+            return Response(response, status.HTTP_200_OK)
+
+        else:
+            return Response({'detail': 'No query parameters were provided'}, status.HTTP_400_BAD_REQUEST)
+

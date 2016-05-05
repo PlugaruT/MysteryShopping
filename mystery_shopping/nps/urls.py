@@ -9,6 +9,7 @@ from .views import CodedCauseViewSet
 from .views import ProjectCommentViewSet
 from .views import OverviewDashboard
 from .views import IndicatorDashboard
+from .views import IndicatorDashboardList
 
 
 router = DefaultRouter()
@@ -23,4 +24,7 @@ urlpatterns = [
     url(r'^cxi/indicator/$',
         IndicatorDashboard.as_view(),
         name='indicator-score'),
+    url(r'^cxi/indicatorlist/$',
+        IndicatorDashboardList.as_view(),
+        name='indicator-list'),
 ]

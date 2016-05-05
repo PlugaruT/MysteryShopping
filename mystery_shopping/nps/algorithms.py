@@ -14,13 +14,13 @@ def get_indicator_scores(questionnaire_list, indicator_type):
     Returns a list of the indicator's marks
 
     :param questionnaire_list: list of questionnaires to get the indicator scores from
-    :param indicator_type: can be 'n', 'j', 'e' or 'u'
+    :param indicator_type: can be anything
     :return: a list with the indicator's marks
     """
     indicator_marks = list()
     for questionnaire in questionnaire_list:
         for question in questionnaire.questions.all():
-            if question.additional_info in [indicator_type, ]:
+            if question.additional_info == indicator_type:
                 indicator_marks.append(question.score)
 
     return indicator_marks
@@ -74,16 +74,17 @@ def group_questions_by_answer(questionnaire_list, indicator_type, indicator_deta
     """
 
     :param questionnaire_list: list of questionnaires from which to group the indicator scores by answer
-    :param indicator_type: can be 'n', 'j', 'e' or 'u'
+    :param indicator_type: can be anything
     :return: the indicator's marks distributed per question choice selected
     :rtype: defaultdict
     """
 
     coded_causes_dict = defaultdict(list)
 
-    # indicator_details = defaultdict(lambda: defaultdict(list))
     for questionnaire in questionnaire_list:
-        questionnaire_indicator_question = questionnaire.questions.filter(type=IndicatorQuestionType.INDICATOR_QUESTION, additional_info=indicator_type).first()
+        questionnaire_indicator_question = questionnaire.questions.filter(
+            type=IndicatorQuestionType.INDICATOR_QUESTION,
+            additional_info=indicator_type).first()
 
         # get all coded causes
         if questionnaire_indicator_question.coded_causes.first():
@@ -93,7 +94,7 @@ def group_questions_by_answer(questionnaire_list, indicator_type, indicator_deta
 
         if questionnaire_indicator_question:
             for question in questionnaire.questions.all():
-                if question.type is not IndicatorQuestionType.INDICATOR_QUESTION:
+                if question.type != IndicatorQuestionType.INDICATOR_QUESTION:
                     if question.answer_choices not in [None, []]:
                         indicator_details[question.question_body][question.answer]['marks'].append(questionnaire_indicator_question.score)
                     else:
@@ -105,11 +106,10 @@ def group_questions_by_answer(questionnaire_list, indicator_type, indicator_deta
 
 
 def group_questions_by_pos(questionnaire_list, indicator_type):
-    indicator_pos_details = defaultdict(lambda :defaultdict(list))
+    indicator_pos_details = defaultdict(lambda: defaultdict(list))
     for questionnaire in questionnaire_list:
         questionnaire_indicator_score = questionnaire.questions.filter(type=IndicatorQuestionType.INDICATOR_QUESTION, additional_info=indicator_type).first()
         if questionnaire_indicator_score:
-
             indicator_pos_details['entities'][questionnaire.evaluation.entity.name].append(questionnaire_indicator_score.score)
             if questionnaire.evaluation.section is not None:
                 indicator_pos_details['sections'][questionnaire.evaluation.section.name].append(questionnaire_indicator_score.score)
@@ -202,6 +202,7 @@ def get_indicator_project_comment(project, entity_id, indicator_type):
 
 def calculate_overview_score(questionnaire_list, project, entity_id):
     overview_list = dict()
+    overview_list['indicators'] = dict()
     indicator_types_set = set()
     for questionnaire in questionnaire_list.all():
         for indicator_question in questionnaire.questions.filter(type='i').all():
@@ -209,7 +210,7 @@ def calculate_overview_score(questionnaire_list, project, entity_id):
 
     for indicator_type in indicator_types_set:
         indicator_list = get_indicator_scores(questionnaire_list, indicator_type)
-        overview_list[indicator_type] = calculate_indicator_score(indicator_list)
+        overview_list['indicators'][indicator_type] = calculate_indicator_score(indicator_list)
 
     overview_list['project_comment'] = get_overview_project_comment(project, entity_id)
 
@@ -283,3 +284,25 @@ def collect_data_for_overview_dashboard(project, entity_id):
     questionnaire_list = Questionnaire.objects.get_project_questionnaires(project, entity)
 
     return calculate_overview_score(questionnaire_list, project, entity_id)
+
+
+def get_project_indicator_questions_list(project):
+    # get the template questionnaire for this project
+    template_questionnaire = project.research_methodology.questionnaires.first()
+    indicator_list = set()
+    for question in template_questionnaire.template_questions.all():
+        if question.type == IndicatorQuestionType.INDICATOR_QUESTION:
+            indicator_list.add(question.additional_info)
+
+    return indicator_list
+
+
+def get_company_indicator_questions_list(company):
+    projects = company.projects.all()
+    indicator_list = set()
+    for project in projects:
+        template_questionnaire = project.research_methodology.questionnaires.first()
+        for question in template_questionnaire.template_questions.all():
+            if question.type == IndicatorQuestionType.INDICATOR_QUESTION:
+                indicator_list.add(question.additional_info)
+    return indicator_list
