@@ -127,18 +127,3 @@ class AlgorithmsTestCase(TestCase):
                 self.assertIn(medium_key, test_indicator_skeleton[big_key])
                 for small_key in indicator_skeleton[big_key][medium_key]:
                     self.assertIn(small_key, test_indicator_skeleton[big_key][medium_key])
-
-    def test_group_questions_by_answer(self):
-        # create a template questionnaire
-        data = load(open("mystery_shopping/nps/tests/template_questionnaire_for_skeleton.json"))
-        tenant = TenantFactory()
-        data['tenant'] = tenant.id
-        template_ser = QuestionnaireTemplateSerializer(data=data)
-        template_ser.is_valid(raise_exception=True)
-        template_ser.save()
-
-
-
-
-
-

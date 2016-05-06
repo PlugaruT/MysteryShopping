@@ -70,9 +70,18 @@ def calculate_indicator_score(indicator_marks):
     return score
 
 
+def sort_indicator_question_marks(indicator_dict, indicator_question, question):
+    if question.type != IndicatorQuestionType.INDICATOR_QUESTION:
+        if question.answer_choices not in [None, []]:
+            indicator_dict[question.question_body][question.answer]['marks'].append(indicator_question.score)
+        else:
+            indicator_dict[question.question_body]['other']['marks'].append(indicator_question.score)
+            if question.answer.capitalize() not in indicator_dict[question.question_body]['other']['other_choices']:
+                indicator_dict[question.question_body]['other']['other_choices'].append(question.answer)
+
+
 def group_questions_by_answer(questionnaire_list, indicator_type, indicator_details):
     """
-
     :param questionnaire_list: list of questionnaires from which to group the indicator scores by answer
     :param indicator_type: can be anything
     :return: the indicator's marks distributed per question choice selected
@@ -86,21 +95,12 @@ def group_questions_by_answer(questionnaire_list, indicator_type, indicator_deta
             type=IndicatorQuestionType.INDICATOR_QUESTION,
             additional_info=indicator_type).first()
 
-        # get all coded causes
-        if questionnaire_indicator_question.coded_causes.first():
-            coded_causes_dict[questionnaire_indicator_question.coded_causes.first().id].append(questionnaire_indicator_question.id)
-        else:
-            coded_causes_dict['unsorted'].append(questionnaire_indicator_question.id)
-
         if questionnaire_indicator_question:
+            add_question_per_coded_cause(questionnaire_indicator_question, coded_causes_dict)
+
             for question in questionnaire.questions.all():
                 if question.type != IndicatorQuestionType.INDICATOR_QUESTION:
-                    if question.answer_choices not in [None, []]:
-                        indicator_details[question.question_body][question.answer]['marks'].append(questionnaire_indicator_question.score)
-                    else:
-                        indicator_details[question.question_body]['other']['marks'].append(questionnaire_indicator_question.score)
-                        if question.answer.capitalize() not in indicator_details[question.question_body]['other']['other_choices']:
-                            indicator_details[question.question_body]['other']['other_choices'].append(question.answer)
+                    sort_indicator_question_marks(indicator_details, questionnaire_indicator_question, question)
 
     return indicator_details, coded_causes_dict
 
@@ -215,6 +215,15 @@ def calculate_overview_score(questionnaire_list, project, entity_id):
     overview_list['project_comment'] = get_overview_project_comment(project, entity_id)
 
     return overview_list
+
+
+def add_question_per_coded_cause(indicator_question, coded_cause_dict):
+    coded_cause = indicator_question.coded_causes.first()
+    if coded_cause:
+        coded_cause_dict[coded_cause.id].append(indicator_question.id)
+    else:
+        coded_cause_dict['unsorted'].append(indicator_question.id)
+    return True
 
 
 def sort_question_by_coded_cause(questionnaire_list, indicator_type, coded_causes_dict):
