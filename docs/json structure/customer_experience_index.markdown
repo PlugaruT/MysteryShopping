@@ -6,32 +6,44 @@
 `entity` : (*not required*) indicates the `id` of the *entity*
 
 **`GET`**:
-It returns a dictionary with the *type indicators* of the `cxi` question as the `key` and a *dictionary* for the `value`.
-The each dictionary contains the same `4` values:
-- `promoters`
-- `passibes`
-- `detractors`
-- `indicator` (*final score*) <br>
-and the `project_comment`, if it exists, if not the value returned will be `null`
+It returns a dictionary with `2` values:
+- `indicators` : a `dict` with all the `indicators` available for that project.
+    The each dictionary contains the same `4` values:
+    - `promoters`
+    - `passives`
+    - `detractors`
+    - `indicator` (*final score*) <br>
+- `project_comment`, if it exists, if not the value returned will be `null`
 
 > example
 ```json
 {
-    "NPS": {
-        "detractors": 56.25,
-        "promoters": 37.5,
-        "passives": 6.25,
-        "indicator": -18.75
-    },
-    "project_comment": {
-        "id": 5,
-        "indicator": "",
-        "general": "Overview comment important",
-        "dynamics": "",
-        "details": "",
-        "causes": "",
-        "project": 10,
-        "entity": null
+    "project_comment":null,
+    "indicators":{
+        "Enjoyability":{
+            "passives":75.0,
+            "detractors":0.0,
+            "promoters":25.0,
+            "indicator":25.0
+        },
+        "Usefulness":{
+            "passives":0.0,
+            "detractors":0.0,
+            "promoters":100.0,
+            "indicator":100.0
+        },
+        "NPS":{
+            "passives":50.0,
+            "detractors":0.0,
+            "promoters":50.0,
+            "indicator":50.0
+        },
+        "Easiness":{
+            "passives":25.0,
+            "detractors":50.0,
+            "promoters":25.0,
+            "indicator":-25.0
+        }
     }
 }
 ```
