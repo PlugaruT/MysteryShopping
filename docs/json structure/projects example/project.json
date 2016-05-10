@@ -460,5 +460,9 @@
     "project_manager": 1,
     "consultants": [
         2
+    ],
+    "indicator_list": [
+        "Enjoyability",
+        "NPS"
     ]
 }

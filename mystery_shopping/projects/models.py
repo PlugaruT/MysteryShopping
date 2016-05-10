@@ -12,6 +12,7 @@ from mystery_shopping.tenants.models import Tenant
 from mystery_shopping.questionnaires.models import QuestionnaireTemplate
 from mystery_shopping.questionnaires.models import Questionnaire
 from mystery_shopping.projects.constants import ProjectStatus
+from mystery_shopping.questionnaires.constants import IndicatorQuestionType
 
 
 class PlaceToAssess(models.Model):
@@ -86,6 +87,16 @@ class Project(models.Model):
         return 'Project for {}, start: {}/{}/{}, end: {}/{}/{}'.format(self.company.name,
                                                                        self.period_start.day, self.period_start.month, self.period_start.year%2000,
                                                                        self.period_end.day, self.period_end.month, self.period_start.year%2000)
+
+    def get_indicators_list(self):
+        # get the template questionnaire for this project
+        template_questionnaire = self.research_methodology.questionnaires.first()
+        indicator_set = set()
+        for question in template_questionnaire.template_questions.all():
+            if question.type == IndicatorQuestionType.INDICATOR_QUESTION:
+                indicator_set.add(question.additional_info)
+        return indicator_set
+
 
 
 class Evaluation(TimeStampedModel, models.Model):

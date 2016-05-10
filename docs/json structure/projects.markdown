@@ -87,6 +87,7 @@
 - `project_workers_repr` = *representation* of `ProjectWorker` = `tenantproductmanager`, `tenantprojectmanager` `tenantconsultant` (`many = True`)
 - `evaluation_assessment_levels_repr` : *representation* of `EvaluationAssessmentLevels`
 - `type` : *char* (can be `m` or `c`, exactly like for `questionnaires`)
+- `indicator_list` : *list* (of Indicator types)
 
 > [example](projects\ example/project.json)
 
