@@ -12,6 +12,7 @@ from ..algorithms import get_indicator_scores
 from ..algorithms import sort_indicator_question_marks
 from ..algorithms import add_question_per_coded_cause
 from ..algorithms import group_questions_by_answer
+from ..algorithms import group_questions_by_pos
 
 from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializer
 from mystery_shopping.questionnaires.constants import IndicatorQuestionType
@@ -264,3 +265,35 @@ class AlgorithmsTestCase(TestCase):
         self.assertEqual(indicator_details['Language']['Romanian']['marks'], indicator_marks[0:2])
         self.assertEqual(indicator_details['Language']['English']['marks'], indicator_marks[2:4])
         self.assertEqual(indicator_details['Language']['other']['marks'], indicator_marks[4:])
+
+    def test_group_questions_by_pos_with_no_sections(self):
+        questionnaire_list = list()
+        indicator_type = 'NPS'
+        number_of_questionnaires = 5
+        indicator_marks = list()
+
+        for q in range(number_of_questionnaires):
+            mark = randint(1, 10)
+            indicator_marks.append(mark)
+            questionnaire = MagicMock()
+            indicator_question = MagicMock()
+
+            indicator_question.type = IndicatorQuestionType.INDICATOR_QUESTION
+            indicator_question.score = mark
+            indicator_question.additional_info = indicator_type
+
+            questionnaire.questions.filter().first.return_value = indicator_question
+
+            questionnaire.evaluation.section = None
+
+            if q < 3:
+                questionnaire.evaluation.entity.name = 'Entity 1'
+            else:
+                questionnaire.evaluation.entity.name = 'Entity 2'
+
+            questionnaire_list.append(questionnaire)
+
+        indicator_pos_details = group_questions_by_pos(questionnaire_list, indicator_type)
+        print(indicator_pos_details)
+        self.assertEqual(indicator_pos_details['entities']['Entity 1'], indicator_marks[:3])
+        self.assertEqual(indicator_pos_details['entities']['Entity 2'], indicator_marks[3:])
