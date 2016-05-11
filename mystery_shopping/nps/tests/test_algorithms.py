@@ -11,6 +11,7 @@ from ..algorithms import create_details_skeleton
 from ..algorithms import get_indicator_scores
 from ..algorithms import sort_indicator_question_marks
 from ..algorithms import add_question_per_coded_cause
+from ..algorithms import group_questions_by_answer
 
 from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializer
 from mystery_shopping.questionnaires.constants import IndicatorQuestionType
@@ -214,3 +215,52 @@ class AlgorithmsTestCase(TestCase):
 
         add_question_per_coded_cause(indicator_question, coded_causes_dict)
         self.assertEqual(coded_causes_dict['unsorted'][0], indicator_question_id)
+
+    def test_group_questions_by_answer(self):
+        questionnaire_list = list()
+        indicator_type = 'NPS'
+        number_of_questionnaires = 5
+        indicator_marks = list()
+
+        for q in range(number_of_questionnaires):
+            mark = randint(1, 10)
+            indicator_marks.append(mark)
+            question_list = list()
+            question = MagicMock()
+            questionnaire = MagicMock()
+            indicator_question = MagicMock()
+
+            indicator_question_id = randint(1, 100)
+            indicator_question.type = IndicatorQuestionType.INDICATOR_QUESTION
+            indicator_question.score = mark
+            indicator_question.id = indicator_question_id
+            indicator_question.additional_info = indicator_type
+            indicator_question.coded_causes.first.return_value = None
+
+            questionnaire.questions.filter().first.return_value = indicator_question
+
+            question.type = QuestionType.SINGLE_CHOICE
+            if q < 2:
+                question.answer = 'Romanian'
+                question.answer_choices = [123]
+            elif q < 4:
+                question.answer = 'English'
+                question.answer_choices = [123]
+            else:
+                question.answer = 'Chinese'
+                question.answer_choices = []
+
+            question.question_body = 'Language'
+
+            question_list.append(question)
+
+            questionnaire.questions.all.return_value = question_list
+            questionnaire_list.append(questionnaire)
+
+        indicator_details = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
+
+        group_questions_by_answer(questionnaire_list, indicator_type, indicator_details)
+
+        self.assertEqual(indicator_details['Language']['Romanian']['marks'], indicator_marks[0:2])
+        self.assertEqual(indicator_details['Language']['English']['marks'], indicator_marks[2:4])
+        self.assertEqual(indicator_details['Language']['other']['marks'], indicator_marks[4:])

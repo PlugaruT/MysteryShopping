@@ -99,8 +99,7 @@ def group_questions_by_answer(questionnaire_list, indicator_type, indicator_deta
             add_question_per_coded_cause(questionnaire_indicator_question, coded_causes_dict)
 
             for question in questionnaire.questions.all():
-                if question.type != IndicatorQuestionType.INDICATOR_QUESTION:
-                    sort_indicator_question_marks(indicator_details, questionnaire_indicator_question, question)
+                sort_indicator_question_marks(indicator_details, questionnaire_indicator_question, question)
 
     return indicator_details, coded_causes_dict
 
