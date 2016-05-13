@@ -70,7 +70,12 @@ class OverviewDashboard(views.APIView):
         entity_id = request.query_params.get('entity', None)
         # section_id = request.query_params.get('section', None)
 
-        if project_id:
+        if project_id and project_id.isdigit():
+            if entity_id is not None and not entity_id.isdigit():
+
+                return Response({
+                    'detail': 'Entity param is invalid'
+                }, status.HTTP_400_BAD_REQUEST)
             try:
                 project = Project.objects.get(pk=project_id)
                 if request.user.tenant != project.tenant:
@@ -85,7 +90,7 @@ class OverviewDashboard(views.APIView):
                 return Response({'detail': 'No Project with this id exists'},
                                 status.HTTP_404_NOT_FOUND)
         return Response({
-            'detail': 'Project was not provided'
+            'detail': 'Project param is invalid or was not provided'
         }, status.HTTP_400_BAD_REQUEST)
 
 
@@ -115,7 +120,11 @@ class IndicatorDashboard(views.APIView):
                 project = Project.objects.get_latest_project_for_client_user(tenant=request.user.tenant, company=company)
             elif request.user.is_tenant_user() and company_id is not None:
                 project = Project.objects.get_latest_project_for_client_user(tenant=request.user.tenant, company=company_id)
-        else:
+        elif project_id.isdigit():
+            if entity_id is not None and not entity_id.isdigit():
+                return Response({
+                    'detail': 'Entity param is invalid'
+                }, status.HTTP_400_BAD_REQUEST)
             try:
                 project = Project.objects.get(pk=project_id)
             except Project.DoesNotExist:
@@ -125,6 +134,10 @@ class IndicatorDashboard(views.APIView):
             if request.user.tenant != project.tenant:
                 return Response({'detail': 'You do not have permission to access to this project.'},
                                 status.HTTP_403_FORBIDDEN)
+        else:
+            return Response({
+                'detail': 'Project param is invalid'
+            }, status.HTTP_400_BAD_REQUEST)
 
         if project is not None:
             response = collect_data_for_indicator_dashboard(project, entity_id, indicator_type)
