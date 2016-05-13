@@ -203,16 +203,14 @@ def calculate_overview_score(questionnaire_list, project, entity_id):
     overview_list = dict()
     overview_list['indicators'] = dict()
     indicator_types_set = set()
-    for questionnaire in questionnaire_list.all():
-        for indicator_question in questionnaire.questions.filter(type='i').all():
+    for questionnaire in questionnaire_list:
+        for indicator_question in questionnaire.questions.filter(type=IndicatorQuestionType.INDICATOR_QUESTION).all():
             indicator_types_set.add(indicator_question.additional_info)
-
     for indicator_type in indicator_types_set:
         indicator_list = get_indicator_scores(questionnaire_list, indicator_type)
         overview_list['indicators'][indicator_type] = calculate_indicator_score(indicator_list)
 
     overview_list['project_comment'] = get_overview_project_comment(project, entity_id)
-
     return overview_list
 
 
@@ -297,20 +295,20 @@ def collect_data_for_overview_dashboard(project, entity_id):
 def get_project_indicator_questions_list(project):
     # get the template questionnaire for this project
     template_questionnaire = project.research_methodology.questionnaires.first()
-    indicator_list = set()
+    indicator_set = set()
     for question in template_questionnaire.template_questions.all():
         if question.type == IndicatorQuestionType.INDICATOR_QUESTION:
-            indicator_list.add(question.additional_info)
+            indicator_set.add(question.additional_info)
 
-    return indicator_list
+    return indicator_set
 
 
 def get_company_indicator_questions_list(company):
     projects = company.projects.all()
-    indicator_list = set()
+    indicator_set = set()
     for project in projects:
         template_questionnaire = project.research_methodology.questionnaires.first()
         for question in template_questionnaire.template_questions.all():
             if question.type == IndicatorQuestionType.INDICATOR_QUESTION:
-                indicator_list.add(question.additional_info)
-    return indicator_list
+                indicator_set.add(question.additional_info)
+    return indicator_set

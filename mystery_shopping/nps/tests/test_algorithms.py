@@ -13,6 +13,7 @@ from ..algorithms import sort_indicator_question_marks
 from ..algorithms import add_question_per_coded_cause
 from ..algorithms import group_questions_by_answer
 from ..algorithms import group_questions_by_pos
+from ..algorithms import calculate_overview_score
 
 from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializer
 from mystery_shopping.questionnaires.constants import IndicatorQuestionType
@@ -52,13 +53,14 @@ class AlgorithmsTestCase(TestCase):
 
         # Create the mocks for the questionnaires
         for i in range(len(initial_score_list) - 1):
-            questionnaire_list.append(MagicMock())
+            questionnaire = MagicMock()
             mock_question = MagicMock()
             mock_question.type = IndicatorQuestionType.INDICATOR_QUESTION
             mock_question.additional_info = indicator_type
             mock_question.score = initial_score_list[i]
             # Assign questions to the questionnaire
-            questionnaire_list[i].questions.all.return_value = [mock_question,]
+            questionnaire.questions.all.return_value = [mock_question,]
+            questionnaire_list.append(questionnaire)
 
         # Add another questionnaire with a different type of cxi question
         questionnaire_list.append(MagicMock())
@@ -294,6 +296,40 @@ class AlgorithmsTestCase(TestCase):
             questionnaire_list.append(questionnaire)
 
         indicator_pos_details = group_questions_by_pos(questionnaire_list, indicator_type)
-        print(indicator_pos_details)
         self.assertEqual(indicator_pos_details['entities']['Entity 1'], indicator_marks[:3])
         self.assertEqual(indicator_pos_details['entities']['Entity 2'], indicator_marks[3:])
+
+    def test_calculate_overview_score(self):
+        initial_score_list = [Decimal('10.00'), Decimal('9.00'), Decimal('10.00'), Decimal('6.00'), Decimal('7.00')]
+        promoters = Decimal('60.0')
+        passives = Decimal('20.0')
+        detractors = Decimal('20.0')
+        indicator = Decimal('40.0')
+
+        questionnaire_list = list()
+        first_indicator = 'First Indicator'
+        second_indicator = 'Second Indicator'
+
+        # Create the questionnaire mocks with indicator questions
+        for i in range(len(initial_score_list)):
+            questionnaire = MagicMock()
+            indicator_question_1 = MagicMock()
+            indicator_question_1.type = IndicatorQuestionType.INDICATOR_QUESTION
+            indicator_question_1.additional_info = first_indicator
+            indicator_question_1.score = initial_score_list[i]
+
+            indicator_question_2 = MagicMock()
+            indicator_question_2.type = IndicatorQuestionType.INDICATOR_QUESTION
+            indicator_question_2.additional_info = second_indicator
+            indicator_question_2.score = initial_score_list[i]
+            # Assign questions to the questionnaire
+            questionnaire.questions.filter().all.return_value = [indicator_question_1, indicator_question_2]
+            questionnaire.questions.all.return_value = [indicator_question_1, indicator_question_2]
+
+            questionnaire_list.append(questionnaire)
+
+        overview_list = calculate_overview_score(questionnaire_list, None, None)
+        self.assertEqual(overview_list['indicators'][first_indicator]['promoters'], promoters)
+        self.assertEqual(overview_list['indicators'][first_indicator]['detractors'], detractors)
+        self.assertEqual(overview_list['indicators'][first_indicator]['passives'], passives)
+        self.assertEqual(overview_list['indicators'][first_indicator]['indicator'], indicator)
