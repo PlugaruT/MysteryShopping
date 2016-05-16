@@ -90,11 +90,12 @@ class Project(models.Model):
 
     def get_indicators_list(self):
         # get the template questionnaire for this project
-        template_questionnaire = self.research_methodology.questionnaires.first()
         indicator_set = set()
-        for question in template_questionnaire.template_questions.all():
-            if question.type == IndicatorQuestionType.INDICATOR_QUESTION:
-                indicator_set.add(question.additional_info)
+        if self.research_methodology:
+            template_questionnaire = self.research_methodology.questionnaires.first()
+            for question in template_questionnaire.template_questions.all():
+                if question.type == IndicatorQuestionType.INDICATOR_QUESTION:
+                    indicator_set.add(question.additional_info)
         return indicator_set
 
 

@@ -47,8 +47,7 @@
 
 - `company` : *id*
 - `tenant` : *id*
-- `project_manager_type` : *id* (for `ContentType`: `tenantproductmanager` or `tenantprojectmanager`)
-- `project_manager_id` : *integer*
+- `project_manager` : *id* (for `TenantProjectManager`)
 - `shoppers` : *id* (`ManyToManyField`)
 - `consultants_repr` : *representation* of `TenantConsultants` (`many = True`)
 - `research_methodology` : *representation* of `ResearchMethodology`  (`required = False`)
