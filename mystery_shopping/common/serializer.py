@@ -44,7 +44,7 @@ class CitySerializer(serializers.ModelSerializer):
     City Serializer.
     """
     sectors = SectorSerializer(many=True, required=False)
-    county = CountySerializer(read_only=True)
-    
+    county = serializers.CharField(source='county.name', read_only=True)
+
     class Meta:
         model = City
