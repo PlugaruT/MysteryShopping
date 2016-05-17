@@ -15,6 +15,7 @@ from ..algorithms import group_questions_by_answer
 from ..algorithms import group_questions_by_pos
 from ..algorithms import calculate_overview_score
 from ..algorithms import sort_indicator_categories
+from ..algorithms import sort_indicators_per_pos
 
 from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializer
 from mystery_shopping.questionnaires.constants import IndicatorQuestionType
@@ -337,24 +338,37 @@ class AlgorithmsTestCase(TestCase):
 
     # TODO: improve this test
     def test_sort_indicator_categories(self):
-        initial_score_list_of_lists = [
-            [Decimal('10.00'), Decimal('9.00'), Decimal('10.00'), Decimal('6.00'), Decimal('7.00')],]
+        initial_score_list = [Decimal('10.00'), Decimal('9.00'), Decimal('10.00'), Decimal('6.00'), Decimal('7.00')]
 
         indicator_categories = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
         questions_dict = {'Age': ('10', '20', '30'), 'Gender': ('Male', 'Female')}
 
         for question, answers in questions_dict.items():
-            i = 0
             for answer in answers:
-                indicator_categories[question][answer]['marks'] = initial_score_list_of_lists[0]
-                i += 1
-
-        # print(indicator_categories)
+                indicator_categories[question][answer]['marks'] = initial_score_list
 
         details = list()
 
         sort_indicator_categories(details, indicator_categories)
         for question in details:
             for result in question['results']:
-                self.assertEqual(result['number_of_respondents'], 5)
+                self.assertEqual(result['number_of_respondents'], len(initial_score_list))
+                self.assertEqual(result['score']['indicator'], 40.0)
+
+    # TODO: improve this test
+    def test_sort_indicators_per_pos(self):
+        initial_score_list = [Decimal('10.00'), Decimal('9.00'), Decimal('10.00'), Decimal('6.00'), Decimal('7.00')]
+
+        indicator_pos_details = defaultdict(lambda: defaultdict(list))
+        pos_list = ('Europe', 'Asia', 'Africa')
+
+        for pos in pos_list:
+            indicator_pos_details['entities'][pos] = initial_score_list
+
+        details = list()
+
+        sort_indicators_per_pos(details, indicator_pos_details)
+        for pos in details:
+            for result in pos['results']:
+                self.assertEqual(result['number_of_respondents'], len(initial_score_list))
                 self.assertEqual(result['score']['indicator'], 40.0)
