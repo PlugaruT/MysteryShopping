@@ -131,18 +131,7 @@ def create_details_skeleton(questionnaire_template):
     return indicator_skeleton
 
 
-def get_indicator_details(questionnaire_list, indicator_type):
-    """
-    Collect detailed data about inticator_type
-
-    :param questionnaire_list:
-    :param indicator_type:
-    :return: the indicator scores
-    """
-    details = list()
-    indicator_skeleton = create_details_skeleton(questionnaire_list.first().template)
-    indicator_categories, coded_causes_dict = group_questions_by_answer(questionnaire_list, indicator_type, indicator_skeleton)
-
+def sort_indicator_categories(details, indicator_categories):
     for item_label, responses in indicator_categories.items():
         detail_item = dict()
         detail_item['results'] = list()
@@ -157,23 +146,40 @@ def get_indicator_details(questionnaire_list, indicator_type):
 
         detail_item['item_label'] = item_label
         details.append(detail_item)
+    return details
 
-    indicators_per_pos = group_questions_by_pos(questionnaire_list, indicator_type)
 
-    for pos_type in indicators_per_pos:
+def sort_indicators_per_pos(details, indicators):
+    for pos_type in indicators:
         if pos_type is not 'sections':
             detail_item = defaultdict(list)
             detail_item['results'] = list()
             detail_item['item_label'] = pos_type.capitalize()
-            for entity, marks in indicators_per_pos[pos_type].items():
+            for entity, marks in indicators[pos_type].items():
                 pos_detail = dict()
                 pos_detail['choice'] = entity
                 pos_detail['score'] = calculate_indicator_score(marks)
                 pos_detail['number_of_respondents'] = len(marks)
                 pos_detail['other_answer_choices'] = list()
                 detail_item['results'].append(pos_detail)
-
             details.append(detail_item)
+    return details
+
+def get_indicator_details(questionnaire_list, indicator_type):
+    """
+    Collect detailed data about inticator_type
+
+    :param questionnaire_list:
+    :param indicator_type:
+    :return: the indicator scores
+    """
+    details = list()
+    indicator_skeleton = create_details_skeleton(questionnaire_list.first().template)
+    indicator_categories, coded_causes_dict = group_questions_by_answer(questionnaire_list, indicator_type, indicator_skeleton)
+    sort_indicator_categories(details, indicator_categories)
+
+    indicators_per_pos = group_questions_by_pos(questionnaire_list, indicator_type)
+    sort_indicators_per_pos(details, indicators_per_pos)
 
     return_dict = dict()
     return_dict['details'] = details

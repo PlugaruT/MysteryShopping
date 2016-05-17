@@ -1,4 +1,4 @@
-from rest_assured.testcases import ReadWriteRESTAPITestCaseMixin, BaseRESTAPITestCase
+# from rest_assured.testcases import ReadWriteRESTAPITestCaseMixin, BaseRESTAPITestCase
 
 from mystery_shopping.factories.users import TenantProjectManagerFactory
 from mystery_shopping.factories.companies import CompanyFactory

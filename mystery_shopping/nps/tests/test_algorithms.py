@@ -14,6 +14,7 @@ from ..algorithms import add_question_per_coded_cause
 from ..algorithms import group_questions_by_answer
 from ..algorithms import group_questions_by_pos
 from ..algorithms import calculate_overview_score
+from ..algorithms import sort_indicator_categories
 
 from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializer
 from mystery_shopping.questionnaires.constants import IndicatorQuestionType
@@ -333,3 +334,27 @@ class AlgorithmsTestCase(TestCase):
         self.assertEqual(overview_list['indicators'][first_indicator]['detractors'], detractors)
         self.assertEqual(overview_list['indicators'][first_indicator]['passives'], passives)
         self.assertEqual(overview_list['indicators'][first_indicator]['indicator'], indicator)
+
+    # TODO: improve this test
+    def test_sort_indicator_categories(self):
+        initial_score_list_of_lists = [
+            [Decimal('10.00'), Decimal('9.00'), Decimal('10.00'), Decimal('6.00'), Decimal('7.00')],]
+
+        indicator_categories = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
+        questions_dict = {'Age': ('10', '20', '30'), 'Gender': ('Male', 'Female')}
+
+        for question, answers in questions_dict.items():
+            i = 0
+            for answer in answers:
+                indicator_categories[question][answer]['marks'] = initial_score_list_of_lists[0]
+                i += 1
+
+        # print(indicator_categories)
+
+        details = list()
+
+        sort_indicator_categories(details, indicator_categories)
+        for question in details:
+            for result in question['results']:
+                self.assertEqual(result['number_of_respondents'], 5)
+                self.assertEqual(result['score']['indicator'], 40.0)
