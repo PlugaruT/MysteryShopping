@@ -59,7 +59,7 @@ It returns a dictionary with `2` values:
 
 **`GET`**:
 It returns a dictionary with `4` entries:
-- `general` : returns the same `4` fields like in `Overview Dashboard`
+- `gauge` : returns the same `4` fields like in `Overview Dashboard`, and if the `entity` parameter is specified adds a new field: `general_indicator` that contains the **indicator** score for the whole project
 - `coded_causes` : returns a `list` of *coded causes* and the number of times they are used.
 	- `count` : number of times is't used
 	- `coded_cause`: serialized instance of the `coded_cause`
