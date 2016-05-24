@@ -99,91 +99,51 @@ class EvaluationSpreadsheet:
 
     def write_owner_info(self):
         if self.evaluation.employee is not None:
-
-            self.sheet.merge_cells(start_row=self.row, end_row=self.row,
-                                   start_column=self.column,
-                                   end_column=(self.column+(self.big_merged_cell+self.small_merged_cell)) // 2)
-
-            cell_to_write = self.sheet.cell(row=self.row,
-                                            column=self.column)
-            cell_to_write.font = self.default_font_style
-            cell_to_write.alignment = self.default_alignment
-            cell_to_write.value = "Name: {} {}\nJob: {}\nEntity: {}".format(self.evaluation.employee.last_name,
+            value_to_write_left = "Name: {} {}\nJob: {}\nEntity: {}".format(self.evaluation.employee.last_name,
                                                                             self.evaluation.employee.first_name,
                                                                             self.evaluation.employee.job_title,
                                                                             self.evaluation.entity.name)
             if self.evaluation.section:
-                cell_to_write.value += "\nSection: {}".format(self.evaluation.section.name)
-
-            rows_to_write = self.calculate_height("{}\n".format(cell_to_write.value))
-            height = self.default_height_multiline * rows_to_write
-
-            self.sheet.merge_cells(start_row=self.row, end_row=self.row,
-                                   start_column=((self.column+self.big_merged_cell+self.small_merged_cell)//2)+1,
-                                   end_column=self.column+self.big_merged_cell+self.small_merged_cell)
-
-            cell_to_write = self.sheet.cell(row=self.row,
-                                            column=((self.column+self.big_merged_cell+self.small_merged_cell)//2)+1)
-            cell_to_write.font = self.default_font_style
-            cell_to_write.alignment = self.default_alignment
-            cell_to_write.value = "Address: {}\nCity: {}".format(self.evaluation.entity.address, self.evaluation.entity.city.name)
-            rows_to_write = self.calculate_height("{}\n".format(cell_to_write.value))
+                value_to_write_left += "\nSection: {}".format(self.evaluation.section.name)
 
         elif self.evaluation.section is not None:
-
-            self.sheet.merge_cells(start_row=self.row, end_row=self.row,
-                                   start_column=self.column,
-                                   end_column=(self.column + (self.big_merged_cell + self.small_merged_cell)) // 2)
-
-            cell_to_write = self.sheet.cell(row=self.row,
-                                            column=self.column)
-            cell_to_write.font = self.default_font_style
-            cell_to_write.alignment = self.default_alignment
-            cell_to_write.value = "Type: Entity\nName: {}".format(self.evaluation.section.name)
-            rows_to_write = self.calculate_height("{}\n".format(cell_to_write.value))
-            height = self.default_height_multiline * rows_to_write
-
-            self.sheet.merge_cells(start_row=self.row, end_row=self.row,
-                                   start_column=(
-                                                (self.column + self.big_merged_cell + self.small_merged_cell) // 2) + 1,
-                                   end_column=self.column + self.big_merged_cell + self.small_merged_cell)
-
-            cell_to_write = self.sheet.cell(row=self.row,
-                                            column=((
-                                                    self.column + self.big_merged_cell + self.small_merged_cell) // 2) + 1)
-            cell_to_write.font = self.default_font_style
-            cell_to_write.alignment = self.default_alignment
-            cell_to_write.value = "Address: {}\nCity: {}".format(self.evaluation.section.address,
-                                                                 self.evaluation.entity.city.name)
-            rows_to_write = self.calculate_height("{}\n".format(cell_to_write.value))
+            value_to_write_left = "Type: Section\nName: {}".format(self.evaluation.section.name)
 
         elif self.evaluation.entity is not None:
-            self.sheet.merge_cells(start_row=self.row, end_row=self.row,
-                                   start_column=self.column,
-                                   end_column=(self.column + (self.big_merged_cell + self.small_merged_cell)) // 2)
+            value_to_write_left = "Type: Entity\nName: {}".format(self.evaluation.entity.name)
 
-            cell_to_write = self.sheet.cell(row=self.row,
-                                            column=self.column)
-            cell_to_write.font = self.default_font_style
-            cell_to_write.alignment = self.default_alignment
-            cell_to_write.value = "Type: Entity\nName: {}".format(self.evaluation.entity.name)
-            rows_to_write = self.calculate_height("{}\n".format(cell_to_write.value))
-            height = self.default_height_multiline * rows_to_write
+        else:
+            value_to_write_left = ""
 
-            self.sheet.merge_cells(start_row=self.row, end_row=self.row,
-                                   start_column=((self.column + (
-                                       self.big_merged_cell + self.small_merged_cell)) // 2) + 1,
-                                   end_column=self.column + self.big_merged_cell + self.small_merged_cell)
+        height_left = self.calculate_height("{}\n".format(value_to_write_left))
 
-            cell_to_write = self.sheet.cell(row=self.row,
-                                            column=((self.column + self.big_merged_cell + self.small_merged_cell) // 2)+1)
-            cell_to_write.font = self.default_font_style
-            cell_to_write.alignment = self.default_alignment
-            cell_to_write.value = "Address: {}\nCity: {}".format(self.evaluation.entity.address,
-                                                                 self.evaluation.entity.city.name)
-            rows_to_write = self.calculate_height("{}\n".format(cell_to_write.value))
+        # Write left part
+        self.sheet.merge_cells(start_row=self.row, end_row=self.row,
+                               start_column=self.column,
+                               end_column=(self.column+(self.big_merged_cell+self.small_merged_cell)) // 2)
 
-        self.sheet.row_dimensions[self.row].height = height
+        cell_to_write = self.sheet.cell(row=self.row,
+                                        column=self.column)
+        cell_to_write.font = self.default_font_style
+        cell_to_write.alignment = self.default_alignment
+
+        cell_to_write.value = value_to_write_left
+
+        self.sheet.merge_cells(start_row=self.row, end_row=self.row,
+                               start_column=((self.column+self.big_merged_cell+self.small_merged_cell)//2)+1,
+                               end_column=self.column+self.big_merged_cell+self.small_merged_cell)
+
+        # Write right part
+        cell_to_write = self.sheet.cell(row=self.row,
+                                        column=((self.column+self.big_merged_cell+self.small_merged_cell)//2)+1)
+        cell_to_write.font = self.default_font_style
+        cell_to_write.alignment = self.default_alignment
+        cell_to_write.value = "Address: {}\nCity: {}\nCounty: {}".format(self.evaluation.entity.address,
+                                                                         self.evaluation.entity.city.name,
+                                                                         self.evaluation.entity.city.county.name)
+        height_right = self.calculate_height("{}\n".format(cell_to_write.value))
+
+        self.sheet.row_dimensions[self.row].height = self.default_height_multiline * max(height_right, height_left)
         self.row += 1
 
     def write_sub_header(self, text, height, score=0, fill=3):
