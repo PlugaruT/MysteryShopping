@@ -12,7 +12,7 @@ from mystery_shopping.projects.constants import ProjectStatus
 class EvaluationSpreadsheet:
 
     def __init__(self, evaluation=None):
-        self.evaluation = evaluation if evaluation else None
+        self.evaluation = evaluation
         self.header_font_style = Font(name='Arial', size=18, bold=True)
         self.sub_header_font_style = Font(name='Arial', size=16, bold=True)
         self.default_font_style = Font(name='Arial', size=14)
@@ -42,6 +42,11 @@ class EvaluationSpreadsheet:
             self.divide = True
             self.big_merged_cell = 7
             self.small_merged_cell = 2
+
+        self.write_header('Evaluation Details')
+        self.write_owner_info()
+
+        self.row += 1
 
         self.write_header('Script')
         self.write_sub_header('Title', height=self.sub_header_height)
@@ -77,7 +82,7 @@ class EvaluationSpreadsheet:
             cell_to_write.font = self.header_font_style
             cell_to_write.fill = self.header_fill
             cell_to_write.alignment = self.default_alignment
-            cell_to_write.value = 'Score: {}'.format(str(score))
+            cell_to_write.value = 'Score: {}'.format(score)
         else:
             self.sheet.merge_cells(start_row=self.row, end_row=self.row,
                                    start_column=self.column,
@@ -90,6 +95,95 @@ class EvaluationSpreadsheet:
             cell_to_write.value = text
 
         self.sheet.row_dimensions[self.row].height = self.header_height
+        self.row += 1
+
+    def write_owner_info(self):
+        if self.evaluation.employee is not None:
+
+            self.sheet.merge_cells(start_row=self.row, end_row=self.row,
+                                   start_column=self.column,
+                                   end_column=(self.column+(self.big_merged_cell+self.small_merged_cell)) // 2)
+
+            cell_to_write = self.sheet.cell(row=self.row,
+                                            column=self.column)
+            cell_to_write.font = self.default_font_style
+            cell_to_write.alignment = self.default_alignment
+            cell_to_write.value = "Name: {} {}\nJob: {}\nEntity: {}".format(self.evaluation.employee.last_name,
+                                                                            self.evaluation.employee.first_name,
+                                                                            self.evaluation.employee.job_title,
+                                                                            self.evaluation.entity.name)
+            if self.evaluation.section:
+                cell_to_write.value += "\nSection: {}".format(self.evaluation.section.name)
+
+            rows_to_write = self.calculate_height("{}\n".format(cell_to_write.value))
+            height = self.default_height_multiline * rows_to_write
+
+            self.sheet.merge_cells(start_row=self.row, end_row=self.row,
+                                   start_column=((self.column+self.big_merged_cell+self.small_merged_cell)//2)+1,
+                                   end_column=self.column+self.big_merged_cell+self.small_merged_cell)
+
+            cell_to_write = self.sheet.cell(row=self.row,
+                                            column=((self.column+self.big_merged_cell+self.small_merged_cell)//2)+1)
+            cell_to_write.font = self.default_font_style
+            cell_to_write.alignment = self.default_alignment
+            cell_to_write.value = "Address: {}\nCity: {}".format(self.evaluation.entity.address, self.evaluation.entity.city.name)
+            rows_to_write = self.calculate_height("{}\n".format(cell_to_write.value))
+
+        elif self.evaluation.section is not None:
+
+            self.sheet.merge_cells(start_row=self.row, end_row=self.row,
+                                   start_column=self.column,
+                                   end_column=(self.column + (self.big_merged_cell + self.small_merged_cell)) // 2)
+
+            cell_to_write = self.sheet.cell(row=self.row,
+                                            column=self.column)
+            cell_to_write.font = self.default_font_style
+            cell_to_write.alignment = self.default_alignment
+            cell_to_write.value = "Type: Entity\nName: {}".format(self.evaluation.section.name)
+            rows_to_write = self.calculate_height("{}\n".format(cell_to_write.value))
+            height = self.default_height_multiline * rows_to_write
+
+            self.sheet.merge_cells(start_row=self.row, end_row=self.row,
+                                   start_column=(
+                                                (self.column + self.big_merged_cell + self.small_merged_cell) // 2) + 1,
+                                   end_column=self.column + self.big_merged_cell + self.small_merged_cell)
+
+            cell_to_write = self.sheet.cell(row=self.row,
+                                            column=((
+                                                    self.column + self.big_merged_cell + self.small_merged_cell) // 2) + 1)
+            cell_to_write.font = self.default_font_style
+            cell_to_write.alignment = self.default_alignment
+            cell_to_write.value = "Address: {}\nCity: {}".format(self.evaluation.section.address,
+                                                                 self.evaluation.entity.city.name)
+            rows_to_write = self.calculate_height("{}\n".format(cell_to_write.value))
+
+        elif self.evaluation.entity is not None:
+            self.sheet.merge_cells(start_row=self.row, end_row=self.row,
+                                   start_column=self.column,
+                                   end_column=(self.column + (self.big_merged_cell + self.small_merged_cell)) // 2)
+
+            cell_to_write = self.sheet.cell(row=self.row,
+                                            column=self.column)
+            cell_to_write.font = self.default_font_style
+            cell_to_write.alignment = self.default_alignment
+            cell_to_write.value = "Type: Entity\nName: {}".format(self.evaluation.entity.name)
+            rows_to_write = self.calculate_height("{}\n".format(cell_to_write.value))
+            height = self.default_height_multiline * rows_to_write
+
+            self.sheet.merge_cells(start_row=self.row, end_row=self.row,
+                                   start_column=((self.column + (
+                                       self.big_merged_cell + self.small_merged_cell)) // 2) + 1,
+                                   end_column=self.column + self.big_merged_cell + self.small_merged_cell)
+
+            cell_to_write = self.sheet.cell(row=self.row,
+                                            column=((self.column + self.big_merged_cell + self.small_merged_cell) // 2)+1)
+            cell_to_write.font = self.default_font_style
+            cell_to_write.alignment = self.default_alignment
+            cell_to_write.value = "Address: {}\nCity: {}".format(self.evaluation.entity.address,
+                                                                 self.evaluation.entity.city.name)
+            rows_to_write = self.calculate_height("{}\n".format(cell_to_write.value))
+
+        self.sheet.row_dimensions[self.row].height = height
         self.row += 1
 
     def write_sub_header(self, text, height, score=0, fill=3):
@@ -145,7 +239,7 @@ class EvaluationSpreadsheet:
         self.row += 1
 
     def calculate_height(self, text):
-        return int(len(text) / self.max_characters_line)
+        return int(len(text) / self.max_characters_line) + text.count('\n')
 
     def write_question(self, question):
         # TODO: check question type
