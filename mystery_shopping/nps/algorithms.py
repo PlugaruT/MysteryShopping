@@ -110,9 +110,9 @@ def group_questions_by_pos(questionnaire_list, indicator_type):
         questionnaire_indicator_score = questionnaire.questions.filter(type=IndicatorQuestionType.INDICATOR_QUESTION, additional_info=indicator_type).first()
         if questionnaire_indicator_score:
             indicator_pos_details['entities'][questionnaire.evaluation.entity.name].append(questionnaire_indicator_score.score)
+            indicator_pos_details['ids'][questionnaire.evaluation.entity.name] = questionnaire.evaluation.entity.id
             if questionnaire.evaluation.section is not None:
                 indicator_pos_details['sections'][questionnaire.evaluation.section.name].append(questionnaire_indicator_score.score)
-
     return indicator_pos_details
 
 
@@ -151,7 +151,7 @@ def sort_indicator_categories(details, indicator_categories):
 
 def sort_indicators_per_pos(details, indicators):
     for pos_type in indicators:
-        if pos_type is not 'sections':
+        if pos_type is 'entities':
             detail_item = defaultdict(list)
             detail_item['results'] = list()
             detail_item['item_label'] = pos_type.capitalize()
@@ -160,10 +160,11 @@ def sort_indicators_per_pos(details, indicators):
                 pos_detail['choice'] = entity
                 pos_detail['score'] = calculate_indicator_score(marks)
                 pos_detail['number_of_respondents'] = len(marks)
-                pos_detail['other_answer_choices'] = list()
+                pos_detail['other_answer_choices'] = indicators['ids'][entity]
                 detail_item['results'].append(pos_detail)
             details.append(detail_item)
     return details
+
 
 def get_indicator_details(questionnaire_list, indicator_type):
     """
