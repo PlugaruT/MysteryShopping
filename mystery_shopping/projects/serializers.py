@@ -218,6 +218,9 @@ class ProjectSerializer(serializers.ModelSerializer):
 
         if research_methodology is not None:
             research_methodology['project_id'] = project.id
+            research_methodology['scripts'] = list(map(lambda x: x.id, research_methodology.get('scripts', [])))
+            research_methodology['questionnaires'] = list(
+                map(lambda x: x.id, research_methodology.get('questionnaires', [])))
             research_methodology['tenant'] = research_methodology['tenant'].id
             research_methodology_ser = ResearchMethodologySerializer(data=research_methodology)
             research_methodology_ser.is_valid(raise_exception=True)

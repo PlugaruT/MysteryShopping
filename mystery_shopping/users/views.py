@@ -167,6 +167,6 @@ class CollectorViewSet(viewsets.ModelViewSet):
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
 
 
-class PersonToAssessViewSet(FilterQuerysetOnTenantMixIn, viewsets.ModelViewSet):
+class PersonToAssessViewSet(viewsets.ModelViewSet):
     queryset = PersonToAssess.objects.all()
     serializer_class = PersonToAssessSerializer
