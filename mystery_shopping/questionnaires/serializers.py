@@ -309,11 +309,53 @@ class QuestionnaireSerializer(serializers.ModelSerializer):
         return questionnaire
 
 
+class CrossIndexQuestionTemplateSerializer(serializers.ModelSerializer):
+    """
+
+    """
+
+    class Meta:
+        model = CrossIndexQuestionTemplate
+        fields = ('template_question', 'weight')
+        extra_kwargs = {'cross_index_template': {'required': False}}
+
+
+class CrossIndexTemplateSerializer(serializers.ModelSerializer):
+    """
+
+    """
+    question_templates = CrossIndexQuestionTemplateSerializer(source='cross_index_question_templates', many=True, required=False)
+
+    class Meta:
+        model = CrossIndexTemplate
+        fields = '__all__'
+
+    def validate(self, attrs):
+        questionnaire_template = attrs.get('questionnaire_template', None)
+        question_templates = attrs.get('question_templates', [])
+
+        for template_question in question_templates:
+            if template_question.questionnaire_template.id != questionnaire_template.id:
+                raise serializers.ValidationError({'question_templates': 'Template Questions don\'t correspond to the Questionnaire Template'})
+        return attrs
+
+    def create(self, validated_data):
+        question_templates = validated_data.pop('cross_index_question_templates', [])
+        cross_template = CrossIndexTemplate.objects.create(**validated_data)
+
+        for question_template in question_templates:
+            CrossIndexQuestionTemplate.objects.create(cross_index_template=cross_template,
+                                       template_question=question_template['template_question'],
+                                       weight=question_template['weight'])
+        return cross_template
+
+
 class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
     """
 
     """
     template_blocks = QuestionnaireTemplateBlockSerializer(many=True, required=False)
+    cross_index_templates = CrossIndexTemplateSerializer(many=True)
 
     class Meta:
         model = QuestionnaireTemplate
@@ -364,61 +406,6 @@ class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
                 setattr(instance, attr, value)
             instance.save()
         return instance
-
-
-class CrossIndexQuestionTemplateSerializer(serializers.ModelSerializer):
-    """
-
-    """
-
-    class Meta:
-        model = CrossIndexQuestionTemplate
-        fields = '__all__'
-        extra_kwargs = {'cross_index_template': {'required': False}}
-
-
-class CrossIndexTemplateSerializer(serializers.ModelSerializer):
-    """
-
-    """
-    cross_index_template_questions = CrossIndexQuestionTemplateSerializer(source="cross_index_template_set", many=True, required=False)
-
-    class Meta:
-        model = CrossIndexTemplate
-        fields = '__all__'
-
-    # def validate(self, attrs):
-    #     print(type(attrs))
-    #     questionnaire_template = attrs.get('questionnaire_template', None)
-    #     question_templates = attrs.get('question_templates', [])
-    #
-    #     for template_question in question_templates:
-    #         if template_question.questionnaire_template.id != questionnaire_template.id:
-    #             raise serializers.ValidationError({'question_templates': 'Template Questions don\'t correspond to the Questionnaire Template'})
-    #     return attrs
-
-    def create(self, validated_data):
-        print(validated_data)
-        question_templates = validated_data.pop('cross_index_template_set', [])
-        print(question_templates)
-        cross_template = CrossIndexTemplate.objects.create(**validated_data)
-
-        for question_template in question_templates:
-            CrossIndexQuestionTemplate.objects.create(cross_index_template=cross_template,
-                                       template_question=question_template['template_question'],
-                                       weight=question_template['weight'])
-        return cross_template
-
-
-class CrossIndexQuestionSerializer(serializers.ModelSerializer):
-    """
-
-    """
-
-    class Meta:
-        model = CrossIndexQuestion
-        fields = '__all__'
-        extra_kwargs = {'cross_index': {'required': False}}
 
 
 class CrossIndexSerializer(serializers.ModelSerializer):

@@ -378,6 +378,9 @@ class CrossIndexQuestionTemplate(models.Model):
     template_question = models.ForeignKey(QuestionnaireTemplateQuestion, on_delete=models.CASCADE)
     weight = models.DecimalField(max_digits=5, decimal_places=2)
 
+    class Meta:
+        default_related_name = 'cross_index_question_templates'
+
 
 class CrossIndexQuestion(models.Model):
     cross_index = models.ForeignKey(CrossIndex, on_delete=models.CASCADE)

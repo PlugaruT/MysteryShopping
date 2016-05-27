@@ -15,10 +15,14 @@ from .models import CrossIndexQuestionTemplate
 from .models import CrossIndexQuestion
 
 
-@admin.register(QuestionnaireScript, QuestionnaireTemplate, Questionnaire, QuestionnaireTemplateBlock, QuestionnaireBlock, QuestionnaireTemplateQuestion, QuestionnaireTemplateQuestionChoice, QuestionnaireQuestionChoice, CrossIndexTemplate, CrossIndex, CrossIndexQuestionTemplate, CrossIndexQuestion)
+@admin.register(QuestionnaireScript, Questionnaire, QuestionnaireTemplateBlock, QuestionnaireBlock, QuestionnaireTemplateQuestion, QuestionnaireTemplateQuestionChoice, QuestionnaireQuestionChoice, CrossIndexTemplate, CrossIndex, CrossIndexQuestionTemplate, CrossIndexQuestion)
 class QuestionnaireAdmin(admin.ModelAdmin):
     pass
 
 @admin.register(QuestionnaireQuestion)
 class QuestionAdmin(admin.ModelAdmin):
     list_display = ['question_body', 'type', 'questionnaire', 'score', 'answer', 'answer_choices']
+
+@admin.register(QuestionnaireTemplate)
+class QuestionAdmin(admin.ModelAdmin):
+    list_display = ['title', 'type', 'tenant']
