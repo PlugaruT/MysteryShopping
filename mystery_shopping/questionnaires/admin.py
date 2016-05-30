@@ -19,9 +19,11 @@ from .models import CrossIndexQuestion
 class QuestionnaireAdmin(admin.ModelAdmin):
     pass
 
+
 @admin.register(QuestionnaireQuestion)
 class QuestionAdmin(admin.ModelAdmin):
     list_display = ['question_body', 'type', 'questionnaire', 'score', 'answer', 'answer_choices']
+
 
 @admin.register(QuestionnaireTemplate)
 class QuestionAdmin(admin.ModelAdmin):

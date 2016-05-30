@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_condition import Or
+from rest_condition import And
 
 from openpyxl import Workbook
 from openpyxl.writer.excel import save_virtual_workbook
@@ -61,7 +62,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
 class ProjectPerCompanyViewSet(viewsets.ViewSet):
     queryset = Project.objects.all()
-    permission_classes = (Or(HasAccessToProjectsOrEvaluations, HasReadOnlyAccessToProjectsOrEvaluations),)
+    permission_classes = (And(IsAuthenticated, Or(HasAccessToProjectsOrEvaluations, HasReadOnlyAccessToProjectsOrEvaluations)),)
 
     def list(self, request, company_pk=None):
         project_type = self.request.query_params.get('type', 'm')
@@ -148,7 +149,7 @@ class EvaluationViewSet(viewsets.ModelViewSet):
 
 
 class EvaluationPerShopperViewSet(viewsets.ViewSet):
-    permission_classes = (IsAuthenticated, HasAccessToProjectsOrEvaluations, )
+    permission_classes = (IsAuthenticated, HasAccessToProjectsOrEvaluations,)
 
     def list(self, request, shopper_pk=None):
         queryset = Evaluation.objects.filter(shopper=shopper_pk)
@@ -163,8 +164,8 @@ class EvaluationPerShopperViewSet(viewsets.ViewSet):
 
 
 class EvaluationPerProjectViewSet(viewsets.ViewSet):
-    permission_classes = (IsAuthenticated, HasAccessToProjectsOrEvaluations, )
     serializer_class = EvaluationSerializer
+    permission_classes = (IsAuthenticated, HasAccessToProjectsOrEvaluations,)
 
     # def get_serializer(self):
     #     return self.serializer_class
