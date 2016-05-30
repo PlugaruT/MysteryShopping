@@ -56,6 +56,7 @@
 - `description` : *string*
 - `template_blocks` : *representation* for `QuestionnaireTemplateBlock`
 - `is_editable` : *bool*
+- `cross_index_templates` : *representation* (for all the cross indexs this questionnaire has)
 
 > [example](questionnaires\ example/templatequestionnaire.json)
 
@@ -504,5 +505,57 @@
     "weight": "0.50",
     "order": 1,
     "question": 24
+}
+```
+
+## Cross Index Templates
+
+**`POST`**:
+
+- `question_templates` : *list* will contain the list of *id*s and *weights* for the questions from the cross index, each element from the *list* must contain:
+    - `question_template` : *id* (for the template question)
+    - `weight` : *DecimalField* (`max_digits=5, decimal_places=2`, example: `45.52`)
+- `title` : *char* (`max_length=40`)
+- `questionnaire_template` : *id* (for the questionnaire template that the cross index template is created)
+
+
+> example:
+```json
+{
+    "question_templates": [{
+    "template_question": null,
+    "weight": null
+    }],
+    "title": "",
+    "questionnaire_template": null
+}
+```
+
+
+**`GET`**:
+
+- `question_templates` : *list* will contain the list of *id*s and *weights* for the questions from the cross index, each element from the *list* must contain:
+    - `question_template` : *id* (for the template question)
+    - `weight` : *DecimalField* (`max_digits=5, decimal_places=2`, example: `45.52`)
+- `title` : *char* (`max_length=40`)
+- `questionnaire_template` : *id* (for the questionnaire template that the cross index template is created)
+
+
+> example:
+```json
+{
+    "id": 1,
+    "question_templates": [
+        {
+            "template_question": 1,
+            "weight": "12.00"
+        },
+        {
+            "template_question": 2,
+            "weight": "341.00"
+        }
+    ],
+    "title": "Test No 1",
+    "questionnaire_template": 1
 }
 ```

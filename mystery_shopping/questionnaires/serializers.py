@@ -316,7 +316,7 @@ class CrossIndexQuestionTemplateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CrossIndexQuestionTemplate
-        fields = ('template_question', 'weight')
+        fields = ('question_template', 'weight')
         extra_kwargs = {'cross_index_template': {'required': False}}
 
 
@@ -345,7 +345,7 @@ class CrossIndexTemplateSerializer(serializers.ModelSerializer):
 
         for question_template in question_templates:
             CrossIndexQuestionTemplate.objects.create(cross_index_template=cross_template,
-                                       template_question=question_template['template_question'],
+                                       template_question=question_template['question_template'],
                                        weight=question_template['weight'])
         return cross_template
 
@@ -355,7 +355,7 @@ class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
 
     """
     template_blocks = QuestionnaireTemplateBlockSerializer(many=True, required=False)
-    cross_index_templates = CrossIndexTemplateSerializer(many=True)
+    cross_index_templates = CrossIndexTemplateSerializer(many=True, required=False)
 
     class Meta:
         model = QuestionnaireTemplate
