@@ -360,12 +360,13 @@ class CrossIndexTemplateSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+
 class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
     """
 
     """
     template_blocks = QuestionnaireTemplateBlockSerializer(many=True, required=False)
-    cross_index_templates = CrossIndexTemplateSerializer(many=True, required=False)
+    cross_index_templates = CrossIndexTemplateSerializer(many=True, required=False, read_only=True)
 
     class Meta:
         model = QuestionnaireTemplate
