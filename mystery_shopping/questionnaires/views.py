@@ -35,7 +35,7 @@ from mystery_shopping.users.permissions import IsTenantProjectManager
 from mystery_shopping.users.permissions import IsTenantConsultant
 
 from mystery_shopping.projects.models import Project
-from mystery_shopping.nps.serializers import QuestionnaireQuestionToEncodeSerializer
+from mystery_shopping.cxi.serializers import QuestionnaireQuestionToEncodeSerializer
 
 
 class QuestionnaireScriptViewSet(viewsets.ModelViewSet):

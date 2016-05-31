@@ -19,7 +19,7 @@ from .algorithms import get_company_indicator_questions_list
 from .models import CodedCauseLabel
 from .models import CodedCause
 from .models import ProjectComment
-from mystery_shopping.nps.serializers import QuestionnaireQuestionToEncodeSerializer
+from mystery_shopping.cxi.serializers import QuestionnaireQuestionToEncodeSerializer
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from .serializers import CodedCauseLabelSerializer
 from .serializers import CodedCauseSerializer

@@ -17,7 +17,7 @@ from mystery_shopping.projects.urls import project_evaluation
 from mystery_shopping.questionnaires.urls import router as questionnaire_router
 from mystery_shopping.users.urls import router as user_router
 from mystery_shopping.users.urls import shopper_evaluation
-from mystery_shopping.nps.urls import router as nps_router
+from mystery_shopping.cxi.urls import router as nps_router
 from mystery_shopping.dashboard.urls import router as dashboard_router
 
 
@@ -37,7 +37,7 @@ urlpatterns = [
 
     url(r'^api/v1/common/', include('mystery_shopping.common.urls', namespace='common')),
 
-    url(r'^api/v1/', include('mystery_shopping.nps.urls', namespace='nps')),
+    url(r'^api/v1/', include('mystery_shopping.cxi.urls', namespace='cxi')),
 
     # Your stuff: custom urls includes go here
     url(r'^api/v1/', include(common_router.urls)),

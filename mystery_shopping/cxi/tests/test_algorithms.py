@@ -27,7 +27,7 @@ class AlgorithmsTestCase(TestCase):
     def test_calculate_indicator_score_with_values(self):
         indicator_marks = [10, 9, 7, 6, 10, 9, 9, 8, 7, 7, 7, 10, 8, 3]
         # Transform them in to decimals because, the field that
-        # contains the nps value is decimal
+        # contains the cxi value is decimal
         for index, value in enumerate(indicator_marks):
             value = Decimal(value)
 
@@ -116,7 +116,7 @@ class AlgorithmsTestCase(TestCase):
                 test_indicator_skeleton[big_key][small_key]['other_choices'] = []
 
         # create a template questionnaire
-        data = load(open("mystery_shopping/nps/tests/template_questionnaire_for_skeleton.json"))
+        data = load(open("mystery_shopping/cxi/tests/template_questionnaire_for_skeleton.json"))
         tenant = TenantFactory()
         data['tenant'] = tenant.id
         template_ser = QuestionnaireTemplateSerializer(data=data)

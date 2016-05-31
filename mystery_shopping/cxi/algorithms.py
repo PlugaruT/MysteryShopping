@@ -3,10 +3,10 @@ from collections import defaultdict
 from mystery_shopping.questionnaires.models import Questionnaire
 from mystery_shopping.questionnaires.constants import IndicatorQuestionType
 from mystery_shopping.projects.models import Entity
-from mystery_shopping.nps.models import CodedCause
-from mystery_shopping.nps.models import ProjectComment
-from mystery_shopping.nps.serializers import CodedCauseSerializer
-from mystery_shopping.nps.serializers import ProjectCommentSerializer
+from mystery_shopping.cxi.models import CodedCause
+from mystery_shopping.cxi.models import ProjectComment
+from mystery_shopping.cxi.serializers import CodedCauseSerializer
+from mystery_shopping.cxi.serializers import ProjectCommentSerializer
 
 
 def get_indicator_scores(questionnaire_list, indicator_type):

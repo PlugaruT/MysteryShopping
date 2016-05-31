@@ -55,7 +55,7 @@ LOCAL_APPS = (
     'mystery_shopping.questionnaires',
     'mystery_shopping.projects',
     'mystery_shopping.mystery_shopping_utils',
-    'mystery_shopping.nps',
+    'mystery_shopping.cxi',
     'mystery_shopping.dashboard',
 )
 
