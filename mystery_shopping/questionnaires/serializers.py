@@ -345,7 +345,7 @@ class CrossIndexTemplateSerializer(serializers.ModelSerializer):
 
         for question_template in question_templates:
             CrossIndexQuestionTemplate.objects.create(cross_index_template=cross_template,
-                                       template_question=question_template['question_template'],
+                                       question_template=question_template['question_template'],
                                        weight=question_template['weight'])
         return cross_template
 
