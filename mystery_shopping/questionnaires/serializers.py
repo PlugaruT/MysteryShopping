@@ -329,14 +329,14 @@ class CrossIndexTemplateSerializer(serializers.ModelSerializer):
         model = CrossIndexTemplate
         fields = '__all__'
 
-    # def validate(self, attrs):
-    #     questionnaire_template = attrs.get('questionnaire_template', None)
-    #     question_templates = attrs.get('question_templates', [])
-    #
-    #     for template_question in question_templates:
-    #         if template_question.questionnaire_template.id != questionnaire_template.id:
-    #             raise serializers.ValidationError({'question_templates': 'Template Questions don\'t correspond to the Questionnaire Template'})
-    #     return attrs
+    def validate(self, attrs):
+        questionnaire_template = attrs.get('questionnaire_template', None)
+        question_templates = attrs.get('question_templates', [])
+
+        for template_question in question_templates:
+            if template_question.questionnaire_template.id != questionnaire_template.id:
+                raise serializers.ValidationError({'question_templates': 'Template Questions don\'t correspond to the Questionnaire Template'})
+        return attrs
 
     def create(self, validated_data):
         question_templates = validated_data.pop('cross_index_question_templates', [])
@@ -348,6 +348,17 @@ class CrossIndexTemplateSerializer(serializers.ModelSerializer):
                                        weight=question_template['weight'])
         return cross_template
 
+    def update(self, instance, validated_data):
+        question_templates = validated_data.pop('cross_index_question_templates', [])
+        instance.question_templates.clear()
+        for question_template in question_templates:
+            CrossIndexQuestionTemplate.objects.create(cross_index_template=instance,
+                                                      question_template=question_template['question_template'],
+                                                      weight=question_template['weight'])
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance
 
 class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
     """
