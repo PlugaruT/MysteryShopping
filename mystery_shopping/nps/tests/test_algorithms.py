@@ -366,7 +366,6 @@ class AlgorithmsTestCase(TestCase):
             indicator_pos_details['entities'][pos] = initial_score_list
 
         details = list()
-
         sort_indicators_per_pos(details, indicator_pos_details)
         for pos in details:
             for result in pos['results']:

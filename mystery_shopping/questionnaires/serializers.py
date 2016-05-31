@@ -313,7 +313,6 @@ class CrossIndexQuestionTemplateSerializer(serializers.ModelSerializer):
     """
 
     """
-
     class Meta:
         model = CrossIndexQuestionTemplate
         fields = ('question_template', 'weight')
@@ -330,14 +329,14 @@ class CrossIndexTemplateSerializer(serializers.ModelSerializer):
         model = CrossIndexTemplate
         fields = '__all__'
 
-    def validate(self, attrs):
-        questionnaire_template = attrs.get('questionnaire_template', None)
-        question_templates = attrs.get('question_templates', [])
-
-        for template_question in question_templates:
-            if template_question.questionnaire_template.id != questionnaire_template.id:
-                raise serializers.ValidationError({'question_templates': 'Template Questions don\'t correspond to the Questionnaire Template'})
-        return attrs
+    # def validate(self, attrs):
+    #     questionnaire_template = attrs.get('questionnaire_template', None)
+    #     question_templates = attrs.get('question_templates', [])
+    #
+    #     for template_question in question_templates:
+    #         if template_question.questionnaire_template.id != questionnaire_template.id:
+    #             raise serializers.ValidationError({'question_templates': 'Template Questions don\'t correspond to the Questionnaire Template'})
+    #     return attrs
 
     def create(self, validated_data):
         question_templates = validated_data.pop('cross_index_question_templates', [])

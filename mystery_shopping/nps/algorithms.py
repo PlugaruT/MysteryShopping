@@ -150,19 +150,19 @@ def sort_indicator_categories(details, indicator_categories):
 
 
 def sort_indicators_per_pos(details, indicators):
-    for pos_type in indicators:
-        if pos_type is 'entities':
-            detail_item = defaultdict(list)
-            detail_item['results'] = list()
-            detail_item['item_label'] = pos_type.capitalize()
-            for entity, marks in indicators[pos_type].items():
-                pos_detail = dict()
-                pos_detail['choice'] = entity
-                pos_detail['score'] = calculate_indicator_score(marks)
-                pos_detail['number_of_respondents'] = len(marks)
-                pos_detail['other_answer_choices'] = indicators['ids'][entity]
-                detail_item['results'].append(pos_detail)
-            details.append(detail_item)
+    entity_key = 'entities'
+    detail_item = defaultdict(list)
+    detail_item['results'] = list()
+    detail_item['item_label'] = entity_key.capitalize()
+    for entity, marks in indicators.get(entity_key, {}).items():
+        pos_detail = dict()
+        pos_detail['choice'] = entity
+        pos_detail['score'] = calculate_indicator_score(marks)
+        pos_detail['number_of_respondents'] = len(marks)
+        pos_detail['other_answer_choices'] = indicators['ids'][entity]
+        detail_item['results'].append(pos_detail)
+    details.append(detail_item)
+
     return details
 
 
