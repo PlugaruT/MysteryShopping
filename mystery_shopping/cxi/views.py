@@ -70,7 +70,7 @@ class OverviewDashboard(views.APIView):
         entity_id = request.query_params.get('entity', None)
         # section_id = request.query_params.get('section', None)
 
-        if project_id and project_id.isdigit():
+        if project_id:
             if entity_id is not None and not entity_id.isdigit():
 
                 return Response({
@@ -86,8 +86,8 @@ class OverviewDashboard(views.APIView):
 
                 return Response(response, status.HTTP_200_OK)
 
-            except Project.DoesNotExist:
-                return Response({'detail': 'No Project with this id exists'},
+            except (Project.DoesNotExist, ValueError):
+                return Response({'detail': 'No Project with this id exists or invalid project parameter'},
                                 status.HTTP_404_NOT_FOUND)
         return Response({
             'detail': 'Project param is invalid or was not provided'
@@ -120,15 +120,15 @@ class IndicatorDashboard(views.APIView):
                 project = Project.objects.get_latest_project_for_client_user(tenant=request.user.tenant, company=company)
             elif request.user.is_tenant_user() and company_id is not None:
                 project = Project.objects.get_latest_project_for_client_user(tenant=request.user.tenant, company=company_id)
-        elif project_id.isdigit():
+        elif project_id:
             if entity_id is not None and not entity_id.isdigit():
                 return Response({
                     'detail': 'Entity param is invalid'
                 }, status.HTTP_400_BAD_REQUEST)
             try:
                 project = Project.objects.get(pk=project_id)
-            except Project.DoesNotExist:
-                return Response({'detail': 'No Project with this id exists'},
+            except (Project.DoesNotExist, ValueError):
+                return Response({'detail': 'No Project with this id exists or invalid project parameter'},
                                 status.HTTP_404_NOT_FOUND)
 
             if request.user.tenant != project.tenant:
@@ -136,7 +136,7 @@ class IndicatorDashboard(views.APIView):
                                 status.HTTP_403_FORBIDDEN)
         else:
             return Response({
-                'detail': 'Project param is invalid'
+                'detail': 'Unknown (project) error'
             }, status.HTTP_400_BAD_REQUEST)
 
         if project is not None:
@@ -164,8 +164,8 @@ class IndicatorDashboardList(views.APIView):
         if company_id:
             try:
                 company = Company.objects.get(pk=company_id)
-            except Company.DoesNotExist:
-                return Response({'detail': 'No Company with this id exists'},
+            except (Company.DoesNotExist , ValueError):
+                return Response({'detail': 'No Company with this id exists or invalid company parameter'},
                                 status.HTTP_404_NOT_FOUND)
             response = get_company_indicator_questions_list(company)
             return Response(response, status.HTTP_200_OK)
@@ -173,8 +173,8 @@ class IndicatorDashboardList(views.APIView):
         elif project_id:
             try:
                 project = Project.objects.get(pk=project_id)
-            except Project.DoesNotExist:
-                return Response({'detail': 'No Project with this id exists'},
+            except (Project.DoesNotExist, ValueError):
+                return Response({'detail': 'No Project with this id exists or invalid project parameter'},
                                 status.HTTP_404_NOT_FOUND)
 
             response = get_project_indicator_questions_list(project)
