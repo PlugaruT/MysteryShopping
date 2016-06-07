@@ -80,7 +80,7 @@ class UserSerializer(serializers.ModelSerializer):
     change_username = serializers.BooleanField(write_only=True, required=False)
     company = SimpleCompanySerializer(source='user_company', read_only=True)
     managed_entities = serializers.ListField(source='list_of_poses', read_only=True)
-    has_overview_access = serializers.BooleanField(source='has_client_manager_overview_access')
+    has_overview_access = serializers.BooleanField(source='has_client_manager_overview_access', read_only=True)
 
     class Meta:
         model = User
@@ -225,6 +225,7 @@ class ShopperSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSer
     class Meta:
         model = Shopper
         fields = '__all__'
+
 
 class CollectorSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):
     """Serializer class for Shopper user model.
