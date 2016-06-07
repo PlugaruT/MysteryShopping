@@ -256,10 +256,17 @@ def collect_data_for_indicator_dashboard(project, entity_id, indicator_type):
     except Entity.DoesNotExist:
         entity = None
 
-    questionnaire_list = Questionnaire.objects.get_project_questionnaires(project, entity)
-    indicator_question = None
+    questionnaire_list = Questionnaire.objects.get_project_questionnaires(project, None)
+    questionnaire_list_secondary = list()
+
+    if entity:
+        questionnaire_list_secondary = questionnaire_list
+        questionnaire_list = questionnaire_list.filter(evaluation__entity=entity)
+        # This makes more queries
+        # questionnaire_list_entity = [questionnaire for questionnaire in questionnaire_list if questionnaire.evaluation.entity == entity]
 
     # Extract the question with the desired indicator (if questionnaires exist)
+    indicator_question = None
     if questionnaire_list:
         indicator_question = questionnaire_list.first().get_indicator_question(indicator_type)
 
@@ -267,7 +274,10 @@ def collect_data_for_indicator_dashboard(project, entity_id, indicator_type):
     if indicator_question:
         # Get all the questionnaires from the requested project
         indicator_list = get_indicator_scores(questionnaire_list, indicator_type)
-        response['general'] = calculate_indicator_score(indicator_list)
+        indicator_list_network = get_indicator_scores(questionnaire_list_secondary, indicator_type)
+        response['gauge'] = calculate_indicator_score(indicator_list)
+        if entity:
+            response['gauge']['general_indicator'] = calculate_indicator_score(indicator_list_network)['indicator']
 
         indicator_details = get_indicator_details(questionnaire_list, indicator_type)
 
@@ -276,8 +286,9 @@ def collect_data_for_indicator_dashboard(project, entity_id, indicator_type):
         response['coded_causes'] = indicator_details['coded_causes']
 
         response['project_comment'] = get_indicator_project_comment(project, entity_id, indicator_type)
+
     else:
-        response['general'] = calculate_indicator_score([])
+        response['gauge'] = calculate_indicator_score([])
 
         response['details'] = []
 
