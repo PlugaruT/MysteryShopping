@@ -8,6 +8,11 @@ from .models import EvaluationAssessmentLevel
 from .models import EvaluationAssessmentComment
 
 
-@admin.register(Evaluation, Project, ResearchMethodology, PlaceToAssess, EvaluationAssessmentLevel, EvaluationAssessmentComment)
+@admin.register(Evaluation, ResearchMethodology, PlaceToAssess, EvaluationAssessmentLevel, EvaluationAssessmentComment)
 class Projects(admin.ModelAdmin):
     pass
+
+
+@admin.register(Project)
+class ProjectAdmin(admin.ModelAdmin):
+    list_display = ['company', 'period_start', 'period_end', 'type']

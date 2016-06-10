@@ -67,7 +67,7 @@ class Project(models.Model):
     # this type of import is used to avoid import circles
     project_manager = models.ForeignKey('users.TenantProjectManager')
     consultants = models.ManyToManyField('users.TenantConsultant')
-    shoppers = models.ManyToManyField('users.Shopper')
+    shoppers = models.ManyToManyField('users.Shopper', blank=True)
     research_methodology = models.ForeignKey('ResearchMethodology', null=True, blank=True)
 
     # Attributes
