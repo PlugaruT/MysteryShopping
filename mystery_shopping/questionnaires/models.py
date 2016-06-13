@@ -386,3 +386,6 @@ class CrossIndexQuestion(models.Model):
     cross_index = models.ForeignKey(CrossIndex, on_delete=models.CASCADE)
     question = models.ForeignKey(QuestionnaireQuestion, on_delete=models.CASCADE)
     weight = models.DecimalField(max_digits=5, decimal_places=2)
+
+
+
