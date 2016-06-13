@@ -1,468 +1,420 @@
 {
-    "id": 10,
+    "id": 1,
     "company_repr": {
         "id": 1,
         "departments_repr": [
             {
                 "id": 1,
-                "managers": [
-                    {
-                        "id": 1,
-                        "user": {
-                            "id": 7,
-                            "username": "client_manager1",
-                            "email": "",
-                            "first_name": "Client 1",
-                            "last_name": "Manager",
-                            "roles": [
-                                "clientmanager"
-                            ],
-                            "shopper": null
-                        },
-                        "first_name": "Client",
-                        "last_name": "Manager",
-                        "job_title": "department clientmanager",
-                        "place_id": 1,
-                        "tenant": 1,
-                        "company": 1,
-                        "place_type": 24
-                    },
-                    {
-                        "id": 3,
-                        "user": {
-                            "id": 8,
-                            "username": "client_manager2",
-                            "email": "",
-                            "first_name": "",
-                            "last_name": "",
-                            "roles": [
-                                "clientmanager"
-                            ],
-                            "shopper": null
-                        },
-                        "first_name": "",
-                        "last_name": "",
-                        "job_title": "",
-                        "place_id": 1,
-                        "tenant": 1,
-                        "company": 1,
-                        "place_type": 24
-                    },
-                    {
-                        "id": 4,
-                        "user": {
-                            "id": 25,
-                            "username": "client_manager",
-                            "email": "client@manager.com",
-                            "first_name": "Client",
-                            "last_name": "Manager",
-                            "roles": [
-                                "clientmanager"
-                            ],
-                            "shopper": null
-                        },
-                        "first_name": "Client",
-                        "last_name": "Manger",
-                        "job_title": "very important manager",
-                        "place_id": 1,
-                        "tenant": 1,
-                        "company": 1,
-                        "place_type": 24
-                    },
-                    {
-                        "id": 2,
-                        "user": null,
-                        "first_name": "Client (without user)",
-                        "last_name": "Manager",
-                        "job_title": "",
-                        "place_id": 1,
-                        "tenant": 1,
-                        "company": 1,
-                        "place_type": 24
-                    }
-                ],
+                "managers": [],
                 "entities": [
                     {
-                        "id": 6,
+                        "id": 1,
                         "city_repr": {
                             "id": 1,
-                            "sectors": [
-                                {
-                                    "id": 1,
-                                    "name": "Ciocana",
-                                    "city": 1
-                                }
-                            ],
+                            "sectors": [],
+                            "county": "Chişinău",
                             "name": "Chişinău",
-                            "zip_code": "",
-                            "county": 1
+                            "zip_code": "MD-2000"
                         },
-                        "managers": [],
-                        "employees": [],
+                        "managers": [
+                            {
+                                "id": 1,
+                                "user": null,
+                                "first_name": "Manager",
+                                "last_name": "Entitate Politică Externă",
+                                "job_title": "Manager Extern",
+                                "place_id": 1,
+                                "has_overview_access": false,
+                                "tenant": 1,
+                                "company": 1,
+                                "place_type": 26
+                            }
+                        ],
+                        "employees": [
+                            {
+                                "id": 1,
+                                "user": null,
+                                "company_repr": {
+                                    "id": 1,
+                                    "name": "Media OT",
+                                    "contact_person": "Mihai Coşleţ",
+                                    "contact_phone": "68277474",
+                                    "contact_email": "mcosletjr@gmail.com",
+                                    "domain": "Media OT",
+                                    "logo": null,
+                                    "industry": 1,
+                                    "country": 1,
+                                    "tenant": 1
+                                },
+                                "first_name": "Jora",
+                                "last_name": "Petrovich",
+                                "job_title": "Jurnalist Extern",
+                                "tenant": 1,
+                                "company": 1,
+                                "entity": 1,
+                                "section": null
+                            }
+                        ],
                         "sections": [
                             {
                                 "id": 1,
                                 "managers": [],
                                 "employees": [],
-                                "name": "Europe",
-                                "entity": 6,
+                                "name": "Media section",
+                                "entity": 1,
                                 "tenant": 1
                             }
                         ],
-                        "name": "Earth Stuff",
-                        "address": "Earth",
-                        "coordinates": "",
+                        "name": "Politici Externe",
+                        "address": "str. La Taifas, 2",
+                        "coordinates": "123,321,14z",
                         "department": 1,
-                        "sector": 1,
-                        "city": 1,
-                        "tenant": 1
-                    },
-                    {
-                        "id": 1,
-                        "city_repr": {
-                            "id": 1,
-                            "sectors": [
-                                {
-                                    "id": 1,
-                                    "name": "Ciocana",
-                                    "city": 1
-                                }
-                            ],
-                            "name": "Chişinău",
-                            "zip_code": "",
-                            "county": 1
-                        },
-                        "managers": [],
-                        "employees": [
-                            {
-                                "id": 1,
-                                "user": {
-                                    "id": 9,
-                                    "username": "client_employee",
-                                    "email": "",
-                                    "first_name": "",
-                                    "last_name": "",
-                                    "roles": [],
-                                    "shopper": null
-                                },
-                                "company_repr": {
-                                    "id": 1,
-                                    "name": "NASA",
-                                    "contact_person": "Leroy Jenkins",
-                                    "contact_phone": "1234",
-                                    "contact_email": "help@nasa.com",
-                                    "domain": "nasa.com",
-                                    "logo": null,
-                                    "industry": 1,
-                                    "country": 1,
-                                    "tenant": 1
-                                },
-                                "first_name": "Client",
-                                "last_name": "Employee",
-                                "job_title": "",
-                                "tenant": 1,
-                                "company": 1,
-                                "entity": 1,
-                                "section": null
-                            },
-                            {
-                                "id": 2,
-                                "user": {
-                                    "id": 26,
-                                    "username": "client_employee1",
-                                    "email": "client@employee.com",
-                                    "first_name": "Client",
-                                    "last_name": "Employee",
-                                    "roles": [],
-                                    "shopper": null
-                                },
-                                "company_repr": {
-                                    "id": 1,
-                                    "name": "NASA",
-                                    "contact_person": "Leroy Jenkins",
-                                    "contact_phone": "1234",
-                                    "contact_email": "help@nasa.com",
-                                    "domain": "nasa.com",
-                                    "logo": null,
-                                    "industry": 1,
-                                    "country": 1,
-                                    "tenant": 1
-                                },
-                                "first_name": "Client",
-                                "last_name": "Employee",
-                                "job_title": "barman",
-                                "tenant": 1,
-                                "company": 1,
-                                "entity": 1,
-                                "section": null
-                            }
-                        ],
-                        "sections": [],
-                        "name": "Space Stuff",
-                        "address": "Earth",
-                        "coordinates": "",
-                        "department": 1,
-                        "sector": 1,
+                        "sector": null,
                         "city": 1,
                         "tenant": 1
                     }
                 ],
-                "name": "Space Rockets",
+                "name": "Politics",
+                "company": 1,
+                "tenant": 1
+            },
+            {
+                "id": 2,
+                "managers": [],
+                "entities": [
+                    {
+                        "id": 2,
+                        "city_repr": {
+                            "id": 1,
+                            "sectors": [],
+                            "county": "Chişinău",
+                            "name": "Chişinău",
+                            "zip_code": "MD-2000"
+                        },
+                        "managers": [],
+                        "employees": [],
+                        "sections": [],
+                        "name": "Chess Boxing",
+                        "address": "str. La Un Box, 32",
+                        "coordinates": "123,321,14z",
+                        "department": 2,
+                        "sector": null,
+                        "city": 1,
+                        "tenant": 1
+                    }
+                ],
+                "name": "Sport",
                 "company": 1,
                 "tenant": 1
             }
         ],
         "industry_repr": {
             "id": 1,
-            "name": "Space Exploration"
+            "name": "IT"
         },
         "country_repr": {
             "id": 1,
             "name": "Republica Moldova"
         },
-        "name": "NASA",
-        "contact_person": "Leroy Jenkins",
-        "contact_phone": "1234",
-        "contact_email": "help@nasa.com",
-        "domain": "nasa.com",
+        "name": "Media OT",
+        "contact_person": "Mihai Coşleţ",
+        "contact_phone": "68277474",
+        "contact_email": "mcosletjr@gmail.com",
+        "domain": "Media OT",
         "logo": null,
         "industry": 1,
         "country": 1,
         "tenant": 1
     },
-    "shoppers_repr": [
-        {
-            "id": 1,
-            "user": {
-                "id": 3,
-                "username": "shopper_1",
-                "email": "",
-                "first_name": "",
-                "last_name": "",
-                "roles": [
-                    "shopper"
-                ],
-                "shopper": 1
-            },
-            "is_collector": false,
-            "date_of_birth": "2016-03-01",
-            "gender": "m",
-            "has_drivers_license": false
-        }
-    ],
+    "shoppers_repr": [],
     "project_manager_repr": {
         "id": 1,
         "user": {
-            "id": 1,
-            "username": "mihai",
-            "email": "",
-            "first_name": "",
-            "last_name": "",
+            "id": 3,
+            "username": "project_manager",
+            "email": "project@manager.com",
+            "first_name": "Project",
+            "last_name": "Manager",
             "roles": [
-                "tenantproductmanager",
-                "tenantprojectmanager",
-                "admin"
+                "tenantprojectmanager"
             ],
-            "shopper": null
+            "tenant_repr": {
+                "id": 1,
+                "name": "Spark"
+            },
+            "shopper": null,
+            "company": null,
+            "managed_entities": [],
+            "has_overview_access": false
         },
         "tenant_repr": {
             "id": 1,
-            "name": "SparkLabs"
+            "name": "Spark"
         },
         "type": "tenantprojectmanager",
         "tenant": 1
     },
     "research_methodology": {
-        "id": 3,
-        "scripts": [
-            2
-        ],
-        "scripts_repr": [
-            {
-                "id": 2,
-                "title": "Best Script Ever 2",
-                "description": "Nullam sapien turpis, cursus eu dolor non, faucibus mollis tortor. Nunc vel lobortis felis. Morbi commodo, neque in cursus pulvinar, lorem quam elementum lacus, et tincidunt elit velit vitae mauris. Sed consectetur lectus vitae molestie molestie. Morbi mauris lectus, fermentum scelerisque augue a, imperdiet egestas justo. Nullam ante mi, mattis at commodo in, efficitur eu turpis. Donec ut turpis feugiat, venenatis risus sed, tincidunt erat. Curabitur feugiat lobortis eros quis viverra."
-            }
-        ],
+        "id": 1,
+        "scripts": [],
+        "scripts_repr": [],
         "questionnaires_repr": [
             {
-                "id": 10,
+                "id": 1,
                 "template_blocks": [
                     {
-                        "id": 26,
+                        "id": 1,
                         "template_questions": [
                             {
-                                "id": 55,
+                                "id": 2,
                                 "template_question_choices": [],
-                                "question_body": "How would you assess this service?",
-                                "type": "n",
-                                "max_score": null,
-                                "order": 1,
-                                "weight": "1.00",
-                                "show_comment": true,
-                                "questionnaire_template": 10,
-                                "template_block": 26
-                            },
-                            {
-                                "id": 56,
-                                "template_question_choices": [
-                                    {
-                                        "id": 93,
-                                        "text": "Româna",
-                                        "score": "0.00",
-                                        "weight": "0.00",
-                                        "order": 1,
-                                        "template_question": 56
-                                    },
-                                    {
-                                        "id": 94,
-                                        "text": "Engleza",
-                                        "score": "0.00",
-                                        "weight": "0.00",
-                                        "order": 2,
-                                        "template_question": 56
-                                    }
-                                ],
-                                "question_body": "What language do you speak",
-                                "type": "s",
-                                "max_score": null,
+                                "question_body": "How nps do you feel?",
+                                "type": "i",
+                                "max_score": 0,
                                 "order": 2,
-                                "weight": "1.00",
-                                "show_comment": true,
-                                "questionnaire_template": 10,
-                                "template_block": 26
+                                "weight": "0.00",
+                                "show_comment": false,
+                                "additional_info": "NPS",
+                                "questionnaire_template": 1,
+                                "template_block": 1
                             },
                             {
-                                "id": 57,
-                                "template_question_choices": [
-                                    {
-                                        "id": 95,
-                                        "text": "14-18",
-                                        "score": "0.00",
-                                        "weight": "0.00",
-                                        "order": 1,
-                                        "template_question": 57
-                                    },
-                                    {
-                                        "id": 96,
-                                        "text": "19-25",
-                                        "score": "0.00",
-                                        "weight": "0.00",
-                                        "order": 2,
-                                        "template_question": 57
-                                    },
-                                    {
-                                        "id": 97,
-                                        "text": "26-100",
-                                        "score": "0.00",
-                                        "weight": "0.00",
-                                        "order": 3,
-                                        "template_question": 57
-                                    }
-                                ],
-                                "question_body": "Vârsta",
-                                "type": "s",
-                                "max_score": null,
-                                "order": 3,
+                                "id": 1,
+                                "template_question_choices": [],
+                                "question_body": "How random do you feel?",
+                                "type": "i",
+                                "max_score": 0,
+                                "order": 1,
                                 "weight": "0.00",
-                                "show_comment": true,
-                                "questionnaire_template": 10,
-                                "template_block": 26
-                            },
-                            {
-                                "id": 58,
-                                "template_question_choices": [
-                                    {
-                                        "id": 98,
-                                        "text": "Masculin",
-                                        "score": "0.00",
-                                        "weight": "0.00",
-                                        "order": 1,
-                                        "template_question": 58
-                                    },
-                                    {
-                                        "id": 99,
-                                        "text": "Feminin",
-                                        "score": "0.00",
-                                        "weight": "0.00",
-                                        "order": 2,
-                                        "template_question": 58
-                                    }
-                                ],
-                                "question_body": "Sexul",
-                                "type": "s",
-                                "max_score": null,
-                                "order": 4,
-                                "weight": "0.00",
-                                "show_comment": true,
-                                "questionnaire_template": 10,
-                                "template_block": 26
+                                "show_comment": false,
+                                "additional_info": "Ramdomability",
+                                "questionnaire_template": 1,
+                                "template_block": 1
                             }
                         ],
-                        "title": "NPS main block",
-                        "weight": "1.00",
+                        "title": "Indicator questions",
+                        "weight": "0.00",
                         "order": 1,
                         "lft": 1,
                         "rght": 2,
-                        "tree_id": 17,
+                        "tree_id": 1,
                         "level": 0,
-                        "questionnaire_template": 10,
+                        "questionnaire_template": 1,
+                        "parent_block": null
+                    },
+                    {
+                        "id": 2,
+                        "template_questions": [
+                            {
+                                "id": 5,
+                                "template_question_choices": [
+                                    {
+                                        "id": 10,
+                                        "text": "36+",
+                                        "score": null,
+                                        "weight": "0.25",
+                                        "order": 4,
+                                        "template_question": 5
+                                    },
+                                    {
+                                        "id": 9,
+                                        "text": "25-35",
+                                        "score": null,
+                                        "weight": "0.25",
+                                        "order": 3,
+                                        "template_question": 5
+                                    },
+                                    {
+                                        "id": 8,
+                                        "text": "19-25",
+                                        "score": null,
+                                        "weight": "0.25",
+                                        "order": 2,
+                                        "template_question": 5
+                                    },
+                                    {
+                                        "id": 7,
+                                        "text": "15-18",
+                                        "score": null,
+                                        "weight": "0.25",
+                                        "order": 1,
+                                        "template_question": 5
+                                    }
+                                ],
+                                "question_body": "Age",
+                                "type": "s",
+                                "max_score": 0,
+                                "order": 3,
+                                "weight": "0.00",
+                                "show_comment": false,
+                                "additional_info": "",
+                                "questionnaire_template": 1,
+                                "template_block": 2
+                            },
+                            {
+                                "id": 4,
+                                "template_question_choices": [
+                                    {
+                                        "id": 6,
+                                        "text": "Russian",
+                                        "score": null,
+                                        "weight": "0.33",
+                                        "order": 3,
+                                        "template_question": 4
+                                    },
+                                    {
+                                        "id": 5,
+                                        "text": "English",
+                                        "score": null,
+                                        "weight": "0.33",
+                                        "order": 2,
+                                        "template_question": 4
+                                    },
+                                    {
+                                        "id": 4,
+                                        "text": "Romanian",
+                                        "score": null,
+                                        "weight": "0.33",
+                                        "order": 1,
+                                        "template_question": 4
+                                    }
+                                ],
+                                "question_body": "Language",
+                                "type": "s",
+                                "max_score": 0,
+                                "order": 2,
+                                "weight": "0.00",
+                                "show_comment": false,
+                                "additional_info": "",
+                                "questionnaire_template": 1,
+                                "template_block": 2
+                            },
+                            {
+                                "id": 3,
+                                "template_question_choices": [
+                                    {
+                                        "id": 2,
+                                        "text": "Female",
+                                        "score": null,
+                                        "weight": "0.50",
+                                        "order": 2,
+                                        "template_question": 3
+                                    },
+                                    {
+                                        "id": 1,
+                                        "text": "Male",
+                                        "score": null,
+                                        "weight": "0.50",
+                                        "order": 1,
+                                        "template_question": 3
+                                    }
+                                ],
+                                "question_body": "Gender",
+                                "type": "s",
+                                "max_score": 0,
+                                "order": 1,
+                                "weight": "0.00",
+                                "show_comment": false,
+                                "additional_info": "",
+                                "questionnaire_template": 1,
+                                "template_block": 2
+                            }
+                        ],
+                        "title": "Demographic questions",
+                        "weight": "0.00",
+                        "order": 2,
+                        "lft": 1,
+                        "rght": 2,
+                        "tree_id": 2,
+                        "level": 0,
+                        "questionnaire_template": 1,
                         "parent_block": null
                     }
                 ],
-                "title": "NPS Questionnaire v2",
-                "type": "m",
-                "description": "NPS Template 2",
+                "cross_index_templates": [],
+                "title": "Amazing Questionnaire",
+                "type": "c",
+                "description": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse faucibus vulputate pellentesque. Ut in mi eget orci viverra aliquet vel quis tellus. Nam id iaculis augue, ut vulputate dui. Donec at ipsum imperdiet, blandit velit a, semper tortor. Nulla metus massa, rhoncus sed dolor semper, rutrum blandit mauris. Donec cursus nibh ut libero maximus, et interdum ante aliquam. Nulla at bibendum tellus, vel porta libero. Proin quis gravida leo, vel hendrerit sapien. Fusce nec augue a sem fringilla accumsan nec eu tortor. Nullam feugiat turpis elit, nec ultrices risus commodo sit amet. Quisque in suscipit est. Duis vitae dolor commodo, euismod velit vitae, tristique eros. Nulla et tristique est. Donec et ipsum in justo molestie varius rutrum at tortor. Sed malesuada dui erat, at lacinia sapien scelerisque sit amet. Sed ac ornare massa.</p><p>Cras rhoncus felis et sapien pretium accumsan. In convallis dapibus dolor, sit amet ornare odio molestie eu. Cras eleifend vitae justo vitae tincidunt. Aliquam justo tellus, congue in commodo et, lacinia ut quam. Donec vel efficitur lectus. Cras posuere venenatis placerat. Aenean turpis enim, gravida nec dolor at, molestie molestie purus.</p>",
                 "is_editable": true,
                 "tenant": 1
             }
         ],
-        "places_to_assess_repr": [],
+        "places_to_assess_repr": [
+            {
+                "place_type": 26,
+                "city_repr": {
+                    "id": 1,
+                    "sectors": [],
+                    "county": "Chişinău",
+                    "name": "Chişinău",
+                    "zip_code": "MD-2000"
+                },
+                "tenant": 1,
+                "department": 2,
+                "name": "Chess Boxing",
+                "employees": [],
+                "coordinates": "123,321,14z",
+                "place_id": 2,
+                "id": 2,
+                "sections": [],
+                "managers": [],
+                "sector": null,
+                "city": 1,
+                "address": "str. La Un Box, 32"
+            }
+        ],
         "people_to_assess_repr": [],
-        "number_of_evaluations": 100,
-        "description": "NPS Research v2",
+        "number_of_evaluations": 0,
+        "description": "",
         "tenant": 1,
         "questionnaires": [
-            10
+            1
         ]
     },
-    "shoppers": [
-        1
-    ],
+    "shoppers": [],
     "consultants_repr": [
         {
-            "id": 2,
+            "id": 1,
             "user": {
-                "id": 6,
-                "username": "tenant_consultant",
-                "email": "",
-                "first_name": "Tenant",
-                "last_name": "Consultant",
+                "id": 4,
+                "username": "consultant",
+                "email": "con@sult.ant",
+                "first_name": "Consultant",
+                "last_name": "Tant",
                 "roles": [
                     "tenantconsultant"
                 ],
-                "shopper": null
+                "tenant_repr": {
+                    "id": 1,
+                    "name": "Spark"
+                },
+                "shopper": null,
+                "company": null,
+                "managed_entities": [],
+                "has_overview_access": false
             },
             "tenant_repr": {
                 "id": 1,
-                "name": "SparkLabs"
+                "name": "Spark"
             },
             "type": "tenantconsultant",
             "tenant": 1
         }
     ],
     "evaluation_assessment_levels_repr": [],
-    "period_start": "2016-03-17",
-    "period_end": "2016-03-17",
-    "type": "m",
+    "cxi_indicators": {
+        "indicator_list": [
+            "NPS",
+            "Ramdomability"
+        ]
+    },
+    "period_start": "2016-06-12",
+    "period_end": "2016-07-26",
+    "type": "c",
     "tenant": 1,
     "company": 1,
     "project_manager": 1,
     "consultants": [
-        2
-    ],
-    "indicator_list": [
-        "Enjoyability",
-        "NPS"
+        1
     ]
 }
