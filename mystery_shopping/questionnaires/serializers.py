@@ -296,7 +296,7 @@ class QuestionnaireSerializer(serializers.ModelSerializer):
                 else:
                     block['parent_block'] = parents[block['parent_order_number']]
                     order_number = block.pop('order_number', None)
-                    # When sending id it get's the object, but this throws an error
+                    # When sending id it gets the object, but this throws an error
                     # so I'm "reverting" the process
                     block.pop('parent_order_number', None)
                     block['template_block'] = block['template_block'].id

@@ -86,7 +86,9 @@
 - `project_workers_repr` = *representation* of `ProjectWorker` = `tenantproductmanager`, `tenantprojectmanager` `tenantconsultant` (`many = True`)
 - `evaluation_assessment_levels_repr` : *representation* of `EvaluationAssessmentLevels`
 - `type` : *char* (can be `m` or `c`, exactly like for `questionnaires`)
-- `indicator_list` : *list* (of Indicator types)
+- `cxi_indicators` : *dict* that contains:
+    - `indicator_list`: *list* that has all the indicators, it may be `empty`
+    - `detail`: *str* it is present when an `error` has occured (contains error details)
 
 > [example](projects\ example/project.json)
 

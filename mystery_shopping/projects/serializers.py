@@ -190,7 +190,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     shoppers = serializers.PrimaryKeyRelatedField(queryset=Shopper.objects.all(), many=True, allow_null=True, required=False)
     consultants_repr = TenantConsultantSerializer(source='consultants', read_only=True, many=True)
     evaluation_assessment_levels_repr = EvaluationAssessmentLevelSerializer(source='evaluation_assessment_levels', read_only=True, many=True)
-    indicator_list = serializers.ListField(source='get_indicators_list', read_only=True)
+    cxi_indicators = serializers.DictField(source='get_indicators_list', read_only=True)
 
     class Meta:
         model = Project

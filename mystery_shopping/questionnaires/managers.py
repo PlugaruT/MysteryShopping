@@ -5,7 +5,10 @@ from .constants import IndicatorQuestionType
 
 class QuestionnaireQuerySet(QuerySet):
     def get_project_questionnaires(self, project, entity):
-        template_questionnaire = project.research_methodology.questionnaires.first()
+        try:
+            template_questionnaire = project.research_methodology.questionnaires.first()
+        except AttributeError:
+            template_questionnaire = None
         if entity:
             return self.filter(template=template_questionnaire,
                                evaluation__project=project,

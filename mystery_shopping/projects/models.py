@@ -11,8 +11,8 @@ from mystery_shopping.questionnaires.models import QuestionnaireScript, Question
 from mystery_shopping.tenants.models import Tenant
 from mystery_shopping.questionnaires.models import QuestionnaireTemplate
 from mystery_shopping.questionnaires.models import Questionnaire
+from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from mystery_shopping.projects.constants import ProjectStatus
-from mystery_shopping.questionnaires.constants import IndicatorQuestionType
 
 
 class PlaceToAssess(models.Model):
@@ -67,7 +67,7 @@ class Project(models.Model):
     # this type of import is used to avoid import circles
     project_manager = models.ForeignKey('users.TenantProjectManager')
     consultants = models.ManyToManyField('users.TenantConsultant')
-    shoppers = models.ManyToManyField('users.Shopper')
+    shoppers = models.ManyToManyField('users.Shopper', blank=True)
     research_methodology = models.ForeignKey('ResearchMethodology', null=True, blank=True)
 
     # Attributes
@@ -89,15 +89,8 @@ class Project(models.Model):
                                                                        self.period_end.day, self.period_end.month, self.period_start.year%2000)
 
     def get_indicators_list(self):
-        # get the template questionnaire for this project
-        indicator_set = set()
-        if self.research_methodology:
-            template_questionnaire = self.research_methodology.questionnaires.first()
-            for question in template_questionnaire.template_questions.all():
-                if question.type == IndicatorQuestionType.INDICATOR_QUESTION:
-                    indicator_set.add(question.additional_info)
-        return indicator_set
-
+        from mystery_shopping.cxi.algorithms import get_project_indicator_questions_list
+        return get_project_indicator_questions_list(self)
 
 
 class Evaluation(TimeStampedModel, models.Model):
@@ -214,6 +207,7 @@ class EvaluationAssessmentComment(models.Model):
     evaluation_assessment_level = models.ForeignKey(EvaluationAssessmentLevel)
     evaluation = models.ForeignKey(Evaluation)
     questionnaire = models.ForeignKey(Questionnaire)
+    question = models.ForeignKey(QuestionnaireQuestion, null=True)
 
     # Attributes
     comment = models.TextField()

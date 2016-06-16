@@ -311,22 +311,33 @@ def collect_data_for_overview_dashboard(project, entity_id):
 
 
 def get_project_indicator_questions_list(project):
-    # get the template questionnaire for this project
-    template_questionnaire = project.research_methodology.questionnaires.first()
-    indicator_set = set()
+    indicators = dict()
+    indicators['indicator_list'] = set()
+    try:
+        # get the template questionnaire for this project
+        template_questionnaire = project.research_methodology.questionnaires.first()
+    except AttributeError:
+        indicators['indicator_list'] = list()
+        indicators['detail'] = 'No Research Methodology or template questionnaire defined for this project'
+        return indicators
     for question in template_questionnaire.template_questions.all():
         if question.type == IndicatorQuestionType.INDICATOR_QUESTION:
-            indicator_set.add(question.additional_info)
-
-    return indicator_set
+            indicators['indicator_list'].add(question.additional_info)
+    return indicators
 
 
 def get_company_indicator_questions_list(company):
     projects = company.projects.all()
-    indicator_set = set()
+    indicators = dict()
+    indicators['indicator_list'] = set()
     for project in projects:
-        template_questionnaire = project.research_methodology.questionnaires.first()
+        try:
+            template_questionnaire = project.research_methodology.questionnaires.first()
+        except AttributeError:
+            indicators['indicator_list'] = list()
+            indicators['detail'] = '{} has either no Research Methodology or template questionnaire defined for this project'.format(project)
+            return indicators
         for question in template_questionnaire.template_questions.all():
             if question.type == IndicatorQuestionType.INDICATOR_QUESTION:
-                indicator_set.add(question.additional_info)
-    return indicator_set
+                indicators['indicator_list'].add(question.additional_info)
+    return indicators

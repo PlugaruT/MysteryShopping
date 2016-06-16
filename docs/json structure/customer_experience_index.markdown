@@ -85,14 +85,24 @@ It returns a dictionary with `4` entries:
 If both the `project` and the `company` have been sent as query params, the algorithm will use the `company`'s id, as it incapsulates the `project`'s one.
 
 **`GET`**:
-It returns a list with `variable` length which will contain `indicator` names
+It returns a dict which contains a list with `variable` length which will contain `indicator` names(1), and, if some error has occured, a string under the `detail` key to explain the error(2).
 
 > example:
+1.
 ```json
-[
-    "NPS",
-    "Enjoyability"
-]
+{
+    "indicator_list": [
+        "NPS",
+        "Ramdomability"
+    ]
+}
+```
+2.
+```json
+{
+    "indicator_list": [],
+    "detail": "No Research Methodology or template questionnaire defined for this project"
+}
 ```
 
 ## Coded Cause Label
