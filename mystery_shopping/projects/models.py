@@ -11,6 +11,7 @@ from mystery_shopping.questionnaires.models import QuestionnaireScript, Question
 from mystery_shopping.tenants.models import Tenant
 from mystery_shopping.questionnaires.models import QuestionnaireTemplate
 from mystery_shopping.questionnaires.models import Questionnaire
+from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from mystery_shopping.projects.constants import ProjectStatus
 
 
@@ -206,6 +207,7 @@ class EvaluationAssessmentComment(models.Model):
     evaluation_assessment_level = models.ForeignKey(EvaluationAssessmentLevel)
     evaluation = models.ForeignKey(Evaluation)
     questionnaire = models.ForeignKey(Questionnaire)
+    question = models.ForeignKey(QuestionnaireQuestion, null=True)
 
     # Attributes
     comment = models.TextField()
