@@ -179,7 +179,7 @@ class EvaluationPerProjectViewSet(viewsets.ViewSet):
             elif request.user.user_type == 'tenantprojectmanager':
                 queryset = queryset.filter(evaluation_assessment_level__project_manager=request.user.user_type_attr)
             else:
-                pass
+                queryset = Evaluation.objects.none()
 
         queryset = self.serializer_class.setup_eager_loading(queryset)
         serializer = EvaluationSerializer(queryset, many=True)
