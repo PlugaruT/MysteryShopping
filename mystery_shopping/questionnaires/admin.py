@@ -15,7 +15,7 @@ from .models import CrossIndexQuestionTemplate
 from .models import CrossIndexQuestion
 
 
-@admin.register(QuestionnaireScript, Questionnaire, QuestionnaireTemplateBlock, QuestionnaireBlock, QuestionnaireTemplateQuestion, QuestionnaireTemplateQuestionChoice, QuestionnaireQuestionChoice, CrossIndexTemplate, CrossIndex, CrossIndexQuestionTemplate, CrossIndexQuestion)
+@admin.register(QuestionnaireScript, QuestionnaireTemplateBlock, QuestionnaireBlock, QuestionnaireTemplateQuestion, QuestionnaireTemplateQuestionChoice, QuestionnaireQuestionChoice, CrossIndexTemplate, CrossIndex, CrossIndexQuestionTemplate, CrossIndexQuestion)
 class QuestionnaireAdmin(admin.ModelAdmin):
     pass
 
@@ -27,4 +27,9 @@ class QuestionAdmin(admin.ModelAdmin):
 
 @admin.register(QuestionnaireTemplate)
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ['title', 'type', 'tenant']
+    list_display = ['title', 'type', 'tenant', 'is_editable']
+
+
+@admin.register(Questionnaire)
+class QuestionAdmin(admin.ModelAdmin):
+    list_display = ['title', 'type', 'score']

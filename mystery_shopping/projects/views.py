@@ -171,7 +171,16 @@ class EvaluationPerProjectViewSet(viewsets.ViewSet):
     #     return self.serializer_class
 
     def list(self, request, company_pk=None, project_pk=None):
+        for_assessment = request.query_params.get('forAssessment', None)
         queryset = Evaluation.objects.filter(project=project_pk, project__company=company_pk)
+        if for_assessment:
+            if request.user.user_type == 'tenantconsultant':
+                queryset = queryset.filter(evaluation_assessment_level__consultants__in=[request.user.user_type_attr])
+            elif request.user.user_type == 'tenantprojectmanager':
+                queryset = queryset.filter(evaluation_assessment_level__project_manager=request.user.user_type_attr)
+            else:
+                pass
+
         queryset = self.serializer_class.setup_eager_loading(queryset)
         serializer = EvaluationSerializer(queryset, many=True)
         return Response(serializer.data)
