@@ -2,6 +2,7 @@ from django.db import models
 # from django.contrib.postgres.fields import
 
 from mystery_shopping.tenants.models import Tenant
+from mystery_shopping.projects.models import Project
 
 
 
@@ -11,12 +12,14 @@ class DashboardTemplate(models.Model):
     """
     # Relations
     tenant = models.ForeignKey(Tenant)
+    project = models.ForeignKey(Project)
 
     # Attributes
-    structure = models.TextField()
+    title = models.CharField(max_length=120)
+    widgets = models.TextField()
 
     def __str__(self):
-        return 'Dashboard for {}'.format(self.tenant.name)
+        return 'Dashboard "{}" for {}'.format(self.title, self.tenant.name)
 
 
 class DashboardComment(models.Model):
