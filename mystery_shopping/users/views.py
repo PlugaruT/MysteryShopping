@@ -43,7 +43,7 @@ class FilterQuerysetOnTenantMixIn:
     Mixin class that adds 'get_queryset' that filters the queryset agains the request.user.tenant
     """
     def get_queryset(self):
-        queryset = self.queryset
+        queryset = self.queryset.all()
         queryset = queryset.filter(tenant=self.request.user.tenant)
         return queryset
 
@@ -128,7 +128,7 @@ class ShopperViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """Filter the Shoppers by tenant (if they belong to the request.tenant or have no tenant)
         """
-        queryset = self.queryset
+        queryset = self.queryset.all()
         queryset = queryset.filter(Q(tenant__isnull=True) | Q(tenant=self.request.user.tenant))
         return queryset
 

@@ -52,7 +52,7 @@ class QuestionnaireTemplateViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """Filter queryset by Questionnaire type ('c' or 'm') and by Tenant the user belongs to.
         """
-        queryset = self.queryset
+        queryset = self.queryset.all()
         questionnaire_type = self.request.query_params.get('type', 'm')
         questionnaire_type = questionnaire_type[0] if isinstance(questionnaire_type, list) else questionnaire_type
         queryset = queryset.filter(type=questionnaire_type, tenant=self.request.user.tenant)

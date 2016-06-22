@@ -15,9 +15,14 @@ class DashboardTemplateView(viewsets.ModelViewSet):
     queryset = DashboardTemplate.objects.all()
     serializer_class = DashboardTemplateSerializer
 
-    def list(self, request, *args, **kwargs):
+    def get_queryset(self):
+        """
+        Termprary solution.
+        Filter dashboard according to project if 'project' query param is present
+        :return:
+        """
+        queryset = self.queryset.all()
         project = self.request.query_params.get('project', None)
-        queryset = self.queryset
 
         if project:
             try:
@@ -25,10 +30,7 @@ class DashboardTemplateView(viewsets.ModelViewSet):
             except:
                 queryset = None
 
-        serializer = DashboardTemplateSerializer(queryset, many=True)
-        return Response(serializer.data)
-
-
+        return queryset
 
 
 class DashboardCommentViewSet(viewsets.ModelViewSet):

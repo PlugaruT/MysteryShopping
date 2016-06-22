@@ -51,7 +51,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
         """Filter queryset based on Project type ('c' or by default 'm') and according
         to the Tenant the current user belongs to.
         """
-        queryset = self.queryset
+        queryset = self.queryset.all()
         project_type = self.request.query_params.get('type', 'm')
         project_type = project_type[0] if isinstance(project_type, list) else project_type
         queryset = queryset.filter(type=project_type)
