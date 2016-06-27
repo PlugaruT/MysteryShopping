@@ -277,6 +277,17 @@ class ProjectSerializer(serializers.ModelSerializer):
 
         return instance
 
+
+class ProjectShortSerializer(serializers.ModelSerializer):
+    """
+    Project serializer that includes only the date fields for evaluation's representation of a project.
+    """
+
+    class Meta:
+        model = Project
+        fields = ('period_start', 'period_end')
+
+
 class EvaluationSerializer(serializers.ModelSerializer):
     """
     """
@@ -286,6 +297,7 @@ class EvaluationSerializer(serializers.ModelSerializer):
     entity_repr = EntitySerializer(source='entity', read_only=True)
     section_repr = SectionSerializer(source='section', read_only=True)
     employee_repr = ClientUserRelatedField(source='employee', read_only=True)
+    project_repr = ProjectShortSerializer(source='project', read_only=True)
 
     class Meta:
         model = Evaluation
