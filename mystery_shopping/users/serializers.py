@@ -110,6 +110,7 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         password = validated_data.get('password', None)
         confirm_password = validated_data.pop('confirm_password', None)
+        validated_data.pop('change_username', None)
 
         user = User(**validated_data)
         self.check_username(validated_data['username'])
@@ -136,7 +137,7 @@ class UserSerializer(serializers.ModelSerializer):
             else:
                 raise serializers.ValidationError({'password': ['Provided passwords do not match.']})
 
-        if validated_data.get('change_username', False):
+        if validated_data.get('change_username', False) and (validated_data.get('username', None) != instance.username):
             username = validated_data.get('username', None)
             if User.objects.filter(username=username).exists():
                 raise serializers.ValidationError({
