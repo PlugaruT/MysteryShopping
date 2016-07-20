@@ -263,8 +263,7 @@ class QuestionnaireSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Questionnaire
-        fields = '__all__'  #('title', 'blocks', 'template',)
-
+        fields = '__all__'  # ('title', 'blocks', 'template',)
 
     @staticmethod
     def setup_eager_loading(queryset):
@@ -331,7 +330,12 @@ class CrossIndexTemplateSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         questionnaire_template = attrs.get('questionnaire_template', None)
-        question_templates = attrs.get('question_templates', [])
+        question_templates = attrs.get('cross_index_question_templates', [])
+
+        question_template_id = [question_template['question_template'].id for
+                                question_template in question_templates]
+        if not self.all_unique(question_template_id):
+            raise serializers.ValidationError({'question_templates': 'Template Questions allready in Cross Index Template list'})
 
         for template_question in question_templates:
             if template_question.questionnaire_template.id != questionnaire_template.id:
@@ -348,8 +352,16 @@ class CrossIndexTemplateSerializer(serializers.ModelSerializer):
                                        weight=question_template['weight'])
         return cross_template
 
+    @staticmethod
+    def all_unique(arr):
+        seen = set()
+        return not any(item in seen or seen.add(item) for item in arr)
+
     def update(self, instance, validated_data):
         question_templates = validated_data.pop('cross_index_question_templates', [])
+        # for question_template in question_templates:
+        #     print(question_template['question_template'].id)
+
         instance.question_templates.clear()
         for question_template in question_templates:
             CrossIndexQuestionTemplate.objects.create(cross_index_template=instance,
