@@ -17,7 +17,6 @@ from .models import CrossIndexQuestionTemplate
 from .models import CrossIndexQuestion
 
 
-
 class QuestionnaireTemplateQuestionChoiceSerializer(serializers.ModelSerializer):
     """
     """
@@ -347,8 +346,8 @@ class CrossIndexTemplateSerializer(serializers.ModelSerializer):
 
         for question_template in question_templates:
             CrossIndexQuestionTemplate.objects.create(cross_index_template=cross_template,
-                                       question_template=question_template['question_template'],
-                                       weight=question_template['weight'])
+                                                      question_template=question_template['question_template'],
+                                                      weight=question_template['weight'])
         return cross_template
 
     @staticmethod
@@ -445,10 +444,20 @@ class CrossIndexSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({'question': 'Questions don\'t correspond to the Questionnaire'})
         return attrs
 
+
 class QuestionnaireSimpleSerializer(serializers.ModelSerializer):
     """
-
+        Serializes questionnaires more simple including needed fields
     """
     class Meta:
         model = Questionnaire
         fields = ('id', 'title', 'score')
+
+
+class QuestionSimpleSerializer(serializers.ModelSerializer):
+    """
+        Serializes questions more simple including needed fields
+    """
+    class Meta:
+        model = QuestionnaireQuestion
+        fields = ('id', 'question_body', 'score')
