@@ -21,7 +21,6 @@ from .models import CrossIndexQuestion
 class QuestionnaireTemplateQuestionChoiceSerializer(serializers.ModelSerializer):
     """
     """
-
     class Meta:
         model = QuestionnaireTemplateQuestionChoice
         fields = '__all__'
@@ -446,3 +445,10 @@ class CrossIndexSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({'question': 'Questions don\'t correspond to the Questionnaire'})
         return attrs
 
+class QuestionnaireSimpleSerializer(serializers.ModelSerializer):
+    """
+
+    """
+    class Meta:
+        model = Questionnaire
+        fields = ('id', 'title', 'score')

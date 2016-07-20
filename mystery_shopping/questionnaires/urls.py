@@ -11,6 +11,7 @@ from .views import QuestionnaireTemplateQuestionChoiceViewSet
 from .views import QuestionnaireQuestionChoiceViewSet
 from .views import CrossIndexTemplateViewSet
 from .views import CrossIndexViewSet
+from .views import QuestionnaireSimpleViewSet
 
 
 router = DefaultRouter()
@@ -25,3 +26,4 @@ router.register(r'templatequestionchoices', QuestionnaireTemplateQuestionChoiceV
 router.register(r'questionchoices', QuestionnaireQuestionChoiceViewSet)
 router.register(r'crossindextemplates', CrossIndexTemplateViewSet)
 router.register(r'crossindexes', CrossIndexViewSet)
+router.register(r'simplequestionnaires', QuestionnaireSimpleViewSet)
