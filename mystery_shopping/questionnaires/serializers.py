@@ -445,15 +445,6 @@ class CrossIndexSerializer(serializers.ModelSerializer):
         return attrs
 
 
-class QuestionnaireSimpleSerializer(serializers.ModelSerializer):
-    """
-        Serializes questionnaires more simple including needed fields
-    """
-    class Meta:
-        model = Questionnaire
-        fields = ('id', 'title', 'score')
-
-
 class QuestionSimpleSerializer(serializers.ModelSerializer):
     """
         Serializes questions more simple including needed fields
@@ -472,3 +463,14 @@ class BlockSimpleSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionnaireBlock
         fields = ('id', 'title', 'score', 'questions')
+
+
+class QuestionnaireSimpleSerializer(serializers.ModelSerializer):
+    """
+        Serializes questionnaires more simple including needed fields
+    """
+    blocks = BlockSimpleSerializer(many=True)
+
+    class Meta:
+        model = Questionnaire
+        fields = ('id', 'title', 'score', 'blocks')
