@@ -359,8 +359,6 @@ class CrossIndexTemplateSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         question_templates = validated_data.pop('cross_index_question_templates', [])
-        # for question_template in question_templates:
-        #     print(question_template['question_template'].id)
 
         instance.question_templates.clear()
         for question_template in question_templates:
