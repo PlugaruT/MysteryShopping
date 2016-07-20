@@ -30,6 +30,7 @@ from .serializers import CrossIndexTemplateSerializer
 from .serializers import CrossIndexSerializer
 from .serializers import QuestionnaireSimpleSerializer
 from .serializers import QuestionSimpleSerializer
+from .serializers import BlockSimpleSerializer
 from .constants import IndicatorQuestionType
 
 from mystery_shopping.users.permissions import IsTenantProductManager
@@ -211,4 +212,10 @@ class QuestionnaireSimpleViewSet(viewsets.ModelViewSet):
 class QuestionSimpleViewSet(viewsets.ModelViewSet):
     queryset = QuestionnaireQuestion.objects.all()
     serializer_class = QuestionSimpleSerializer
+    permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)
+
+
+class BlockSimpleViewSet(viewsets.ModelViewSet):
+    queryset = QuestionnaireBlock.objects.all()
+    serializer_class = BlockSimpleSerializer
     permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)

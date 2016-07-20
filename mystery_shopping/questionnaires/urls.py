@@ -13,6 +13,7 @@ from .views import CrossIndexTemplateViewSet
 from .views import CrossIndexViewSet
 from .views import QuestionnaireSimpleViewSet
 from .views import QuestionSimpleViewSet
+from .views import BlockSimpleViewSet
 
 
 router = DefaultRouter()
@@ -29,3 +30,4 @@ router.register(r'crossindextemplates', CrossIndexTemplateViewSet)
 router.register(r'crossindexes', CrossIndexViewSet)
 router.register(r'simplequestionnaires', QuestionnaireSimpleViewSet)
 router.register(r'simplequestions', QuestionSimpleViewSet)
+router.register(r'simpleblocks', BlockSimpleViewSet)

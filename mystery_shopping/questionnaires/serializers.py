@@ -461,3 +461,14 @@ class QuestionSimpleSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionnaireQuestion
         fields = ('id', 'question_body', 'score')
+
+
+class BlockSimpleSerializer(serializers.ModelSerializer):
+    """
+        Serializes blocks more simple including needed fields
+    """
+    questions = QuestionSimpleSerializer(many=True)
+
+    class Meta:
+        model = QuestionnaireBlock
+        fields = ('id', 'title', 'score', 'questions')
