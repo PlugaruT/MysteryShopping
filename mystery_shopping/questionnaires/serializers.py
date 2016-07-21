@@ -352,6 +352,11 @@ class CrossIndexTemplateSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def all_unique(arr):
+        """
+        Function for verifying if all elements of a list are unique
+        :param arr: the list to check
+        :return: boolean value, True if all elements are unique, False otherwise
+        """
         seen = set()
         return not any(item in seen or seen.add(item) for item in arr)
 

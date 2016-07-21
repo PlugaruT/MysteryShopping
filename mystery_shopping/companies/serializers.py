@@ -35,6 +35,17 @@ class SectionSerializer(serializers.ModelSerializer):
         return Section.objects.create(**validated_data)
 
 
+class SimpleSectionSerializer(serializers.ModelSerializer):
+    """
+        Simple Section representation
+    """
+    place_id = serializers.IntegerField(source='id', read_only=True)
+
+    class Meta:
+        model = Section
+        fields = ('name', 'place_id')
+
+
 class EntitySerializer(serializers.ModelSerializer):
     """
 
@@ -81,10 +92,11 @@ class SimpleEntitySerializer(serializers.ModelSerializer):
     Simple Entity representation
     """
     place_id = serializers.IntegerField(source='id', read_only=True)
+    sections = SimpleSectionSerializer(many=True, required=False)
 
     class Meta:
         model = Entity
-        fields = ('name', 'place_id')
+        fields = ('name', 'place_id', 'sections')
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
@@ -128,6 +140,18 @@ class DepartmentSerializer(serializers.ModelSerializer):
         return instance
 
 
+class SimpleDepartmentSerializer(serializers.ModelSerializer):
+    """
+    Simple representation of a department
+    """
+    place_id = serializers.IntegerField(source='id', read_only=True)
+    entities = SimpleEntitySerializer(many=True, required=False)
+
+    class Meta:
+        model = Department
+        fields = ('place_id', 'entities')
+
+
 class CompanySerializer(serializers.ModelSerializer):
     """
 
@@ -135,7 +159,7 @@ class CompanySerializer(serializers.ModelSerializer):
     departments_repr = DepartmentSerializer(source='departments', many=True, read_only=True)
     industry_repr = IndustrySerializer(source='industry', read_only=True)
     country_repr = CountrySerializer(source='country', read_only=True)
-    
+
     class Meta:
         model = Company
         fields = '__all__'
