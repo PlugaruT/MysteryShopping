@@ -474,3 +474,8 @@ class QuestionnaireSimpleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Questionnaire
         fields = ('id', 'title', 'score', 'blocks')
+
+    @staticmethod
+    def setup_eager_loading(queryset):
+        queryset = queryset.prefetch_related('blocks__questions')
+        return queryset
