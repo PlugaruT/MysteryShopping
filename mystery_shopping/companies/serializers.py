@@ -92,7 +92,7 @@ class SimpleEntitySerializer(serializers.ModelSerializer):
     Simple Entity representation
     """
     place_id = serializers.IntegerField(source='id', read_only=True)
-    sections = SimpleSectionSerializer(many=True, required=False)
+    sections = SimpleSectionSerializer(many=True)
 
     class Meta:
         model = Entity
@@ -145,7 +145,7 @@ class SimpleDepartmentSerializer(serializers.ModelSerializer):
     Simple representation of a department
     """
     place_id = serializers.IntegerField(source='id', read_only=True)
-    entities = SimpleEntitySerializer(many=True, required=False)
+    entities = SimpleEntitySerializer(many=True)
 
     class Meta:
         model = Department
