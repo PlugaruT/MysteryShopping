@@ -269,7 +269,6 @@ class CollectDataForIndicatorDashboard:
         self.entity = Entity.objects.filter(pk=entity_id).first()
         self.indicator_type = indicator_type
         self.questionnaire_list = self._get_questionnaire_list()
-        self.secondary_questionnaire_list = self._get_secondary_questionnaire_list()
 
     def build_response(self):
         if self._questionnaires_has_indicator_question():
@@ -303,13 +302,15 @@ class CollectDataForIndicatorDashboard:
 
     def _get_gauge(self):
         indicator_list = get_indicator_scores(self.questionnaire_list, self.indicator_type)
-        indicator_list_network = get_indicator_scores(self.secondary_questionnaire_list, self.indicator_type)
-
         gauge = calculate_indicator_score(indicator_list)
         if self.entity:
-            gauge['general_indicator'] = calculate_indicator_score(indicator_list_network)['indicator']
-
+            gauge['general_indicator'] = self._get_general_indicator()
         return gauge
+
+    def _get_general_indicator(self):
+        all_project_questionnaires = self._get_all_project_questionnaires()
+        indicator_list = get_indicator_scores(all_project_questionnaires, self.indicator_type)
+        return calculate_indicator_score(indicator_list)['indicator']
 
     def _get_project_comment(self):
         return get_indicator_project_comment(self.project, self.entity_id, self.indicator_type)
@@ -320,8 +321,8 @@ class CollectDataForIndicatorDashboard:
     def _get_questionnaire_list(self):
         return Questionnaire.objects.get_project_questionnaires_for_entity(self.project, self.entity)
 
-    def _get_secondary_questionnaire_list(self):
-        return Questionnaire.objects.get_project_questionnaires(self.project) if self.entity else []
+    def _get_all_project_questionnaires(self):
+        return Questionnaire.objects.get_project_questionnaires(self.project)
 
 
 def collect_data_for_overview_dashboard(project, entity_id):
