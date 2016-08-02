@@ -16,11 +16,15 @@ from ..algorithms import group_questions_by_pos
 from ..algorithms import calculate_overview_score
 from ..algorithms import sort_indicator_categories
 from ..algorithms import sort_indicators_per_pos
+from ..algorithms import sort_question_by_coded_cause
+from ..algorithms import collect_data_for_indicator_dashboard
+from ..algorithms import collect_data_for_overview_dashboard
 
 from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializer
 from mystery_shopping.questionnaires.constants import IndicatorQuestionType
 from mystery_shopping.questionnaires.constants import QuestionType
 from mystery_shopping.factories.tenants import TenantFactory
+from mystery_shopping.factories.cxi import CodedCauseFactory
 
 
 class AlgorithmsTestCase(TestCase):
@@ -30,6 +34,9 @@ class AlgorithmsTestCase(TestCase):
         # contains the cxi value is decimal
         for index, value in enumerate(indicator_marks):
             value = Decimal(value)
+        # print(indicator_marks)
+        # indicator_marks = [Decimal(value) for value in indicator_marks]
+        # print(indicator_marks)
 
         calculated_score = calculate_indicator_score(indicator_marks)
 
@@ -371,3 +378,35 @@ class AlgorithmsTestCase(TestCase):
             for result in pos['results']:
                 self.assertEqual(result['number_of_respondents'], len(initial_score_list))
                 self.assertEqual(result['score']['indicator'], 40.0)
+
+    def test_sort_question_by_coded_cause(self):
+        coded_causes_dict = defaultdict(list)
+        test_values = [2, 1, 1]
+        temp_values = list()
+
+        coded_cause_1 = CodedCauseFactory()
+        coded_cause_2 = CodedCauseFactory()
+        coded_cause_3 = CodedCauseFactory()
+        indicator_question_1 = MagicMock()
+        indicator_question_1.id = 11
+        coded_causes_dict[coded_cause_1.id].append(indicator_question_1.id)
+        indicator_question_2 = MagicMock()
+        indicator_question_2.id = 22
+        coded_causes_dict[coded_cause_1.id].append(indicator_question_2.id)
+        indicator_question_3 = MagicMock()
+        indicator_question_3.id = 33
+        coded_causes_dict[coded_cause_2.id].append(indicator_question_3.id)
+        indicator_question_4 = MagicMock()
+        indicator_question_4.id = 44
+        coded_causes_dict[coded_cause_3.id].append(indicator_question_4.id)
+        sorted_coded_causes_dict = sort_question_by_coded_cause(coded_causes_dict)
+        for coded_cause in sorted_coded_causes_dict:
+            temp_values.append(coded_cause['count'])
+
+        self.assertEqual(test_values, temp_values)
+
+    def test_collect_data_for_indicator_dashboard(self):
+        pass
+
+    def test_collect_data_for_overview_dashboard(self):
+        pass

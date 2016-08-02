@@ -184,7 +184,7 @@ def get_indicator_details(questionnaire_list, indicator_type):
 
     return_dict = dict()
     return_dict['details'] = details
-    return_dict['coded_causes'] = sort_question_by_coded_cause(questionnaire_list, indicator_type, coded_causes_dict)
+    return_dict['coded_causes'] = sort_question_by_coded_cause(coded_causes_dict)
     return return_dict
 
 
@@ -222,6 +222,13 @@ def calculate_overview_score(questionnaire_list, project, entity_id):
 
 
 def add_question_per_coded_cause(indicator_question, coded_cause_dict):
+    """
+    Function for grouping indicator questions by coded_cause. If coded_cause doesn't exists, it appends the question id
+    to the 'unsorted' key
+    :param indicator_question: question to be sorted
+    :param coded_cause_dict: dict of existing coded_causes
+    :return: dict with sorted questions by coded_cause
+    """
     coded_cause = indicator_question.coded_causes.first()
     if coded_cause:
         coded_cause_dict[coded_cause.id].append(indicator_question.id)
@@ -230,7 +237,13 @@ def add_question_per_coded_cause(indicator_question, coded_cause_dict):
     return True
 
 
-def sort_question_by_coded_cause(questionnaire_list, indicator_type, coded_causes_dict):
+def sort_question_by_coded_cause(coded_causes_dict):
+    """
+    Function for counting the number of coded_cause with the same id
+    :param coded_causes_dict: dict with unsorted coded causes
+    :return: list of dicts with sorted coded causes
+    """
+
     coded_causes_response = list()
 
     for coded_cause in coded_causes_dict:
