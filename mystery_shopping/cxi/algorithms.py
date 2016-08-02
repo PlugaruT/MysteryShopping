@@ -136,7 +136,6 @@ def sort_indicator_categories(details, indicator_categories):
     for item_label, responses in indicator_categories.items():
         detail_item = dict()
         detail_item['results'] = list()
-
         for answer_choice in responses:
             answer_choice_result = dict()
             answer_choice_result['choice'] = answer_choice
@@ -267,6 +266,7 @@ def sort_question_by_coded_cause(coded_causes_dict):
 class CollectDataForIndicatorDashboard:
     def __init__(self, project, entity_id, indicator_type):
         self.project = project
+        self.entity_id = entity_id
         self.entity = Entity.objects.filter(pk=entity_id).first()
         self.indicator_type = indicator_type
         self.questionnaire_list = self._get_questionnaire_list()
