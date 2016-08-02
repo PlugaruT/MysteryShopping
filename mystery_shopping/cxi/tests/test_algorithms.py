@@ -17,8 +17,6 @@ from ..algorithms import calculate_overview_score
 from ..algorithms import sort_indicator_categories
 from ..algorithms import sort_indicators_per_pos
 from ..algorithms import sort_question_by_coded_cause
-from ..algorithms import collect_data_for_indicator_dashboard
-from ..algorithms import collect_data_for_overview_dashboard
 
 from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializer
 from mystery_shopping.questionnaires.constants import IndicatorQuestionType

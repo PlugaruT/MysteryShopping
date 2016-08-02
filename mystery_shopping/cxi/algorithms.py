@@ -268,63 +268,60 @@ class CollectDataForIndicatorDashboard:
         self.project = project
         self.entity = Entity.objects.filter(pk=entity_id).first()
         self.indicator_type = indicator_type
+        self.questionnaire_list = self._get_questionnaire_list()
+        self.secondary_questionnaire_list = self._get_secondary_questionnaire_list()
 
     def build_response(self):
-        pass
+        if self._questionnaires_has_indicator_question():
+            return self._build_indicator_response()
+        return self._build_default_response()
 
-    def get_questionnaire_list(self):
+    def _build_indicator_response(self):
+        indicator_details = self._get_indicator_details()
+        return {
+            'gauge': self._get_gauge(),
+            'details': indicator_details['details'],
+            'coded_causes': indicator_details['coded_causes'],
+            'project_comment': self._get_project_comment()
+
+        }
+
+    @staticmethod
+    def _build_default_response():
+        return {
+            'gauge': calculate_indicator_score([]),
+            'details': [],
+            'coded_causes': [],
+            'project_comment': []
+        }
+
+    def _questionnaires_has_indicator_question(self):
+        if self.questionnaire_list:
+            return self.questionnaire_list.first().get_indicator_question(self.indicator_type) is not None
+        else:
+            return False
+
+    def _get_gauge(self):
+        indicator_list = get_indicator_scores(self.questionnaire_list, self.indicator_type)
+        indicator_list_network = get_indicator_scores(self.secondary_questionnaire_list, self.indicator_type)
+
+        gauge = calculate_indicator_score(indicator_list)
+        if self.entity:
+            gauge['general_indicator'] = calculate_indicator_score(indicator_list_network)['indicator']
+
+        return gauge
+
+    def _get_project_comment(self):
+        return get_indicator_project_comment(self.project, self.entity_id, self.indicator_type)
+
+    def _get_indicator_details(self):
+        return get_indicator_details(self.questionnaire_list, self.indicator_type)
+
+    def _get_questionnaire_list(self):
         return Questionnaire.objects.get_project_questionnaires_for_entity(self.project, self.entity)
 
-
-
-
-def collect_data_for_indicator_dashboard(project, entity_id, indicator_type):
-    try:
-        entity = Entity.objects.get(pk=entity_id)
-    except Entity.DoesNotExist:
-        entity = None
-
-    questionnaire_list = Questionnaire.objects.get_project_questionnaires_for_entity(project, entity)
-    questionnaire_list_secondary = list()
-
-    if entity:
-        questionnaire_list_secondary = questionnaire_list
-        questionnaire_list = questionnaire_list.filter(evaluation__entity=entity)
-        # This makes more queries
-        # questionnaire_list_entity = [questionnaire for questionnaire in questionnaire_list if questionnaire.evaluation.entity == entity]
-
-    # Extract the question with the desired indicator (if questionnaires exist)
-    indicator_question = None
-    if questionnaire_list:
-        indicator_question = questionnaire_list.first().get_indicator_question(indicator_type)
-
-    response = dict()
-    if indicator_question:
-        # Get all the questionnaires from the requested project
-        indicator_list = get_indicator_scores(questionnaire_list, indicator_type)
-        indicator_list_network = get_indicator_scores(questionnaire_list_secondary, indicator_type)
-        response['gauge'] = calculate_indicator_score(indicator_list)
-        if entity:
-            response['gauge']['general_indicator'] = calculate_indicator_score(indicator_list_network)['indicator']
-
-        indicator_details = get_indicator_details(questionnaire_list, indicator_type)
-
-        response['details'] = indicator_details['details']
-
-        response['coded_causes'] = indicator_details['coded_causes']
-
-        response['project_comment'] = get_indicator_project_comment(project, entity_id, indicator_type)
-
-    else:
-        response['gauge'] = calculate_indicator_score([])
-
-        response['details'] = []
-
-        response['coded_causes'] = []
-
-        response['project_comment'] = []
-
-    return response
+    def _get_secondary_questionnaire_list(self):
+        return Questionnaire.objects.get_project_questionnaires(self.project) if self.entity else []
 
 
 def collect_data_for_overview_dashboard(project, entity_id):
