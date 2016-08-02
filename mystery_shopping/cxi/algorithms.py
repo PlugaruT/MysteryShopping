@@ -1,7 +1,7 @@
 from collections import defaultdict
 
+from mystery_shopping.questionnaires.constants import QuestionType
 from mystery_shopping.questionnaires.models import Questionnaire
-from mystery_shopping.questionnaires.constants import IndicatorQuestionType
 from mystery_shopping.projects.models import Entity
 from mystery_shopping.cxi.models import CodedCause
 from mystery_shopping.cxi.models import ProjectComment
@@ -71,7 +71,7 @@ def calculate_indicator_score(indicator_marks):
 
 
 def sort_indicator_question_marks(indicator_dict, indicator_question, question):
-    if question.type != IndicatorQuestionType.INDICATOR_QUESTION:
+    if question.type != QuestionType.INDICATOR_QUESTION:
         if question.answer_choices not in [None, []]:
             indicator_dict[question.question_body][question.answer]['marks'].append(indicator_question.score)
         else:
@@ -92,7 +92,7 @@ def group_questions_by_answer(questionnaire_list, indicator_type, indicator_deta
 
     for questionnaire in questionnaire_list:
         questionnaire_indicator_question = questionnaire.questions.filter(
-            type=IndicatorQuestionType.INDICATOR_QUESTION,
+            type=QuestionType.INDICATOR_QUESTION,
             additional_info=indicator_type).first()
 
         if questionnaire_indicator_question:
@@ -107,7 +107,8 @@ def group_questions_by_answer(questionnaire_list, indicator_type, indicator_deta
 def group_questions_by_pos(questionnaire_list, indicator_type):
     indicator_pos_details = defaultdict(lambda: defaultdict(list))
     for questionnaire in questionnaire_list:
-        questionnaire_indicator_score = questionnaire.questions.filter(type=IndicatorQuestionType.INDICATOR_QUESTION, additional_info=indicator_type).first()
+        questionnaire_indicator_score = questionnaire.questions.filter(type=QuestionType.INDICATOR_QUESTION,
+                                                                       additional_info=indicator_type).first()
         if questionnaire_indicator_score:
             indicator_pos_details['entities'][questionnaire.evaluation.entity.name].append(questionnaire_indicator_score.score)
             indicator_pos_details['ids'][questionnaire.evaluation.entity.name] = questionnaire.evaluation.entity.id
@@ -211,7 +212,7 @@ def calculate_overview_score(questionnaire_list, project, entity_id):
     overview_list['indicators'] = dict()
     indicator_types_set = set()
     for questionnaire in questionnaire_list:
-        for indicator_question in questionnaire.questions.filter(type=IndicatorQuestionType.INDICATOR_QUESTION).all():
+        for indicator_question in questionnaire.questions.filter(type=QuestionType.INDICATOR_QUESTION).all():
             indicator_types_set.add(indicator_question.additional_info)
     for indicator_type in indicator_types_set:
         indicator_list = get_indicator_scores(questionnaire_list, indicator_type)
@@ -347,7 +348,7 @@ def get_project_indicator_questions_list(project):
         indicators['detail'] = 'No Research Methodology or template questionnaire defined for this project'
         return indicators
     for question in template_questionnaire.template_questions.all():
-        if question.type == IndicatorQuestionType.INDICATOR_QUESTION:
+        if question.type == QuestionType.INDICATOR_QUESTION:
             indicators['indicator_list'].add(question.additional_info)
     return indicators
 
@@ -364,6 +365,6 @@ def get_company_indicator_questions_list(company):
             indicators['detail'] = '{} has either no Research Methodology or template questionnaire defined for this project'.format(project)
             return indicators
         for question in template_questionnaire.template_questions.all():
-            if question.type == IndicatorQuestionType.INDICATOR_QUESTION:
+            if question.type == QuestionType.INDICATOR_QUESTION:
                 indicators['indicator_list'].add(question.additional_info)
     return indicators

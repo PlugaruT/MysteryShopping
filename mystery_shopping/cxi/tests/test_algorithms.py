@@ -19,7 +19,6 @@ from ..algorithms import sort_indicators_per_pos
 from ..algorithms import sort_question_by_coded_cause
 
 from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializer
-from mystery_shopping.questionnaires.constants import IndicatorQuestionType
 from mystery_shopping.questionnaires.constants import QuestionType
 from mystery_shopping.factories.tenants import TenantFactory
 from mystery_shopping.factories.cxi import CodedCauseFactory
@@ -62,7 +61,7 @@ class AlgorithmsTestCase(TestCase):
         for i in range(len(initial_score_list) - 1):
             questionnaire = MagicMock()
             mock_question = MagicMock()
-            mock_question.type = IndicatorQuestionType.INDICATOR_QUESTION
+            mock_question.type = QuestionType.INDICATOR_QUESTION
             mock_question.additional_info = indicator_type
             mock_question.score = initial_score_list[i]
             # Assign questions to the questionnaire
@@ -72,7 +71,7 @@ class AlgorithmsTestCase(TestCase):
         # Add another questionnaire with a different type of cxi question
         questionnaire_list.append(MagicMock())
         mock_question = MagicMock()
-        mock_question.type = IndicatorQuestionType.INDICATOR_QUESTION
+        mock_question.type = QuestionType.INDICATOR_QUESTION
         mock_question.additional_info = 'Enjoyability'
         mock_question.score = initial_score_list[-1]
         questionnaire_list[-1].questions.all.return_value = [mock_question,]
@@ -149,7 +148,7 @@ class AlgorithmsTestCase(TestCase):
         answer_choice = 123
 
         indicator_question = MagicMock()
-        indicator_question.type = IndicatorQuestionType.INDICATOR_QUESTION
+        indicator_question.type = QuestionType.INDICATOR_QUESTION
         indicator_question.score = mark
 
         question = MagicMock()
@@ -168,7 +167,7 @@ class AlgorithmsTestCase(TestCase):
         answer_choice = []
 
         indicator_question = MagicMock()
-        indicator_question.type = IndicatorQuestionType.INDICATOR_QUESTION
+        indicator_question.type = QuestionType.INDICATOR_QUESTION
         indicator_question.score = mark
 
         question = MagicMock()
@@ -187,11 +186,11 @@ class AlgorithmsTestCase(TestCase):
         answer_choice = []
 
         indicator_question = MagicMock()
-        indicator_question.type = IndicatorQuestionType.INDICATOR_QUESTION
+        indicator_question.type = QuestionType.INDICATOR_QUESTION
         indicator_question.score = mark
 
         question = MagicMock()
-        question.type = IndicatorQuestionType.INDICATOR_QUESTION
+        question.type = QuestionType.INDICATOR_QUESTION
         question.answer = 'lalala'
         question.question_body = 'NPS'
         question.answer_choices = answer_choice
@@ -241,7 +240,7 @@ class AlgorithmsTestCase(TestCase):
             indicator_question = MagicMock()
 
             indicator_question_id = randint(1, 100)
-            indicator_question.type = IndicatorQuestionType.INDICATOR_QUESTION
+            indicator_question.type = QuestionType.INDICATOR_QUESTION
             indicator_question.score = mark
             indicator_question.id = indicator_question_id
             indicator_question.additional_info = indicator_type
@@ -287,7 +286,7 @@ class AlgorithmsTestCase(TestCase):
             questionnaire = MagicMock()
             indicator_question = MagicMock()
 
-            indicator_question.type = IndicatorQuestionType.INDICATOR_QUESTION
+            indicator_question.type = QuestionType.INDICATOR_QUESTION
             indicator_question.score = mark
             indicator_question.additional_info = indicator_type
 
@@ -321,12 +320,12 @@ class AlgorithmsTestCase(TestCase):
         for i in range(len(initial_score_list)):
             questionnaire = MagicMock()
             indicator_question_1 = MagicMock()
-            indicator_question_1.type = IndicatorQuestionType.INDICATOR_QUESTION
+            indicator_question_1.type = QuestionType.INDICATOR_QUESTION
             indicator_question_1.additional_info = first_indicator
             indicator_question_1.score = initial_score_list[i]
 
             indicator_question_2 = MagicMock()
-            indicator_question_2.type = IndicatorQuestionType.INDICATOR_QUESTION
+            indicator_question_2.type = QuestionType.INDICATOR_QUESTION
             indicator_question_2.additional_info = second_indicator
             indicator_question_2.score = initial_score_list[i]
             # Assign questions to the questionnaire

@@ -2,6 +2,8 @@ from django.test.testcases import TestCase
 
 from mystery_shopping.cxi.algorithms import CollectDataForIndicatorDashboard
 from mystery_shopping.factories.companies import EntityFactory
+from mystery_shopping.factories.projects import ResearchMethodologyFactory, ProjectFactory, EvaluationFactory
+from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFactory, QuestionnaireFactory
 from mystery_shopping.projects.models import Project
 
 
@@ -26,3 +28,24 @@ class TestClassConstructor(TestCase):
         entity = EntityFactory.create()
         obj = CollectDataForIndicatorDashboard(None, entity.pk, None)
         self.assertEquals(obj.entity, entity)
+
+
+class TestBuildResponse(TestCase):
+    def setUp(self):
+        # Dependency between QuestionnaireTemplate and ResearchMethodology
+        questionnaire_template = QuestionnaireTemplateFactory.create()
+        research_methodology = ResearchMethodologyFactory.create()
+        research_methodology.questionnaires.add(questionnaire_template)
+
+        # Dependency between Project and ResearchMethodology
+        self.project = ProjectFactory.create(research_methodology=research_methodology)
+
+        # Dependency between Project Evaluation and Questionnaire
+        self.questionnaire1 = QuestionnaireFactory.create(template=questionnaire_template, title='first')
+        self.evaluation1 = EvaluationFactory.create(project=self.project, questionnaire=self.questionnaire1)
+        self.questionnaire2 = QuestionnaireFactory.create(template=questionnaire_template, title='second')
+        self.evaluation2 = EvaluationFactory.create(project=self.project, questionnaire=self.questionnaire2)
+
+
+    def _questionnaire_has_indicator_questions(self):
+        QuestionFactory

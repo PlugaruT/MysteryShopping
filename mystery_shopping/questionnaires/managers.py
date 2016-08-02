@@ -1,6 +1,6 @@
 from django.db.models.query import QuerySet
 
-from .constants import IndicatorQuestionType
+from mystery_shopping.questionnaires.constants import QuestionType
 
 
 class QuestionnaireQuerySet(QuerySet):
@@ -23,4 +23,4 @@ class QuestionnaireQuerySet(QuerySet):
 class QuestionnaireQuestionQuerySet(QuerySet):
     def get_project_questions(self, project):
         return self.filter(questionnaire__evaluation__project=project,
-                           type__in=IndicatorQuestionType.INDICATORS_LIST).prefetch_related('coded_causes')
+                           type=QuestionType.INDICATOR_QUESTION).prefetch_related('coded_causes')
