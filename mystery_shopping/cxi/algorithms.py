@@ -263,13 +263,28 @@ def sort_question_by_coded_cause(coded_causes_dict):
     return coded_causes_response
 
 
+class CollectDataForIndicatorDashboard:
+    def __init__(self, project, entity_id, indicator_type):
+        self.project = project
+        self.entity = Entity.objects.filter(pk=entity_id).first()
+        self.indicator_type = indicator_type
+
+    def build_response(self):
+        pass
+
+    def get_questionnaire_list(self):
+        return Questionnaire.objects.get_project_questionnaires_for_entity(self.project, self.entity)
+
+
+
+
 def collect_data_for_indicator_dashboard(project, entity_id, indicator_type):
     try:
         entity = Entity.objects.get(pk=entity_id)
     except Entity.DoesNotExist:
         entity = None
 
-    questionnaire_list = Questionnaire.objects.get_project_questionnaires(project, None)
+    questionnaire_list = Questionnaire.objects.get_project_questionnaires_for_entity(project, entity)
     questionnaire_list_secondary = list()
 
     if entity:
@@ -318,7 +333,7 @@ def collect_data_for_overview_dashboard(project, entity_id):
     except Entity.DoesNotExist:
         entity = None
 
-    questionnaire_list = Questionnaire.objects.get_project_questionnaires(project, entity)
+    questionnaire_list = Questionnaire.objects.get_project_questionnaires_for_entity(project, entity)
 
     return calculate_overview_score(questionnaire_list, project, entity_id)
 
