@@ -381,8 +381,8 @@ class AlgorithmsTestCase(TestCase):
 
     def test_sort_question_by_coded_cause(self):
         coded_causes_dict = defaultdict(list)
-        test_values = [2, 1, 1]
-        temp_values = list()
+        expected_values = [2, 1, 1]
+        result = list()
 
         coded_cause_1 = CodedCauseFactory()
         coded_cause_2 = CodedCauseFactory()
@@ -401,9 +401,9 @@ class AlgorithmsTestCase(TestCase):
         coded_causes_dict[coded_cause_3.id].append(indicator_question_4.id)
         sorted_coded_causes_dict = sort_question_by_coded_cause(coded_causes_dict)
         for coded_cause in sorted_coded_causes_dict:
-            temp_values.append(coded_cause['count'])
+            result.append(coded_cause['count'])
 
-        self.assertEqual(test_values, temp_values)
+        self.assertListEqual(expected_values, result)
 
     def test_collect_data_for_indicator_dashboard(self):
         pass
