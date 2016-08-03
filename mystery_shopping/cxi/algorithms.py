@@ -33,36 +33,34 @@ def calculate_indicator_score(indicator_marks):
     :param indicator_marks: list of the indicator's scores
     :return: a dict with the 'indicator', 'promoters', 'detractors' and 'passives' keys, and scores respectively
     """
-    if len(indicator_marks) == 0:
-        score = dict()
+    score = dict()
+    if not indicator_marks:
         score['indicator'] = None
         score['promoters'] = None
         score['passives'] = None
         score['detractors'] = None
         return score
 
-    detractors_marks = []
-    passives_marks = []
-    promoters_marks = []
+    detractors = 0
+    passives = 0
+    promoters = 0
 
-    for score in indicator_marks:
-        # score = int(score)
-        if score < 7:
-            detractors_marks.append(score)
-        elif score < 9:
-            passives_marks.append(score)
+    for mark in indicator_marks:
+        if mark < 7:
+            detractors += 1
+        elif mark < 9:
+            passives += 1
         else:
-            promoters_marks.append(score)
+            promoters += 1
 
-    indicator_scores_length = len(indicator_marks)
+    indicator_marks_length = len(indicator_marks)
 
-    detractors_percentage = len(detractors_marks) / indicator_scores_length * 100
-    passives_percentage = len(passives_marks) / indicator_scores_length * 100
-    promoters_percentage = len(promoters_marks) / indicator_scores_length * 100
+    detractors_percentage = detractors / indicator_marks_length * 100
+    passives_percentage = passives / indicator_marks_length * 100
+    promoters_percentage = promoters / indicator_marks_length * 100
 
     indicator_score = promoters_percentage - detractors_percentage
 
-    score = dict()
     score['indicator'] = round(indicator_score, 2)
     score['promoters'] = round(promoters_percentage, 2)
     score['passives'] = round(passives_percentage, 2)
@@ -190,20 +188,12 @@ def get_indicator_details(questionnaire_list, indicator_type):
 
 def get_overview_project_comment(project, entity_id):
     project_comment = ProjectComment.objects.filter(project=project, entity=entity_id, indicator="").first()
-
-    if project_comment is None:
-        return None
-
-    return ProjectCommentSerializer(project_comment).data
+    return None if project_comment is None else ProjectCommentSerializer(project_comment).data
 
 
 def get_indicator_project_comment(project, entity_id, indicator_type):
     project_comment = ProjectComment.objects.filter(project=project, entity=entity_id, indicator=indicator_type).first()
-
-    if project_comment is None:
-        return None
-
-    return ProjectCommentSerializer(project_comment).data
+    return None if project_comment is None else ProjectCommentSerializer(project_comment).data
 
 
 def calculate_overview_score(questionnaire_list, project, entity_id):

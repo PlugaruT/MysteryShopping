@@ -14,7 +14,7 @@ class CodedCauseLabelFactory(DjangoModelFactory):
         model = CodedCauseLabel
 
     tenant = SubFactory(TenantFactory)
-    name = FuzzyChoice((1, 2, 3))
+    name = FuzzyText(length=10)
 
 
 class CodedCauseFactory(DjangoModelFactory):

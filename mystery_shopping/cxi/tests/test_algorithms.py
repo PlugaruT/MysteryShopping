@@ -24,7 +24,7 @@ from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSer
 from mystery_shopping.questionnaires.constants import IndicatorQuestionType
 from mystery_shopping.questionnaires.constants import QuestionType
 from mystery_shopping.factories.tenants import TenantFactory
-from mystery_shopping.factories.cxi import CodedCauseFactory
+from mystery_shopping.factories.cxi import CodedCauseFactory, CodedCauseLabelFactory
 
 
 class AlgorithmsTestCase(TestCase):
@@ -381,29 +381,71 @@ class AlgorithmsTestCase(TestCase):
 
     def test_sort_question_by_coded_cause(self):
         coded_causes_dict = defaultdict(list)
-        expected_values = [2, 1, 1]
-        result = list()
 
-        coded_cause_1 = CodedCauseFactory()
-        coded_cause_2 = CodedCauseFactory()
-        coded_cause_3 = CodedCauseFactory()
+        coded_cause_1 = CodedCauseFactory(type="a")
+        coded_cause_2 = CodedCauseFactory(type="b")
+        coded_cause_3 = CodedCauseFactory(type="c")
+
         indicator_question_1 = MagicMock()
         indicator_question_1.id = 11
         coded_causes_dict[coded_cause_1.id].append(indicator_question_1.id)
+
         indicator_question_2 = MagicMock()
         indicator_question_2.id = 22
         coded_causes_dict[coded_cause_1.id].append(indicator_question_2.id)
+
         indicator_question_3 = MagicMock()
         indicator_question_3.id = 33
         coded_causes_dict[coded_cause_2.id].append(indicator_question_3.id)
+
         indicator_question_4 = MagicMock()
         indicator_question_4.id = 44
         coded_causes_dict[coded_cause_3.id].append(indicator_question_4.id)
-        sorted_coded_causes_dict = sort_question_by_coded_cause(coded_causes_dict)
-        for coded_cause in sorted_coded_causes_dict:
-            result.append(coded_cause['count'])
 
-        self.assertListEqual(expected_values, result)
+        result = sort_question_by_coded_cause(coded_causes_dict)
+
+        expected_result = [
+            {
+                'count': 2,
+                'coded_cause': {
+                    'coded_label': {},
+                    'tenant': coded_cause_1.tenant.id,
+                    'type': 'a',
+                    'id': coded_cause_1.id,
+                    'sentiment': coded_cause_1.sentiment,
+                    'parent': None
+                }
+            },
+            {
+                'count': 1,
+                'coded_cause': {
+                    'coded_label': {},
+                    'tenant': coded_cause_2.tenant.id,
+                    'type': 'b',
+                    'id': coded_cause_2.id,
+                    'sentiment': coded_cause_2.sentiment,
+                    'parent': None
+                }
+            },
+            {
+                'count': 1,
+                'coded_cause': {
+                    'coded_label': {},
+                    'tenant': coded_cause_3.tenant.id,
+                    'type': 'c',
+                    'id': coded_cause_3.id,
+                    'sentiment': coded_cause_3.sentiment,
+                    'parent': None
+                }
+            }
+        ]
+
+        self.maxDiff = None
+
+        for item in result:
+            item['coded_cause']['coded_label'] = {}
+
+        self.assertCountEqual(expected_result, result)
 
     def test_collect_data_for_indicator_dashboard(self):
         pass
