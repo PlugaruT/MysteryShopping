@@ -1,18 +1,10 @@
-from collections import defaultdict
-
 from rest_framework import status
 from rest_framework import views
 from rest_framework import viewsets
-from rest_framework.decorators import list_route
 from rest_framework.response import Response
 from rest_condition import Or
 
-from .algorithms import group_questions_by_answer
-from .algorithms import get_indicator_scores
-from .algorithms import calculate_indicator_score
-from .algorithms import calculate_overview_score
-from .algorithms import get_indicator_details
-from .algorithms import collect_data_for_indicator_dashboard
+from mystery_shopping.cxi.algorithms import CollectDataForIndicatorDashboard
 from .algorithms import collect_data_for_overview_dashboard
 from .algorithms import get_project_indicator_questions_list
 from .algorithms import get_company_indicator_questions_list
@@ -20,7 +12,6 @@ from .models import CodedCauseLabel
 from .models import CodedCause
 from .models import ProjectComment
 from mystery_shopping.cxi.serializers import QuestionnaireQuestionToEncodeSerializer
-from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from .serializers import CodedCauseLabelSerializer
 from .serializers import CodedCauseSerializer
 from .serializers import ProjectCommentSerializer
@@ -140,7 +131,7 @@ class IndicatorDashboard(views.APIView):
             }, status.HTTP_400_BAD_REQUEST)
 
         if project is not None:
-            response = collect_data_for_indicator_dashboard(project, entity_id, indicator_type)
+            response = CollectDataForIndicatorDashboard(project, entity_id, indicator_type).build_response()
 
             return Response(response, status.HTTP_200_OK)
 

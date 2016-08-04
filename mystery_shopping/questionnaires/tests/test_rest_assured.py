@@ -13,7 +13,7 @@ from ..serializers import QuestionnaireTemplateBlockSerializer
 from ..serializers import QuestionnaireTemplateQuestionSerializer
 from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFactory
 from mystery_shopping.factories.questionnaires import QuestionnaireTemplateBlockFactory
-from mystery_shopping.factories.questionnaires import QuestionnaireTemplateQuestionFactory
+from mystery_shopping.factories.questionnaires import QuestionTemplateFactory
 from mystery_shopping.factories.users import UserThatIsTenantProductManagerFactory
 from mystery_shopping.factories.tenants import TenantFactory
 
@@ -108,7 +108,7 @@ class QuestionnaireTemplateBlockAPITestCase(ReadWriteRESTAPITestCaseMixin, BaseR
 class QuestionnaireTemplateQuestionAPITestCase(ReadWriteRESTAPITestCaseMixin, BaseRESTAPITestCase):
 
     base_name = 'questionnairetemplatequestion'
-    factory_class = QuestionnaireTemplateQuestionFactory
+    factory_class = QuestionTemplateFactory
     user_factory = UserThatIsTenantProductManagerFactory
 
     def setUp(self):
@@ -135,7 +135,7 @@ class QuestionnaireTemplateQuestionAPITestCase(ReadWriteRESTAPITestCaseMixin, Ba
         sibling_new_order = 2
 
         # Create the first question
-        sibling_question = QuestionnaireTemplateQuestionFactory(
+        sibling_question = QuestionTemplateFactory(
             questionnaire_template=self.object.questionnaire_template, template_block=self.object.template_block, order=1)
 
         # Create another question that should update the first one
@@ -157,7 +157,7 @@ class QuestionnaireTemplateQuestionAPITestCase(ReadWriteRESTAPITestCaseMixin, Ba
         initial_orders = [1, 2, 3, 4]
         siblings = []
         for i in initial_orders:
-            siblings.append(QuestionnaireTemplateQuestionFactory(
+            siblings.append(QuestionTemplateFactory(
                 questionnaire_template=self.object.questionnaire_template,
                 template_block=self.object.template_block, order=i,
                 question_body='Template Question {}'.format(i)))

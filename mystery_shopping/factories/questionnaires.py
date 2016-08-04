@@ -1,7 +1,9 @@
 from factory.django import DjangoModelFactory
-from factory import SubFactory
+from factory import SubFactory, fuzzy
 
-from mystery_shopping.questionnaires.models import QuestionnaireScript
+from mystery_shopping.questionnaires.constants import QuestionType
+from mystery_shopping.questionnaires.models import QuestionnaireScript, Questionnaire, QuestionnaireQuestion, \
+    QuestionnaireBlock
 from mystery_shopping.questionnaires.models import QuestionnaireTemplate
 from mystery_shopping.questionnaires.models import QuestionnaireTemplateBlock
 from mystery_shopping.questionnaires.models import QuestionnaireTemplateQuestion
@@ -36,7 +38,7 @@ class QuestionnaireTemplateBlockFactory(DjangoModelFactory):
     questionnaire_template = SubFactory(QuestionnaireTemplateFactory)
 
 
-class QuestionnaireTemplateQuestionFactory(DjangoModelFactory):
+class QuestionTemplateFactory(DjangoModelFactory):
     class Meta:
         model = QuestionnaireTemplateQuestion
 
@@ -46,3 +48,33 @@ class QuestionnaireTemplateQuestionFactory(DjangoModelFactory):
     weight = 10.0
     questionnaire_template = SubFactory(QuestionnaireTemplateFactory)
     template_block = SubFactory(QuestionnaireTemplateBlockFactory)
+
+
+class QuestionnaireFactory(DjangoModelFactory):
+    class Meta:
+        model = Questionnaire
+
+    title = "Factory Questionnaire Template title"
+    template = SubFactory(QuestionnaireTemplateFactory)
+
+
+class QuestionnaireBlockFactory(DjangoModelFactory):
+    class Meta:
+        model = QuestionnaireBlock
+
+    title = fuzzy.FuzzyText(length=10)
+    weight = fuzzy.FuzzyDecimal(low=1, high=42)
+    order = fuzzy.FuzzyInteger(low=2, high=42)
+
+    template_block = SubFactory(QuestionnaireTemplateBlockFactory)
+
+
+class IndicatorQuestionFactory(DjangoModelFactory):
+    class Meta:
+        model = QuestionnaireQuestion
+
+    order = fuzzy.FuzzyInteger(low=1, high=42)
+    weight = fuzzy.FuzzyDecimal(low=1, high=42)
+    type = QuestionType.INDICATOR_QUESTION
+    questionnaire = SubFactory(QuestionnaireFactory)
+    template_question = SubFactory(QuestionTemplateFactory)
