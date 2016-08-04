@@ -8,6 +8,9 @@ from django.contrib import admin
 from django.views.generic import TemplateView
 from django.views import defaults as default_views
 
+from rest_framework_jwt.views import obtain_jwt_token
+from rest_framework_jwt.views import refresh_jwt_token
+
 from mystery_shopping.common.urls import router as common_router
 from mystery_shopping.companies.urls import router as company_router
 from mystery_shopping.companies.urls import company_router_for_projects
@@ -28,8 +31,8 @@ urlpatterns = [
     # Django Admin, use {% url 'admin:index' %}
     url(settings.ADMIN_URL, include(admin.site.urls)),
 
-    url(r'^api-token-auth/', 'rest_framework_jwt.views.obtain_jwt_token'),
-    url(r'^api-token-refresh/', 'rest_framework_jwt.views.refresh_jwt_token'),
+    url(r'^api-token-auth/', obtain_jwt_token),
+    url(r'^api-token-refresh/', refresh_jwt_token),
 
     # User management
     url(r'^users/', include("mystery_shopping.users.urls", namespace="users")),

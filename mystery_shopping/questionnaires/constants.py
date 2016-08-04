@@ -7,9 +7,4 @@ class QuestionType:
 
 class IndicatorQuestionType:
     INDICATOR_QUESTION = 'i'
-    NPS_QUESTION = 'n'
-    ENJOYABILITY_QUESTION = 'j'
-    EASINESS_QUESTION = 'e'
-    USEFULNESS_QUESTION = 'u'
-    INDICATORS_LIST = [NPS_QUESTION, ENJOYABILITY_QUESTION,
-                      EASINESS_QUESTION, USEFULNESS_QUESTION]
+
