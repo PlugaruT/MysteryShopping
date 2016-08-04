@@ -357,8 +357,7 @@ class CrossIndexTemplateSerializer(serializers.ModelSerializer):
         :param arr: the list to check
         :return: boolean value, True if all elements are unique, False otherwise
         """
-        seen = set()
-        return not any(item in seen or seen.add(item) for item in arr)
+        return len(arr) == len(set(arr))
 
     def update(self, instance, validated_data):
         question_templates = validated_data.pop('cross_index_question_templates', [])
