@@ -6,7 +6,6 @@ from rest_framework.test import APIClient, APITestCase
 from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFactory
 from mystery_shopping.factories.users import TenantProductManagerFactory
 from mystery_shopping.mystery_shopping_utils.jwt import jwt_response_payload_handler
-from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializer
 from mystery_shopping.users.models import User
 
 
@@ -41,29 +40,29 @@ class QuestionnaireTemplateArchiveAPITestCase(APITestCase):
         self.archived_questionnaire = QuestionnaireTemplateFactory(is_archived=True)
         self.unarchived_questionnaire = QuestionnaireTemplateFactory(is_archived=False)
 
-        self.user = AuthenticateUser().client
+        self.client = AuthenticateUser().client
 
     def test_get_archived_questionnaires(self):
-        response = self.user.get(reverse('questionnairetemplate-get-archived'))
+        response = self.client.get(reverse('questionnairetemplate-get-archived'))
         for questionnaire in response.data:
             self.assertTrue(questionnaire.get('is_archived'))
 
-    def test_archive_questionnaire(self):
-        self.user.put(reverse('questionnairetemplate-archive', args=(self.unarchived_questionnaire.id,)))
+    def test_archive_unarchived_questionnaire(self):
+        self.client.put(reverse('questionnairetemplate-archive', args=(self.unarchived_questionnaire.id,)))
         self.unarchived_questionnaire.refresh_from_db()
         self.assertTrue(self.unarchived_questionnaire.is_archived)
 
-    def test_unarchive_questionnaire(self):
-        self.user.put(reverse('questionnairetemplate-unarchive', args=(self.archived_questionnaire.id,)))
+    def test_unarchive_archived_questionnaire(self):
+        self.client.put(reverse('questionnairetemplate-unarchive', args=(self.archived_questionnaire.id,)))
         self.archived_questionnaire.refresh_from_db()
         self.assertFalse(self.archived_questionnaire.is_archived)
 
     def test_archive_archived_questionnaire(self):
-        self.user.put(reverse('questionnairetemplate-archive', args=(self.archived_questionnaire.id,)))
+        self.client.put(reverse('questionnairetemplate-archive', args=(self.archived_questionnaire.id,)))
         self.archived_questionnaire.refresh_from_db()
         self.assertTrue(self.archived_questionnaire.is_archived)
 
     def test_unarchive_unarchived_questionnaire(self):
-        self.user.put(reverse('questionnairetemplate-unarchive', args=(self.unarchived_questionnaire.id,)))
+        self.client.put(reverse('questionnairetemplate-unarchive', args=(self.unarchived_questionnaire.id,)))
         self.unarchived_questionnaire.refresh_from_db()
         self.assertFalse(self.unarchived_questionnaire.is_archived)
