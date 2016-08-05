@@ -208,7 +208,7 @@ class QuestionAbstract(models.Model):
     order = models.PositiveIntegerField()
     weight = models.DecimalField(max_digits=5, decimal_places=2)
     show_comment = models.BooleanField(default=True)
-    additional_info = models.CharField(max_length=30, blank=Tenant)
+    additional_info = models.CharField(max_length=30, blank=True)
 
     class Meta:
         abstract = True

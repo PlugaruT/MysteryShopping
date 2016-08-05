@@ -5,7 +5,8 @@ from mystery_shopping.cxi.algorithms import CollectDataForIndicatorDashboard
 from mystery_shopping.factories.companies import EntityFactory
 from mystery_shopping.factories.projects import ResearchMethodologyFactory, ProjectFactory, EvaluationFactory
 from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFactory, QuestionnaireFactory, \
-    IndicatorQuestionFactory, QuestionnaireBlockFactory, QuestionTemplateFactory
+    IndicatorQuestionFactory, QuestionnaireBlockFactory, QuestionTemplateFactory, QuestionTemplateQuestionChoiceFactory, \
+    QuestionFactory, ChoiceFactory
 from mystery_shopping.projects.models import Project
 from mystery_shopping.questionnaires.models import Questionnaire
 
@@ -36,22 +37,28 @@ class TestClassConstructor(TestCase):
 class TestBuildResponse(TestCase):
     def setUp(self):
         # Dependency between QuestionnaireTemplate and ResearchMethodology
-        questionnaire_template = QuestionnaireTemplateFactory.create()
+        self.questionnaire_template = QuestionnaireTemplateFactory.create()
         research_methodology = ResearchMethodologyFactory.create()
-        research_methodology.questionnaires.add(questionnaire_template)
+        research_methodology.questionnaires.add(self.questionnaire_template)
 
-        self.question_template = QuestionTemplateFactory.create(questionnaire_template=questionnaire_template)
+        self.indicator_type = 'random'
+
+        self.entity = EntityFactory.create()
+        self.template_indicator_question = QuestionTemplateFactory.create(
+            questionnaire_template=self.questionnaire_template, type='i', additional_info=self.indicator_type)
 
         # Dependency between Project and ResearchMethodology
         self.project = ProjectFactory.create(research_methodology=research_methodology)
 
         # Dependency between Project Evaluation and Questionnaire
-        self.questionnaire1 = QuestionnaireFactory.create(template=questionnaire_template, title='first')
-        self.evaluation1 = EvaluationFactory.create(project=self.project, questionnaire=self.questionnaire1)
-        self.questionnaire2 = QuestionnaireFactory.create(template=questionnaire_template, title='second')
-        self.evaluation2 = EvaluationFactory.create(project=self.project, questionnaire=self.questionnaire2)
+        self.questionnaire1 = QuestionnaireFactory.create(template=self.questionnaire_template, title='first')
+        self.evaluation1 = EvaluationFactory.create(project=self.project, questionnaire=self.questionnaire1,
+                                                    entity=self.entity)
+        self.questionnaire2 = QuestionnaireFactory.create(template=self.questionnaire_template, title='second')
+        self.evaluation2 = EvaluationFactory.create(project=self.project, questionnaire=self.questionnaire2,
+                                                    entity=self.entity)
 
-    def _test_when_there_are_no_indicator_questions(self):
+    def test_when_there_are_no_indicator_questions(self):
         indicator_type = fuzzy.FuzzyText(length=10)
         expected_result = {
             'details': [],
@@ -67,10 +74,10 @@ class TestBuildResponse(TestCase):
         result = CollectDataForIndicatorDashboard(self.project, None, indicator_type).build_response()
         self.assertDictEqual(result, expected_result)
 
-    def test_when_there_are_two_indicator_questions_and_the_given_entity_is_none(self):
-        indicator_type = 'random type'
-        indicator_question = self._generate_first_indicator_question(indicator_type, 6)
-        indicator_question = self._generate_second_indicator_question(indicator_type, 8)
+    def test_when_there_is_one_indicator_questions_and_the_given_entity_is_none(self):
+        self._generate_first_indicator_question(self.indicator_type, 6, self.template_indicator_question)
+        self._generate_second_indicator_question(self.indicator_type, 8, self.template_indicator_question)
+
         expected_result = {
             'details': [{
                 'item_label': 'Entities',
@@ -83,7 +90,7 @@ class TestBuildResponse(TestCase):
                     },
                     'number_of_respondents': 2,
                     'choice': 'Aladeen',
-                    'other_answer_choices': indicator_question.id
+                    'other_answer_choices': self.entity.id
                 }]
             }],
             'gauge': {
@@ -97,22 +104,141 @@ class TestBuildResponse(TestCase):
         }
         self.maxDiff = None
 
-        result = CollectDataForIndicatorDashboard(self.project, None, indicator_type).build_response()
+        result = CollectDataForIndicatorDashboard(self.project, None, self.indicator_type).build_response()
         self.assertDictEqual(result, expected_result)
 
-    def _generate_first_indicator_question(self, additional_info, score):
+    def test_when_there_is_one_indicator_questions_and_entity_is_givem(self):
+        self.evaluation2.entity = EntityFactory(name='demo1')
+        self.evaluation2.save()
+        self._generate_first_indicator_question(self.indicator_type, 6, self.template_indicator_question)
+        self._generate_second_indicator_question(self.indicator_type, 8, self.template_indicator_question)
+
+        expected_result = {
+            'gauge': {
+                'detractors': 100.0,
+                'promoters': 0.0,
+                'passives': 0.0,
+                'indicator': -100.0,
+                'general_indicator': -50.0
+            },
+            'coded_causes': [],
+            'details': [{
+                'item_label': 'Entities',
+                'results': [{
+                    'score': {
+                        'detractors': 100.0, 'promoters': 0.0,
+                                                                          'passives': 0.0, 'indicator': -100.0},
+                                                                'other_answer_choices': self.entity.id,
+                                                                'number_of_respondents':
+                                                                    1, 'choice': 'Aladeen'}]}], 'project_comment': None}
+
+        self.maxDiff = None
+        result = CollectDataForIndicatorDashboard(self.project, self.entity.id, self.indicator_type).build_response()
+        self.assertDictEqual(expected_result, result)
+
+    def test_when_there_is_one_indicator_questions_and_one_single_choice_question__and_the_given_entity_is_none(self):
+        self._generate_first_indicator_question(self.indicator_type, 6, self.template_indicator_question)
+        self._generate_second_indicator_question(self.indicator_type, 8, self.template_indicator_question)
+        question_template = QuestionTemplateFactory(type='s', questionnaire_template=self.questionnaire_template)
+        question_temlate_choice1 = QuestionTemplateQuestionChoiceFactory(text='choice 1',
+                                                                         template_question=question_template)
+        question_temlate_choice2 = QuestionTemplateQuestionChoiceFactory(text='choice 2',
+                                                                         template_question=question_template)
+
+        question1 = QuestionFactory.create(type='s', question_body='question 1', template_question=question_template)
+        question2 = QuestionFactory.create(type='s', question_body='question 2', template_question=question_template)
+
+        choice_11 = ChoiceFactory(text='choice 1', question=question1)
+        choice_12 = ChoiceFactory(text='choice 2', question=question1)
+
+        question1.answer = choice_11.text
+        question1.answer_choices = [choice_11.id]
+
+        choice_21 = ChoiceFactory(text='choice 1', question=question2)
+        choice_22 = ChoiceFactory(text='choice 2', question=question2)
+
+        question2.answer = choice_22.text
+        question2.answer_choices = [choice_22.id]
+
+        question1.save()
+        question2.save()
+        import pdb
+        # pdb.set_trace()
+
+        expected_result = {
+            'details': [{
+                'item_label': 'Question From Factory',
+                'results': [
+                    {
+                        'score': {
+                            'promoters': None,
+                            'detractors': None,
+                            'indicator': None,
+                            'passives': None
+                        },
+                        'number_of_respondents': 0,
+                        'other_answer_choices': [],
+                        'choice': question_temlate_choice1.text
+                    },
+                    {
+                        'score': {
+                            'promoters': None,
+                            'detractors': None,
+                            'indicator': None,
+                            'passives': None
+                        },
+                        'number_of_respondents': 0,
+                        'other_answer_choices': [],
+                        'choice': question_temlate_choice2.text
+                    }
+                ]
+            },
+                {
+                'item_label': 'Entities',
+                'results': [
+                    {
+                        'score': {
+                            'promoters': 0.0,
+                            'detractors': 50.0,
+                            'indicator': -50.0,
+                            'passives': 50.0
+                        },
+                        'number_of_respondents': 2,
+                        'other_answer_choices': self.entity.id,
+                        'choice': 'Aladeen'
+                    }
+                ]
+            }
+            ],
+            'project_comment': None,
+            'coded_causes': [],
+            'gauge': {
+                'promoters': 0.0,
+                'detractors': 50.0,
+                'indicator': -50.0,
+                'passives': 50.0
+            }
+        }
+
+        self.maxDiff = None
+        result = CollectDataForIndicatorDashboard(self.project, None, self.indicator_type).build_response()
+        print(result)
+        self.assertDictEqual(result, expected_result)
+
+    def _generate_first_indicator_question(self, additional_info, score, question_template):
         block1 = QuestionnaireBlockFactory(questionnaire=self.questionnaire1)
         return IndicatorQuestionFactory.create(questionnaire=self.questionnaire1,
                                                block=block1,
                                                additional_info=additional_info,
                                                score=score,
-                                               template_question=self.question_template)
+                                               template_question=question_template, type='i')
 
-    def _generate_second_indicator_question(self, additional_info, score):
+    def _generate_second_indicator_question(self, additional_info, score, question_template):
         block2 = QuestionnaireBlockFactory(questionnaire=self.questionnaire2)
         return IndicatorQuestionFactory.create(questionnaire=self.questionnaire2,
                                                block=block2,
                                                additional_info=additional_info,
                                                score=score,
-                                               template_question=self.question_template)
+                                               template_question=question_template, type='i')
+
 

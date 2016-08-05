@@ -3,7 +3,7 @@ from factory import SubFactory, fuzzy
 
 from mystery_shopping.questionnaires.constants import QuestionType
 from mystery_shopping.questionnaires.models import QuestionnaireScript, Questionnaire, QuestionnaireQuestion, \
-    QuestionnaireBlock
+    QuestionnaireBlock, QuestionnaireTemplateQuestionChoice, QuestionnaireQuestionChoice
 from mystery_shopping.questionnaires.models import QuestionnaireTemplate
 from mystery_shopping.questionnaires.models import QuestionnaireTemplateBlock
 from mystery_shopping.questionnaires.models import QuestionnaireTemplateQuestion
@@ -50,6 +50,15 @@ class QuestionTemplateFactory(DjangoModelFactory):
     template_block = SubFactory(QuestionnaireTemplateBlockFactory)
 
 
+class QuestionTemplateQuestionChoiceFactory(DjangoModelFactory):
+    class Meta:
+        model = QuestionnaireTemplateQuestionChoice
+
+    text = 'something here'
+    order = 42
+    template_question = SubFactory(QuestionTemplateFactory)
+
+
 class QuestionnaireFactory(DjangoModelFactory):
     class Meta:
         model = Questionnaire
@@ -65,7 +74,7 @@ class QuestionnaireBlockFactory(DjangoModelFactory):
     title = fuzzy.FuzzyText(length=10)
     weight = fuzzy.FuzzyDecimal(low=1, high=42)
     order = fuzzy.FuzzyInteger(low=2, high=42)
-
+    questionnaire = SubFactory(QuestionnaireFactory)
     template_block = SubFactory(QuestionnaireTemplateBlockFactory)
 
 
@@ -78,3 +87,24 @@ class IndicatorQuestionFactory(DjangoModelFactory):
     type = QuestionType.INDICATOR_QUESTION
     questionnaire = SubFactory(QuestionnaireFactory)
     template_question = SubFactory(QuestionTemplateFactory)
+    block = SubFactory(QuestionnaireBlockFactory)
+
+
+class QuestionFactory(DjangoModelFactory):
+    class Meta:
+        model = QuestionnaireQuestion
+
+    order = fuzzy.FuzzyInteger(low=1, high=42)
+    weight = fuzzy.FuzzyDecimal(low=1, high=42)
+    type = QuestionType.SINGLE_CHOICE
+    questionnaire = SubFactory(QuestionnaireFactory)
+    template_question = SubFactory(QuestionTemplateFactory)
+    block = SubFactory(QuestionnaireBlockFactory)
+
+
+class ChoiceFactory(DjangoModelFactory):
+    class Meta:
+        model = QuestionnaireQuestionChoice
+
+    question = SubFactory(QuestionFactory)
+    order = fuzzy.FuzzyInteger(low=1, high=42)
