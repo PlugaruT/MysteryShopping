@@ -2,16 +2,11 @@ import json
 from decimal import Decimal
 
 from rest_framework.reverse import reverse
-from rest_framework.settings import api_settings
-from rest_framework.test import APIRequestFactory, APIClient, APITestCase
 
 from rest_assured.testcases import CreateAPITestCaseMixin
 from rest_assured.testcases import ReadWriteRESTAPITestCaseMixin
 from rest_assured.testcases import BaseRESTAPITestCase
 
-from mystery_shopping.mystery_shopping_utils.jwt import jwt_response_payload_handler
-from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializer
-from mystery_shopping.users.models import User
 from ..models import QuestionnaireTemplateBlock
 from ..models import QuestionnaireTemplateQuestion
 from ..serializers import QuestionnaireTemplateBlockSerializer
@@ -19,7 +14,7 @@ from ..serializers import QuestionnaireTemplateQuestionSerializer
 from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFactory
 from mystery_shopping.factories.questionnaires import QuestionnaireTemplateBlockFactory
 from mystery_shopping.factories.questionnaires import QuestionnaireTemplateQuestionFactory
-from mystery_shopping.factories.users import UserThatIsTenantProductManagerFactory, TenantProductManagerFactory
+from mystery_shopping.factories.users import UserThatIsTenantProductManagerFactory
 from mystery_shopping.factories.tenants import TenantFactory
 
 
@@ -37,64 +32,6 @@ class QuestionnaireTemplateAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCa
         self.data = self.json_data[1]
         self.data['tenant'] = tenant.id
         return self.data
-
-
-class AuthenticateUser:
-    def __init__(self):
-        api_settings.JWT_RESPONSE_PAYLOAD_HANDLER = jwt_response_payload_handler
-        self.credentials = {
-            'username': 'consultant11',
-            'password': 'moldova123'
-        }
-        self._set_user()
-        self._attach_tennant_product_manager_to_user()
-        self._set_client()
-
-    def _set_user(self):
-        self.user, _ = User.objects.get_or_create(username=self.credentials.get('username'))
-        self.user.set_password(self.credentials.get('password'))
-        self.user.save()
-
-    def _attach_tennant_product_manager_to_user(self):
-        TenantProductManagerFactory(user=self.user)
-
-    def _set_client(self):
-        self.client = APIClient(enforce_csrf_checks=True)
-        response = self.client.post('/api-token-auth/', self.credentials, format='json')
-        self.client.credentials(HTTP_AUTHORIZATION='JWT ' + response.data['token'])
-
-
-class QuestionnaireTemplateArchiveAPITestCase(APITestCase):
-
-    def setUp(self):
-        self.questionnaire1 = QuestionnaireTemplateFactory(is_archived=True)
-        self.questionnaire2 = QuestionnaireTemplateFactory(is_archived=False)
-        self.serializer = QuestionnaireTemplateSerializer(self.questionnaire1)
-        self.factory = APIRequestFactory()
-
-        self.user = AuthenticateUser().client
-
-    def test_get_archived_questionnaires(self):
-        response = self.user.get(reverse('questionnairetemplate-get-archived'))
-        for questionnaire in response.data:
-            self.assertTrue(questionnaire.get('is_archived'))
-
-    def test_archive_questionnaire(self):
-        self.user.post(reverse('questionnairetemplate-archive', args=(self.questionnaire2.id,)))
-        self.questionnaire2.refresh_from_db()
-        self.assertTrue(self.questionnaire2.is_archived)
-
-    def test_unarchive_questionnaire(self):
-        self.user.post(reverse('questionnairetemplate-unarchive', args=(self.questionnaire1.id,)))
-        self.questionnaire1.refresh_from_db()
-        self.assertFalse(self.questionnaire1.is_archived)
-
-    def test_when_archive_and_then_unarchive_questionnaire(self):
-        self.user.post(reverse('questionnairetemplate-archive', args=(self.questionnaire2.id,)))
-        self.questionnaire2.refresh_from_db()
-        self.user.post(reverse('questionnairetemplate-unarchive', args=(self.questionnaire2.id,)))
-        self.questionnaire2.refresh_from_db()
-        self.assertFalse(self.questionnaire2.is_archived)
 
 
 class QuestionnaireTemplateBlockAPITestCase(ReadWriteRESTAPITestCaseMixin, BaseRESTAPITestCase):

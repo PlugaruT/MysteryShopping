@@ -74,14 +74,14 @@ class QuestionnaireTemplateViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    @detail_route(methods=['post'])
+    @detail_route(methods=['put'])
     def archive(self, request, pk=None):
         questionnaire = get_object_or_404(QuestionnaireTemplate, pk=pk)
         questionnaire.archive()
         questionnaire.save()
         return Response(status=status.HTTP_202_ACCEPTED)
 
-    @detail_route(methods=['post'])
+    @detail_route(methods=['put'])
     def unarchive(self, request, pk=None):
         questionnaire = get_object_or_404(QuestionnaireTemplate, pk=pk)
         questionnaire.unarchive()
