@@ -60,6 +60,7 @@ class QuestionnaireTemplate(QuestionnaireAbstract):
     # Attributes
     description = models.TextField()
     is_editable = models.BooleanField(default=True)
+    is_archived = models.BooleanField(default=False)
 
     def __str__(self):
         return 'Title: {}'.format(self.title)
@@ -70,6 +71,11 @@ class QuestionnaireTemplate(QuestionnaireAbstract):
         except:
             return None
 
+    def archive(self):
+        self.is_archived = True
+
+    def unarchive(self):
+        self.is_archived = False
 
 class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
     """

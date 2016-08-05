@@ -1,9 +1,8 @@
 from django.shortcuts import get_object_or_404
-from django.shortcuts import redirect
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.decorators import list_route
+from rest_framework.decorators import list_route, detail_route
 from rest_condition import Or
 
 from .models import QuestionnaireScript
@@ -31,7 +30,6 @@ from .serializers import CrossIndexSerializer
 from .serializers import QuestionnaireSimpleSerializer
 from .serializers import QuestionSimpleSerializer
 from .serializers import BlockSimpleSerializer
-from .constants import IndicatorQuestionType
 
 from mystery_shopping.users.permissions import IsTenantProductManager
 from mystery_shopping.users.permissions import IsTenantProjectManager
@@ -69,6 +67,32 @@ class QuestionnaireTemplateViewSet(viewsets.ModelViewSet):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    @list_route(methods=['get'])
+    def get_archived(self, request):
+        queryset = self.queryset.filter(is_archived=True)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @list_route(methods=['get'])
+    def get_unarchived(self, request):
+        queryset = self.queryset.filter(is_archived=False)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @detail_route(methods=['put'])
+    def archive(self, request, pk=None):
+        questionnaire = get_object_or_404(QuestionnaireTemplate, pk=pk)
+        questionnaire.archive()
+        questionnaire.save()
+        return Response(status=status.HTTP_202_ACCEPTED)
+
+    @detail_route(methods=['put'])
+    def unarchive(self, request, pk=None):
+        questionnaire = get_object_or_404(QuestionnaireTemplate, pk=pk)
+        questionnaire.unarchive()
+        questionnaire.save()
+        return Response(status=status.HTTP_202_ACCEPTED)
 
 
 class QuestionnaireViewSet(viewsets.ModelViewSet):
