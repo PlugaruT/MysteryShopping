@@ -74,6 +74,12 @@ class QuestionnaireTemplateViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
+    @list_route(methods=['get'])
+    def get_unarchived(self, request):
+        queryset = self.queryset.filter(is_archived=False)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
     @detail_route(methods=['put'])
     def archive(self, request, pk=None):
         questionnaire = get_object_or_404(QuestionnaireTemplate, pk=pk)

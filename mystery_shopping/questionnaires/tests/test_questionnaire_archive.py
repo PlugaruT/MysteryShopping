@@ -47,6 +47,11 @@ class QuestionnaireTemplateArchiveAPITestCase(APITestCase):
         for questionnaire in response.data:
             self.assertTrue(questionnaire.get('is_archived'))
 
+    def test_get_unarchived_questionnaires(self):
+        response = self.client.get(reverse('questionnairetemplate-get-unarchived'))
+        for questionnaire in response.data:
+            self.assertFalse(questionnaire.get('is_archived'))
+
     def test_archive_unarchived_questionnaire(self):
         self.client.put(reverse('questionnairetemplate-archive', args=(self.unarchived_questionnaire.id,)))
         self.unarchived_questionnaire.refresh_from_db()
