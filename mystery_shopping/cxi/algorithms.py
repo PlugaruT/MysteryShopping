@@ -317,13 +317,7 @@ class CollectDataForIndicatorDashboard:
 
 
 def collect_data_for_overview_dashboard(project, entity_id):
-    try:
-        entity = Entity.objects.get(pk=entity_id)
-    except Entity.DoesNotExist:
-        entity = None
-
-    questionnaire_list = Questionnaire.objects.get_project_questionnaires_for_entity(project, entity)
-
+    questionnaire_list = Questionnaire.objects.get_project_questionnaires_for_entity(project, entity_id)
     return calculate_overview_score(questionnaire_list, project, entity_id)
 
 
