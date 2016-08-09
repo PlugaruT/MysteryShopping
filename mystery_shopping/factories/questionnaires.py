@@ -1,7 +1,7 @@
 from factory.django import DjangoModelFactory
 from factory import SubFactory
 
-from mystery_shopping.questionnaires.models import QuestionnaireScript
+from mystery_shopping.questionnaires.models import QuestionnaireScript, QuestionnaireTemplateQuestionChoice
 from mystery_shopping.questionnaires.models import QuestionnaireTemplate
 from mystery_shopping.questionnaires.models import QuestionnaireTemplateBlock
 from mystery_shopping.questionnaires.models import QuestionnaireTemplateQuestion
@@ -46,3 +46,12 @@ class QuestionnaireTemplateQuestionFactory(DjangoModelFactory):
     weight = 10.0
     questionnaire_template = SubFactory(QuestionnaireTemplateFactory)
     template_block = SubFactory(QuestionnaireTemplateBlockFactory)
+
+
+class QuestionnaireTemplateQuestionChoiceFactory(DjangoModelFactory):
+    class Meta:
+        model = QuestionnaireTemplateQuestionChoice
+
+    template_question = SubFactory(QuestionnaireTemplateQuestionFactory)
+    text = 'question choice from factory'
+    order = 1

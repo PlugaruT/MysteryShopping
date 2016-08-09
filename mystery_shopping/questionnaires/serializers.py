@@ -14,7 +14,7 @@ from .models import QuestionnaireQuestionChoice
 from .models import CrossIndexTemplate
 from .models import CrossIndex
 from .models import CrossIndexQuestionTemplate
-from .models import CrossIndexQuestion
+from .utils import update_attributes
 
 
 class QuestionnaireTemplateQuestionChoiceSerializer(serializers.ModelSerializer):
@@ -24,6 +24,13 @@ class QuestionnaireTemplateQuestionChoiceSerializer(serializers.ModelSerializer)
         model = QuestionnaireTemplateQuestionChoice
         fields = '__all__'
         extra_kwargs = {'template_question': {'required': False}}
+
+    def update(self, instance, validated_data):
+        if instance.template_question.questionnaire_template.is_editable:
+            update_attributes(validated_data, instance)
+        else:
+            raise serializers.ValidationError('You are not allowed to modify this question')
+        return instance
 
 
 class QuestionnaireQuestionChoiceSerializer(serializers.ModelSerializer):
@@ -74,9 +81,7 @@ class QuestionnaireQuestionSerializer(serializers.ModelSerializer):
         # instance.prepare_to_update()
         validated_data.pop('question_choices', [])
 
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
+        update_attributes(validated_data, instance)
         return instance
 
 
@@ -148,9 +153,7 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
                         setattr(question_to_update, attr, value)
                     question_to_update.save()
 
-            for attr, value in validated_data.items():
-                setattr(instance, attr, value)
-            instance.save()
+            update_attributes(validated_data, instance)
         else:
             raise serializers.ValidationError('You are not allowed to modify this question')
         return instance
@@ -188,9 +191,7 @@ class QuestionnaireBlockSerializer(serializers.ModelSerializer):
         return block
 
     def update(self, instance, validated_data):
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
+        update_attributes(validated_data, instance)
         return instance
 
 
@@ -253,9 +254,7 @@ class QuestionnaireTemplateBlockSerializer(serializers.ModelSerializer):
                         setattr(block_to_update, attr, value)
                     block_to_update.save()
 
-            for attr, value in validated_data.items():
-                setattr(instance, attr, value)
-            instance.save()
+            update_attributes(validated_data, instance)
         else:
             raise serializers.ValidationError('You are not allowed to do this action')
         return instance
@@ -375,9 +374,7 @@ class CrossIndexTemplateSerializer(serializers.ModelSerializer):
             CrossIndexQuestionTemplate.objects.create(cross_index_template=instance,
                                                       question_template=question_template['question_template'],
                                                       weight=question_template['weight'])
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
+        update_attributes(validated_data, instance)
         return instance
 
 
@@ -434,9 +431,7 @@ class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
             if pop_blocks:
                 validated_data.pop('template_blocks')
             if self.instance.is_editable:
-                for attr, value in validated_data.items():
-                    setattr(instance, attr, value)
-                instance.save()
+                update_attributes(validated_data, instance)
         else:
             raise serializers.ValidationError('You are not allowed to do this action')
         return instance

@@ -77,6 +77,7 @@ class QuestionnaireTemplate(QuestionnaireAbstract):
     def unarchive(self):
         self.is_archived = False
 
+
 class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
     """
     The questionnaires that will contain answers.
