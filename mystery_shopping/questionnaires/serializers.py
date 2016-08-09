@@ -320,7 +320,8 @@ class CrossIndexTemplateSerializer(serializers.ModelSerializer):
     """
 
     """
-    question_templates = CrossIndexQuestionTemplateSerializer(source='cross_index_question_templates', many=True, required=False)
+    template_questions = CrossIndexQuestionTemplateSerializer(source='cross_index_question_templates', many=True,
+                                                      required=False)
 
     class Meta:
         model = CrossIndexTemplate
