@@ -1,0 +1,8 @@
+machine:
+  python:
+    version: 3.4.3
+  environment:
+    DJANGO_SETTINGS_MODULE: config.settings.test
+dependencies:
+  override:
+    - yes w | pip install -r requirements/local.txt
