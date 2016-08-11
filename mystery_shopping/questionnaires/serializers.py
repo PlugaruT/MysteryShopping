@@ -16,6 +16,7 @@ from .models import CrossIndex
 from .models import CrossIndexQuestionTemplate
 from .utils import update_attributes
 
+
 class QuestionnaireTemplateQuestionChoiceSerializer(serializers.ModelSerializer):
     """
     """
@@ -25,10 +26,9 @@ class QuestionnaireTemplateQuestionChoiceSerializer(serializers.ModelSerializer)
         extra_kwargs = {'template_question': {'required': False}}
 
     def update(self, instance, validated_data):
-        if instance.template_question.questionnaire_template.is_editable:
-            update_attributes(validated_data, instance)
-        else:
-            raise serializers.ValidationError('You are not allowed to modify this question')
+        if not instance.template_question.questionnaire_template.is_editable:
+            raise serializers.ValidationError('You are not allowed to do this action')
+        update_attributes(validated_data, instance)
         return instance
 
 
@@ -127,34 +127,33 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
         raise serializers.ValidationError('The Questionnaire Template this Question belongs to is not editable')
 
     def update(self, instance, validated_data):
-        if instance.questionnaire_template.is_editable:
-            # Delete all template question choices
-            instance.prepare_to_update()
-            template_question_choices = validated_data.pop('template_question_choices', [])
-            # Create the 'new' template question choices
-            for template_question_choice in template_question_choices:
-                template_question_choice['template_question'] = instance.id
-                template_question_choice_ser = QuestionnaireTemplateQuestionChoiceSerializer(
-                    data=template_question_choice)
-                template_question_choice_ser.is_valid(raise_exception=True)
-                template_question_choice_ser.save()
+        if not instance.questionnaire_template.is_editable:
+            raise serializers.ValidationError('You are not allowed to do this action')
+        # Delete all template question choices
+        instance.prepare_to_update()
+        template_question_choices = validated_data.pop('template_question_choices', [])
+        # Create the 'new' template question choices
+        for template_question_choice in template_question_choices:
+            template_question_choice['template_question'] = instance.id
+            template_question_choice_ser = QuestionnaireTemplateQuestionChoiceSerializer(
+                data=template_question_choice)
+            template_question_choice_ser.is_valid(raise_exception=True)
+            template_question_choice_ser.save()
 
-            siblings_to_update = validated_data.pop('siblings', [])
-            for sibling in siblings_to_update:
-                question_id = sibling.pop('question_id')
-                # Check if the questions are from the same questionnaire template block
-                question_to_update = QuestionnaireTemplateQuestion.objects.filter(pk=question_id,
-                                                                                  template_block=validated_data[
-                                                                                      'template_block']).first()
+        siblings_to_update = validated_data.pop('siblings', [])
+        for sibling in siblings_to_update:
+            question_id = sibling.pop('question_id')
+            # Check if the questions are from the same questionnaire template block
+            question_to_update = QuestionnaireTemplateQuestion.objects.filter(pk=question_id,
+                                                                              template_block=validated_data[
+                                                                                  'template_block']).first()
 
-                if question_to_update is not None:
-                    for attr, value in sibling['question_changes'].items():
-                        setattr(question_to_update, attr, value)
-                    question_to_update.save()
+            if question_to_update is not None:
+                for attr, value in sibling['question_changes'].items():
+                    setattr(question_to_update, attr, value)
+                question_to_update.save()
 
-            update_attributes(validated_data, instance)
-        else:
-            raise serializers.ValidationError('You are not allowed to modify this question')
+        update_attributes(validated_data, instance)
         return instance
 
 
@@ -240,21 +239,21 @@ class QuestionnaireTemplateBlockSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         template_questions = validated_data.pop('template_questions', list())
-        if instance.questionnaire_template.is_editable:
-            # Get the block siblings to update
-            siblings = validated_data.pop('siblings', [])
-            for sibling in siblings:
-                block_id = sibling.pop('block_id')
-                # Check if blocks are from the same questionnaire template
-                block_to_update = QuestionnaireTemplateBlock.objects.filter(pk=block_id, questionnaire_template=validated_data['questionnaire_template']).first()
 
-                if block_to_update is not None:
-                    for attr, value in sibling['block_changes'].items():
-                        setattr(block_to_update, attr, value)
-                    block_to_update.save()
-            update_attributes(validated_data, instance)
-        else:
+        if not instance.questionnaire_template.is_editable:
             raise serializers.ValidationError('You are not allowed to do this action')
+        # Get the block siblings to update
+        siblings = validated_data.pop('siblings', [])
+        for sibling in siblings:
+            block_id = sibling.pop('block_id')
+            # Check if blocks are from the same questionnaire template
+            block_to_update = QuestionnaireTemplateBlock.objects.filter(pk=block_id, questionnaire_template=validated_data['questionnaire_template']).first()
+
+            if block_to_update is not None:
+                for attr, value in sibling['block_changes'].items():
+                    setattr(block_to_update, attr, value)
+                block_to_update.save()
+        update_attributes(validated_data, instance)
         return instance
 
 
@@ -423,15 +422,15 @@ class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         # If template blocks is a list of ordered dicts, pop it from validated_data
         # so that it won't throw an error on update.
-        if instance.is_editable:
-            template_blocks = validated_data.get('template_blocks', [])
-            pop_blocks = len(template_blocks) > 0 and isinstance(template_blocks[0], OrderedDict)
-            if pop_blocks:
-                validated_data.pop('template_blocks')
-            if self.instance.is_editable:
-                update_attributes(validated_data, instance)
-        else:
+        if not instance.is_editable:
             raise serializers.ValidationError('You are not allowed to do this action')
+
+        template_blocks = validated_data.get('template_blocks', [])
+        pop_blocks = len(template_blocks) > 0 and isinstance(template_blocks[0], OrderedDict)
+        if pop_blocks:
+            validated_data.pop('template_blocks')
+        if self.instance.is_editable:
+            update_attributes(validated_data, instance)
         return instance
 
 
