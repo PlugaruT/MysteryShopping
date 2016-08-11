@@ -16,7 +16,6 @@ ipdb==0.8.1
 awsebcli==3.7.6
 
 # test
-coverage==4.0.2
 flake8==2.5.0
 django-test-plus==1.0.9
 factory_boy==2.6.0
