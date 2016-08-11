@@ -128,6 +128,8 @@ class Evaluation(TimeStampedModel, models.Model):
     suggested_start_date = models.DateTimeField(null=True)
     suggested_end_date = models.DateTimeField(null=True)
 
+    visit_time = models.DateTimeField(null=True)
+
     STATUS = Choices((ProjectStatus.PLANNED, 'Planned'),
                      (ProjectStatus.DRAFT, 'Draft'),
                      (ProjectStatus.SUBMITTED, 'Submitted'),
