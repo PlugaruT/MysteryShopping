@@ -14,7 +14,6 @@ from .models import QuestionnaireQuestionChoice
 from .models import CrossIndexTemplate
 from .models import CrossIndex
 from .models import CrossIndexQuestionTemplate
-from .models import CrossIndexQuestion
 
 
 class QuestionnaireTemplateQuestionChoiceSerializer(serializers.ModelSerializer):
@@ -24,6 +23,15 @@ class QuestionnaireTemplateQuestionChoiceSerializer(serializers.ModelSerializer)
         model = QuestionnaireTemplateQuestionChoice
         fields = '__all__'
         extra_kwargs = {'template_question': {'required': False}}
+
+    def update(self, instance, validated_data):
+        if instance.template_question.is_editable:
+            for attr, value in validated_data.items():
+                setattr(instance, attr, value)
+            instance.save()
+        else:
+            raise serializers.ValidationError('You are not allowed to modify this question')
+        return instance
 
 
 class QuestionnaireQuestionChoiceSerializer(serializers.ModelSerializer):
@@ -71,7 +79,6 @@ class QuestionnaireQuestionSerializer(serializers.ModelSerializer):
         return question
 
     def update(self, instance, validated_data):
-
         # instance.prepare_to_update()
         validated_data.pop('question_choices', [])
 
@@ -102,7 +109,9 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
             for sibling in siblings_to_update:
                 question_id = sibling.pop('question_id', None)
                 # Check if the questions are from the same questionnaire template block
-                question_to_update = QuestionnaireTemplateQuestion.objects.filter(pk=question_id, template_block=validated_data['template_block']).first()
+                question_to_update = QuestionnaireTemplateQuestion.objects.filter(pk=question_id,
+                                                                                  template_block=validated_data[
+                                                                                      'template_block']).first()
 
                 if question_to_update is not None:
                     for attr, value in sibling['question_changes'].items():
@@ -113,7 +122,8 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
 
             for template_question_choice in template_question_choices:
                 template_question_choice['template_question'] = template_question.id
-                template_question_choice_ser = QuestionnaireTemplateQuestionChoiceSerializer(data=template_question_choice)
+                template_question_choice_ser = QuestionnaireTemplateQuestionChoiceSerializer(
+                    data=template_question_choice)
                 template_question_choice_ser.is_valid(raise_exception=True)
                 template_question_choice_ser.save()
 
@@ -137,7 +147,9 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
             for sibling in siblings_to_update:
                 question_id = sibling.pop('question_id')
                 # Check if the questions are from the same questionnaire template block
-                question_to_update = QuestionnaireTemplateQuestion.objects.filter(pk=question_id, template_block=validated_data['template_block']).first()
+                question_to_update = QuestionnaireTemplateQuestion.objects.filter(pk=question_id,
+                                                                                  template_block=validated_data[
+                                                                                      'template_block']).first()
 
                 if question_to_update is not None:
                     for attr, value in sibling['question_changes'].items():
@@ -147,6 +159,8 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
             for attr, value in validated_data.items():
                 setattr(instance, attr, value)
             instance.save()
+        else:
+            raise serializers.ValidationError('You are not allowed to modify this question')
         return instance
 
 
@@ -250,6 +264,8 @@ class QuestionnaireTemplateBlockSerializer(serializers.ModelSerializer):
             for attr, value in validated_data.items():
                 setattr(instance, attr, value)
             instance.save()
+        else:
+            raise serializers.ValidationError('You are not allowed to do this action')
         return instance
 
 
@@ -261,7 +277,7 @@ class QuestionnaireSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Questionnaire
-        fields = '__all__'  # ('title', 'blocks', 'template',)
+        fields = '__all__'
 
     @staticmethod
     def setup_eager_loading(queryset):
@@ -320,8 +336,7 @@ class CrossIndexTemplateSerializer(serializers.ModelSerializer):
     """
 
     """
-    template_questions = CrossIndexQuestionTemplateSerializer(source='cross_index_question_templates', many=True,
-                                                      required=False)
+    template_questions = CrossIndexQuestionTemplateSerializer(source='cross_index_question_templates', many=True, required=False)
 
     class Meta:
         model = CrossIndexTemplate
@@ -329,26 +344,26 @@ class CrossIndexTemplateSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         questionnaire_template = attrs.get('questionnaire_template', None)
-        question_templates = attrs.get('cross_index_question_templates', [])
+        template_questions = attrs.get('cross_index_question_templates', [])
 
-        question_template_id = [question_template['question_template'].id for
-                                question_template in question_templates]
-        if not self.all_unique(question_template_id):
+        template_question_id = [template_question['question_template'].id for
+                                template_question in template_questions]
+        if not self.all_unique(template_question_id):
             raise serializers.ValidationError({'question_templates': 'Template Questions allready in Cross Index Template list'})
 
-        for template_question in question_templates:
+        for template_question in template_questions:
             if template_question.questionnaire_template.id != questionnaire_template.id:
                 raise serializers.ValidationError({'question_templates': 'Template Questions don\'t correspond to the Questionnaire Template'})
         return attrs
 
     def create(self, validated_data):
-        question_templates = validated_data.pop('cross_index_question_templates', [])
+        template_questions = validated_data.pop('cross_index_question_templates', [])
         cross_template = CrossIndexTemplate.objects.create(**validated_data)
 
-        for question_template in question_templates:
-            CrossIndexQuestionTemplate.objects.create(cross_index_template=cross_template,
-                                                      question_template=question_template['question_template'],
-                                                      weight=question_template['weight'])
+        for template_question in template_questions:
+            CrossIndexQuestionTemplate.objects.create(template_cross_indexes=cross_template,
+                                                      question_template=template_question['question_template'],
+                                                      weight=template_question['weight'])
         return cross_template
 
     @staticmethod
@@ -361,13 +376,13 @@ class CrossIndexTemplateSerializer(serializers.ModelSerializer):
         return len(arr) == len(set(arr))
 
     def update(self, instance, validated_data):
-        question_templates = validated_data.pop('cross_index_question_templates', [])
+        template_questions = validated_data.pop('cross_index_question_templates', [])
 
         instance.question_templates.clear()
-        for question_template in question_templates:
-            CrossIndexQuestionTemplate.objects.create(cross_index_template=instance,
-                                                      question_template=question_template['question_template'],
-                                                      weight=question_template['weight'])
+        for template_question in template_questions:
+            CrossIndexQuestionTemplate.objects.create(template_cross_indexes=instance,
+                                                      question_template=template_question['question_template'],
+                                                      weight=template_question['weight'])
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
@@ -379,7 +394,7 @@ class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
 
     """
     template_blocks = QuestionnaireTemplateBlockSerializer(many=True, required=False)
-    cross_index_templates = CrossIndexTemplateSerializer(many=True, required=False, read_only=True)
+    template_cross_indexes = CrossIndexTemplateSerializer(many=True, required=False, read_only=True)
 
     class Meta:
         model = QuestionnaireTemplate
@@ -421,14 +436,17 @@ class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         # If template blocks is a list of ordered dicts, pop it from validated_data
         # so that it won't throw an error on update.
-        template_blocks = validated_data.get('template_blocks', [])
-        pop_blocks = len(template_blocks) > 0 and isinstance(template_blocks[0], OrderedDict)
-        if pop_blocks:
-            validated_data.pop('template_blocks')
-        if self.instance.is_editable:
-            for attr, value in validated_data.items():
-                setattr(instance, attr, value)
-            instance.save()
+        if instance.is_editable:
+            template_blocks = validated_data.get('template_blocks', [])
+            pop_blocks = len(template_blocks) > 0 and isinstance(template_blocks[0], OrderedDict)
+            if pop_blocks:
+                validated_data.pop('template_blocks')
+            if self.instance.is_editable:
+                for attr, value in validated_data.items():
+                    setattr(instance, attr, value)
+                instance.save()
+        else:
+            raise serializers.ValidationError('You are not allowed to do this action')
         return instance
 
 
