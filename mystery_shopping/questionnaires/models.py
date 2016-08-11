@@ -364,7 +364,7 @@ class CrossIndex(models.Model):
 
     """
     # Relations
-    template_cross_indexes = models.ForeignKey(CrossIndexTemplate)
+    template_cross_index = models.ForeignKey(CrossIndexTemplate)
     questionnaire = models.ForeignKey(Questionnaire)
     questions = models.ManyToManyField(QuestionnaireQuestion, through='CrossIndexQuestion')
 
@@ -380,7 +380,7 @@ class CrossIndex(models.Model):
 
 
 class CrossIndexQuestionTemplate(models.Model):
-    template_cross_indexes = models.ForeignKey(CrossIndexTemplate, on_delete=models.CASCADE)
+    template_cross_index = models.ForeignKey(CrossIndexTemplate, on_delete=models.CASCADE)
     question_template = models.ForeignKey(QuestionnaireTemplateQuestion, on_delete=models.CASCADE)
     weight = models.DecimalField(max_digits=5, decimal_places=2)
 
