@@ -329,7 +329,7 @@ class CrossIndexTemplateSerializer(serializers.ModelSerializer):
     """
 
     """
-    template_questions = CrossIndexQuestionTemplateSerializer(source='cross_index_question_templates',
+    template_questions = CrossIndexQuestionTemplateSerializer(source='cross_index_template_questions',
                                                               many=True,
                                                               required=False)
 
@@ -339,7 +339,7 @@ class CrossIndexTemplateSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         questionnaire_template = attrs.get('questionnaire_template', None)
-        template_questions = attrs.get('cross_index_question_templates', [])
+        template_questions = attrs.get('cross_index_template_questions', [])
         template_question_id = [template_question['question_template'].id for template_question in template_questions]
 
         if not self.all_unique(template_question_id):
@@ -355,14 +355,14 @@ class CrossIndexTemplateSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        template_questions = validated_data.pop('cross_index_question_templates', [])
+        template_questions = validated_data.pop('cross_index_template_questions', [])
         cross_template = CrossIndexTemplate.objects.create(**validated_data)
         self.create_template_question(template_questions, cross_template)
         return cross_template
 
     def update(self, instance, validated_data):
-        template_questions = validated_data.pop('cross_index_question_templates', [])
-        instance.question_templates.clear()
+        template_questions = validated_data.pop('cross_index_template_questions', [])
+        instance.template_questions.clear()
         self.create_template_question(template_questions, instance)
         update_attributes(validated_data, instance)
         instance.save()
@@ -381,7 +381,7 @@ class CrossIndexTemplateSerializer(serializers.ModelSerializer):
     def create_template_question(template_questions, template_cross_indexes):
         for template_question in template_questions:
             CrossIndexQuestionTemplate.objects.create(template_cross_indexes=template_cross_indexes,
-                                                      question_template=template_question['question_template'],
+                                                      template_question=template_question['template_question'],
                                                       weight=template_question['weight'])
 
 
