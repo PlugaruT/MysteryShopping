@@ -353,7 +353,7 @@ class CrossIndexTemplate(models.Model):
     title = models.CharField(max_length=40)
 
     class Meta:
-        default_related_name = 'cross_index_templates'
+        default_related_name = 'template_cross_indexes'
 
     def __str__(self):
         return '{}, TQuestionnaire: {}'.format(self.title, self.questionnaire_template.title)
