@@ -196,17 +196,6 @@ class ProjectSerializer(serializers.ModelSerializer):
         model = Project
         fields = '__all__'
 
-    # @staticmethod
-    # def setup_eager_loading(queryset):
-    #     """
-    #     Perform necessary eager loading of data.
-    #     """
-    #     # queryset = queryset.select_related()
-    #     queryset = queryset.prefetch_related('company__departments__entities__sections', 'shoppers__user', 'research_methodology__scripts', 'research_methodology__questionnaires',
-    #     'research_methodology__questionnaires__template_blocks','research_methodology__questionnaires__template_blocks__template_questions' )
-    #     # queryset = queryset.prefetch_related(None)
-    #     return queryset
-
     def create(self, validated_data):
         research_methodology = validated_data.pop('research_methodology', None)
         consultants = validated_data.pop('consultants', [])
@@ -320,7 +309,7 @@ class EvaluationSerializer(serializers.ModelSerializer):
         questionnaire_template = validated_data.get('questionnaire_template', None)
         if validated_data.get('type', 'm') == 'm':
             questionnaire_template_serialized = QuestionnaireTemplateSerializer(questionnaire_template)
-            questionnaire_to_create = OrderedDict(questionnaire_template_serialized.data)
+            questionnaire_to_create = dict(questionnaire_template_serialized.data)
             questionnaire_to_create['blocks'] = questionnaire_to_create.pop('template_blocks')
             for block in questionnaire_to_create['blocks']:
                 block['template_block'] = block.get('id')
@@ -339,7 +328,7 @@ class EvaluationSerializer(serializers.ModelSerializer):
         questionnaire_to_create_ser.is_valid(raise_exception=True)
         questionnaire_to_create_ser.save()
         validated_data['questionnaire'] = questionnaire_to_create_ser.instance
-
+        questionnaire_to_create_ser.instance.create_cross_indexes(questionnaire_to_create['template_cross_indexes'])
         evaluation = Evaluation.objects.create(**validated_data)
         return evaluation
 

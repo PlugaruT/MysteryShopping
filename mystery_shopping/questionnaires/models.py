@@ -105,9 +105,9 @@ class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
             return None
 
     def calculate_score_for_m(self):
-        '''
+        """
         Function for calculating the score of a Mystery Shopping Questionnaire
-        '''
+        """
         self.score = 0
         blocks = self.blocks.filter(parent_block=None)
 
@@ -119,26 +119,41 @@ class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
         return self.score
 
     def calculate_score_for_c(self):
-        '''
+        """
         Function for making calculations on Customer Experience Index Questionnaires. (now it does nothing)
-        '''
+        """
         pass
 
     def calculate_score(self):
-        '''
-        Function for determining what type of calculation to perform on the questionnaire taking into consideration the type
-        '''
+        """
+        Function for determining what type of calculation to perform on the questionnaire taking into consideration
+        the type
+        """
         self.score = getattr(self, 'calculate_score_for_{}'.format(self.type))()
         self.save()
 
-    # def get_indicator_question(self, indicator_question_type):
-    #     return self..question.get(type=indicator_question_type)
+    def create_cross_indexes(self, template_cross_indexes):
+        for template_cross_index in template_cross_indexes:
+            cross_index = self.create_cross_index(self, template_cross_index)
+            for template_question in template_cross_index['template_questions']:
+                self.add_question_to(cross_index, template_question)
+
+    @staticmethod
+    def add_question_to(cross_index, template_question):
+        CrossIndexQuestion.objects.create(cross_index=cross_index,
+                                          question=QuestionnaireQuestion.objects.get(id=template_question[
+                                              'template_question']),
+                                          weight=template_question['weight'])
+
+    @staticmethod
+    def create_cross_index(questionnaire, template_cross_index):
+        return CrossIndex.objects.create(template_cross_index=CrossIndexTemplate.objects.get(id=template_cross_index[
+            'id']), questionnaire=questionnaire, title=template_cross_index['title'])
 
 
 class QuestionnaireBlockAbstract(models.Model):
     """
     Abstract Questionnaire block for QuestionnaireBlockTemplate and QuestionnaireBlock
-
     """
     title = models.CharField(max_length=50)
     weight = models.DecimalField(max_digits=5, decimal_places=2)
@@ -394,5 +409,7 @@ class CrossIndexQuestion(models.Model):
     question = models.ForeignKey(QuestionnaireQuestion, on_delete=models.CASCADE)
     weight = models.DecimalField(max_digits=5, decimal_places=2)
 
+    class Meta:
+        default_related_name = 'cross_index_questions'
 
 
