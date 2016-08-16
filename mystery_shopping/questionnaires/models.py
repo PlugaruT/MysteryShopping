@@ -134,21 +134,16 @@ class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
 
     def create_cross_indexes(self, template_cross_indexes):
         for template_cross_index in template_cross_indexes:
-            cross_index = self.create_cross_index(self, template_cross_index)
+            cross_index = self.create_cross_index(template_cross_index)
             for template_question in template_cross_index['template_questions']:
-                self.add_question_to(cross_index, template_question)
+                CrossIndexQuestion.objects.create(cross_index=cross_index,
+                                                  question=self.questions.get(template_question=template_question[
+                                                      'template_question']),
+                                                  weight=template_question['weight'])
 
-    @staticmethod
-    def add_question_to(cross_index, template_question):
-        CrossIndexQuestion.objects.create(cross_index=cross_index,
-                                          question=QuestionnaireQuestion.objects.get(id=template_question[
-                                              'template_question']),
-                                          weight=template_question['weight'])
-
-    @staticmethod
-    def create_cross_index(questionnaire, template_cross_index):
+    def create_cross_index(self, template_cross_index):
         return CrossIndex.objects.create(template_cross_index=CrossIndexTemplate.objects.get(id=template_cross_index[
-            'id']), questionnaire=questionnaire, title=template_cross_index['title'])
+            'id']), questionnaire=self, title=template_cross_index['title'])
 
 
 class QuestionnaireBlockAbstract(models.Model):
