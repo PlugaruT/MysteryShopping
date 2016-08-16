@@ -389,6 +389,13 @@ class CrossIndex(models.Model):
     def __str__(self):
         return '{}, Questionnaire: {}'.format(self.title, self.questionnaire.title)
 
+    def calculate_score(self):
+        self.score = 0
+        for cross_index in self.cross_indexe_questions.all():
+            self.score = cross_index.question.score * cross_index.weight
+        self.score /= 100
+        self.save()
+
 
 class CrossIndexQuestionTemplate(models.Model):
     template_cross_index = models.ForeignKey(CrossIndexTemplate, on_delete=models.CASCADE)
