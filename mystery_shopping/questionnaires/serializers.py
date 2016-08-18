@@ -280,15 +280,6 @@ class CrossIndexSerializer(serializers.ModelSerializer):
         model = CrossIndex
         fields = '__all__'
 
-    def validate(self, attrs):
-        questionnaire = attrs.get('questionnaire', None)
-        questions = attrs.get('questions', [])
-
-        for question in questions:
-            if question.questionnaire.id != questionnaire.id:
-                raise serializers.ValidationError({'question': 'Questions don\'t correspond to the Questionnaire'})
-        return attrs
-
 
 class QuestionnaireSerializer(serializers.ModelSerializer):
     """
