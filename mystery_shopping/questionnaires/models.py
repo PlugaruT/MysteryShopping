@@ -142,8 +142,9 @@ class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
                                                   weight=template_question['weight'])
 
     def create_cross_index(self, template_cross_index):
-        return CrossIndex.objects.create(template_cross_index=CrossIndexTemplate.objects.get(id=template_cross_index[
-            'id']), questionnaire=self, title=template_cross_index['title'])
+        template = CrossIndexTemplate.objects.get(id=template_cross_index['id'])
+        return CrossIndex.objects.create(template_cross_index=template, questionnaire=self,
+                                         title=template_cross_index['title'])
 
 
 class QuestionnaireBlockAbstract(models.Model):
@@ -391,7 +392,7 @@ class CrossIndex(models.Model):
 
     def calculate_score(self):
         self.score = 0
-        for cross_index in self.cross_indexe_questions.all():
+        for cross_index in self.cross_indexes_questions.all():
             self.score = cross_index.question.score * cross_index.weight
         self.score /= 100
         self.save()
