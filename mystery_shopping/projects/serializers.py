@@ -1,5 +1,3 @@
-from collections import OrderedDict
-
 from rest_framework import serializers
 
 from .models import Project
@@ -21,6 +19,7 @@ from mystery_shopping.questionnaires.serializers import QuestionnaireSerializer
 from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializer
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion, QuestionnaireScript
 from mystery_shopping.questionnaires.models import Questionnaire
+from mystery_shopping.questionnaires.utils import update_attributes
 from mystery_shopping.users.serializers import ShopperSerializer
 from mystery_shopping.users.serializers import PersonToAssessSerializer
 from mystery_shopping.users.serializers import TenantProjectManagerSerializer
@@ -31,7 +30,6 @@ from mystery_shopping.projects.constants import ProjectStatus
 
 from mystery_shopping.users.models import PersonToAssess
 from mystery_shopping.users.models import Shopper
-from mystery_shopping.users.models import TenantConsultant
 
 
 class EvaluationAssessmentCommentSerializer(serializers.ModelSerializer):
@@ -119,24 +117,11 @@ class ResearchMethodologySerializer(serializers.ModelSerializer):
         research_methodology.scripts.set(scripts)
         research_methodology.questionnaires.set(questionnaires)
 
-        places_to_set = list()
-        for place_to_assess in places_to_assess:
-            place_to_assess['research_methodology'] = research_methodology
-            places_to_set.append(PlaceToAssess.objects.create(**place_to_assess))
-        research_methodology.places_to_assess.set(places_to_set)
+        self.set_places_to_asses(research_methodology, places_to_assess)
 
-        people_to_set = list()
-        for person_to_assess in people_to_assess:
-            person_to_assess['research_methodology'] = research_methodology
-            people_to_set.append(PersonToAssess.objects.create(**person_to_assess))
-        research_methodology.people_to_assess.set(people_to_set)
+        self.set_people_to_asses(research_methodology, people_to_assess)
 
-        if project_id:
-            project_to_set = Project.objects.filter(pk=project_id).first()
-
-            if project_to_set:
-                project_to_set.research_methodology = research_methodology
-                project_to_set.save()
+        self.link_research_methodology_to_project(project_id, research_methodology)
 
         return research_methodology
 
@@ -153,30 +138,39 @@ class ResearchMethodologySerializer(serializers.ModelSerializer):
         instance.scripts.set(scripts)
         instance.questionnaires.set(questionnaires)
 
-        places_to_set = list()
-        for place_to_assess in places_to_assess:
-            place_to_assess['research_methodology'] = instance
-            places_to_set.append(PlaceToAssess.objects.create(**place_to_assess))
-        instance.places_to_assess.set(places_to_set)
+        self.set_places_to_asses(instance, places_to_assess)
+        self.set_people_to_asses(instance, people_to_assess)
 
-        people_to_set = list()
-        for person_to_assess in people_to_assess:
-            person_to_assess['research_methodology'] = instance
-            people_to_set.append(PersonToAssess.objects.create(**person_to_assess))
-        instance.people_to_assess.set(people_to_set)
+        self.link_research_methodology_to_project(project_id, instance)
 
-        if project_id:
-            project_to_set = Project.objects.filter(pk=project_id).first()
-
-            if project_to_set:
-                project_to_set.research_methodology = instance
-                project_to_set.save()
-
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
+        update_attributes(validated_data, instance)
         instance.save()
 
         return instance
+
+    @staticmethod
+    def link_research_methodology_to_project(project_id, research_methodology):
+        if project_id:
+            project_to_set = Project.objects.filter(pk=project_id).first()
+            if project_to_set:
+                project_to_set.research_methodology = research_methodology
+                project_to_set.save()
+
+    @staticmethod
+    def set_places_to_asses(research_methodology, places_to_assess):
+        places_to_set = list()
+        for place_to_assess in places_to_assess:
+            place_to_assess['research_methodology'] = research_methodology
+            places_to_set.append(PlaceToAssess.objects.create(**place_to_assess))
+        research_methodology.places_to_assess.set(places_to_set)
+
+    @staticmethod
+    def set_people_to_asses(research_methodology, people_to_assess):
+        people_to_set = list()
+        for person_to_assess in people_to_assess:
+            person_to_assess['research_methodology'] = research_methodology
+            people_to_set.append(PersonToAssess.objects.create(**person_to_assess))
+        research_methodology.people_to_assess.set(people_to_set)
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -187,9 +181,11 @@ class ProjectSerializer(serializers.ModelSerializer):
     shoppers_repr = ShopperSerializer(source='shoppers', many=True, read_only=True)
     project_manager_repr = TenantProjectManagerSerializer(source='project_manager', read_only=True)
     research_methodology = ResearchMethodologySerializer(required=False)
-    shoppers = serializers.PrimaryKeyRelatedField(queryset=Shopper.objects.all(), many=True, allow_null=True, required=False)
+    shoppers = serializers.PrimaryKeyRelatedField(queryset=Shopper.objects.all(), many=True, allow_null=True,
+                                                  required=False)
     consultants_repr = TenantConsultantSerializer(source='consultants', read_only=True, many=True)
-    evaluation_assessment_levels_repr = EvaluationAssessmentLevelSerializer(source='evaluation_assessment_levels', read_only=True, many=True)
+    evaluation_assessment_levels_repr = EvaluationAssessmentLevelSerializer(source='evaluation_assessment_levels',
+                                                                            read_only=True, many=True)
     cxi_indicators = serializers.DictField(source='get_indicators_list', read_only=True)
 
     class Meta:
@@ -253,15 +249,15 @@ class ProjectSerializer(serializers.ModelSerializer):
                     pass
 
             if research_methodology_instance is not None:
-                research_methodology_ser = ResearchMethodologySerializer(research_methodology_instance, data=research_methodology)
+                research_methodology_ser = ResearchMethodologySerializer(research_methodology_instance,
+                                                                         data=research_methodology)
             else:
                 research_methodology_ser = ResearchMethodologySerializer(data=research_methodology)
             research_methodology_ser.is_valid(raise_exception=True)
             research_methodology_ser.save()
             instance.research_methodology = research_methodology_ser.instance
 
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
+        update_attributes(validated_data, instance)
         instance.save()
 
         return instance
@@ -308,18 +304,7 @@ class EvaluationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         questionnaire_template = validated_data.get('questionnaire_template', None)
         if validated_data.get('type', 'm') == 'm':
-            questionnaire_template_serialized = QuestionnaireTemplateSerializer(questionnaire_template)
-            questionnaire_to_create = dict(questionnaire_template_serialized.data)
-            questionnaire_to_create['blocks'] = questionnaire_to_create.pop('template_blocks')
-            for block in questionnaire_to_create['blocks']:
-                block['template_block'] = block.get('id')
-                block['order_number'] = block.pop('id')
-                block['parent_order_number'] = block.pop('parent_block')
-                block['questions'] = block.pop('template_questions')
-                for question in block['questions']:
-                    question['template_question'] = question.pop('id')
-                    question['question_choices'] = question.pop('template_question_choices')
-
+            questionnaire_to_create = self.clone_questionnaire(questionnaire_template)
         else:
             questionnaire_to_create = validated_data.get('questionnaire', None)
 
@@ -339,7 +324,8 @@ class EvaluationSerializer(serializers.ModelSerializer):
         if questionnaire and current_status in ProjectStatus.EDITABLE_STATUSES:
             for block in questionnaire.get('blocks', []):
                 for question in block.get('questions', []):
-                    question_instance = QuestionnaireQuestion.objects.get(questionnaire=question.get('questionnaire'), pk=question.get('question_id'))
+                    question_instance = QuestionnaireQuestion.objects.get(questionnaire=question.get('questionnaire'),
+                                                                          pk=question.get('question_id'))
                     question_instance.answer = question.get('answer', None)
                     question_instance.answer_choices = question.get('answer_choices', [])
                     question_instance.comment = question.get('comment', None)
@@ -362,7 +348,27 @@ class EvaluationSerializer(serializers.ModelSerializer):
             if validated_data.get('status', None) == ProjectStatus.SUBMITTED:
                 instance.questionnaire.calculate_score()
 
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
+        update_attributes(validated_data, instance)
         instance.save()
         return instance
+
+    def clone_questionnaire(self, questionnaire_template):
+        questionnaire_template_serialized = QuestionnaireTemplateSerializer(questionnaire_template)
+        questionnaire_to_create = dict(questionnaire_template_serialized.data)
+        questionnaire_to_create['blocks'] = questionnaire_to_create.pop('template_blocks')
+        self.create_blocks(questionnaire_to_create['blocks'])
+        return questionnaire_to_create
+
+    def create_blocks(self, blocks):
+        for block in blocks:
+            block['template_block'] = block.get('id')
+            block['order_number'] = block.pop('id')
+            block['parent_order_number'] = block.pop('parent_block')
+            block['questions'] = block.pop('template_questions')
+            self.create_questions(block['questions'])
+
+    @staticmethod
+    def create_questions(questions):
+        for question in questions:
+            question['template_question'] = question.pop('id')
+            question['question_choices'] = question.pop('template_question_choices')

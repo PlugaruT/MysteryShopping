@@ -135,11 +135,14 @@ class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
     def create_cross_indexes(self, template_cross_indexes):
         for template_cross_index in template_cross_indexes:
             cross_index = self.create_cross_index(template_cross_index)
-            for template_question in template_cross_index['template_questions']:
-                CrossIndexQuestion.objects.create(cross_index=cross_index,
-                                                  question=self.questions.get(template_question=template_question[
-                                                      'template_question']),
-                                                  weight=template_question['weight'])
+            self.create_cross_index_question(template_cross_index, cross_index)
+
+    def create_cross_index_question(self, template_cross_index, cross_index):
+        for template_question in template_cross_index['template_questions']:
+            CrossIndexQuestion.objects.create(cross_index=cross_index,
+                                              question=self.questions.get(template_question=template_question[
+                                                  'template_question']),
+                                              weight=template_question['weight'])
 
     def create_cross_index(self, template_cross_index):
         template = CrossIndexTemplate.objects.get(id=template_cross_index['id'])
@@ -392,8 +395,7 @@ class CrossIndex(models.Model):
 
     def calculate_score(self):
         self.score = 0
-        for cross_index in self.cross_indexes_questions.all():
-            self.score = cross_index.question.score * cross_index.weight
+        self.score = sum(cross_index.question.score * cross_index.weight for cross_index in self.cross_indexes_questions.all())
         self.score /= 100
         self.save()
 
