@@ -1,9 +1,10 @@
 from django.db import models
-# from django.contrib.postgres.fields import
 
+from mystery_shopping.companies.models import Company
 from mystery_shopping.tenants.models import Tenant
 from mystery_shopping.projects.models import Project
-
+from mystery_shopping.users.models import User
+from datetime import datetime
 
 
 class DashboardTemplate(models.Model):
@@ -12,12 +13,14 @@ class DashboardTemplate(models.Model):
     """
     # Relations
     tenant = models.ForeignKey(Tenant)
-    project = models.ForeignKey(Project)
+    company = models.ForeignKey(Company)
+    modified_by = models.ForeignKey(User)
 
     # Attributes
     title = models.CharField(max_length=120)
     widgets = models.TextField()
-    published = models.BooleanField(default=False)
+    is_published = models.BooleanField(default=False)
+    modified_date = models.DateTimeField(default=datetime.now)
 
     def __str__(self):
         return 'Dashboard "{}" for {}'.format(self.title, self.tenant.name)
