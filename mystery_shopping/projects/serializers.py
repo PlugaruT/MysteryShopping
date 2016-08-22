@@ -355,20 +355,20 @@ class EvaluationSerializer(serializers.ModelSerializer):
     def clone_questionnaire(self, questionnaire_template):
         questionnaire_template_serialized = QuestionnaireTemplateSerializer(questionnaire_template)
         questionnaire_to_create = dict(questionnaire_template_serialized.data)
-        questionnaire_to_create['blocks'] = questionnaire_to_create.pop('template_blocks')
-        self.create_blocks(questionnaire_to_create['blocks'])
+        questionnaire_to_create['blocks'] = self.build_blocks(questionnaire_to_create.pop('template_blocks'))
         return questionnaire_to_create
 
-    def create_blocks(self, blocks):
+    def build_blocks(self, blocks):
         for block in blocks:
             block['template_block'] = block.get('id')
             block['order_number'] = block.pop('id')
             block['parent_order_number'] = block.pop('parent_block')
-            block['questions'] = block.pop('template_questions')
-            self.create_questions(block['questions'])
+            block['questions'] = self.build_questions(block.pop('template_questions'))
+        return blocks
 
     @staticmethod
-    def create_questions(questions):
+    def build_questions(questions):
         for question in questions:
             question['template_question'] = question.pop('id')
             question['question_choices'] = question.pop('template_question_choices')
+        return questions

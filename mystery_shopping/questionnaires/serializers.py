@@ -359,9 +359,9 @@ class CrossIndexTemplateSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         questionnaire_template = attrs.get('questionnaire_template', None)
         template_questions = attrs.get('cross_index_template_questions', [])
-        template_question_id = [template_question['template_question'].id for template_question in template_questions]
+        template_question_ids = [template_question['template_question'].id for template_question in template_questions]
 
-        if not self.all_unique(template_question_id):
+        if not self.all_unique(template_question_ids):
             raise serializers.ValidationError({
                 'question_templates': 'Template Questions already in Cross Index Template list'
             })

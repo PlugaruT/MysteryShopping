@@ -394,8 +394,8 @@ class CrossIndex(models.Model):
         return '{}, Questionnaire: {}'.format(self.title, self.questionnaire.title)
 
     def calculate_score(self):
-        self.score = 0
-        self.score = sum(cross_index.question.score * cross_index.weight for cross_index in self.cross_indexes_questions.all())
+        self.score = sum(cross_index.question_score() * cross_index.weight for cross_index in
+                         self.cross_indexes_questions.all())
         self.score /= 100
         self.save()
 
@@ -417,4 +417,6 @@ class CrossIndexQuestion(models.Model):
     class Meta:
         default_related_name = 'cross_index_questions'
 
+    def question_score(self):
+        return self.question.score
 
