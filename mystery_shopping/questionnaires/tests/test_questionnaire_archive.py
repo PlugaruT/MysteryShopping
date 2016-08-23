@@ -2,7 +2,8 @@ from rest_framework.reverse import reverse
 
 from rest_framework.test import APITestCase
 
-from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFactory
+from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFactory, QuestionnaireTemplateStatusFactory
+from mystery_shopping.factories.users import UserFactory
 from mystery_shopping.users.tests.user_authentication import AuthenticateUser
 
 
@@ -12,7 +13,8 @@ class QuestionnaireTemplateArchiveAPITestCase(APITestCase):
         self.archived_questionnaire = QuestionnaireTemplateFactory(is_archived=True)
         self.unarchived_questionnaire = QuestionnaireTemplateFactory(is_archived=False)
 
-        self.client = AuthenticateUser().client
+        self.authentification = AuthenticateUser()
+        self.client = self.authentification.client
 
     def test_get_archived_questionnaires(self):
         response = self.client.get(reverse('questionnairetemplate-get-archived'))
