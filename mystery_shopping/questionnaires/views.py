@@ -62,6 +62,7 @@ class QuestionnaireTemplateViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         request.data['tenant'] = request.user.tenant.id
+        request.data['created_by'] = request.user.id
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
@@ -83,14 +84,14 @@ class QuestionnaireTemplateViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['put'])
     def archive(self, request, pk=None):
         questionnaire = get_object_or_404(QuestionnaireTemplate, pk=pk)
-        questionnaire.archive()
+        questionnaire.archive(request.user)
         questionnaire.save()
         return Response(status=status.HTTP_202_ACCEPTED)
 
     @detail_route(methods=['put'])
     def unarchive(self, request, pk=None):
         questionnaire = get_object_or_404(QuestionnaireTemplate, pk=pk)
-        questionnaire.unarchive()
+        questionnaire.unarchive(request.user)
         questionnaire.save()
         return Response(status=status.HTTP_202_ACCEPTED)
 

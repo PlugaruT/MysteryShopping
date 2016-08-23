@@ -6,6 +6,7 @@ from model_utils import Choices
 from model_utils.models import TimeStampedModel
 
 from mptt.models import MPTTModel, TreeForeignKey
+from datetime import datetime
 
 from .constants import QuestionType
 from .constants import IndicatorQuestionType as IndQuestType
@@ -49,13 +50,22 @@ class QuestionnaireAbstract(models.Model):
         ordering = ('title',)
 
 
-class QuestionnaireTemplate(QuestionnaireAbstract):
+class QuestionnaireTemplateStatus(models.Model):
+    """
+       Model that holds short information about status of QuestionnaireTemplate
+    """
+    archived_date = models.DateTimeField()
+    archived_by = models.ForeignKey('users.User')
+
+
+class QuestionnaireTemplate(TimeStampedModel, QuestionnaireAbstract):
     """
     Templates for questionnaires that will not contain answers.
-
     """
     # Relations
     tenant = models.ForeignKey(Tenant)
+    status = models.OneToOneField(QuestionnaireTemplateStatus)
+    created_by = models.ForeignKey('users.User')
 
     # Attributes
     description = models.TextField()
@@ -71,11 +81,15 @@ class QuestionnaireTemplate(QuestionnaireAbstract):
         except:
             return None
 
-    def archive(self):
+    def archive(self, user):
         self.is_archived = True
+        self.status.archived_date = datetime.now
+        self.status.archived_by = user
 
-    def unarchive(self):
+    def unarchive(self, user):
         self.is_archived = False
+        self.status.archived_date = datetime.now
+        self.status.archived_by = user
 
 
 class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
