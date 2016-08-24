@@ -5,7 +5,7 @@ from mystery_shopping.cxi.algorithms import CollectDataForIndicatorDashboard
 from mystery_shopping.factories.companies import EntityFactory
 from mystery_shopping.factories.projects import ResearchMethodologyFactory, ProjectFactory, EvaluationFactory
 from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFactory, QuestionnaireFactory, \
-    IndicatorQuestionFactory, QuestionnaireBlockFactory, QuestionTemplateFactory, QuestionTemplateQuestionChoiceFactory, \
+    IndicatorQuestionFactory, QuestionnaireBlockFactory, QuestionTemplateFactory, QuestionnaireTemplateQuestionChoiceFactory, \
     QuestionFactory, ChoiceFactory
 from mystery_shopping.projects.models import Project
 from mystery_shopping.questionnaires.models import Questionnaire
@@ -107,7 +107,7 @@ class TestBuildResponse(TestCase):
         result = CollectDataForIndicatorDashboard(self.project, None, self.indicator_type).build_response()
         self.assertDictEqual(result, expected_result)
 
-    def test_when_there_is_one_indicator_questions_and_entity_is_givem(self):
+    def test_when_there_is_one_indicator_questions_and_entity_is_given(self):
         self.evaluation2.entity = EntityFactory(name='demo1')
         self.evaluation2.save()
         self._generate_first_indicator_question(self.indicator_type, 6, self.template_indicator_question)
@@ -140,10 +140,10 @@ class TestBuildResponse(TestCase):
         self._generate_first_indicator_question(self.indicator_type, 6, self.template_indicator_question)
         self._generate_second_indicator_question(self.indicator_type, 8, self.template_indicator_question)
         question_template = QuestionTemplateFactory(type='s', questionnaire_template=self.questionnaire_template)
-        question_temlate_choice1 = QuestionTemplateQuestionChoiceFactory(text='choice 1',
-                                                                         template_question=question_template)
-        question_temlate_choice2 = QuestionTemplateQuestionChoiceFactory(text='choice 2',
-                                                                         template_question=question_template)
+        question_template_choice1 = QuestionnaireTemplateQuestionChoiceFactory(text='choice 1',
+                                                                               template_question=question_template)
+        question_template_choice2 = QuestionnaireTemplateQuestionChoiceFactory(text='choice 2',
+                                                                               template_question=question_template)
 
         question1 = QuestionFactory.create(type='s', question_body='question 1', template_question=question_template)
         question2 = QuestionFactory.create(type='s', question_body='question 2', template_question=question_template)
@@ -162,8 +162,6 @@ class TestBuildResponse(TestCase):
 
         question1.save()
         question2.save()
-        import pdb
-        # pdb.set_trace()
 
         expected_result = {
             'details': [{
@@ -178,7 +176,7 @@ class TestBuildResponse(TestCase):
                         },
                         'number_of_respondents': 0,
                         'other_answer_choices': [],
-                        'choice': question_temlate_choice1.text
+                        'choice': question_template_choice1.text
                     },
                     {
                         'score': {
@@ -189,7 +187,7 @@ class TestBuildResponse(TestCase):
                         },
                         'number_of_respondents': 0,
                         'other_answer_choices': [],
-                        'choice': question_temlate_choice2.text
+                        'choice': question_template_choice2.text
                     }
                 ]
             },

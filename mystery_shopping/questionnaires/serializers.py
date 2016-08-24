@@ -2,6 +2,7 @@ from collections import OrderedDict
 
 from rest_framework import serializers
 
+from mystery_shopping.questionnaires.models import CrossIndexQuestion
 from .models import QuestionnaireScript
 from .models import Questionnaire
 from .models import QuestionnaireTemplate
@@ -14,7 +15,7 @@ from .models import QuestionnaireQuestionChoice
 from .models import CrossIndexTemplate
 from .models import CrossIndex
 from .models import CrossIndexQuestionTemplate
-from .models import CrossIndexQuestion
+from .utils import update_attributes
 
 
 class QuestionnaireTemplateQuestionChoiceSerializer(serializers.ModelSerializer):
@@ -23,7 +24,18 @@ class QuestionnaireTemplateQuestionChoiceSerializer(serializers.ModelSerializer)
     class Meta:
         model = QuestionnaireTemplateQuestionChoice
         fields = '__all__'
-        extra_kwargs = {'template_question': {'required': False}}
+        extra_kwargs = {
+            'template_question': {
+                'required': False
+            }
+        }
+
+    def update(self, instance, validated_data):
+        if not instance.template_question.questionnaire_template.is_editable:
+            raise serializers.ValidationError('You are not allowed to do this action')
+        update_attributes(validated_data, instance)
+        instance.save()
+        return instance
 
 
 class QuestionnaireQuestionChoiceSerializer(serializers.ModelSerializer):
@@ -33,7 +45,11 @@ class QuestionnaireQuestionChoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionnaireQuestionChoice
         fields = '__all__'
-        extra_kwargs = {'question': {'required': False}}
+        extra_kwargs = {
+            'question': {
+                'required': False
+            }
+        }
 
 
 class QuestionnaireScriptSerializer(serializers.ModelSerializer):
@@ -55,9 +71,18 @@ class QuestionnaireQuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionnaireQuestion
         fields = '__all__'
-        extra_kwargs = {'block': {'required': False},
-                        'questionnaire': {'required': False},
-                        'answer_choices': {'required': False, 'allow_empty': True}}
+        extra_kwargs = {
+            'block': {
+                'required': False
+            },
+            'questionnaire': {
+                'required': False
+            },
+            'answer_choices': {
+                'required': False,
+                'allow_empty': True
+            }
+        }
 
     def create(self, validated_data):
         question_choices = validated_data.pop('question_choices', None)
@@ -71,12 +96,8 @@ class QuestionnaireQuestionSerializer(serializers.ModelSerializer):
         return question
 
     def update(self, instance, validated_data):
-
-        # instance.prepare_to_update()
         validated_data.pop('question_choices', [])
-
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
+        update_attributes(validated_data, instance)
         instance.save()
         return instance
 
@@ -86,68 +107,61 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
 
     """
     template_question_choices = QuestionnaireTemplateQuestionChoiceSerializer(many=True, required=False)
-    # this field will contain information that is needed to update a Questionnaire Template
     siblings = serializers.JSONField(write_only=True, required=False)
 
     class Meta:
         model = QuestionnaireTemplateQuestion
         fields = '__all__'
-        extra_kwargs = {'questionnaire_template': {'required': False},
-                        'template_block': {'required': False}}
+        extra_kwargs = {
+            'questionnaire_template': {
+                'required': False
+            },
+            'template_block': {
+                'required': False
+            }
+        }
 
     def create(self, validated_data):
-        if validated_data['questionnaire_template'].is_editable:
-            template_question_choices = validated_data.pop('template_question_choices', [])
-            siblings_to_update = validated_data.pop('siblings', [])
-            for sibling in siblings_to_update:
-                question_id = sibling.pop('question_id', None)
-                # Check if the questions are from the same questionnaire template block
-                question_to_update = QuestionnaireTemplateQuestion.objects.filter(pk=question_id, template_block=validated_data['template_block']).first()
-
-                if question_to_update is not None:
-                    for attr, value in sibling['question_changes'].items():
-                        setattr(question_to_update, attr, value)
-                    question_to_update.save()
-
-            template_question = QuestionnaireTemplateQuestion.objects.create(**validated_data)
-
-            for template_question_choice in template_question_choices:
-                template_question_choice['template_question'] = template_question.id
-                template_question_choice_ser = QuestionnaireTemplateQuestionChoiceSerializer(data=template_question_choice)
-                template_question_choice_ser.is_valid(raise_exception=True)
-                template_question_choice_ser.save()
-
-            return template_question
-        raise serializers.ValidationError('The Questionnaire Template this Question belongs to is not editable')
+        if not validated_data['questionnaire_template'].is_editable:
+            raise serializers.ValidationError('The Questionnaire Template this Question belongs to is not editable')
+        template_question_choices = validated_data.pop('template_question_choices', [])
+        siblings_to_update = validated_data.pop('siblings', [])
+        self.update_question_siblings(siblings_to_update, validated_data)
+        template_question = QuestionnaireTemplateQuestion.objects.create(**validated_data)
+        self.create_template_question_choices(template_question_choices, template_question.id)
+        return template_question
 
     def update(self, instance, validated_data):
-        if instance.questionnaire_template.is_editable:
-            # Delete all template question choices
-            instance.prepare_to_update()
-            template_question_choices = validated_data.pop('template_question_choices', [])
-            # Create the 'new' template question choices
-            for template_question_choice in template_question_choices:
-                template_question_choice['template_question'] = instance.id
-                template_question_choice_ser = QuestionnaireTemplateQuestionChoiceSerializer(
-                    data=template_question_choice)
-                template_question_choice_ser.is_valid(raise_exception=True)
-                template_question_choice_ser.save()
-
-            siblings_to_update = validated_data.pop('siblings', [])
-            for sibling in siblings_to_update:
-                question_id = sibling.pop('question_id')
-                # Check if the questions are from the same questionnaire template block
-                question_to_update = QuestionnaireTemplateQuestion.objects.filter(pk=question_id, template_block=validated_data['template_block']).first()
-
-                if question_to_update is not None:
-                    for attr, value in sibling['question_changes'].items():
-                        setattr(question_to_update, attr, value)
-                    question_to_update.save()
-
-            for attr, value in validated_data.items():
-                setattr(instance, attr, value)
-            instance.save()
+        if not instance.questionnaire_template.is_editable:
+            raise serializers.ValidationError('You are not allowed to do this action')
+        instance.prepare_to_update()
+        template_question_choices = validated_data.pop('template_question_choices', [])
+        siblings_to_update = validated_data.pop('siblings', [])
+        self.update_question_siblings(siblings_to_update, validated_data)
+        self.create_template_question_choices(template_question_choices, instance.id)
+        update_attributes(validated_data, instance)
+        instance.save()
         return instance
+
+    @staticmethod
+    def create_template_question_choices(template_question_choices, template_question_id):
+        for template_question_choice in template_question_choices:
+            template_question_choice['template_question'] = template_question_id
+            template_question_choice_ser = QuestionnaireTemplateQuestionChoiceSerializer(
+                data=template_question_choice)
+            template_question_choice_ser.is_valid(raise_exception=True)
+            template_question_choice_ser.save()
+
+    @staticmethod
+    def update_question_siblings(siblings_to_update, validated_data):
+        for sibling in siblings_to_update:
+            question_id = sibling.pop('question_id')
+            question_to_update = QuestionnaireTemplateQuestion.objects.filter(pk=question_id,
+                                                                              template_block=validated_data[
+                                                                                  'template_block']).first()
+            if question_to_update is not None:
+                update_attributes(sibling['question_changes'], question_to_update)
+                question_to_update.save()
 
 
 class QuestionnaireBlockSerializer(serializers.ModelSerializer):
@@ -161,18 +175,22 @@ class QuestionnaireBlockSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionnaireBlock
         fields = '__all__'
-        extra_kwargs = {'questionnaire': {'required': False},
-                        'score': {'required': False}}
+        extra_kwargs = {
+            'questionnaire': {
+                'required': False
+            },
+            'score': {
+                'required': False
+            }
+        }
 
     def create(self, validated_data):
-        # print(validated_data)
-        children = validated_data.pop('children', None)
+        validated_data.pop('children', None)
         questions = validated_data.pop('questions')
 
         block = QuestionnaireBlock.objects.create(**validated_data)
 
         for question in questions:
-            # print(question)
             question['template_question'] = question['template_question'].id
             question['questionnaire'] = block.questionnaire.id
             question['block'] = block.id
@@ -182,9 +200,7 @@ class QuestionnaireBlockSerializer(serializers.ModelSerializer):
         return block
 
     def update(self, instance, validated_data):
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
+        update_attributes(validated_data, instance)
         return instance
 
 
@@ -195,62 +211,74 @@ class QuestionnaireTemplateBlockSerializer(serializers.ModelSerializer):
     template_questions = QuestionnaireTemplateQuestionSerializer(many=True)
     parent_order_number = serializers.IntegerField(write_only=True, allow_null=True, required=False)
     order_number = serializers.IntegerField(write_only=True, required=False)
-    # this field will contain information that is needed to update a Questionnaire Template
     siblings = serializers.JSONField(write_only=True, required=False)
 
     class Meta:
         model = QuestionnaireTemplateBlock
         fields = '__all__'
-        extra_kwargs = {'questionnaire_template': {'required': False}}
+        extra_kwargs = {
+            'questionnaire_template': {
+                'required': False
+            }
+        }
 
     def create(self, validated_data):
-        if validated_data['questionnaire_template'].is_editable:
-            validated_data.pop('children', None)
-            template_questions = validated_data.pop('template_questions')
-
-            # Get the block siblings to update
-            siblings_to_update = validated_data.pop('siblings', [])
-            for sibling in siblings_to_update:
-                block_id = sibling.pop('block_id', None)
-                # Check if blocks are from the same questionnaire template
-                block_to_update = QuestionnaireTemplateBlock.objects.filter(pk=block_id, questionnaire_template=validated_data['questionnaire_template']).first()
-
-                if block_to_update is not None:
-                    for attr, value in sibling.get('block_changes', {}).items():
-                        setattr(block_to_update, attr, value)
-                    block_to_update.save()
-
-            template_block = QuestionnaireTemplateBlock.objects.create(**validated_data)
-
-            for template_block_question in template_questions:
-                template_block_question['questionnaire_template'] = template_block.questionnaire_template.id
-                template_block_question['template_block'] = template_block.id
-                template_block_question_ser = QuestionnaireTemplateQuestionSerializer(data=template_block_question)
-                template_block_question_ser.is_valid(raise_exception=True)
-                template_block_question_ser.save()
-
-            return template_block
-        raise serializers.ValidationError('The Questionnaire Template this Block belongs to is not editable')
+        if not validated_data['questionnaire_template'].is_editable:
+            raise serializers.ValidationError('The Questionnaire Template this Block belongs to is not editable')
+        validated_data.pop('children', None)
+        template_questions = validated_data.pop('template_questions')
+        siblings_to_update = validated_data.pop('siblings', [])
+        self.update_block_siblings(siblings_to_update, validated_data)
+        template_block = QuestionnaireTemplateBlock.objects.create(**validated_data)
+        self.create_template_block_questions(template_questions, template_block)
+        return template_block
 
     def update(self, instance, validated_data):
-        template_questions = validated_data.pop('template_questions', list())
-        if instance.questionnaire_template.is_editable:
-            # Get the block siblings to update
-            siblings = validated_data.pop('siblings', [])
-            for sibling in siblings:
-                block_id = sibling.pop('block_id')
-                # Check if blocks are from the same questionnaire template
-                block_to_update = QuestionnaireTemplateBlock.objects.filter(pk=block_id, questionnaire_template=validated_data['questionnaire_template']).first()
-
-                if block_to_update is not None:
-                    for attr, value in sibling['block_changes'].items():
-                        setattr(block_to_update, attr, value)
-                    block_to_update.save()
-
-            for attr, value in validated_data.items():
-                setattr(instance, attr, value)
-            instance.save()
+        validated_data.pop('template_questions', list())
+        if not instance.questionnaire_template.is_editable:
+            raise serializers.ValidationError('You are not allowed to do this action')
+        siblings = validated_data.pop('siblings', [])
+        self.update_block_siblings(siblings, validated_data)
+        update_attributes(validated_data, instance)
+        instance.save()
         return instance
+
+    @staticmethod
+    def create_template_block_questions(template_questions, template_block):
+        for template_block_question in template_questions:
+            template_block_question['questionnaire_template'] = template_block.questionnaire_template.id
+            template_block_question['template_block'] = template_block.id
+            template_block_question_ser = QuestionnaireTemplateQuestionSerializer(data=template_block_question)
+            template_block_question_ser.is_valid(raise_exception=True)
+            template_block_question_ser.save()
+
+    @staticmethod
+    def update_block_siblings(siblings_to_update, validated_data):
+        for sibling in siblings_to_update:
+            block_id = sibling.pop('block_id')
+            block_to_update = QuestionnaireTemplateBlock.objects.filter(pk=block_id,
+                                                                        questionnaire_template=validated_data[
+                                                                            'questionnaire_template']).first()
+            if block_to_update is not None:
+                update_attributes(sibling['block_changes'], block_to_update)
+                block_to_update.save()
+
+
+class CrossIndexQuestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CrossIndexQuestion
+        fields = '__all__'
+
+
+class CrossIndexSerializer(serializers.ModelSerializer):
+    """
+
+    """
+    questions = CrossIndexQuestionSerializer(source='cross_index_questions', many=True)
+
+    class Meta:
+        model = CrossIndex
+        fields = '__all__'
 
 
 class QuestionnaireSerializer(serializers.ModelSerializer):
@@ -258,10 +286,11 @@ class QuestionnaireSerializer(serializers.ModelSerializer):
 
     """
     blocks = QuestionnaireBlockSerializer(many=True, required=False)
+    cross_indexes = CrossIndexSerializer(many=True, required=False, read_only=True)
 
     class Meta:
         model = Questionnaire
-        fields = '__all__'  # ('title', 'blocks', 'template',)
+        fields = '__all__'
 
     @staticmethod
     def setup_eager_loading(queryset):
@@ -269,41 +298,36 @@ class QuestionnaireSerializer(serializers.ModelSerializer):
         return queryset
 
     def create(self, validated_data):
-        # print(validated_data)
-        blocks = validated_data.pop('blocks', None)
+        blocks = validated_data.pop('blocks', [])
         questionnaire = Questionnaire.objects.create(**validated_data)
 
         parents = {}
-        if blocks:
-            for block in blocks:
-                block['questionnaire'] = questionnaire.id
-                if block['parent_order_number'] is None:
-                    order_number = block.pop('order_number', None)
-                    block.pop('parent_order_number', None)
-                    block['parent_block'] = None
-                    # When sending id it get's the object, but this throws an error
-                    # so I'm "reverting" the process
-                    block['template_block'] = block['template_block'].id
-                    for question in block['questions']:
-                        question['template_question'] = question['template_question'].id
-                    block_ser = QuestionnaireBlockSerializer(data=block)
-                    block_ser.is_valid(raise_exception=True)
-                    block_ser.save()
-                    parents[order_number] = block_ser.instance.id
-                else:
-                    block['parent_block'] = parents[block['parent_order_number']]
-                    order_number = block.pop('order_number', None)
-                    # When sending id it gets the object, but this throws an error
-                    # so I'm "reverting" the process
-                    block.pop('parent_order_number', None)
-                    block['template_block'] = block['template_block'].id
-                    for question in block['questions']:
-                        question['template_question'] = question['template_question'].id
-                    block_ser = QuestionnaireBlockSerializer(data=block)
-                    block_ser.is_valid(raise_exception=True)
-                    block_ser.save()
-                    parents[order_number] = block_ser.instance.id
+
+        for block in blocks:
+            block['questionnaire'] = questionnaire.id
+            if block['parent_order_number'] is None:
+                block.pop('parent_order_number')
+                block['parent_block'] = None
+                # When sending id it get's the object, but this throws an error
+                # so I'm "reverting" the process
+                self.create_block(block, parents)
+            else:
+                block['parent_block'] = parents[block.pop('parent_order_number')]
+                # When sending id it gets the object, but this throws an error
+                # so I'm "reverting" the process
+                self.create_block(block, parents)
         return questionnaire
+
+    @staticmethod
+    def create_block(block, parents):
+        order_number = block.pop('order_number')
+        block['template_block'] = block['template_block'].id
+        for question in block['questions']:
+            question['template_question'] = question['template_question'].id
+        block_ser = QuestionnaireBlockSerializer(data=block)
+        block_ser.is_valid(raise_exception=True)
+        block_ser.save()
+        parents[order_number] = block_ser.instance.id
 
 
 class CrossIndexQuestionTemplateSerializer(serializers.ModelSerializer):
@@ -312,15 +336,21 @@ class CrossIndexQuestionTemplateSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = CrossIndexQuestionTemplate
-        fields = ('question_template', 'weight')
-        extra_kwargs = {'cross_index_template': {'required': False}}
+        fields = ('template_question', 'weight')
+        extra_kwargs = {
+            'template_cross_index': {
+                'required': False
+            }
+        }
 
 
 class CrossIndexTemplateSerializer(serializers.ModelSerializer):
     """
 
     """
-    question_templates = CrossIndexQuestionTemplateSerializer(source='cross_index_question_templates', many=True, required=False)
+    template_questions = CrossIndexQuestionTemplateSerializer(source='cross_index_template_questions',
+                                                              many=True,
+                                                              required=False)
 
     class Meta:
         model = CrossIndexTemplate
@@ -328,27 +358,34 @@ class CrossIndexTemplateSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         questionnaire_template = attrs.get('questionnaire_template', None)
-        question_templates = attrs.get('cross_index_question_templates', [])
+        template_questions = attrs.get('cross_index_template_questions', [])
+        template_question_ids = [template_question['template_question'].id for template_question in template_questions]
 
-        question_template_id = [question_template['question_template'].id for
-                                question_template in question_templates]
-        if not self.all_unique(question_template_id):
-            raise serializers.ValidationError({'question_templates': 'Template Questions allready in Cross Index Template list'})
+        if not self.all_unique(template_question_ids):
+            raise serializers.ValidationError({
+                'question_templates': 'Template Questions already in Cross Index Template list'
+            })
 
-        for template_question in question_templates:
+        for template_question in template_questions:
             if template_question.questionnaire_template.id != questionnaire_template.id:
-                raise serializers.ValidationError({'question_templates': 'Template Questions don\'t correspond to the Questionnaire Template'})
+                raise serializers.ValidationError({
+                    'question_templates': 'Template Questions don\'t correspond to the Questionnaire Template'
+                })
         return attrs
 
     def create(self, validated_data):
-        question_templates = validated_data.pop('cross_index_question_templates', [])
+        template_questions = validated_data.pop('cross_index_template_questions', [])
         cross_template = CrossIndexTemplate.objects.create(**validated_data)
-
-        for question_template in question_templates:
-            CrossIndexQuestionTemplate.objects.create(cross_index_template=cross_template,
-                                                      question_template=question_template['question_template'],
-                                                      weight=question_template['weight'])
+        self.create_template_question(template_questions, cross_template)
         return cross_template
+
+    def update(self, instance, validated_data):
+        template_questions = validated_data.pop('cross_index_template_questions', [])
+        instance.template_questions.clear()
+        self.create_template_question(template_questions, instance)
+        update_attributes(validated_data, instance)
+        instance.save()
+        return instance
 
     @staticmethod
     def all_unique(arr):
@@ -359,18 +396,12 @@ class CrossIndexTemplateSerializer(serializers.ModelSerializer):
         """
         return len(arr) == len(set(arr))
 
-    def update(self, instance, validated_data):
-        question_templates = validated_data.pop('cross_index_question_templates', [])
-
-        instance.question_templates.clear()
-        for question_template in question_templates:
-            CrossIndexQuestionTemplate.objects.create(cross_index_template=instance,
-                                                      question_template=question_template['question_template'],
-                                                      weight=question_template['weight'])
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
-        return instance
+    @staticmethod
+    def create_template_question(template_questions, template_cross_indexes):
+        for template_question in template_questions:
+            CrossIndexQuestionTemplate.objects.create(template_cross_indexes=template_cross_indexes,
+                                                      template_question=template_question['template_question'],
+                                                      weight=template_question['weight'])
 
 
 class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
@@ -378,12 +409,16 @@ class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
 
     """
     template_blocks = QuestionnaireTemplateBlockSerializer(many=True, required=False)
-    cross_index_templates = CrossIndexTemplateSerializer(many=True, required=False, read_only=True)
+    template_cross_indexes = CrossIndexTemplateSerializer(many=True, required=False, read_only=True)
 
     class Meta:
         model = QuestionnaireTemplate
         fields = '__all__'
-        extra_kwargs = {'is_editable': {'read_only': True}}
+        extra_kwargs = {
+            'is_editable': {
+                'read_only': True
+            }
+        }
 
     @staticmethod
     def setup_eager_loading(queryset):
@@ -391,67 +426,43 @@ class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
         return queryset
 
     def create(self, validated_data):
-        template_blocks = validated_data.pop('template_blocks', None)
+        template_blocks = validated_data.pop('template_blocks', [])
         questionnaire_template = QuestionnaireTemplate.objects.create(**validated_data)
 
         parents = {}
-        if template_blocks:
-            for template_block in template_blocks:
-                template_block['questionnaire_template'] = questionnaire_template.id
-                if template_block['parent_order_number'] is None:
-                    order_number = template_block.pop('order_number', None)
-                    template_block.pop('parent_order_number', None)
-                    template_block['parent_block'] = None
-                    template_block_ser = QuestionnaireTemplateBlockSerializer(data=template_block)
-                    template_block_ser.is_valid(raise_exception=True)
-                    template_block_ser.save()
-                    parents[order_number] = template_block_ser.instance.id
-                else:
-                    template_block['parent_block'] = parents[template_block['parent_order_number']]
-                    order_number = template_block.pop('order_number', None)
-                    template_block.pop('parent_order_number', None)
-                    template_block_ser = QuestionnaireTemplateBlockSerializer(data=template_block)
-                    template_block_ser.is_valid(raise_exception=True)
-                    template_block_ser.save()
-                    parents[order_number] = template_block_ser.instance.id
+        for template_block in template_blocks:
+            template_block['questionnaire_template'] = questionnaire_template.id
+            if template_block['parent_order_number'] is None:
+                template_block.pop('parent_order_number', None)
+                template_block['parent_block'] = None
+                self.create_template_block(template_block, parents)
+            else:
+                template_block['parent_block'] = parents[template_block.pop('parent_order_number')]
+                self.create_template_block(template_block, parents)
 
         return questionnaire_template
 
     def update(self, instance, validated_data):
-        # If template blocks is a list of ordered dicts, pop it from validated_data
-        # so that it won't throw an error on update.
-        template_blocks = validated_data.get('template_blocks', [])
-        pop_blocks = len(template_blocks) > 0 and isinstance(template_blocks[0], OrderedDict)
-        if pop_blocks:
-            validated_data.pop('template_blocks')
-        if self.instance.is_editable:
-            for attr, value in validated_data.items():
-                setattr(instance, attr, value)
-            instance.save()
+        if not instance.is_editable:
+            raise serializers.ValidationError('You are not allowed to do this action')
+
+        validated_data.get('template_blocks', [])
+        update_attributes(validated_data, instance)
+        instance.save()
         return instance
 
-
-class CrossIndexSerializer(serializers.ModelSerializer):
-    """
-
-    """
-    class Meta:
-        model = CrossIndex
-        fields = '__all__'
-
-    def validate(self, attrs):
-        questionnaire = attrs.get('questionnaire', None)
-        question = attrs.get('questions', [])
-
-        for question in question:
-            if question.questionnaire.id != questionnaire.id:
-                raise serializers.ValidationError({'question': 'Questions don\'t correspond to the Questionnaire'})
-        return attrs
+    @staticmethod
+    def create_template_block(template_block, parents):
+        order_number = template_block.pop('order_number', None)
+        template_block_ser = QuestionnaireTemplateBlockSerializer(data=template_block)
+        template_block_ser.is_valid(raise_exception=True)
+        template_block_ser.save()
+        parents[order_number] = template_block_ser.instance.id
 
 
 class QuestionSimpleSerializer(serializers.ModelSerializer):
     """
-        Serializes questions more simple including needed fields
+        Serializes questions simpler including needed fields
     """
     class Meta:
         model = QuestionnaireQuestion
@@ -460,7 +471,7 @@ class QuestionSimpleSerializer(serializers.ModelSerializer):
 
 class BlockSimpleSerializer(serializers.ModelSerializer):
     """
-        Serializes blocks more simple including needed fields
+        Serializes blocks simpler including needed fields
     """
     questions = QuestionSimpleSerializer(many=True)
 
@@ -471,7 +482,7 @@ class BlockSimpleSerializer(serializers.ModelSerializer):
 
 class QuestionnaireSimpleSerializer(serializers.ModelSerializer):
     """
-        Serializes questionnaires more simple including needed fields
+        Serializes questionnaires simpler including needed fields
     """
     blocks = BlockSimpleSerializer(many=True)
 

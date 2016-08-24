@@ -2,11 +2,16 @@ from factory.django import DjangoModelFactory
 from factory import SubFactory, fuzzy
 
 from mystery_shopping.questionnaires.constants import QuestionType
-from mystery_shopping.questionnaires.models import QuestionnaireScript, Questionnaire, QuestionnaireQuestion, \
-    QuestionnaireBlock, QuestionnaireTemplateQuestionChoice, QuestionnaireQuestionChoice
+from mystery_shopping.questionnaires.models import Questionnaire
+from mystery_shopping.questionnaires.models import QuestionnaireQuestion
+from mystery_shopping.questionnaires.models import QuestionnaireBlock
+from mystery_shopping.questionnaires.models import QuestionnaireQuestionChoice
+from mystery_shopping.questionnaires.models import QuestionnaireScript
+from mystery_shopping.questionnaires.models import QuestionnaireTemplateQuestionChoice
 from mystery_shopping.questionnaires.models import QuestionnaireTemplate
 from mystery_shopping.questionnaires.models import QuestionnaireTemplateBlock
 from mystery_shopping.questionnaires.models import QuestionnaireTemplateQuestion
+
 from mystery_shopping.factories.tenants import TenantFactory
 
 
@@ -50,7 +55,7 @@ class QuestionTemplateFactory(DjangoModelFactory):
     template_block = SubFactory(QuestionnaireTemplateBlockFactory)
 
 
-class QuestionTemplateQuestionChoiceFactory(DjangoModelFactory):
+class QuestionnaireTemplateQuestionChoiceFactory(DjangoModelFactory):
     class Meta:
         model = QuestionnaireTemplateQuestionChoice
 
