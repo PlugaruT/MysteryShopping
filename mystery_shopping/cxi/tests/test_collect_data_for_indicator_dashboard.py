@@ -8,7 +8,6 @@ from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFacto
     IndicatorQuestionFactory, QuestionnaireBlockFactory, QuestionTemplateFactory, QuestionnaireTemplateQuestionChoiceFactory, \
     QuestionFactory, ChoiceFactory
 from mystery_shopping.projects.models import Project
-from mystery_shopping.questionnaires.models import Questionnaire
 
 
 class TestClassConstructor(TestCase):
@@ -139,42 +138,45 @@ class TestBuildResponse(TestCase):
     def test_when_there_is_one_indicator_questions_and_one_single_choice_question__and_the_given_entity_is_none(self):
         self._generate_first_indicator_question(self.indicator_type, 6, self.template_indicator_question)
         self._generate_second_indicator_question(self.indicator_type, 8, self.template_indicator_question)
-        question_template = QuestionTemplateFactory(type='s', questionnaire_template=self.questionnaire_template)
+        question_template = QuestionTemplateFactory(type='s', questionnaire_template=self.questionnaire_template,
+                                                    question_body='question')
         question_template_choice1 = QuestionnaireTemplateQuestionChoiceFactory(text='choice 1',
                                                                                template_question=question_template)
         question_template_choice2 = QuestionnaireTemplateQuestionChoiceFactory(text='choice 2',
                                                                                template_question=question_template)
 
-        question1 = QuestionFactory.create(type='s', question_body='question 1', template_question=question_template)
-        question2 = QuestionFactory.create(type='s', question_body='question 2', template_question=question_template)
+        block1 = QuestionnaireBlockFactory(questionnaire=self.questionnaire1)
+        block2 = QuestionnaireBlockFactory(questionnaire=self.questionnaire2)
+        question1 = QuestionFactory(type='s', question_body='question', template_question=question_template,
+                                    questionnaire=self.questionnaire1, block=block1)
+        question2 = QuestionFactory(type='s', question_body='question', template_question=question_template,
+                                    questionnaire=self.questionnaire2, block=block2)
 
         choice_11 = ChoiceFactory(text='choice 1', question=question1)
-        choice_12 = ChoiceFactory(text='choice 2', question=question1)
 
         question1.answer = choice_11.text
         question1.answer_choices = [choice_11.id]
 
         choice_21 = ChoiceFactory(text='choice 1', question=question2)
-        choice_22 = ChoiceFactory(text='choice 2', question=question2)
 
-        question2.answer = choice_22.text
-        question2.answer_choices = [choice_22.id]
+        question2.answer = choice_21.text
+        question2.answer_choices = [choice_21.id]
 
         question1.save()
         question2.save()
 
         expected_result = {
             'details': [{
-                'item_label': 'Question From Factory',
+                'item_label': 'question',
                 'results': [
                     {
                         'score': {
-                            'promoters': None,
-                            'detractors': None,
-                            'indicator': None,
-                            'passives': None
+                            'promoters': 0.0,
+                            'detractors': 50.0,
+                            'indicator': -50.0,
+                            'passives': 50.0
                         },
-                        'number_of_respondents': 0,
+                        'number_of_respondents': 2,
                         'other_answer_choices': [],
                         'choice': question_template_choice1.text
                     },
@@ -183,7 +185,7 @@ class TestBuildResponse(TestCase):
                             'promoters': None,
                             'detractors': None,
                             'indicator': None,
-                            'passives': None
+                            'passives': None,
                         },
                         'number_of_respondents': 0,
                         'other_answer_choices': [],
@@ -218,10 +220,10 @@ class TestBuildResponse(TestCase):
             }
         }
 
-        self.maxDiff = None
         result = CollectDataForIndicatorDashboard(self.project, None, self.indicator_type).build_response()
-        print(result)
-        self.assertDictEqual(result, expected_result)
+        self._order_result_lists_in_dict_for_indicator_dashboard(expected_result)
+        self._order_result_lists_in_dict_for_indicator_dashboard(result)
+        self.assertDictEqual(expected_result, result)
 
     def _generate_first_indicator_question(self, additional_info, score, question_template):
         block1 = QuestionnaireBlockFactory(questionnaire=self.questionnaire1)
@@ -239,4 +241,10 @@ class TestBuildResponse(TestCase):
                                                score=score,
                                                template_question=question_template, type='i')
 
+    def _order_result_lists_in_dict_for_indicator_dashboard(self, target):
+        list_to_order = target.get('details')
+        for detail in list_to_order:
+            detail['results'] = self._order_detail(detail['results'])
 
+    def _order_detail(self, detail):
+        return sorted(detail, key=lambda k: k['choice'])
