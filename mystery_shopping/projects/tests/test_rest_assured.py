@@ -13,12 +13,13 @@ from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSer
 from mystery_shopping.projects.serializers import EvaluationSerializer
 from mystery_shopping.projects.constants import ProjectStatus
 
-from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFactory
+from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFactory, QuestionnaireTemplateStatusFactory
 from mystery_shopping.factories.projects import ProjectFactory
 from mystery_shopping.factories.projects import EvaluationFactory
 from mystery_shopping.factories.projects import EvaluationAssessmentLevelFactory
 from mystery_shopping.factories.tenants import TenantFactory
-from mystery_shopping.factories.users import UserThatIsTenantProductManagerFactory
+from mystery_shopping.factories.users import UserThatIsTenantProductManagerFactory, UserFactory
+
 
 # ToDo: make dates 'aware'
 
@@ -54,7 +55,11 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
         template_questionnaire_json_data = json.load(open("mystery_shopping/questionnaires/tests/QuestionnaireTemplates.json"))
         template_questionnaire_json = template_questionnaire_json_data[2]
         tenant = TenantFactory()
+        created_by = UserFactory()
+        status = QuestionnaireTemplateStatusFactory()
         template_questionnaire_json['tenant'] = tenant.id
+        template_questionnaire_json['created_by'] = created_by.id
+        template_questionnaire_json['status'] = status.id
         template_questionnaire_ser = QuestionnaireTemplateSerializer(data=template_questionnaire_json)
         template_questionnaire_ser.is_valid(raise_exception=True)
         template_questionnaire_ser.save()
@@ -106,7 +111,11 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
         template_questionnaire_json_data = json.load(open("mystery_shopping/questionnaires/tests/QuestionnaireTemplates.json"))
         template_questionnaire_json = template_questionnaire_json_data[2]
         tenant = TenantFactory()
+        created_by = UserFactory()
+        status = QuestionnaireTemplateStatusFactory()
         template_questionnaire_json['tenant'] = tenant.id
+        template_questionnaire_json['created_by'] = created_by.id
+        template_questionnaire_json['status'] = status.id
         template_questionnaire_ser = QuestionnaireTemplateSerializer(data=template_questionnaire_json)
         template_questionnaire_ser.is_valid(raise_exception=True)
         template_questionnaire_ser.save()
@@ -156,7 +165,11 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
         template_questionnaire_json_data = json.load(open("mystery_shopping/questionnaires/tests/QuestionnaireTemplates.json"))
         template_questionnaire_json = template_questionnaire_json_data[2]
         tenant = TenantFactory()
+        created_by = UserFactory()
+        status = QuestionnaireTemplateStatusFactory()
         template_questionnaire_json['tenant'] = tenant.id
+        template_questionnaire_json['created_by'] = created_by.id
+        template_questionnaire_json['status'] = status.id
         template_questionnaire_ser = QuestionnaireTemplateSerializer(data=template_questionnaire_json)
         template_questionnaire_ser.is_valid(raise_exception=True)
         template_questionnaire_ser.save()

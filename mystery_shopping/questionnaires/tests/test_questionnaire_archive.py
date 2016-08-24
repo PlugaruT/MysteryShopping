@@ -12,7 +12,8 @@ class QuestionnaireTemplateArchiveAPITestCase(APITestCase):
         self.archived_questionnaire = QuestionnaireTemplateFactory(is_archived=True)
         self.unarchived_questionnaire = QuestionnaireTemplateFactory(is_archived=False)
 
-        self.client = AuthenticateUser().client
+        self.authentification = AuthenticateUser()
+        self.client = self.authentification.client
 
     def test_get_archived_questionnaires(self):
         response = self.client.get(reverse('questionnairetemplate-get-archived'))
@@ -26,20 +27,28 @@ class QuestionnaireTemplateArchiveAPITestCase(APITestCase):
 
     def test_archive_unarchived_questionnaire(self):
         self.client.put(reverse('questionnairetemplate-archive', args=(self.unarchived_questionnaire.id,)))
+        self.unarchived_questionnaire.status.refresh_from_db()
         self.unarchived_questionnaire.refresh_from_db()
+        self.assertEquals(self.authentification.user, self.unarchived_questionnaire.status.archived_by)
         self.assertTrue(self.unarchived_questionnaire.is_archived)
 
     def test_unarchive_archived_questionnaire(self):
         self.client.put(reverse('questionnairetemplate-unarchive', args=(self.archived_questionnaire.id,)))
+        self.archived_questionnaire.status.refresh_from_db()
         self.archived_questionnaire.refresh_from_db()
+        self.assertEquals(self.authentification.user, self.archived_questionnaire.status.archived_by)
         self.assertFalse(self.archived_questionnaire.is_archived)
 
     def test_archive_archived_questionnaire(self):
         self.client.put(reverse('questionnairetemplate-archive', args=(self.archived_questionnaire.id,)))
+        self.archived_questionnaire.status.refresh_from_db()
         self.archived_questionnaire.refresh_from_db()
+        self.assertEquals(self.authentification.user, self.archived_questionnaire.status.archived_by)
         self.assertTrue(self.archived_questionnaire.is_archived)
 
     def test_unarchive_unarchived_questionnaire(self):
         self.client.put(reverse('questionnairetemplate-unarchive', args=(self.unarchived_questionnaire.id,)))
+        self.unarchived_questionnaire.status.refresh_from_db()
         self.unarchived_questionnaire.refresh_from_db()
+        self.assertEquals(self.authentification.user, self.unarchived_questionnaire.status.archived_by)
         self.assertFalse(self.unarchived_questionnaire.is_archived)

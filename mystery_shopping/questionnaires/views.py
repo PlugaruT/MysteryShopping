@@ -5,6 +5,7 @@ from rest_framework import status
 from rest_framework.decorators import list_route, detail_route
 from rest_condition import Or
 
+from mystery_shopping.questionnaires.models import QuestionnaireTemplateStatus
 from .models import QuestionnaireScript
 from .models import Questionnaire
 from .models import QuestionnaireTemplate
@@ -61,7 +62,10 @@ class QuestionnaireTemplateViewSet(viewsets.ModelViewSet):
         return queryset
 
     def create(self, request, *args, **kwargs):
+        questionnaire_status = QuestionnaireTemplateStatus.objects.create()
         request.data['tenant'] = request.user.tenant.id
+        request.data['created_by'] = request.user.id
+        request.data['status'] = questionnaire_status.id
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
@@ -83,14 +87,14 @@ class QuestionnaireTemplateViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['put'])
     def archive(self, request, pk=None):
         questionnaire = get_object_or_404(QuestionnaireTemplate, pk=pk)
-        questionnaire.archive()
+        questionnaire.archive(request.user)
         questionnaire.save()
         return Response(status=status.HTTP_202_ACCEPTED)
 
     @detail_route(methods=['put'])
     def unarchive(self, request, pk=None):
         questionnaire = get_object_or_404(QuestionnaireTemplate, pk=pk)
-        questionnaire.unarchive()
+        questionnaire.unarchive(request.user)
         questionnaire.save()
         return Response(status=status.HTTP_202_ACCEPTED)
 

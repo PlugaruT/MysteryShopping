@@ -1,7 +1,12 @@
 from factory.django import DjangoModelFactory
 from factory import SubFactory
+from datetime import date
 
-from mystery_shopping.questionnaires.models import QuestionnaireScript, QuestionnaireTemplateQuestionChoice
+from factory.fuzzy import FuzzyDate
+
+from mystery_shopping.factories.users import UserFactory
+from mystery_shopping.questionnaires.models import QuestionnaireScript, QuestionnaireTemplateQuestionChoice, \
+    QuestionnaireTemplateStatus
 from mystery_shopping.questionnaires.models import QuestionnaireTemplate
 from mystery_shopping.questionnaires.models import QuestionnaireTemplateBlock
 from mystery_shopping.questionnaires.models import QuestionnaireTemplateQuestion
@@ -16,14 +21,26 @@ class QuestionnaireScriptFactory(DjangoModelFactory):
     description = "Very fancy description"
 
 
+class QuestionnaireTemplateStatusFactory(DjangoModelFactory):
+    class Meta:
+        model = QuestionnaireTemplateStatus
+
+    archived_date = FuzzyDate(date(1990, 12, 12))
+    archived_by = SubFactory(UserFactory)
+
+
 class QuestionnaireTemplateFactory(DjangoModelFactory):
     class Meta:
         model = QuestionnaireTemplate
 
     tenant = SubFactory(TenantFactory)
+    status = SubFactory(QuestionnaireTemplateStatusFactory)
+    created_by = SubFactory(UserFactory)
+
     title = "Factory Questionnaire Template title"
     description = 'lalala'
     is_editable = True
+    is_archived = False
 
 
 class QuestionnaireTemplateBlockFactory(DjangoModelFactory):
