@@ -417,7 +417,7 @@ class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
     """
     template_blocks = QuestionnaireTemplateBlockSerializer(many=True, required=False)
     template_cross_indexes = CrossIndexTemplateSerializer(many=True, required=False, read_only=True)
-    status = QuestionnaireTemplateStatusSerializer()
+    status_repr = QuestionnaireTemplateStatusSerializer(source='status', read_only=True)
 
     class Meta:
         model = QuestionnaireTemplate
@@ -425,6 +425,9 @@ class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'is_editable': {
                 'read_only': True
+            },
+            'status': {
+                'required': False
             }
         }
 
