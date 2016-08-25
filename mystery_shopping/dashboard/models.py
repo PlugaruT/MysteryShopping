@@ -15,6 +15,7 @@ class DashboardTemplate(models.Model):
     tenant = models.ForeignKey(Tenant)
     company = models.ForeignKey(Company)
     modified_by = models.ForeignKey(User)
+    users = models.ManyToManyField(User, related_name='have_access')
 
     # Attributes
     title = models.CharField(max_length=120)

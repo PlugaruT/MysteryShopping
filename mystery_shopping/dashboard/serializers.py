@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from mystery_shopping.users.serializers import UserSerializer
 from .models import DashboardTemplate
 from .models import DashboardComment
 
@@ -8,6 +9,9 @@ class DashboardTemplateSerializer(serializers.ModelSerializer):
     """
 
     """
+
+    users_repr = UserSerializer(source='users', many=True, read_only=True)
+
     class Meta:
         model = DashboardTemplate
         fields = '__all__'

@@ -106,6 +106,18 @@ class User(AbstractUser):
             return self.clientmanager.has_overview_access
         return False
 
+    @property
+    def is_tenant_product_manager(self):
+        return hasattr(self, 'tenantproductmanager')
+
+    @property
+    def is_tenant_project_manager(self):
+        return hasattr(self, 'tenantprojectmanager')
+
+    @property
+    def is_tenant_manager(self):
+        return self.is_tenant_product_manager or self.is_tenant_project_manager
+
     def is_client_user(self):
         return hasattr(self, UserRole.CLIENT_PROJECT_MANAGER) \
                or hasattr(self, UserRole.CLIENT_MANAGER) \
