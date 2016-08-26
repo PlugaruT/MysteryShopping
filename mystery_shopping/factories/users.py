@@ -1,8 +1,7 @@
 from datetime import date
 
 from factory.django import DjangoModelFactory
-from factory import fuzzy, Sequence, SubFactory, PostGenerationMethodCall, RelatedFactory
-from faker import Factory
+from factory import fuzzy, SubFactory, PostGenerationMethodCall, RelatedFactory
 
 from .tenants import TenantFactory
 from mystery_shopping.users.models import User, TenantProductManager, TenantProjectManager, Shopper

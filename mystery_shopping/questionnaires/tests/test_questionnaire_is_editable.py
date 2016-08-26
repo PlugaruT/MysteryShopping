@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.reverse import reverse
 
 from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFactory, QuestionnaireTemplateBlockFactory, \
-    QuestionnaireTemplateQuestionFactory, QuestionnaireTemplateQuestionChoiceFactory
+    QuestionTemplateFactory, QuestionnaireTemplateQuestionChoiceFactory
 from mystery_shopping.users.tests.user_authentication import AuthenticateUser
 
 
@@ -15,7 +15,7 @@ class TestEditPermissionsOnQuestionnaires(TestCase):
         self.client = self.authentication.client
         self.questionnaire = QuestionnaireTemplateFactory(is_editable=False, tenant=self.authentication.tenant)
         self.block = QuestionnaireTemplateBlockFactory(questionnaire_template=self.questionnaire)
-        self.question = QuestionnaireTemplateQuestionFactory(questionnaire_template=self.questionnaire,
+        self.question = QuestionTemplateFactory(questionnaire_template=self.questionnaire,
                                                              template_block=self.block)
         self.question_choice = QuestionnaireTemplateQuestionChoiceFactory(template_question=self.question)
 

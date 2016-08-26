@@ -1,4 +1,11 @@
 from factory.django import DjangoModelFactory
+from factory import fuzzy
+
+from mystery_shopping.questionnaires.constants import QuestionType
+from mystery_shopping.questionnaires.models import Questionnaire
+from mystery_shopping.questionnaires.models import QuestionnaireQuestion
+from mystery_shopping.questionnaires.models import QuestionnaireBlock
+from mystery_shopping.questionnaires.models import QuestionnaireQuestionChoice
 from factory import SubFactory
 from datetime import date
 
@@ -10,6 +17,7 @@ from mystery_shopping.questionnaires.models import QuestionnaireScript, Question
 from mystery_shopping.questionnaires.models import QuestionnaireTemplate
 from mystery_shopping.questionnaires.models import QuestionnaireTemplateBlock
 from mystery_shopping.questionnaires.models import QuestionnaireTemplateQuestion
+
 from mystery_shopping.factories.tenants import TenantFactory
 
 
@@ -53,7 +61,7 @@ class QuestionnaireTemplateBlockFactory(DjangoModelFactory):
     questionnaire_template = SubFactory(QuestionnaireTemplateFactory)
 
 
-class QuestionnaireTemplateQuestionFactory(DjangoModelFactory):
+class QuestionTemplateFactory(DjangoModelFactory):
     class Meta:
         model = QuestionnaireTemplateQuestion
 
@@ -69,6 +77,57 @@ class QuestionnaireTemplateQuestionChoiceFactory(DjangoModelFactory):
     class Meta:
         model = QuestionnaireTemplateQuestionChoice
 
-    template_question = SubFactory(QuestionnaireTemplateQuestionFactory)
-    text = 'question choice from factory'
-    order = 1
+    text = 'something here'
+    order = 42
+    template_question = SubFactory(QuestionTemplateFactory)
+
+
+class QuestionnaireFactory(DjangoModelFactory):
+    class Meta:
+        model = Questionnaire
+
+    title = "Factory Questionnaire Template title"
+    template = SubFactory(QuestionnaireTemplateFactory)
+
+
+class QuestionnaireBlockFactory(DjangoModelFactory):
+    class Meta:
+        model = QuestionnaireBlock
+
+    title = fuzzy.FuzzyText(length=10)
+    weight = fuzzy.FuzzyDecimal(low=1, high=42)
+    order = fuzzy.FuzzyInteger(low=2, high=42)
+    questionnaire = SubFactory(QuestionnaireFactory)
+    template_block = SubFactory(QuestionnaireTemplateBlockFactory)
+
+
+class IndicatorQuestionFactory(DjangoModelFactory):
+    class Meta:
+        model = QuestionnaireQuestion
+
+    order = fuzzy.FuzzyInteger(low=1, high=42)
+    weight = fuzzy.FuzzyDecimal(low=1, high=42)
+    type = QuestionType.INDICATOR_QUESTION
+    questionnaire = SubFactory(QuestionnaireFactory)
+    template_question = SubFactory(QuestionTemplateFactory)
+    block = SubFactory(QuestionnaireBlockFactory)
+
+
+class QuestionFactory(DjangoModelFactory):
+    class Meta:
+        model = QuestionnaireQuestion
+
+    order = fuzzy.FuzzyInteger(low=1, high=42)
+    weight = fuzzy.FuzzyDecimal(low=1, high=42)
+    type = QuestionType.SINGLE_CHOICE
+    questionnaire = SubFactory(QuestionnaireFactory)
+    template_question = SubFactory(QuestionTemplateFactory)
+    block = SubFactory(QuestionnaireBlockFactory)
+
+
+class ChoiceFactory(DjangoModelFactory):
+    class Meta:
+        model = QuestionnaireQuestionChoice
+
+    question = SubFactory(QuestionFactory)
+    order = fuzzy.FuzzyInteger(low=1, high=42)

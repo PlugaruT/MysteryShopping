@@ -3,7 +3,7 @@ from json import loads, dumps
 
 from mystery_shopping.factories.companies import EntityFactory
 from mystery_shopping.factories.projects import ProjectFactory
-from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFactory, QuestionnaireTemplateQuestionFactory, \
+from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFactory, QuestionTemplateFactory, \
     QuestionnaireTemplateBlockFactory
 from mystery_shopping.factories.tenants import TenantFactory
 from mystery_shopping.factories.users import ShopperFactory
@@ -21,10 +21,10 @@ class TestSerializeCrossIndexForQuestionnaire(TestCase):
 
         self.template_block = QuestionnaireTemplateBlockFactory(questionnaire_template=self.template_questionnaire)
 
-        self.template_question_1 = QuestionnaireTemplateQuestionFactory(
+        self.template_question_1 = QuestionTemplateFactory(
             questionnaire_template=self.template_questionnaire, question_body='first template question',
             template_block=self.template_block)
-        self.template_question_2 = QuestionnaireTemplateQuestionFactory(
+        self.template_question_2 = QuestionTemplateFactory(
             questionnaire_template=self.template_questionnaire, question_body='second template question',
             template_block=self.template_block)
 

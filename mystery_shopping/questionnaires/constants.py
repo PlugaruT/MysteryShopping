@@ -3,8 +3,4 @@ class QuestionType:
     DATE_FIELD = 'd'
     SINGLE_CHOICE = 's'
     MULTIPLE_CHOICE = 'm'
-
-
-class IndicatorQuestionType:
     INDICATOR_QUESTION = 'i'
-

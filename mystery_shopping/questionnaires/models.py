@@ -9,7 +9,6 @@ from mptt.models import MPTTModel, TreeForeignKey
 from datetime import datetime
 
 from .constants import QuestionType
-from .constants import IndicatorQuestionType as IndQuestType
 from .managers import QuestionnaireQuerySet
 from .managers import QuestionnaireQuestionQuerySet
 
@@ -113,7 +112,7 @@ class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
 
     def get_indicator_question(self, indicator_type):
         try:
-            return self.questions.get(type=IndQuestType.INDICATOR_QUESTION, additional_info=indicator_type)
+            return self.questions.get(type=QuestionType.INDICATOR_QUESTION, additional_info=indicator_type)
         except:
             return None
 
@@ -237,13 +236,13 @@ class QuestionAbstract(models.Model):
                            (QuestionType.DATE_FIELD, 'Date Field'),
                            (QuestionType.SINGLE_CHOICE, 'Single Choice'),
                            (QuestionType.MULTIPLE_CHOICE, 'Multiple Choice'),
-                           (IndQuestType.INDICATOR_QUESTION, 'Indicator Question'))
+                           (QuestionType.INDICATOR_QUESTION, 'Indicator Question'))
     type = models.CharField(max_length=1, choices=type_choices, default=type_choices.t)
     max_score = models.PositiveSmallIntegerField(null=True, blank=True)
     order = models.PositiveIntegerField()
     weight = models.DecimalField(max_digits=5, decimal_places=2)
     show_comment = models.BooleanField(default=True)
-    additional_info = models.CharField(max_length=30, blank=Tenant)
+    additional_info = models.CharField(max_length=30, blank=True)
 
     class Meta:
         abstract = True
