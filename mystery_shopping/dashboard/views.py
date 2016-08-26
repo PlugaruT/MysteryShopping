@@ -1,9 +1,11 @@
 from rest_framework import viewsets
 from rest_framework import status
 from rest_framework.response import Response
+from rest_condition import Or
 
 from datetime import datetime
 
+from mystery_shopping.users.permissions import HasAccessToDashboard
 from .models import DashboardTemplate
 from .models import DashboardComment
 from .serializers import DashboardTemplateSerializer
@@ -16,6 +18,7 @@ class DashboardTemplateView(viewsets.ModelViewSet):
     """
     queryset = DashboardTemplate.objects.all()
     serializer_class = DashboardTemplateSerializer
+    permission_classes = (HasAccessToDashboard,)
 
     def get_queryset(self):
         """
@@ -23,7 +26,7 @@ class DashboardTemplateView(viewsets.ModelViewSet):
         :return:
         """
         company = self.request.query_params.get('company', None)
-        queryset = self.queryset.filter(company=company)
+        queryset = self.queryset.filter(company=company, is_published=True)
         if not self.request.user.is_tenant_manager:
             queryset = self.queryset.filter(company=company, users__in=[self.request.user.id])
         return queryset
