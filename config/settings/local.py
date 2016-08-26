@@ -40,7 +40,7 @@ CACHES = {
 # django-debug-toolbar
 # ------------------------------------------------------------------------------
 MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
-INSTALLED_APPS += ('debug_toolbar', )
+INSTALLED_APPS += ('debug_toolbar', 'django_nose',)
 
 INTERNAL_IPS = ('127.0.0.1', '10.0.2.2',)
 
@@ -57,6 +57,13 @@ INSTALLED_APPS += ('django_extensions', )
 
 # TESTING
 # ------------------------------------------------------------------------------
-TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+# Use nose to run all tests
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+# Tell nose to measure coverage on the apps
+NOSE_ARGS = [
+    '--with-coverage',
+    '--cover-package=mystery_shopping',
+]
 
 # Your local stuff: Below this line define 3rd party library settings
