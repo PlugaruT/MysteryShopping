@@ -6,6 +6,8 @@ from unittest.mock import MagicMock
 
 from django.test import TestCase
 
+from mystery_shopping.factories.questionnaires import QuestionnaireTemplateStatusFactory
+from mystery_shopping.factories.users import UserFactory
 from ..algorithms import calculate_indicator_score
 from ..algorithms import create_details_skeleton
 from ..algorithms import get_indicator_scores
@@ -122,6 +124,10 @@ class AlgorithmsTestCase(TestCase):
         # create a template questionnaire
         data = load(open("mystery_shopping/cxi/tests/template_questionnaire_for_skeleton.json"))
         tenant = TenantFactory()
+        created_by = UserFactory()
+        status = QuestionnaireTemplateStatusFactory()
+        data['created_by'] = created_by.id
+        data['status'] = status.id
         data['tenant'] = tenant.id
         template_ser = QuestionnaireTemplateSerializer(data=data)
         template_ser.is_valid(raise_exception=True)

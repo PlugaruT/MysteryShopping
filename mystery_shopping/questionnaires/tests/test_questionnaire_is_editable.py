@@ -26,7 +26,6 @@ class TestEditPermissionsOnQuestionnaires(TestCase):
                                                    'tenant': self.authentication.tenant.id
                                                    }),
                                   content_type='application/json')
-
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_edit_questionnaire_when_flag_is_true(self):
@@ -35,13 +34,14 @@ class TestEditPermissionsOnQuestionnaires(TestCase):
         response = self.client.put(reverse('questionnairetemplate-detail', args=(self.questionnaire.pk,)),
                                   data=json.dumps({'description': 'bababa',
                                                    'title': "demo title",
-                                                   'tenant': self.authentication.tenant.id
+                                                   'tenant': self.authentication.tenant.id,
+                                                   'status': self.questionnaire.status.id,
+                                                   'created_by': self.questionnaire.created_by.id
                                                    }),
                                   content_type='application/json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_edit_block_when_flag_is_false(self):
-
         response = self.client.put(reverse('questionnairetemplateblock-detail', args=(self.block.pk,)),
                                    data=json.dumps({'template_blocks': [{
                                        'title': 'modified title',

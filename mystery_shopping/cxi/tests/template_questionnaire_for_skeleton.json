@@ -98,5 +98,8 @@
     "title": "NPS Questionnaire",
     "type": "c",
     "description": "NPS Template",
-    "is_editable": true
+    "is_editable": true,
+    "is_archived": false,
+    "status": 1,
+    "created_by": 1
 }

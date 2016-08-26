@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 from rest_framework import serializers
 
-from mystery_shopping.questionnaires.models import CrossIndexQuestion
+from mystery_shopping.questionnaires.models import CrossIndexQuestion, QuestionnaireTemplateStatus
 from .models import QuestionnaireScript
 from .models import Questionnaire
 from .models import QuestionnaireTemplate
@@ -404,12 +404,20 @@ class CrossIndexTemplateSerializer(serializers.ModelSerializer):
                                                       weight=template_question['weight'])
 
 
+class QuestionnaireTemplateStatusSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = QuestionnaireTemplateStatus
+        field = '__all__'
+
+
 class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
     """
 
     """
     template_blocks = QuestionnaireTemplateBlockSerializer(many=True, required=False)
     template_cross_indexes = CrossIndexTemplateSerializer(many=True, required=False, read_only=True)
+    status_repr = QuestionnaireTemplateStatusSerializer(source='status', read_only=True)
 
     class Meta:
         model = QuestionnaireTemplate
@@ -417,6 +425,9 @@ class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'is_editable': {
                 'read_only': True
+            },
+            'status': {
+                'required': False
             }
         }
 
