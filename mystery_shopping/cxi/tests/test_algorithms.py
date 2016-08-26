@@ -6,6 +6,8 @@ from unittest.mock import MagicMock
 
 from django.test import TestCase
 
+from mystery_shopping.factories.questionnaires import QuestionnaireTemplateStatusFactory
+from mystery_shopping.factories.users import UserFactory
 from ..algorithms import calculate_indicator_score
 from ..algorithms import create_details_skeleton
 from ..algorithms import get_indicator_scores
@@ -16,11 +18,12 @@ from ..algorithms import group_questions_by_pos
 from ..algorithms import calculate_overview_score
 from ..algorithms import sort_indicator_categories
 from ..algorithms import sort_indicators_per_pos
+from ..algorithms import sort_question_by_coded_cause
 
 from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializer
-from mystery_shopping.questionnaires.constants import IndicatorQuestionType
 from mystery_shopping.questionnaires.constants import QuestionType
 from mystery_shopping.factories.tenants import TenantFactory
+from mystery_shopping.factories.cxi import CodedCauseFactory, CodedCauseLabelFactory
 
 
 class AlgorithmsTestCase(TestCase):
@@ -30,6 +33,9 @@ class AlgorithmsTestCase(TestCase):
         # contains the cxi value is decimal
         for index, value in enumerate(indicator_marks):
             value = Decimal(value)
+        # print(indicator_marks)
+        # indicator_marks = [Decimal(value) for value in indicator_marks]
+        # print(indicator_marks)
 
         calculated_score = calculate_indicator_score(indicator_marks)
 
@@ -57,7 +63,7 @@ class AlgorithmsTestCase(TestCase):
         for i in range(len(initial_score_list) - 1):
             questionnaire = MagicMock()
             mock_question = MagicMock()
-            mock_question.type = IndicatorQuestionType.INDICATOR_QUESTION
+            mock_question.type = QuestionType.INDICATOR_QUESTION
             mock_question.additional_info = indicator_type
             mock_question.score = initial_score_list[i]
             # Assign questions to the questionnaire
@@ -67,7 +73,7 @@ class AlgorithmsTestCase(TestCase):
         # Add another questionnaire with a different type of cxi question
         questionnaire_list.append(MagicMock())
         mock_question = MagicMock()
-        mock_question.type = IndicatorQuestionType.INDICATOR_QUESTION
+        mock_question.type = QuestionType.INDICATOR_QUESTION
         mock_question.additional_info = 'Enjoyability'
         mock_question.score = initial_score_list[-1]
         questionnaire_list[-1].questions.all.return_value = [mock_question,]
@@ -118,6 +124,10 @@ class AlgorithmsTestCase(TestCase):
         # create a template questionnaire
         data = load(open("mystery_shopping/cxi/tests/template_questionnaire_for_skeleton.json"))
         tenant = TenantFactory()
+        created_by = UserFactory()
+        status = QuestionnaireTemplateStatusFactory()
+        data['created_by'] = created_by.id
+        data['status'] = status.id
         data['tenant'] = tenant.id
         template_ser = QuestionnaireTemplateSerializer(data=data)
         template_ser.is_valid(raise_exception=True)
@@ -144,7 +154,7 @@ class AlgorithmsTestCase(TestCase):
         answer_choice = 123
 
         indicator_question = MagicMock()
-        indicator_question.type = IndicatorQuestionType.INDICATOR_QUESTION
+        indicator_question.type = QuestionType.INDICATOR_QUESTION
         indicator_question.score = mark
 
         question = MagicMock()
@@ -163,7 +173,7 @@ class AlgorithmsTestCase(TestCase):
         answer_choice = []
 
         indicator_question = MagicMock()
-        indicator_question.type = IndicatorQuestionType.INDICATOR_QUESTION
+        indicator_question.type = QuestionType.INDICATOR_QUESTION
         indicator_question.score = mark
 
         question = MagicMock()
@@ -182,11 +192,11 @@ class AlgorithmsTestCase(TestCase):
         answer_choice = []
 
         indicator_question = MagicMock()
-        indicator_question.type = IndicatorQuestionType.INDICATOR_QUESTION
+        indicator_question.type = QuestionType.INDICATOR_QUESTION
         indicator_question.score = mark
 
         question = MagicMock()
-        question.type = IndicatorQuestionType.INDICATOR_QUESTION
+        question.type = QuestionType.INDICATOR_QUESTION
         question.answer = 'lalala'
         question.question_body = 'NPS'
         question.answer_choices = answer_choice
@@ -236,7 +246,7 @@ class AlgorithmsTestCase(TestCase):
             indicator_question = MagicMock()
 
             indicator_question_id = randint(1, 100)
-            indicator_question.type = IndicatorQuestionType.INDICATOR_QUESTION
+            indicator_question.type = QuestionType.INDICATOR_QUESTION
             indicator_question.score = mark
             indicator_question.id = indicator_question_id
             indicator_question.additional_info = indicator_type
@@ -282,7 +292,7 @@ class AlgorithmsTestCase(TestCase):
             questionnaire = MagicMock()
             indicator_question = MagicMock()
 
-            indicator_question.type = IndicatorQuestionType.INDICATOR_QUESTION
+            indicator_question.type = QuestionType.INDICATOR_QUESTION
             indicator_question.score = mark
             indicator_question.additional_info = indicator_type
 
@@ -316,12 +326,12 @@ class AlgorithmsTestCase(TestCase):
         for i in range(len(initial_score_list)):
             questionnaire = MagicMock()
             indicator_question_1 = MagicMock()
-            indicator_question_1.type = IndicatorQuestionType.INDICATOR_QUESTION
+            indicator_question_1.type = QuestionType.INDICATOR_QUESTION
             indicator_question_1.additional_info = first_indicator
             indicator_question_1.score = initial_score_list[i]
 
             indicator_question_2 = MagicMock()
-            indicator_question_2.type = IndicatorQuestionType.INDICATOR_QUESTION
+            indicator_question_2.type = QuestionType.INDICATOR_QUESTION
             indicator_question_2.additional_info = second_indicator
             indicator_question_2.score = initial_score_list[i]
             # Assign questions to the questionnaire
@@ -371,3 +381,77 @@ class AlgorithmsTestCase(TestCase):
             for result in pos['results']:
                 self.assertEqual(result['number_of_respondents'], len(initial_score_list))
                 self.assertEqual(result['score']['indicator'], 40.0)
+
+    def test_sort_question_by_coded_cause(self):
+        coded_causes_dict = defaultdict(list)
+
+        coded_cause_1 = CodedCauseFactory(type="a")
+        coded_cause_2 = CodedCauseFactory(type="b")
+        coded_cause_3 = CodedCauseFactory(type="c")
+
+        indicator_question_1 = MagicMock()
+        indicator_question_1.id = 11
+        coded_causes_dict[coded_cause_1.id].append(indicator_question_1.id)
+
+        indicator_question_2 = MagicMock()
+        indicator_question_2.id = 22
+        coded_causes_dict[coded_cause_1.id].append(indicator_question_2.id)
+
+        indicator_question_3 = MagicMock()
+        indicator_question_3.id = 33
+        coded_causes_dict[coded_cause_2.id].append(indicator_question_3.id)
+
+        indicator_question_4 = MagicMock()
+        indicator_question_4.id = 44
+        coded_causes_dict[coded_cause_3.id].append(indicator_question_4.id)
+
+        result = sort_question_by_coded_cause(coded_causes_dict)
+
+        expected_result = [
+            {
+                'count': 2,
+                'coded_cause': {
+                    'coded_label': {},
+                    'tenant': coded_cause_1.tenant.id,
+                    'type': 'a',
+                    'id': coded_cause_1.id,
+                    'sentiment': coded_cause_1.sentiment,
+                    'parent': None
+                }
+            },
+            {
+                'count': 1,
+                'coded_cause': {
+                    'coded_label': {},
+                    'tenant': coded_cause_2.tenant.id,
+                    'type': 'b',
+                    'id': coded_cause_2.id,
+                    'sentiment': coded_cause_2.sentiment,
+                    'parent': None
+                }
+            },
+            {
+                'count': 1,
+                'coded_cause': {
+                    'coded_label': {},
+                    'tenant': coded_cause_3.tenant.id,
+                    'type': 'c',
+                    'id': coded_cause_3.id,
+                    'sentiment': coded_cause_3.sentiment,
+                    'parent': None
+                }
+            }
+        ]
+
+        self.maxDiff = None
+
+        for item in result:
+            item['coded_cause']['coded_label'] = {}
+
+        self.assertCountEqual(expected_result, result)
+
+    def test_collect_data_for_indicator_dashboard(self):
+        pass
+
+    def test_collect_data_for_overview_dashboard(self):
+        pass

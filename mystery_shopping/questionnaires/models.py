@@ -6,9 +6,9 @@ from model_utils import Choices
 from model_utils.models import TimeStampedModel
 
 from mptt.models import MPTTModel, TreeForeignKey
+from datetime import datetime
 
 from .constants import QuestionType
-from .constants import IndicatorQuestionType as IndQuestType
 from .managers import QuestionnaireQuerySet
 from .managers import QuestionnaireQuestionQuerySet
 
@@ -49,13 +49,22 @@ class QuestionnaireAbstract(models.Model):
         ordering = ('title',)
 
 
-class QuestionnaireTemplate(QuestionnaireAbstract):
+class QuestionnaireTemplateStatus(models.Model):
+    """
+       Model that holds short information about status of QuestionnaireTemplate
+    """
+    archived_date = models.DateTimeField(null=True)
+    archived_by = models.ForeignKey('users.User', null=True)
+
+
+class QuestionnaireTemplate(TimeStampedModel, QuestionnaireAbstract):
     """
     Templates for questionnaires that will not contain answers.
-
     """
     # Relations
     tenant = models.ForeignKey(Tenant)
+    status = models.OneToOneField(QuestionnaireTemplateStatus)
+    created_by = models.ForeignKey('users.User')
 
     # Attributes
     description = models.TextField()
@@ -66,16 +75,20 @@ class QuestionnaireTemplate(QuestionnaireAbstract):
         return 'Title: {}'.format(self.title)
 
     def get_indicator_question(self, indicator_type):
-        try:
-            return self.template_questions.get(type=indicator_type)
-        except:
-            return None
+        return self.template_questions.filter(type=indicator_type).first()
 
-    def archive(self):
+    def archive(self, user):
         self.is_archived = True
+        self.status.archived_date = datetime.now()
+        self.status.archived_by = user
+        self.status.save()
 
-    def unarchive(self):
+    def unarchive(self, user):
         self.is_archived = False
+        self.status.archived_date = datetime.now()
+        self.status.archived_by = user
+        self.status.save()
+
 
 class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
     """
@@ -99,14 +112,14 @@ class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
 
     def get_indicator_question(self, indicator_type):
         try:
-            return self.questions.get(type=IndQuestType.INDICATOR_QUESTION, additional_info=indicator_type)
+            return self.questions.get(type=QuestionType.INDICATOR_QUESTION, additional_info=indicator_type)
         except:
             return None
 
     def calculate_score_for_m(self):
-        '''
+        """
         Function for calculating the score of a Mystery Shopping Questionnaire
-        '''
+        """
         self.score = 0
         blocks = self.blocks.filter(parent_block=None)
 
@@ -118,26 +131,40 @@ class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
         return self.score
 
     def calculate_score_for_c(self):
-        '''
+        """
         Function for making calculations on Customer Experience Index Questionnaires. (now it does nothing)
-        '''
+        """
         pass
 
     def calculate_score(self):
-        '''
-        Function for determining what type of calculation to perform on the questionnaire taking into consideration the type
-        '''
+        """
+        Function for determining what type of calculation to perform on the questionnaire taking into consideration
+        the type
+        """
         self.score = getattr(self, 'calculate_score_for_{}'.format(self.type))()
         self.save()
 
-    # def get_indicator_question(self, indicator_question_type):
-    #     return self..question.get(type=indicator_question_type)
+    def create_cross_indexes(self, template_cross_indexes):
+        for template_cross_index in template_cross_indexes:
+            cross_index = self.create_cross_index(template_cross_index)
+            self.create_cross_index_question(template_cross_index, cross_index)
+
+    def create_cross_index_question(self, template_cross_index, cross_index):
+        for template_question in template_cross_index['template_questions']:
+            CrossIndexQuestion.objects.create(cross_index=cross_index,
+                                              question=self.questions.get(template_question=template_question[
+                                                  'template_question']),
+                                              weight=template_question['weight'])
+
+    def create_cross_index(self, template_cross_index):
+        template = CrossIndexTemplate.objects.get(id=template_cross_index['id'])
+        return CrossIndex.objects.create(template_cross_index=template, questionnaire=self,
+                                         title=template_cross_index['title'])
 
 
 class QuestionnaireBlockAbstract(models.Model):
     """
     Abstract Questionnaire block for QuestionnaireBlockTemplate and QuestionnaireBlock
-
     """
     title = models.CharField(max_length=50)
     weight = models.DecimalField(max_digits=5, decimal_places=2)
@@ -209,13 +236,13 @@ class QuestionAbstract(models.Model):
                            (QuestionType.DATE_FIELD, 'Date Field'),
                            (QuestionType.SINGLE_CHOICE, 'Single Choice'),
                            (QuestionType.MULTIPLE_CHOICE, 'Multiple Choice'),
-                           (IndQuestType.INDICATOR_QUESTION, 'Indicator Question'))
+                           (QuestionType.INDICATOR_QUESTION, 'Indicator Question'))
     type = models.CharField(max_length=1, choices=type_choices, default=type_choices.t)
     max_score = models.PositiveSmallIntegerField(null=True, blank=True)
     order = models.PositiveIntegerField()
     weight = models.DecimalField(max_digits=5, decimal_places=2)
     show_comment = models.BooleanField(default=True)
-    additional_info = models.CharField(max_length=30, blank=Tenant)
+    additional_info = models.CharField(max_length=30, blank=True)
 
     class Meta:
         abstract = True
@@ -378,14 +405,20 @@ class CrossIndex(models.Model):
     def __str__(self):
         return '{}, Questionnaire: {}'.format(self.title, self.questionnaire.title)
 
+    def calculate_score(self):
+        self.score = sum(cross_index.question_score() * cross_index.weight for cross_index in
+                         self.cross_indexes_questions.all())
+        self.score /= 100
+        self.save()
+
 
 class CrossIndexQuestionTemplate(models.Model):
     template_cross_index = models.ForeignKey(CrossIndexTemplate, on_delete=models.CASCADE)
-    question_template = models.ForeignKey(QuestionnaireTemplateQuestion, on_delete=models.CASCADE)
+    template_question = models.ForeignKey(QuestionnaireTemplateQuestion, on_delete=models.CASCADE)
     weight = models.DecimalField(max_digits=5, decimal_places=2)
 
     class Meta:
-        default_related_name = 'cross_index_question_templates'
+        default_related_name = 'cross_index_template_questions'
 
 
 class CrossIndexQuestion(models.Model):
@@ -393,5 +426,9 @@ class CrossIndexQuestion(models.Model):
     question = models.ForeignKey(QuestionnaireQuestion, on_delete=models.CASCADE)
     weight = models.DecimalField(max_digits=5, decimal_places=2)
 
+    class Meta:
+        default_related_name = 'cross_index_questions'
 
+    def question_score(self):
+        return self.question.score
 

@@ -11,10 +11,10 @@ from ..models import QuestionnaireTemplateBlock
 from ..models import QuestionnaireTemplateQuestion
 from ..serializers import QuestionnaireTemplateBlockSerializer
 from ..serializers import QuestionnaireTemplateQuestionSerializer
-from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFactory
+from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFactory, QuestionnaireTemplateStatusFactory
 from mystery_shopping.factories.questionnaires import QuestionnaireTemplateBlockFactory
-from mystery_shopping.factories.questionnaires import QuestionnaireTemplateQuestionFactory
-from mystery_shopping.factories.users import UserThatIsTenantProductManagerFactory
+from mystery_shopping.factories.questionnaires import QuestionTemplateFactory
+from mystery_shopping.factories.users import UserThatIsTenantProductManagerFactory, UserFactory
 from mystery_shopping.factories.tenants import TenantFactory
 
 
@@ -29,8 +29,12 @@ class QuestionnaireTemplateAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCa
 
     def get_create_data(self):
         tenant = TenantFactory()
+        status = QuestionnaireTemplateStatusFactory()
+        created_by = UserFactory()
         self.data = self.json_data[1]
         self.data['tenant'] = tenant.id
+        self.data['status'] = status.id
+        self.data['created_by'] = created_by.id
         return self.data
 
 
@@ -90,25 +94,25 @@ class QuestionnaireTemplateBlockAPITestCase(ReadWriteRESTAPITestCaseMixin, BaseR
     def test_recalculate_sibling_order(self):
         initial_orders = [1, 2, 3]
         siblings = []
-        for i in initial_orders:
+        for order in initial_orders:
             siblings.append(QuestionnaireTemplateBlockFactory(
-                questionnaire_template=self.object.questionnaire_template, order=i,
-                title='Template Block {}'.format(i)))
+                questionnaire_template=self.object.questionnaire_template, order=order,
+                title='Template Block {}'.format(order)))
 
         # Delete one block
         to_delete = siblings.pop(0)
         self.client.delete(reverse('{}-detail'.format(self.base_name), kwargs={'pk': to_delete.pk}))
 
-        for i, sibling in enumerate(siblings):
+        for order, sibling in enumerate(siblings):
             sibling = QuestionnaireTemplateBlock.objects.get(pk=sibling.pk)
             # Assert whether the order has been recalculated
-            self.assertEqual(sibling.order, i + 1)
+            self.assertEqual(sibling.order, order + 1)
 
 
 class QuestionnaireTemplateQuestionAPITestCase(ReadWriteRESTAPITestCaseMixin, BaseRESTAPITestCase):
 
     base_name = 'questionnairetemplatequestion'
-    factory_class = QuestionnaireTemplateQuestionFactory
+    factory_class = QuestionTemplateFactory
     user_factory = UserThatIsTenantProductManagerFactory
 
     def setUp(self):
@@ -135,7 +139,7 @@ class QuestionnaireTemplateQuestionAPITestCase(ReadWriteRESTAPITestCaseMixin, Ba
         sibling_new_order = 2
 
         # Create the first question
-        sibling_question = QuestionnaireTemplateQuestionFactory(
+        sibling_question = QuestionTemplateFactory(
             questionnaire_template=self.object.questionnaire_template, template_block=self.object.template_block, order=1)
 
         # Create another question that should update the first one
@@ -156,17 +160,17 @@ class QuestionnaireTemplateQuestionAPITestCase(ReadWriteRESTAPITestCaseMixin, Ba
     def test_recalculate_sibling_order(self):
         initial_orders = [1, 2, 3, 4]
         siblings = []
-        for i in initial_orders:
-            siblings.append(QuestionnaireTemplateQuestionFactory(
+        for order in initial_orders:
+            siblings.append(QuestionTemplateFactory(
                 questionnaire_template=self.object.questionnaire_template,
-                template_block=self.object.template_block, order=i,
-                question_body='Template Question {}'.format(i)))
+                template_block=self.object.template_block, order=order,
+                question_body='Template Question {}'.format(order)))
 
         # Delete one question
         to_delete = siblings.pop(2)
         self.client.delete(reverse('{}-detail'.format(self.base_name), kwargs={'pk': to_delete.pk}))
 
-        for i, sibling in enumerate(siblings):
+        for order, sibling in enumerate(siblings):
             sibling = QuestionnaireTemplateQuestion.objects.get(pk=sibling.pk)
             # Assert whether the order has been recalculated
-            self.assertEqual(sibling.order, i + 1)
+            self.assertEqual(sibling.order, order + 1)
