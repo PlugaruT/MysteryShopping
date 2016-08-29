@@ -118,6 +118,15 @@ class User(AbstractUser):
                or hasattr(self, UserRole.TENANT_PROJECT_MANAGER) \
                or hasattr(self, UserRole.TENANT_CONSULTANT)
 
+    def is_shopper(self):
+        return hasattr(self, UserRole.SHOPPER)
+
+    def is_collector(self):
+        if self.is_shopper():
+            return self.shopper.is_collector
+        else:
+            return False
+
     def user_company(self):
         company = None
         if hasattr(self, UserRole.CLIENT_PROJECT_MANAGER):
