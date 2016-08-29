@@ -27,8 +27,8 @@ class DashboardTemplateView(viewsets.ModelViewSet):
         """
         company = self.request.query_params.get('company', None)
         queryset = self.queryset.filter(company=company, is_published=True)
-        if not self.request.user.is_tenant_manager:
-            queryset = self.queryset.filter(company=company, users__in=[self.request.user.id])
+        if not self.request.user.is_tenant_manager():
+            queryset = self.queryset.filter(company=company, users=self.request.user.id)
         return queryset
 
     def create(self, request, *args, **kwargs):
