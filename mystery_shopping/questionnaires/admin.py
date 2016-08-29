@@ -1,6 +1,7 @@
 from django.contrib import admin
 
 from .models import QuestionnaireScript
+from .models import QuestionnaireTemplateStatus
 from .models import QuestionnaireTemplate
 from .models import Questionnaire
 from .models import QuestionnaireTemplateBlock
@@ -15,7 +16,7 @@ from .models import CrossIndexQuestionTemplate
 from .models import CrossIndexQuestion
 
 
-@admin.register(QuestionnaireScript, QuestionnaireTemplateBlock, QuestionnaireBlock, QuestionnaireTemplateQuestion, QuestionnaireTemplateQuestionChoice, QuestionnaireQuestionChoice, CrossIndexTemplate, CrossIndex, CrossIndexQuestionTemplate, CrossIndexQuestion)
+@admin.register(QuestionnaireScript, QuestionnaireTemplateBlock, QuestionnaireBlock, QuestionnaireTemplateQuestion, QuestionnaireTemplateQuestionChoice, QuestionnaireQuestionChoice, CrossIndexTemplate, CrossIndex, CrossIndexQuestionTemplate, CrossIndexQuestion, QuestionnaireTemplateStatus)
 class QuestionnaireAdmin(admin.ModelAdmin):
     pass
 

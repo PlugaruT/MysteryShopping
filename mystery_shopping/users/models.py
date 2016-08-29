@@ -58,6 +58,8 @@ class User(AbstractUser):
             return getattr(self, UserRole.CLIENT_MANAGER)
         elif hasattr(self, UserRole.CLIENT_EMPLOYEE):
             return getattr(self, UserRole.CLIENT_EMPLOYEE)
+        elif hasattr(self, UserRole.SHOPPER):
+            return getattr(self, UserRole.SHOPPER)
         else:
             return None
 

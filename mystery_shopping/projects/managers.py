@@ -8,15 +8,15 @@ class ProjectQuerySet(QuerySet):
     def current_projects_for_a_shopper(self, shopper):
         """Return projects assigned to a specific Shopper that are active now.
         """
-        today = datetime.date.today()
-        return self.filter(shoppers=shopper,
-                           period_start__lte=today,
-                           period_end__gte=today)
+        return self.filter(shoppers=shopper)
 
     def current_projects_for_a_collector(self, collector):
         """Return projects assigned to a specific Collector that are active now.
         """
-        return self.current_projects_for_a_shopper(collector).filter(shoppers__is_collector=True)
+        if collector.is_collector:
+            return self.current_projects_for_a_shopper(collector)
+        else:
+            return []
 
     def get_project_type(self, project_id):
         """Return the type of the provided project.
