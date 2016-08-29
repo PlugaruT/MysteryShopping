@@ -10,13 +10,10 @@ class ProjectQuerySet(QuerySet):
         """
         return self.filter(shoppers=shopper)
 
-    def current_projects_for_a_collector(self, collector):
+    def get_projects_for_a_collector(self, shopper):
         """Return projects assigned to a specific Collector that are active now.
         """
-        if collector.is_collector:
-            return self.current_projects_for_a_shopper(collector)
-        else:
-            return []
+        return self.filter(shoppers=shopper) if shopper.is_collector else []
 
     def get_project_type(self, project_id):
         """Return the type of the provided project.
