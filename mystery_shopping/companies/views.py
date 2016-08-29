@@ -1,6 +1,13 @@
 from rest_framework import viewsets
 from rest_condition import Or
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 
+from mystery_shopping.companies.models import SubIndustry
+from mystery_shopping.companies.serializers import SubIndustrySerializer
+from mystery_shopping.companies.uploads import handle_csv_with_uploaded_sub_industries
 from .models import Industry
 from .models import Company
 from .models import Department
@@ -12,7 +19,6 @@ from .serializers import CompanySerializer
 from .serializers import DepartmentSerializer
 from .serializers import EntitySerializer
 from .serializers import SectionSerializer
-
 from mystery_shopping.users.serializers import SimpleCompanySerializer
 
 from mystery_shopping.users.permissions import IsTenantProductManager
@@ -25,6 +31,34 @@ class IndustryViewSet(viewsets.ModelViewSet):
     queryset = Industry.objects.all()
     serializer_class = IndustrySerializer
     permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultantViewOnly),)
+
+
+class SubIndustryViewSet(viewsets.ModelViewSet):
+    queryset = SubIndustry.objects.all()
+    serializer_class = SubIndustrySerializer
+    permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultantViewOnly),)
+
+
+class IndustryCsvUploadView(APIView):
+    """
+        A view for uploading a .csv with all the localities to the platform.
+    """
+    permission_classes = (IsAuthenticated, IsAdminUser)
+
+    def post(self, request, *args, **kwargs):
+
+        csv_file = request.data.get('file', None)
+
+        if csv_file.content_type == 'text/csv':
+            handle_csv_with_uploaded_sub_industries(csv_file)
+
+            return Response({
+                'message': 'File uploaded successfully!'
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                'details': 'File type is not .csv'
+            }, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CompanyViewSet(viewsets.ModelViewSet):

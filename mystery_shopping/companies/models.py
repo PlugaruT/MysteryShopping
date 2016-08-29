@@ -22,6 +22,21 @@ class Industry(models.Model):
         return 'Name: %s' % self.name
 
 
+class SubIndustry(models.Model):
+    """
+
+    """
+    # Attributes
+    name = models.CharField(max_length=100)
+    industry = models.ForeignKey(Industry)
+
+    class Meta:
+        verbose_name_plural = 'sub-industries'
+
+    def __str__(self):
+        return 'Name: %s' % self.name
+
+
 class Company(models.Model):
     """
 
@@ -69,6 +84,7 @@ class Department(models.Model):
 
     def __str__(self):
         return 'Name: %s, company: %s' % (self.name, self.company.name)
+
 
 # PoS
 class Entity(models.Model):

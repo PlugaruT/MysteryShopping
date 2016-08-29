@@ -42,6 +42,7 @@ urlpatterns = [
 
     url(r'^api/v1/', include('mystery_shopping.cxi.urls', namespace='cxi')),
     # url(r'^api/v1/', include('mystery_shopping.common.urls', namespace='common')),
+    url(r'^api/v1/', include('mystery_shopping.companies.urls', namespace='companies')),
 
     # Your stuff: custom urls includes go here
     url(r'^api/v1/', include(common_router.urls)),

@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from mystery_shopping.companies.models import SubIndustry
 from .models import Industry, Company, Department, Entity, Section
 
 from mystery_shopping.common.serializer import CitySerializer
@@ -14,6 +15,17 @@ class IndustrySerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = Industry
+        fields = '__all__'
+
+
+class SubIndustrySerializer(serializers.ModelSerializer):
+    """
+
+    """
+    industry = IndustrySerializer(read_only=True)
+
+    class Meta:
+        model = SubIndustry
         fields = '__all__'
 
 
