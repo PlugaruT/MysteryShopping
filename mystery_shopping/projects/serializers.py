@@ -307,13 +307,18 @@ class EvaluationSerializer(serializers.ModelSerializer):
             questionnaire_to_create = self.clone_questionnaire(questionnaire_template)
         else:
             questionnaire_to_create = validated_data.get('questionnaire', None)
+            questionnaire_to_create['template'] = questionnaire_template.id
+            for block in questionnaire_to_create['blocks']:
+                block['template_block'] = block['template_block'].id
+                for question in block['questions']:
+                    question['template_question'] = question['template_question'].id
 
-        questionnaire_to_create['template'] = questionnaire_template.id
         questionnaire_to_create_ser = QuestionnaireSerializer(data=questionnaire_to_create)
         questionnaire_to_create_ser.is_valid(raise_exception=True)
         questionnaire_to_create_ser.save()
         validated_data['questionnaire'] = questionnaire_to_create_ser.instance
-        questionnaire_to_create_ser.instance.create_cross_indexes(questionnaire_to_create['template_cross_indexes'])
+        if validated_data.get('type', 'm') == 'm':
+            questionnaire_to_create_ser.instance.create_cross_indexes(questionnaire_to_create['template_cross_indexes'])
         evaluation = Evaluation.objects.create(**validated_data)
         return evaluation
 
