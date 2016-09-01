@@ -122,10 +122,7 @@ class User(AbstractUser):
         return hasattr(self, UserRole.SHOPPER)
 
     def is_collector(self):
-        if self.is_shopper():
-            return self.shopper.is_collector
-        else:
-            return False
+        return self.is_shopper() and self.shopper.is_collector
 
     def user_company(self):
         company = None

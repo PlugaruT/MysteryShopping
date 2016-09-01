@@ -304,21 +304,19 @@ class EvaluationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         questionnaire_template = validated_data.get('questionnaire_template', None)
         if validated_data.get('type', 'm') == 'm':
-            questionnaire_to_create = self.clone_questionnaire(questionnaire_template)
+            questionnaire_to_create = self._clone_questionnaire(questionnaire_template)
         else:
-            questionnaire_to_create = validated_data.get('questionnaire', None)
-            questionnaire_to_create['template'] = questionnaire_template.id
-            for block in questionnaire_to_create['blocks']:
-                block['template_block'] = block['template_block'].id
-                for question in block['questions']:
-                    question['template_question'] = question['template_question'].id
+            questionnaire_to_create = self._copy_questionnaire_from_request(validated_data.get('questionnaire', None),
+                                                                            questionnaire_template)
 
         questionnaire_to_create_ser = QuestionnaireSerializer(data=questionnaire_to_create)
         questionnaire_to_create_ser.is_valid(raise_exception=True)
         questionnaire_to_create_ser.save()
-        validated_data['questionnaire'] = questionnaire_to_create_ser.instance
+
         if validated_data.get('type', 'm') == 'm':
             questionnaire_to_create_ser.instance.create_cross_indexes(questionnaire_to_create['template_cross_indexes'])
+        validated_data['questionnaire'] = questionnaire_to_create_ser.instance
+
         evaluation = Evaluation.objects.create(**validated_data)
         return evaluation
 
@@ -357,11 +355,21 @@ class EvaluationSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-    def clone_questionnaire(self, questionnaire_template):
+    def _clone_questionnaire(self, questionnaire_template):
         questionnaire_template_serialized = QuestionnaireTemplateSerializer(questionnaire_template)
         questionnaire_to_create = dict(questionnaire_template_serialized.data)
+        questionnaire_to_create['template'] = questionnaire_template.id
         questionnaire_to_create['blocks'] = self.build_blocks(questionnaire_to_create.pop('template_blocks'))
         return questionnaire_to_create
+
+    def _copy_questionnaire_from_request(self, questionnaire_from_request, questionnaire_template):
+        questionnaire = questionnaire_from_request
+        questionnaire['template'] = questionnaire_template.id
+        for block in questionnaire['blocks']:
+            block['template_block'] = block['template_block'].id
+            for question in block['questions']:
+                question['template_question'] = question['template_question'].id
+        return questionnaire
 
     def build_blocks(self, blocks):
         for block in blocks:
