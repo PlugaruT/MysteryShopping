@@ -58,6 +58,8 @@ class User(AbstractUser):
             return getattr(self, UserRole.CLIENT_MANAGER)
         elif hasattr(self, UserRole.CLIENT_EMPLOYEE):
             return getattr(self, UserRole.CLIENT_EMPLOYEE)
+        elif hasattr(self, UserRole.SHOPPER):
+            return getattr(self, UserRole.SHOPPER)
         else:
             return None
 
@@ -115,6 +117,12 @@ class User(AbstractUser):
         return hasattr(self, UserRole.TENANT_PRODUCT_MANAGER) \
                or hasattr(self, UserRole.TENANT_PROJECT_MANAGER) \
                or hasattr(self, UserRole.TENANT_CONSULTANT)
+
+    def is_shopper(self):
+        return hasattr(self, UserRole.SHOPPER)
+
+    def is_collector(self):
+        return self.is_shopper() and self.shopper.is_collector
 
     def user_company(self):
         company = None

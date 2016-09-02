@@ -52,6 +52,7 @@ class QuestionnaireQuestionToEncodeSerializer(serializers.ModelSerializer):
     """Serializes only the minimal required fields to be able to encode a question's answer
     for the Customer Experience Index indicators.
     """
+    type = serializers.CharField(source='additional_info')
     class Meta:
         model = QuestionnaireQuestion
         fields = ('answer', 'type', 'id', 'coded_causes', 'score')
