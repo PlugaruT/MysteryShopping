@@ -219,11 +219,11 @@ def add_question_per_coded_cause(indicator_question, coded_cause_dict):
     :param coded_cause_dict: dict of existing coded_causes
     :return: dict with sorted questions by coded_cause
     """
-    coded_cause = indicator_question.coded_causes.first()
-    if coded_cause:
+    why_causes = indicator_question.why_causes.all()
+    coded_causes = [why_cause.coded_causes.first() for why_cause in why_causes]
+
+    for coded_cause in coded_causes:
         coded_cause_dict[coded_cause.id].append(indicator_question.id)
-    else:
-        coded_cause_dict['unsorted'].append(indicator_question.id)
     return True
 
 
@@ -238,18 +238,11 @@ def sort_question_by_coded_cause(coded_causes_dict):
 
     for coded_cause in coded_causes_dict:
         temp_dict = dict()
-        if coded_cause != 'unsorted':
-            coded_cause_inst = CodedCause.objects.get(pk=coded_cause)
-            coded_cause_serialized = CodedCauseSerializer(coded_cause_inst)
-            temp_dict['coded_cause'] = coded_cause_serialized.data
-            temp_dict['count'] = len(coded_causes_dict[coded_cause])
-            coded_causes_response.append(temp_dict)
-        else:
-            # skip adding 'unsorted' causes to the return JSON
-            continue
-            temp_dict['coded_cause'] = coded_cause
-            temp_dict['count'] = len(coded_causes_dict[coded_cause])
-            coded_causes_response.append(temp_dict)
+        coded_cause_inst = CodedCause.objects.get(pk=coded_cause)
+        coded_cause_serialized = CodedCauseSerializer(coded_cause_inst)
+        temp_dict['coded_cause'] = coded_cause_serialized.data
+        temp_dict['count'] = len(coded_causes_dict[coded_cause])
+        coded_causes_response.append(temp_dict)
     return coded_causes_response
 
 

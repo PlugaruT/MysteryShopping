@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from mystery_shopping.cxi.models import WhyCause
 from .models import CodedCauseLabel
 from .models import CodedCause
 from .models import ProjectComment
@@ -46,6 +47,17 @@ class CodedCauseSerializer(serializers.ModelSerializer):
         coded_cause = CodedCause.objects.create(**validated_data)
 
         return coded_cause
+
+
+class WhyCauseSerializer(serializers.ModelSerializer):
+    """
+    Serializer for WhyCause model
+    """
+    coded_causes = CodedCauseSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = WhyCause
+        fields = ('id', 'text',)
 
 
 class QuestionnaireQuestionToEncodeSerializer(serializers.ModelSerializer):
