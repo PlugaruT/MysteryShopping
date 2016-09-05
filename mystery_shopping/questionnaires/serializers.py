@@ -85,8 +85,9 @@ class QuestionnaireQuestionSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
+        question_choices = validated_data.pop('question_choices', [])
         question = QuestionnaireQuestion.objects.create(**validated_data)
-        self.create_question_choices(validated_data, question.id)
+        self.create_question_choices(question_choices, question.id)
         return question
 
     def update(self, instance, validated_data):
@@ -96,8 +97,7 @@ class QuestionnaireQuestionSerializer(serializers.ModelSerializer):
         return instance
 
     @staticmethod
-    def create_question_choices(validated_data, question_id):
-        question_choices = validated_data.pop('question_choices', None)
+    def create_question_choices(question_choices, question_id):
         for question_choice in question_choices:
             question_choice['question'] = question_id
             question_choice_ser = QuestionnaireQuestionChoiceSerializer(data=question_choice)

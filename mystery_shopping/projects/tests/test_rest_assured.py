@@ -3,9 +3,7 @@ from decimal import Decimal
 from datetime import datetime
 
 from rest_assured.testcases import CreateAPITestCaseMixin
-from rest_assured.testcases import ReadWriteRESTAPITestCaseMixin
 from rest_assured.testcases import BaseRESTAPITestCase
-from factory.fuzzy import FuzzyDateTime
 
 from mystery_shopping.questionnaires.models import Questionnaire
 
@@ -13,8 +11,7 @@ from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSer
 from mystery_shopping.projects.serializers import EvaluationSerializer
 from mystery_shopping.projects.constants import ProjectStatus
 
-from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFactory, QuestionnaireTemplateStatusFactory
-from mystery_shopping.factories.projects import ProjectFactory
+from mystery_shopping.factories.questionnaires import QuestionnaireTemplateStatusFactory
 from mystery_shopping.factories.projects import EvaluationFactory
 from mystery_shopping.factories.projects import EvaluationAssessmentLevelFactory
 from mystery_shopping.factories.tenants import TenantFactory
