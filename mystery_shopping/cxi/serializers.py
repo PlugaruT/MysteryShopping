@@ -73,11 +73,12 @@ class QuestionWithWhyCausesSerializer(serializers.ModelSerializer):
     for the Customer Experience Index indicators.
     """
     why_causes = WhyCauseSerializer(many=True, read_only=True)
+    type = serializers.CharField(source='additional_info', read_only=True)
 
     class Meta:
         model = QuestionnaireQuestion
-        fields = ('answer', 'type', 'why_causes', 'id', 'score')
-        read_only_fields = ('answer', 'type', 'why_causes', 'id', 'score')
+        fields = ('type', 'why_causes', 'id', 'score')
+        read_only_fields = ('type', 'why_causes', 'id', 'score')
 
 
 class ProjectCommentSerializer(serializers.ModelSerializer):
