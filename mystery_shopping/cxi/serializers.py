@@ -53,10 +53,11 @@ class WhyCauseSerializer(serializers.ModelSerializer):
     """
     Serializer for WhyCause model
     """
+    answer = serializers.CharField(source='text', read_only=True)
 
     class Meta:
         model = WhyCause
-        fields = ('id', 'text', 'is_appreciation_cause', 'coded_causes', 'question')
+        fields = ('id', 'answer', 'is_appreciation_cause', 'coded_causes', 'question')
         extra_kwargs = {
             'question': {
                 'write_only': True,
