@@ -192,7 +192,7 @@ class WhyCauseViewSet(viewsets.ModelViewSet):
         project_id = request.query_params.get('project', None)
         pre_response = self._pre_process_request(project_id, request.user)
         if pre_response:
-            Response(**pre_response)
+            return Response(**pre_response)
 
         response = dict()
         if request.method == 'GET':
