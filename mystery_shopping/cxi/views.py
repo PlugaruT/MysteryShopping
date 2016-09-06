@@ -224,13 +224,18 @@ class WhyCauseViewSet(viewsets.ModelViewSet):
         return dict(data=serializer.data, status=status.HTTP_200_OK)
 
     def _encode_put(self, project_id, data):
+        # import ipdb; ipdb.set_trace()
         why_causes_changes = {x['id']: x.get('coded_causes', []) for x in data}
         why_causes = WhyCause.objects.filter(pk__in=why_causes_changes.keys(),
                                              question__questionnaire__evaluation__project=project_id)
         for why_cause in why_causes:
             why_cause.coded_causes.clear()
             coded_cause_ids = why_causes_changes[why_cause.id]
-            if coded_cause_ids:
-                why_cause.coded_causes.set(coded_cause_ids)
+
+            validated_coded_causes_list = list()
+            for id in coded_cause_ids:
+                if CodedCause.objects.filter(pk=id).exists():
+                    validated_coded_causes_list.append(id)
+            why_cause.coded_causes.set(validated_coded_causes_list)
 
         return dict(status=status.HTTP_200_OK)
