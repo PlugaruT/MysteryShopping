@@ -59,12 +59,12 @@ class WhyCauseSerializer(serializers.ModelSerializer):
         fields = ('id', 'text', 'is_appreciation_cause', 'coded_causes')
 
 
-class QuestionnaireQuestionToEncodeSerializer(serializers.ModelSerializer):
+class QuestionWithWhyCausesSerializer(serializers.ModelSerializer):
     """Serializes only the minimal required fields to be able to encode a question's answer
     for the Customer Experience Index indicators.
     """
     why_causes = WhyCauseSerializer(many=True, read_only=True)
-    
+
     class Meta:
         model = QuestionnaireQuestion
         fields = ('answer', 'type', 'why_causes', 'id', 'score')

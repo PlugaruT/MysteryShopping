@@ -11,7 +11,7 @@ from .algorithms import get_company_indicator_questions_list
 from .models import CodedCauseLabel
 from .models import CodedCause
 from .models import ProjectComment
-from .serializers import QuestionnaireQuestionToEncodeSerializer
+from .serializers import QuestionWithWhyCausesSerializer
 from .algorithms import CollectDataForIndicatorDashboard
 from .models import WhyCause
 from .serializers import WhyCauseSerializer
@@ -37,7 +37,6 @@ class CodedCauseLabelViewSet(viewsets.ModelViewSet):
 class CodedCauseViewSet(viewsets.ModelViewSet):
     queryset = CodedCause.objects.all()
     serializer_class = CodedCauseSerializer
-    question_serializer_class = QuestionnaireQuestionToEncodeSerializer
 
     def create(self, request, *args, **kwargs):
         # add tenant from the request.user to the request.data that is sent to the Coded CauseSerializer
@@ -186,8 +185,7 @@ class WhyCauseViewSet(viewsets.ModelViewSet):
     queryset = WhyCause.objects.all()
     serializer_class = WhyCauseSerializer
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager, IsCompanyManager),)
-    encode_serializer_class = QuestionnaireQuestionToEncodeSerializer
-
+    encode_serializer_class = QuestionWithWhyCausesSerializer
 
     @list_route(['get', 'put'])
     def encode(self, request):

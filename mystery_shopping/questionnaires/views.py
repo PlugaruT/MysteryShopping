@@ -37,7 +37,7 @@ from mystery_shopping.users.permissions import IsTenantProjectManager
 from mystery_shopping.users.permissions import IsTenantConsultant
 
 from mystery_shopping.projects.models import Project
-from mystery_shopping.cxi.serializers import QuestionnaireQuestionToEncodeSerializer
+from mystery_shopping.cxi.serializers import QuestionWithWhyCausesSerializer
 
 
 class QuestionnaireScriptViewSet(viewsets.ModelViewSet):
@@ -155,7 +155,6 @@ class QuestionnaireQuestionViewSet(viewsets.ModelViewSet):
     queryset = QuestionnaireQuestion.objects.all()
     serializer_class = QuestionnaireQuestionSerializer
     permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)
-    encode_serializer_class = QuestionnaireQuestionToEncodeSerializer
 
 
 class QuestionnaireTemplateQuestionChoiceViewSet(viewsets.ModelViewSet):
