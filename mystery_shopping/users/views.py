@@ -143,23 +143,6 @@ class ShopperViewSet(viewsets.ModelViewSet):
         serializer = ShopperSerializer(queryset, many=True)
         return Response(serializer.data)
 
-    @detail_route(permission_classes=(IsShopperAccountOwner,))
-    def imacollector(self, request, *args, **kwargs):
-        """A view to return a list of entities paired up with their corresponding
-        questionnaires.
-
-        The view serves calls from Customer Experience Index project and returns the
-        list of available entities with all the required information to fill in a
-        questionnaire and create a realized evaluation.
-
-        :returns: List of ids and serialized objects.
-        :rtype: list
-        """
-        shopper_service = ShopperService(request.user.shopper)
-        available_list_of_places = shopper_service.get_available_list_of_places_with_questionnaires()
-
-        return Response(available_list_of_places, status=status.HTTP_200_OK)
-
 
 class CollectorViewSet(viewsets.ModelViewSet):
     queryset = Collector.objects.all()

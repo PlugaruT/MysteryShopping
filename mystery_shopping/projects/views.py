@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 
 from rest_framework import viewsets
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.serializers import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -13,6 +13,7 @@ from rest_condition import And
 from openpyxl import Workbook
 from openpyxl.writer.excel import save_virtual_workbook
 
+from mystery_shopping.users.services import ShopperService
 from .models import PlaceToAssess
 from .models import Project
 from .models import ResearchMethodology
@@ -28,7 +29,7 @@ from .serializers import EvaluationAssessmentLevelSerializer
 from .serializers import EvaluationAssessmentCommentSerializer
 from .spreadsheets import EvaluationSpreadsheet
 
-from mystery_shopping.users.permissions import IsTenantProductManager
+from mystery_shopping.users.permissions import IsTenantProductManager, IsShopperAccountOwner
 from mystery_shopping.users.permissions import HasReadOnlyAccessToProjectsOrEvaluations
 from mystery_shopping.users.permissions import IsTenantProjectManager
 from mystery_shopping.users.permissions import IsTenantConsultant
@@ -58,6 +59,25 @@ class ProjectViewSet(viewsets.ModelViewSet):
         # queryset = self.get_serializer_class().setup_eager_loading(queryset)
         queryset = queryset.filter(tenant=self.request.user.tenant)
         return queryset
+
+    @list_route(permission_classes=(IsShopperAccountOwner,), methods=['get'])
+    def collectorevaluations(self, request):
+        """A view to return a list of projects, which has places (entities or sections) paired up with their corresponding
+        questionnaires.
+
+        The view serves calls from Customer Experience Index project and returns the
+        list of available entities with all the required information to fill in a
+        questionnaire and create a realized evaluation.
+
+        :returns: List of projects with place and questionnaire data.
+        :rtype: list
+        """
+        available_list_of_places = list()
+        if request.user.is_collector():
+            shopper_service = ShopperService(request.user.shopper)
+            available_list_of_places = shopper_service.get_available_list_of_places_with_questionnaires()
+
+        return Response(available_list_of_places, status=status.HTTP_200_OK)
 
 
 class ProjectPerCompanyViewSet(viewsets.ViewSet):
