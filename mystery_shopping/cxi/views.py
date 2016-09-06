@@ -1,20 +1,25 @@
 from rest_framework import status
 from rest_framework import views
 from rest_framework import viewsets
+from rest_framework.decorators import list_route
 from rest_framework.response import Response
 from rest_condition import Or
 
-from mystery_shopping.cxi.algorithms import CollectDataForIndicatorDashboard
 from .algorithms import collect_data_for_overview_dashboard
 from .algorithms import get_project_indicator_questions_list
 from .algorithms import get_company_indicator_questions_list
 from .models import CodedCauseLabel
 from .models import CodedCause
 from .models import ProjectComment
-from mystery_shopping.cxi.serializers import QuestionnaireQuestionToEncodeSerializer
+from .serializers import QuestionnaireQuestionToEncodeSerializer
+from .algorithms import CollectDataForIndicatorDashboard
+from .models import WhyCause
+from .serializers import WhyCauseSerializer
 from .serializers import CodedCauseLabelSerializer
 from .serializers import CodedCauseSerializer
 from .serializers import ProjectCommentSerializer
+
+from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 
 from mystery_shopping.projects.models import Project
 from mystery_shopping.companies.models import Company
@@ -174,3 +179,60 @@ class IndicatorDashboardList(views.APIView):
         else:
             return Response({'detail': 'No query parameters were provided'}, status.HTTP_400_BAD_REQUEST)
 
+class WhyCauseViewSet(viewsets.ModelViewSet):
+    """
+
+    """
+    queryset = WhyCause.objects.all()
+    serializer_class = WhyCauseSerializer
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager, IsCompanyManager),)
+    encode_serializer_class = QuestionnaireQuestionToEncodeSerializer
+
+
+    @list_route(['get', 'put'])
+    def encode(self, request):
+        project_id = request.query_params.get('project', None)
+        pre_response = self._pre_process_request(project_id, request.user)
+        if pre_response:
+            Response(**pre_response)
+
+        response = dict()
+        if request.method == 'GET':
+            response = self._encode_get(project_id)
+
+        elif request.method == 'PUT':
+            response = self._encode_put(project_id, request.data)
+
+        return Response(**response)
+
+    def _pre_process_request(self, project_id, user):
+        if project_id is None:
+            return dict(status=status.HTTP_400_BAD_REQUEST)
+        try:
+            project = Project.objects.get(pk=project_id)
+        except Project.DoesNotExist:
+            return dict(data='Project does not exist',
+                        status=status.HTTP_400_BAD_REQUEST)
+
+        if user.tenant != project.tenant:
+            return dict(data='You do not have access to this project',
+                        status=status.HTTP_400_BAD_REQUEST)
+
+        return False
+
+    def _encode_get(self, project_id):
+        questions = QuestionnaireQuestion.objects.get_project_questions(project_id)
+        serializer = self.encode_serializer_class(questions, many=True)
+        return dict(data=serializer.data, status=status.HTTP_200_OK)
+
+    def _encode_put(self, project_id, data):
+        why_causes_changes = {x['id']: x.get('coded_causes', []) for x in data}
+        why_causes = WhyCause.objects.filter(pk__in=why_causes_changes.keys(),
+                                             question__questionnaire__evaluation__project=project_id)
+        for why_cause in why_causes:
+            why_cause.coded_causes.clear()
+            coded_cause_ids = why_causes_changes[why_cause.id]
+            if coded_cause_ids:
+                why_cause.coded_causes.set(coded_cause_ids)
+
+        return dict(status=status.HTTP_200_OK)
