@@ -120,7 +120,6 @@ class ResearchMethodologySerializer(serializers.ModelSerializer):
         self.set_places_to_asses(research_methodology, places_to_assess)
 
         self.set_people_to_asses(research_methodology, people_to_assess)
-
         self.link_research_methodology_to_project(project_id, research_methodology)
 
         return research_methodology
@@ -187,6 +186,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     evaluation_assessment_levels_repr = EvaluationAssessmentLevelSerializer(source='evaluation_assessment_levels',
                                                                             read_only=True, many=True)
     cxi_indicators = serializers.DictField(source='get_indicators_list', read_only=True)
+    editable_places = serializers.ListField(source='get_editable_places', read_only=True)
 
     class Meta:
         model = Project

@@ -92,6 +92,23 @@ class Project(models.Model):
         from mystery_shopping.cxi.algorithms import get_project_indicator_questions_list
         return get_project_indicator_questions_list(self)
 
+    def get_editable_places(self):
+        """
+        Function for getting all entities and sections that aren't included into any project and
+        doesn't have a questionnaire and can be removed from project
+        :return: A list of dicts with information about each place to asses
+        """
+        editable_places = []
+        places_to_asses = self.research_methodology.places_to_assess.all()
+        for place_to_asses in places_to_asses:
+            if not place_to_asses.place.evaluations.filter(project=self).exists():
+                place_info = {
+                    'place_type': place_to_asses.place_type_id,
+                    'place_id': place_to_asses.place_id
+                }
+                editable_places.append(place_info)
+        return editable_places
+
 
 class Evaluation(TimeStampedModel, models.Model):
     """

@@ -10,7 +10,6 @@ from rest_framework import status
 from rest_condition import Or
 from rest_condition import And
 
-from openpyxl import Workbook
 from openpyxl.writer.excel import save_virtual_workbook
 
 from mystery_shopping.users.services import ShopperService
@@ -186,9 +185,6 @@ class EvaluationPerShopperViewSet(viewsets.ViewSet):
 class EvaluationPerProjectViewSet(viewsets.ViewSet):
     serializer_class = EvaluationSerializer
     permission_classes = (IsAuthenticated, HasAccessToProjectsOrEvaluations,)
-
-    # def get_serializer(self):
-    #     return self.serializer_class
 
     def list(self, request, company_pk=None, project_pk=None):
         for_assessment = request.query_params.get('forAssessment', None)
