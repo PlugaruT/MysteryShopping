@@ -10,19 +10,16 @@ from .companies import CompanyFactory
 from .tenants import TenantFactory
 
 from .users import TenantProjectManagerFactory
-from .users import TenantProjectManagerFactory
 from .users import ShopperFactory
 from .questionnaires import QuestionnaireScriptFactory
 from .questionnaires import QuestionnaireTemplateFactory
 from .companies import EntityFactory
-from .companies import SectionFactory
 
 from mystery_shopping.projects.models import ResearchMethodology
 from mystery_shopping.projects.models import Project
 from mystery_shopping.projects.constants import ProjectStatus
 from mystery_shopping.projects.models import Evaluation
 from mystery_shopping.projects.models import EvaluationAssessmentLevel
-from mystery_shopping.projects.models import EvaluationAssessmentComment
 
 
 class ResearchMethodologyFactory(DjangoModelFactory):
