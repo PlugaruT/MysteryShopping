@@ -26,14 +26,14 @@ class TestProjectEditablePlaces(TestCase):
 
     def test_create_evaluation_for_one_entity(self):
         evaluation = EvaluationFactory(entity=self.entity_1, project=self.project,
-                                            questionnaire_template=self.template_questionnaire)
+                                       questionnaire_template=self.template_questionnaire)
         serializer = ProjectSerializer(self.project)
         # The list should contain information about self.entity_2
         self.assertEqual(serializer.data.get('editable_places')[0].get('place_id'), self.entity_2.id)
 
     def test_create_evaluation_for_two_entities(self):
         evaluation_1 = EvaluationFactory(entity=self.entity_1, project=self.project,
-                                       questionnaire_template=self.template_questionnaire)
+                                         questionnaire_template=self.template_questionnaire)
         evaluation_2 = EvaluationFactory(entity=self.entity_2, project=self.project,
                                          questionnaire_template=self.template_questionnaire)
         serializer = ProjectSerializer(self.project)

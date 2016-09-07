@@ -109,6 +109,14 @@ class Project(models.Model):
                 editable_places.append(place_info)
         return editable_places
 
+    def is_questionnaire_editable(self):
+        """
+        Function for checking if a questionnaire is editable and
+        there exists evaluations that include this questionnaire
+        :return: Boolean
+        """
+        return self.research_methodology.questionnaires.first().questionnaires.filter(evaluation__project=self).exists()
+
 
 class Evaluation(TimeStampedModel, models.Model):
     """
