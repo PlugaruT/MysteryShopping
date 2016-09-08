@@ -147,10 +147,8 @@ class HasAccessToDashboard(permissions.BasePermission):
     """
     def has_permission(self, request, view):
         if request.user:
-            for role in UserRole.TENANT_USERS + UserRole.CLIENT_USERS:
-                if hasattr(request.user, role):
-                    return True
-            return False
+            possible_roles = UserRole.TENANT_USERS + UserRole.CLIENT_USERS
+            return any((hasattr(request.user, role) for role in possible_roles))
         return False
 
 
