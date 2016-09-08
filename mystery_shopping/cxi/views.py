@@ -224,7 +224,6 @@ class WhyCauseViewSet(viewsets.ModelViewSet):
         return dict(data=serializer.data, status=status.HTTP_200_OK)
 
     def _encode_put(self, project_id, data):
-        # import ipdb; ipdb.set_trace()
         why_causes_changes = {x['id']: x.get('coded_causes', []) for x in data}
         why_causes = WhyCause.objects.filter(pk__in=why_causes_changes.keys(),
                                              question__questionnaire__evaluation__project=project_id)
