@@ -115,7 +115,7 @@ class Project(models.Model):
         there exists evaluations that include this questionnaire
         :return: Boolean
         """
-        return self.research_methodology.questionnaires.first().questionnaires.filter(evaluation__project=self).exists()
+        return not self.research_methodology.questionnaires.first().questionnaires.filter(evaluation__project=self).exists()
 
 
 class Evaluation(TimeStampedModel, models.Model):

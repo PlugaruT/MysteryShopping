@@ -14,7 +14,12 @@ class TestQuestionnaireIsEditable(TestCase):
         self.project = ProjectFactory(research_methodology=self.research_methodology)
 
     def test_flag_when_there_is_one_evaluation(self):
-        evaluation = EvaluationFactory(project=self.project, questionnaire_template=self.template_questionnaire)
+        evaluation = EvaluationFactory(project=self.project, questionnaire_template=self.template_questionnaire,
+                                       questionnaire=self.questionnaire)
+        self.project.refresh_from_db()
         serializer = ProjectSerializer(self.project)
-        print(serializer.data)
         self.assertFalse(serializer.data.get('is_questionnaire_editable'))
+
+    def test_flag_when_there_are_no_evaluations(self):
+        serializer = ProjectSerializer(self.project)
+        self.assertTrue(serializer.data.get('is_questionnaire_editable'))
