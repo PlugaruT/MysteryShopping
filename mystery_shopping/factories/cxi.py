@@ -40,6 +40,6 @@ class WhyCauseFactory(DjangoModelFactory):
     class Meta:
         model = WhyCause
 
-    text = FuzzyText(length=20)
+    answer = FuzzyText(length=20)
     question = SubFactory(QuestionFactory, related_name='why_causes')
     is_appreciation_cause = True
