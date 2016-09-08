@@ -25,7 +25,7 @@ class WhyCause(models.Model):
     """
     Model for why causes for questions containing the reason why user answered to question
     """
-    text = models.CharField(max_length=100)
+    answer = models.CharField(max_length=100)
     question = models.ForeignKey(QuestionnaireQuestion, related_name='why_causes')
     is_appreciation_cause = models.NullBooleanField()
 
