@@ -12,7 +12,7 @@ from mystery_shopping.projects.views import ProjectPerCompanyViewSet
 
 router = DefaultRouter()
 router.register(r'industries', IndustryViewSet)
-router.register(r'sub-industries', SubIndustryViewSet)
+router.register(r'subindustries', SubIndustryViewSet)
 router.register(r'departments', DepartmentViewSet)
 router.register(r'entities', EntityViewSet)
 router.register(r'sections', SectionViewSet)

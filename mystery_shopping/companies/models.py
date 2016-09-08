@@ -28,7 +28,7 @@ class SubIndustry(models.Model):
     """
     # Attributes
     name = models.CharField(max_length=100)
-    industry = models.ForeignKey(Industry)
+    industry = models.ForeignKey(Industry, related_name='sub-industry')
 
     class Meta:
         verbose_name_plural = 'sub-industries'
@@ -45,7 +45,6 @@ class Company(models.Model):
     industry = models.ForeignKey(Industry)
     country = models.ForeignKey(Country)
     tenant = models.ForeignKey(Tenant)
-    # type = models.ForeignKey("CompanyType")
 
     # Attributes
     name = models.CharField(max_length=50)
