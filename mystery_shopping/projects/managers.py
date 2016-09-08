@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import datetime
 
 from django.db.models.query import QuerySet
 
