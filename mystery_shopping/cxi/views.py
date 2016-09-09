@@ -221,7 +221,7 @@ class WhyCauseViewSet(viewsets.ModelViewSet):
     def _encode_get(self, project_id):
         questions = QuestionnaireQuestion.objects.get_project_questions(project_id)
         serializer = self.encode_serializer_class(questions, many=True)
-        
+
         return dict(data=serializer.data, status=status.HTTP_200_OK)
 
     def _encode_put(self, project_id, data):

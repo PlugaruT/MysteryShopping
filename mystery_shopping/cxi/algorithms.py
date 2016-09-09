@@ -225,7 +225,6 @@ def add_question_per_coded_cause(indicator_question, coded_cause_dict):
     for coded_cause in coded_causes:
         if coded_cause:
             coded_cause_dict[coded_cause.id].append(indicator_question.id)
-    return True
 
 
 def sort_question_by_coded_cause(coded_causes_dict):
