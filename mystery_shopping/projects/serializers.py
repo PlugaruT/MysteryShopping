@@ -288,6 +288,11 @@ class EvaluationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Evaluation
         fields = '__all__'
+        extra_kwargs = {
+            'saved_by_user': {
+                'required': False
+            }
+        }
 
     @staticmethod
     def setup_eager_loading(queryset):

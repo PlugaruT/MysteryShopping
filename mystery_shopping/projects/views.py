@@ -146,6 +146,8 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         if self._is_mystery_project(project_id) and not self._enough_evaluations_available(is_many, request.data, project_id):
             raise ValidationError('Number of evaluations exceeded.')
 
+        self._set_saved_by_user(request.user, request.data, is_many)
+
         serializer = self.get_serializer(data=request.data, many=is_many)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
@@ -174,6 +176,12 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         current_number_of_evaluations = Evaluation.objects.filter(project=project_id).count()
         return total_number_of_evaluations - current_number_of_evaluations
 
+    def _set_saved_by_user(self, user, data, is_many):
+        if is_many:
+            for evaluation in data:
+                evaluation['saved_by_user'] = user.id
+        else:
+            data['saved_by_user'] = user.id
 
 
 class EvaluationPerShopperViewSet(viewsets.ViewSet):
