@@ -141,14 +141,10 @@ class EvaluationViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         is_many = True if isinstance(request.data, list) else False
-        project_id = request.data[0]['project'] if is_many else request.data['project']
-        total_number_of_evaluations = Project.objects.get(pk=project_id).research_methodology.number_of_evaluations
-        current_number_of_evaluations = Evaluation.objects.filter(project=project_id).count()
-        evaluations_left = total_number_of_evaluations - current_number_of_evaluations
-        evaluations_to_create = len(request.data) if is_many else 1
-        project_type = Project.objects.get_project_type(project_id)
-        if evaluations_to_create > evaluations_left and project_type == ProjectType.MYSTERY_SHOPPING:
-            raise ValidationError('Number of evaluations exceeded. Left: {}.'.format(evaluations_left))
+        project_id = request.data[0]['project'] if is_many else request.data.get('project')
+
+        if self._is_mystery_project(project_id) and not self._enough_evaluations_available(is_many, request.data, project_id):
+            raise ValidationError('Number of evaluations exceeded.')
 
         serializer = self.get_serializer(data=request.data, many=is_many)
         serializer.is_valid(raise_exception=True)
@@ -158,13 +154,26 @@ class EvaluationViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['GET'])
     def get_excel(self, request, pk=None):
-        # print(request.instance)
         response = HttpResponse(content_type='application/vnd.ms-excel')
         response['Content-Disposition'] = "attachment; filename=test.xlsx"
         instance = Evaluation.objects.get(pk=pk)
         evaluation_spreadsheet = EvaluationSpreadsheet(evaluation=instance)
         response.write(save_virtual_workbook(evaluation_spreadsheet.generate_spreadsheet()))
         return response
+
+    def _is_mystery_project(self, project_id):
+        return Project.objects.get_project_type(project_id) == ProjectType.MYSTERY_SHOPPING
+
+    def _enough_evaluations_available(self, is_many, data, project_id):
+        evaluations_left = self._get_remaining_number_of_evaluations(project_id)
+        evaluations_to_create = len(data) if is_many else 1
+        return evaluations_to_create < evaluations_left
+
+    def _get_remaining_number_of_evaluations(self, project_id):
+        total_number_of_evaluations = Project.objects.get(pk=project_id).research_methodology.number_of_evaluations
+        current_number_of_evaluations = Evaluation.objects.filter(project=project_id).count()
+        return total_number_of_evaluations - current_number_of_evaluations
+
 
 
 class EvaluationPerShopperViewSet(viewsets.ViewSet):
