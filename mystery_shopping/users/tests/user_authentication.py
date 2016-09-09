@@ -11,7 +11,7 @@ class AuthenticateUser:
     def __init__(self):
         api_settings.JWT_RESPONSE_PAYLOAD_HANDLER = jwt_response_payload_handler
         self.credentials = {
-            'username': 'consultant11',
+            'username': 'admin',
             'password': 'moldova123'
         }
         self.tenant = Tenant.objects.create(name='tenant demo')

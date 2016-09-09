@@ -65,7 +65,6 @@ class LocalityCsvUploadView(APIView):
     def post(self, request, *args, **kwargs):
 
         csv_file = request.data.get('file', None)
-
         if csv_file.content_type == 'text/csv':
             handle_csv_with_uploaded_localities(csv_file)
 
