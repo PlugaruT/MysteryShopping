@@ -29,6 +29,9 @@ class PlaceToAssess(models.Model):
 
     research_methodology = models.ForeignKey('ResearchMethodology', related_name='places_to_assess')
 
+    def evaluations(self):
+        return self.place.evaluations
+
 
 class ResearchMethodology(models.Model):
     """
@@ -42,7 +45,6 @@ class ResearchMethodology(models.Model):
     # Attributes
     number_of_evaluations = models.PositiveSmallIntegerField()  # or number_of_calls
     description = models.TextField(blank=True)
-    # desired_shopper_profile = models.CharField(max_length="1000")
 
     class Meta:
         verbose_name_plural = 'research methodologies'
@@ -55,6 +57,9 @@ class ResearchMethodology(models.Model):
     def prepare_for_update(self):
         self.people_to_assess.all().delete()
         self.places_to_assess.all().delete()
+
+    def get_questionnaires(self):
+        return self.questionnaires.first().questionnaires
 
 
 class Project(models.Model):
@@ -91,6 +96,31 @@ class Project(models.Model):
     def get_indicators_list(self):
         from mystery_shopping.cxi.algorithms import get_project_indicator_questions_list
         return get_project_indicator_questions_list(self)
+
+    def get_editable_places(self):
+        """
+        Function for getting all entities and sections that aren't included into any project and
+        doesn't have a questionnaire and can be removed from project
+        :return: A list of dicts with information about each place to asses
+        """
+        editable_places = []
+        places_to_asses = self.research_methodology.places_to_assess.all()
+        for place_to_asses in places_to_asses:
+            if not place_to_asses.evaluations().filter(project=self).exists():
+                place_info = {
+                    'place_type': place_to_asses.place_type_id,
+                    'place_id': place_to_asses.place_id
+                }
+                editable_places.append(place_info)
+        return editable_places
+
+    def is_questionnaire_editable(self):
+        """
+        Function for checking if a questionnaire is editable and
+        there exists evaluations that include this questionnaire
+        :return: Boolean
+        """
+        return not self.research_methodology.get_questionnaires().filter(evaluation__project=self).exists()
 
 
 class Evaluation(TimeStampedModel, models.Model):
