@@ -30,7 +30,11 @@ class WhyCause(models.Model):
     is_appreciation_cause = models.NullBooleanField()
 
     def __str__(self):
-        return 'Why Cause: {}'.format(self.text)
+        return 'Why Cause: {}'.format(self.answer)
+
+    def set_coded_causes(self, coded_causes):
+        self.coded_causes.clear()
+        self.coded_causes.set(coded_causes)
 
 
 class CodedCause(models.Model):

@@ -221,20 +221,30 @@ class WhyCauseViewSet(viewsets.ModelViewSet):
     def _encode_get(self, project_id):
         questions = QuestionnaireQuestion.objects.get_project_questions(project_id)
         serializer = self.encode_serializer_class(questions, many=True)
+        
         return dict(data=serializer.data, status=status.HTTP_200_OK)
 
     def _encode_put(self, project_id, data):
-        why_causes_changes = {x['id']: x.get('coded_causes', []) for x in data}
-        why_causes = WhyCause.objects.filter(pk__in=why_causes_changes.keys(),
-                                             question__questionnaire__evaluation__project=project_id)
-        for why_cause in why_causes:
-            why_cause.coded_causes.clear()
-            coded_cause_ids = why_causes_changes[why_cause.id]
-
-            validated_coded_causes_list = list()
-            for id in coded_cause_ids:
-                if CodedCause.objects.filter(pk=id).exists():
-                    validated_coded_causes_list.append(id)
-            why_cause.coded_causes.set(validated_coded_causes_list)
+        why_cause_coded_causes_dict = {x['id']: x.get('coded_causes', []) for x in data}
+        why_causes = self._get_why_causes(project_id, data)
+        self._set_coded_causes(why_causes, why_cause_coded_causes_dict)
 
         return dict(status=status.HTTP_200_OK)
+
+    def _get_why_causes(self, project_id, data):
+        why_causes_changes = {x['id']: x.get('coded_causes', []) for x in data}
+        return  WhyCause.objects.filter(pk__in=why_causes_changes.keys(),
+                                        question__questionnaire__evaluation__project=project_id)
+
+    def _check_if_coded_causes_exist(self, coded_cause_ids):
+        validated_coded_causes_list = list()
+        for id in coded_cause_ids:
+            if CodedCause.objects.filter(pk=id).exists():
+                validated_coded_causes_list.append(id)
+
+        return validated_coded_causes_list
+
+    def _set_coded_causes(self, why_causes, why_cause_coded_causes_dict):
+        for why_cause in why_causes:
+            real_coded_causes = self._check_if_coded_causes_exist(why_cause_coded_causes_dict[why_cause.id])
+            why_cause.set_coded_causes(real_coded_causes)

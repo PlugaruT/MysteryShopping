@@ -223,7 +223,8 @@ def add_question_per_coded_cause(indicator_question, coded_cause_dict):
     coded_causes = [why_cause.coded_causes.first() for why_cause in why_causes]
 
     for coded_cause in coded_causes:
-        coded_cause_dict[coded_cause.id].append(indicator_question.id)
+        if coded_cause:
+            coded_cause_dict[coded_cause.id].append(indicator_question.id)
     return True
 
 
