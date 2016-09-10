@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from mystery_shopping.cxi.models import WhyCause
+from .models import WhyCause
 from .models import CodedCauseLabel
 from .models import CodedCause
 from .models import ProjectComment
