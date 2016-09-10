@@ -26,7 +26,7 @@ urlpatterns = [
     url(r'^cxi/indicatorlist/$',
         IndicatorDashboardList.as_view(),
         name='indicator-list'),
-    url(r'^cxi/indicatortimestamp/$',
+    url(r'^cxi/indicatortimelapse/$',
         CxiIndicatorTimelapse.as_view(),
         name='indicator-timestamp'),
 ]

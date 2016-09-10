@@ -7,14 +7,14 @@ from rest_framework.response import Response
 from rest_condition import Or
 from urllib.parse import unquote
 from datetime import timedelta
-from datetime import date
+from datetime import datetime
 
 from mystery_shopping.cxi.algorithms import CollectDataForIndicatorDashboard
 from mystery_shopping.questionnaires.models import Questionnaire
 from .algorithms import collect_data_for_overview_dashboard
 from .algorithms import get_project_indicator_questions_list
 from .algorithms import get_company_indicator_questions_list
-from .algorithms import calculate_score_per_indicator
+from .algorithms import get_per_day_questionnaire_data
 from .models import CodedCauseLabel
 from .models import CodedCause
 from .models import ProjectComment
@@ -61,25 +61,34 @@ class CxiIndicatorTimelapse(views.APIView):
     """
 
     """
-
     def get(self, request, *args, **kwargs):
-        company_id = request.query_params.get('company', None)
-        start = unquote(request.query_params.get('start', None))
-        end = unquote(request.query_params.get('end'))
+        company_id = request.query_params.get('company')
+        start_str = unquote(request.query_params.get('start'))
+        start = datetime.strptime(start_str, '%Y-%m-%d').date()
+        end_str = unquote(request.query_params.get('end'))
+        end = datetime.strptime(end_str, '%Y-%m-%d').date()
+        import ipdb; ipdb.set_trace()
         questionnaires = Questionnaire.objects.get_questionnaires_for_company(company_id).filter(modified__range=[start, end])
-        qrouped_questionnaires = self.group_questionnaires(questionnaires, start, end)
+        grouped_questionnaires = self._group_questionnaires(questionnaires, start, end)
+        response = self._build_result(grouped_questionnaires)
+        return Response(response, status.HTTP_200_OK)
 
+    def _build_result(self, grouped_questionnaires):
+        return_dict = dict()
+        for date, questionnaires in grouped_questionnaires.items():
+            return_dict[str(date)] = get_per_day_questionnaire_data(questionnaires)
+        return return_dict
 
-    def build_result(self, grouped_questionnaires):
-        for date in grouped_questionnaires:
-
-
-
-    def group_questionnaires(self, questionnaires, start, end):
+    def _group_questionnaires(self, questionnaires, start, end):
         result = dict()
-        for date in self.daterange(start, end):
-            result[date] = questionnaires.filter(modified__date=date)
+        for date in self.daterange(start, end + timedelta(days=1)):
+            self._add_questionnaires_for_date_if_they_exist(date, result, questionnaires)
         return result
+
+    def _add_questionnaires_for_date_if_they_exist(self, date, result, questionnaires):
+        date_questionnaires = questionnaires.filter(modified__date=date)
+        if date_questionnaires.exists():
+            result[date] = date_questionnaires
 
     @staticmethod
     def daterange(start_date, end_date):

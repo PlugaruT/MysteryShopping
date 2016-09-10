@@ -201,7 +201,7 @@ def calculate_overview_score(questionnaire_list, project, entity_id):
     overview_list['indicators'] = dict()
     indicator_types_set = set()
     for questionnaire in questionnaire_list:
-        for indicator_question in questionnaire.questions.filter(type=QuestionType.INDICATOR_QUESTION).all():
+        for indicator_question in questionnaire.get_indicator_questions():
             indicator_types_set.add(indicator_question.additional_info)
     for indicator_type in indicator_types_set:
         indicator_list = get_indicator_scores(questionnaire_list, indicator_type)
@@ -211,16 +211,19 @@ def calculate_overview_score(questionnaire_list, project, entity_id):
     return overview_list
 
 
-def calculate_score_per_indicator(questionnaire_list):
+def get_per_day_questionnaire_data(questionnaire_list):
     result = dict()
     result['indicators'] = dict()
+    result['number_of_entries'] = len(questionnaire_list)
     indicator_types_set = set()
     for questionnaire in questionnaire_list:
-        for indicator_question in questionnaire.questions.filter(type=QuestionType.INDICATOR_QUESTION).all():
+        for indicator_question in questionnaire.get_indicator_questions():
             indicator_types_set.add(indicator_question.additional_info)
     for indicator_type in indicator_types_set:
         indicator_list = get_indicator_scores(questionnaire_list, indicator_type)
-        result['indicators'][indicator_type] = calculate_indicator_score(indicator_list)['indicator']
+        result['indicators'][indicator_type] = calculate_indicator_score(indicator_list).get('indicator')
+
+    result['indicators']['cxi'] = sum(result['indicators'].values())/len(result['indicators'])
     return result
 
 

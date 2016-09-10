@@ -161,6 +161,9 @@ class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
         return CrossIndex.objects.create(template_cross_index=template, questionnaire=self,
                                          title=template_cross_index['title'])
 
+    def get_indicator_questions(self):
+        return self.questions.filter(type=QuestionType.INDICATOR_QUESTION).all()
+
 
 class QuestionnaireBlockAbstract(models.Model):
     """
