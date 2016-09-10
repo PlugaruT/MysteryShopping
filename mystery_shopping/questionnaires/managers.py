@@ -23,4 +23,4 @@ class QuestionnaireQuerySet(QuerySet):
 class QuestionnaireQuestionQuerySet(QuerySet):
     def get_project_questions(self, project):
         return self.filter(questionnaire__evaluation__project=project,
-                           type=QuestionType.INDICATOR_QUESTION).prefetch_related('coded_causes')
+                           type=QuestionType.INDICATOR_QUESTION)

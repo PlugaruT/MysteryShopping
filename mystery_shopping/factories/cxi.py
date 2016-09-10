@@ -4,8 +4,9 @@ from factory import post_generation
 from factory.fuzzy import FuzzyText
 from factory.fuzzy import FuzzyChoice
 
-from mystery_shopping.cxi.models import CodedCause
+from mystery_shopping.cxi.models import CodedCause, WhyCause
 from mystery_shopping.cxi.models import CodedCauseLabel
+from mystery_shopping.factories.questionnaires import QuestionFactory
 from mystery_shopping.factories.tenants import TenantFactory
 
 
@@ -33,3 +34,12 @@ class CodedCauseFactory(DjangoModelFactory):
         if causes:
             for cause in causes:
                 self.raw_causes.add(cause)
+
+
+class WhyCauseFactory(DjangoModelFactory):
+    class Meta:
+        model = WhyCause
+
+    answer = FuzzyText(length=20)
+    question = SubFactory(QuestionFactory, related_name='why_causes')
+    is_appreciation_cause = True

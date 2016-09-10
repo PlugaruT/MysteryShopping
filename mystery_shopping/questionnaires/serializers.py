@@ -2,6 +2,7 @@ from collections import OrderedDict
 
 from rest_framework import serializers
 
+from mystery_shopping.cxi.serializers import WhyCauseSerializer
 from mystery_shopping.questionnaires.models import CrossIndexQuestion, QuestionnaireTemplateStatus
 from .models import QuestionnaireScript
 from .models import Questionnaire
@@ -66,6 +67,7 @@ class QuestionnaireQuestionSerializer(serializers.ModelSerializer):
 
     """
     question_choices = QuestionnaireQuestionChoiceSerializer(many=True, required=False)
+    why_causes = WhyCauseSerializer(many=True, required=False)
     question_id = serializers.IntegerField(write_only=True, required=False)
 
     class Meta:
@@ -85,14 +87,11 @@ class QuestionnaireQuestionSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
-        question_choices = validated_data.pop('question_choices', None)
+        question_choices = validated_data.pop('question_choices', [])
+        why_causes = validated_data.pop('why_causes', [])
         question = QuestionnaireQuestion.objects.create(**validated_data)
-
-        for question_choice in question_choices:
-            question_choice['question'] = question.id
-            question_choice_ser = QuestionnaireQuestionChoiceSerializer(data=question_choice)
-            question_choice_ser.is_valid(raise_exception=True)
-            question_choice_ser.save()
+        self._create_question_choices(question_choices, question.id)
+        self._create_why_causes(why_causes, question.id)
         return question
 
     def update(self, instance, validated_data):
@@ -100,6 +99,22 @@ class QuestionnaireQuestionSerializer(serializers.ModelSerializer):
         update_attributes(validated_data, instance)
         instance.save()
         return instance
+
+    @staticmethod
+    def _create_question_choices(question_choices, question_id):
+        for question_choice in question_choices:
+            question_choice['question'] = question_id
+            question_choice_ser = QuestionnaireQuestionChoiceSerializer(data=question_choice)
+            question_choice_ser.is_valid(raise_exception=True)
+            question_choice_ser.save()
+
+    @staticmethod
+    def _create_why_causes(why_causes, question_id):
+        for why_cause in why_causes:
+            why_cause['question'] = question_id
+            why_cause_ser = WhyCauseSerializer(data=why_cause)
+            why_cause_ser.is_valid(raise_exception=True)
+            why_cause_ser.save()
 
 
 class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):

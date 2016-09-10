@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from .models import WhyCause
 from .models import CodedCauseLabel
 from .models import CodedCause
 from .models import ProjectComment
@@ -48,15 +49,35 @@ class CodedCauseSerializer(serializers.ModelSerializer):
         return coded_cause
 
 
-class QuestionnaireQuestionToEncodeSerializer(serializers.ModelSerializer):
+class WhyCauseSerializer(serializers.ModelSerializer):
+    """
+    Serializer for WhyCause model
+    """
+    class Meta:
+        model = WhyCause
+        fields = ('id', 'answer', 'is_appreciation_cause', 'coded_causes', 'question')
+        extra_kwargs = {
+            'question': {
+                'write_only': True,
+                'required': False
+            },
+            'coded_causes': {
+                'required': False
+            }
+        }
+
+
+class QuestionWithWhyCausesSerializer(serializers.ModelSerializer):
     """Serializes only the minimal required fields to be able to encode a question's answer
     for the Customer Experience Index indicators.
     """
-    type = serializers.CharField(source='additional_info')
+    why_causes = WhyCauseSerializer(many=True, read_only=True)
+    type = serializers.CharField(source='additional_info', read_only=True)
+
     class Meta:
         model = QuestionnaireQuestion
-        fields = ('answer', 'type', 'id', 'coded_causes', 'score')
-        read_only_fields = ('answer', 'type', 'id', 'coded_causes', 'score')
+        fields = ('type', 'why_causes', 'id', 'score')
+        read_only_fields = ('type', 'why_causes', 'id', 'score')
 
 
 class ProjectCommentSerializer(serializers.ModelSerializer):

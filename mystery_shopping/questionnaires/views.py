@@ -37,7 +37,7 @@ from mystery_shopping.users.permissions import IsTenantProjectManager
 from mystery_shopping.users.permissions import IsTenantConsultant
 
 from mystery_shopping.projects.models import Project
-from mystery_shopping.cxi.serializers import QuestionnaireQuestionToEncodeSerializer
+from mystery_shopping.cxi.serializers import QuestionWithWhyCausesSerializer
 
 
 class QuestionnaireScriptViewSet(viewsets.ModelViewSet):
@@ -155,45 +155,6 @@ class QuestionnaireQuestionViewSet(viewsets.ModelViewSet):
     queryset = QuestionnaireQuestion.objects.all()
     serializer_class = QuestionnaireQuestionSerializer
     permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)
-    encode_serializer_class = QuestionnaireQuestionToEncodeSerializer
-
-    @list_route(['GET', 'PUT'])
-    def encode(self, request):
-        project_id = request.query_params.get('project', None)
-        if project_id is None:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            project = Project.objects.get(pk=project_id)
-        except Project.DoesNotExist:
-            return Response({'detail': 'Project does not exist'},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        if request.user.tenant != project.tenant:
-            return Response({'detail': 'You do not have access to this project'},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        if request.method == 'GET':
-            questions = QuestionnaireQuestion.objects.get_project_questions(project_id)
-
-            serializer = self.encode_serializer_class(questions, many=True)
-
-        elif request.method == 'PUT':
-            question_changes = {x['id']: x.get('coded_causes', [None])[0] for x in request.data}
-            questions = QuestionnaireQuestion.objects.filter(pk__in=question_changes.keys(),
-                                                             questionnaire__evaluation__project=project_id)
-            for question in questions:
-                question.coded_causes.clear()
-                coded_cause_id = question_changes[question.id]
-                if coded_cause_id:
-                    question.coded_causes.add(coded_cause_id)
-
-            return Response('', status=status.HTTP_200_OK)
-
-        else:
-            pass
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class QuestionnaireTemplateQuestionChoiceViewSet(viewsets.ModelViewSet):

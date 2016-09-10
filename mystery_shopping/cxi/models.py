@@ -17,6 +17,25 @@ class CodedCauseLabel(models.Model):
     # Attributes
     name = models.CharField(max_length=50)
 
+    def __str__(self):
+        return 'Label: {}'.format(self.name)
+
+
+class WhyCause(models.Model):
+    """
+    Model for why causes for questions containing the reason why user answered to question
+    """
+    answer = models.CharField(max_length=100)
+    question = models.ForeignKey(QuestionnaireQuestion, related_name='why_causes')
+    is_appreciation_cause = models.NullBooleanField()
+
+    def __str__(self):
+        return 'Why Cause: {}'.format(self.answer)
+
+    def set_coded_causes(self, coded_causes):
+        self.coded_causes.clear()
+        self.coded_causes.set(coded_causes)
+
 
 class CodedCause(models.Model):
     """
@@ -25,7 +44,7 @@ class CodedCause(models.Model):
     # Relations
     tenant = models.ForeignKey(Tenant)
     coded_label = models.ForeignKey(CodedCauseLabel)
-    raw_causes = models.ManyToManyField(QuestionnaireQuestion, related_name='coded_causes')
+    raw_causes = models.ManyToManyField(WhyCause, related_name='coded_causes', blank=True)
     parent = models.ForeignKey('self', null=True, blank=True)
 
     # Attributes
