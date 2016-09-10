@@ -211,6 +211,19 @@ def calculate_overview_score(questionnaire_list, project, entity_id):
     return overview_list
 
 
+def calculate_score_per_indicator(questionnaire_list):
+    result = dict()
+    result['indicators'] = dict()
+    indicator_types_set = set()
+    for questionnaire in questionnaire_list:
+        for indicator_question in questionnaire.questions.filter(type=QuestionType.INDICATOR_QUESTION).all():
+            indicator_types_set.add(indicator_question.additional_info)
+    for indicator_type in indicator_types_set:
+        indicator_list = get_indicator_scores(questionnaire_list, indicator_type)
+        result['indicators'][indicator_type] = calculate_indicator_score(indicator_list)['indicator']
+    return result
+
+
 def add_question_per_coded_cause(indicator_question, coded_cause_dict):
     """
     Function for grouping indicator questions by coded_cause. If coded_cause doesn't exists, it appends the question id

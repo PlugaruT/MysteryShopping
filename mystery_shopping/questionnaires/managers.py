@@ -19,6 +19,9 @@ class QuestionnaireQuerySet(QuerySet):
             result = result.filter(evaluation__entity=entity)
         return result
 
+    def get_questionnaires_for_company(self, company):
+        return self.filter(evaluation__project__company=company)
+
 
 class QuestionnaireQuestionQuerySet(QuerySet):
     def get_project_questions(self, project):

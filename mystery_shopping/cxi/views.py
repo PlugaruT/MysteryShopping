@@ -1,13 +1,20 @@
+from collections import defaultdict
+
 from rest_framework import status
 from rest_framework import views
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_condition import Or
+from urllib.parse import unquote
+from datetime import timedelta
+from datetime import date
 
 from mystery_shopping.cxi.algorithms import CollectDataForIndicatorDashboard
+from mystery_shopping.questionnaires.models import Questionnaire
 from .algorithms import collect_data_for_overview_dashboard
 from .algorithms import get_project_indicator_questions_list
 from .algorithms import get_company_indicator_questions_list
+from .algorithms import calculate_score_per_indicator
 from .models import CodedCauseLabel
 from .models import CodedCause
 from .models import ProjectComment
@@ -48,6 +55,36 @@ class CodedCauseViewSet(viewsets.ModelViewSet):
 class ProjectCommentViewSet(viewsets.ModelViewSet):
     queryset = ProjectComment.objects.all()
     serializer_class = ProjectCommentSerializer
+
+
+class CxiIndicatorTimelapse(views.APIView):
+    """
+
+    """
+
+    def get(self, request, *args, **kwargs):
+        company_id = request.query_params.get('company', None)
+        start = unquote(request.query_params.get('start', None))
+        end = unquote(request.query_params.get('end'))
+        questionnaires = Questionnaire.objects.get_questionnaires_for_company(company_id).filter(modified__range=[start, end])
+        qrouped_questionnaires = self.group_questionnaires(questionnaires, start, end)
+
+
+    def build_result(self, grouped_questionnaires):
+        for date in grouped_questionnaires:
+
+
+
+    def group_questionnaires(self, questionnaires, start, end):
+        result = dict()
+        for date in self.daterange(start, end):
+            result[date] = questionnaires.filter(modified__date=date)
+        return result
+
+    @staticmethod
+    def daterange(start_date, end_date):
+        for n in range(int((end_date - start_date).days)):
+            yield start_date + timedelta(n)
 
 
 class OverviewDashboard(views.APIView):
