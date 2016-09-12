@@ -472,7 +472,7 @@ class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
         if not instance.is_editable:
             raise serializers.ValidationError('You are not allowed to do this action')
 
-        validated_data.get('template_blocks', [])
+        validated_data.pop('template_blocks', [])
         update_attributes(validated_data, instance)
         instance.save()
         return instance
