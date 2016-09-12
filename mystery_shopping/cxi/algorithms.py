@@ -196,17 +196,35 @@ def get_indicator_project_comment(project, entity_id, indicator_type):
     return None if project_comment is None else ProjectCommentSerializer(project_comment).data
 
 
-def calculate_overview_score(questionnaire_list, project, entity_id):
-    overview_list = dict()
-    overview_list['indicators'] = dict()
+def _get_indicator_types(indicator_set, questionnaire_list):
+    return_dict = dict()
+    for indicator_type in indicator_set:
+        indicator_list = get_indicator_scores(questionnaire_list, indicator_type)
+        return_dict[indicator_type] = calculate_indicator_score(indicator_list)
+    return return_dict
+
+
+def _get_only_indicator_score(indicator_set, questionnaire_list):
+    return_dict = dict()
+    for indicator_type in indicator_set:
+        indicator_list = get_indicator_scores(questionnaire_list, indicator_type)
+        return_dict[indicator_type] = calculate_indicator_score(indicator_list).get('indicator')
+    return return_dict
+
+
+def _get_indicator_questions(questionnaire_list):
     indicator_types_set = set()
     for questionnaire in questionnaire_list:
         for indicator_question in questionnaire.get_indicator_questions():
             indicator_types_set.add(indicator_question.additional_info)
-    for indicator_type in indicator_types_set:
-        indicator_list = get_indicator_scores(questionnaire_list, indicator_type)
-        overview_list['indicators'][indicator_type] = calculate_indicator_score(indicator_list)
+    return indicator_types_set
 
+
+def calculate_overview_score(questionnaire_list, project, entity_id):
+    overview_list = dict()
+    overview_list['indicators'] = dict()
+    indicator_types_set = _get_indicator_questions(questionnaire_list)
+    overview_list['indicators'] = _get_indicator_types(indicator_types_set, questionnaire_list)
     overview_list['project_comment'] = get_overview_project_comment(project, entity_id)
     return overview_list
 
@@ -215,14 +233,9 @@ def get_per_day_questionnaire_data(questionnaire_list):
     result = dict()
     result['indicators'] = dict()
     result['number_of_entries'] = len(questionnaire_list)
-    indicator_types_set = set()
-    for questionnaire in questionnaire_list:
-        for indicator_question in questionnaire.get_indicator_questions():
-            indicator_types_set.add(indicator_question.additional_info)
-    for indicator_type in indicator_types_set:
-        indicator_list = get_indicator_scores(questionnaire_list, indicator_type)
-        result['indicators'][indicator_type] = calculate_indicator_score(indicator_list).get('indicator')
-
+    indicator_types_set = _get_indicator_questions(questionnaire_list)
+    result['indicators'] = _get_only_indicator_score(indicator_types_set, questionnaire_list)
+    import ipdb; ipdb.set_trace()
     result['indicators']['cxi'] = sum(result['indicators'].values())/len(result['indicators'])
     return result
 
