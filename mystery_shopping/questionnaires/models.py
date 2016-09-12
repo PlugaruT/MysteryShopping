@@ -324,9 +324,6 @@ class QuestionnaireQuestion(QuestionAbstract):
         self.save()
         return (self.score * self.weight) / 100
 
-    def coded_cause(self):
-        return self.coded_causes.first()
-
 
 class QuestionChoiceAbstract(models.Model):
     """

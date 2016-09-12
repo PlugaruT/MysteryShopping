@@ -6,7 +6,7 @@ from mystery_shopping.factories.projects import ProjectFactory
 from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFactory, QuestionTemplateFactory, \
     QuestionnaireTemplateBlockFactory
 from mystery_shopping.factories.tenants import TenantFactory
-from mystery_shopping.factories.users import ShopperFactory
+from mystery_shopping.factories.users import ShopperFactory, UserFactory
 from mystery_shopping.projects.serializers import EvaluationSerializer
 from mystery_shopping.questionnaires.models import CrossIndexTemplate, CrossIndexQuestionTemplate
 
@@ -16,6 +16,7 @@ class TestSerializeCrossIndexForQuestionnaire(TestCase):
         self.tenant = TenantFactory()
         project = ProjectFactory()
         shopper = ShopperFactory()
+        saved_by_user = UserFactory()
         entity = EntityFactory()
         self.template_questionnaire = QuestionnaireTemplateFactory(tenant=self.tenant)
 
@@ -45,6 +46,7 @@ class TestSerializeCrossIndexForQuestionnaire(TestCase):
         data = {
             'project': project.id,
             'shopper': shopper.id,
+            'saved_by_user': saved_by_user.id,
             'questionnaire_template': self.template_questionnaire.id,
             'entity': entity.id,
 

@@ -3,6 +3,7 @@ from django.conf.urls import url
 from rest_framework.routers import DefaultRouter
 
 from .views import CxiIndicatorTimelapse
+from .views import WhyCauseViewSet
 from .views import CodedCauseLabelViewSet
 from .views import CodedCauseViewSet
 from .views import ProjectCommentViewSet
@@ -15,6 +16,7 @@ router = DefaultRouter()
 router.register(r'codedcauselabels', CodedCauseLabelViewSet)
 router.register(r'codedcauses', CodedCauseViewSet)
 router.register(r'projectcomments', ProjectCommentViewSet)
+router.register(r'whycauses', WhyCauseViewSet)
 
 urlpatterns = [
     url(r'^cxi/overview/$',

@@ -19,6 +19,7 @@ from mystery_shopping.questionnaires.serializers import QuestionnaireSerializer
 from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializer
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion, QuestionnaireScript
 from mystery_shopping.questionnaires.models import Questionnaire
+from mystery_shopping.questionnaires.constants import QuestionType
 from mystery_shopping.questionnaires.utils import update_attributes
 from mystery_shopping.users.serializers import ShopperSerializer
 from mystery_shopping.users.serializers import PersonToAssessSerializer
@@ -288,6 +289,11 @@ class EvaluationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Evaluation
         fields = '__all__'
+        extra_kwargs = {
+            'saved_by_user': {
+                'required': False
+            }
+        }
 
     @staticmethod
     def setup_eager_loading(queryset):
@@ -369,6 +375,7 @@ class EvaluationSerializer(serializers.ModelSerializer):
         for block in questionnaire['blocks']:
             block['template_block'] = block['template_block'].id
             for question in block['questions']:
+                self._check_if_indicator_question_has_null_score(question)
                 question['template_question'] = question['template_question'].id
         return questionnaire
 
@@ -386,3 +393,8 @@ class EvaluationSerializer(serializers.ModelSerializer):
             question['template_question'] = question.pop('id')
             question['question_choices'] = question.pop('template_question_choices')
         return questions
+
+    def _check_if_indicator_question_has_null_score(self, question):
+        if question['type'] == QuestionType.INDICATOR_QUESTION:
+            if question['score'] == None:
+                raise serializers.ValidationError('Indicator Question isn\'t allowed to have null score')

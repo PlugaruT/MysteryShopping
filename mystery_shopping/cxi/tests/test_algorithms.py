@@ -211,25 +211,16 @@ class AlgorithmsTestCase(TestCase):
         cc_id = randint(1, 100)
         coded_cause = MagicMock()
         coded_cause.id = cc_id
+        why_cause = MagicMock()
 
         indicator_question_id = randint(1, 100)
         indicator_question = MagicMock()
         indicator_question.id = indicator_question_id
-        indicator_question.coded_causes.first.return_value = coded_cause
+        indicator_question.why_causes.all.return_value = [why_cause]
+        why_cause.coded_causes.first.return_value = coded_cause
 
         add_question_per_coded_cause(indicator_question, coded_causes_dict)
         self.assertEqual(coded_causes_dict[coded_cause.id][0], indicator_question_id)
-
-    def test_add_question_per_coded_cause_without_cc(self):
-        coded_causes_dict = defaultdict(list)
-
-        indicator_question_id = randint(1, 100)
-        indicator_question = MagicMock()
-        indicator_question.id = indicator_question_id
-        indicator_question.coded_causes.first.return_value = None
-
-        add_question_per_coded_cause(indicator_question, coded_causes_dict)
-        self.assertEqual(coded_causes_dict['unsorted'][0], indicator_question_id)
 
     def test_group_questions_by_answer(self):
         questionnaire_list = list()

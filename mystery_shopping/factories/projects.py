@@ -6,6 +6,7 @@ from factory.fuzzy import FuzzyDate
 from factory.fuzzy import FuzzyChoice
 from factory import post_generation
 
+from mystery_shopping.factories.users import UserFactory
 from .companies import CompanyFactory
 from .tenants import TenantFactory
 
@@ -74,6 +75,7 @@ class EvaluationFactory(DjangoModelFactory):
 
     project = SubFactory(ProjectFactory)
     shopper = SubFactory(ShopperFactory)
+    saved_by_user = SubFactory(UserFactory)
     questionnaire_script = SubFactory(QuestionnaireScriptFactory)
     questionnaire_template = SubFactory(QuestionnaireTemplateFactory)
     entity = SubFactory(EntityFactory)
@@ -87,10 +89,6 @@ class EvaluationFactory(DjangoModelFactory):
     is_draft = True
     suggested_start_date = FuzzyDate(date(1990, 12, 12))
     suggested_end_date = FuzzyDate(date(2000, 11, 2))
-    # status = FuzzyChoice(ProjectStatus.PLANNED, ProjectStatus.DRAFT,
-    #                      ProjectStatus.SUBMITTED, ProjectStatus.REVIEWED,
-    #                      ProjectStatus.APPROVED, ProjectStatus.DECLINED,
-    #                      ProjectStatus.REJECTED,)
     status = ProjectStatus.PLANNED
     time_accomplished = None
 

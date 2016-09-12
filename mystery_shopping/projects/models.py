@@ -128,7 +128,8 @@ class Evaluation(TimeStampedModel, models.Model):
     """
     # Relationships
     project = models.ForeignKey(Project)
-    shopper = models.ForeignKey('users.Shopper')
+    shopper = models.ForeignKey('users.Shopper', null=True)
+    saved_by_user = models.ForeignKey('users.User')
     questionnaire_script = models.ForeignKey(QuestionnaireScript, null=True)
 
     type_questionnaire = Choices(('m', 'Mystery Evaluation'),

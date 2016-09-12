@@ -3,9 +3,7 @@ from decimal import Decimal
 from datetime import datetime
 
 from rest_assured.testcases import CreateAPITestCaseMixin
-from rest_assured.testcases import ReadWriteRESTAPITestCaseMixin
 from rest_assured.testcases import BaseRESTAPITestCase
-from factory.fuzzy import FuzzyDateTime
 
 from mystery_shopping.questionnaires.models import Questionnaire
 
@@ -13,8 +11,7 @@ from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSer
 from mystery_shopping.projects.serializers import EvaluationSerializer
 from mystery_shopping.projects.constants import ProjectStatus
 
-from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFactory, QuestionnaireTemplateStatusFactory
-from mystery_shopping.factories.projects import ProjectFactory
+from mystery_shopping.factories.questionnaires import QuestionnaireTemplateStatusFactory
 from mystery_shopping.factories.projects import EvaluationFactory
 from mystery_shopping.factories.projects import EvaluationAssessmentLevelFactory
 from mystery_shopping.factories.tenants import TenantFactory
@@ -30,20 +27,20 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
     user_factory = UserThatIsTenantProductManagerFactory
 
     def get_create_data(self):
-
         self.data = {
-            "evaluation_type": "visit",
-            "is_draft": False,
-            "suggested_start_date": datetime(2008, 1, 1),
-            "suggested_end_date": datetime(2016, 1, 1),
-            "status": ProjectStatus.PLANNED,
-            "time_accomplished": None,
-            "project": self.object.project.id,
-            "shopper": self.object.shopper.id,
-            "questionnaire_script": self.object.questionnaire_script.id,
-            "questionnaire_template": self.object.questionnaire_template.id,
-            "entity": self.object.entity.id,
-            "evaluation_assessment_level": None
+            'evaluation_type': 'visit',
+            'is_draft': False,
+            'suggested_start_date': datetime(2008, 1, 1),
+            'suggested_end_date': datetime(2016, 1, 1),
+            'status': ProjectStatus.PLANNED,
+            'time_accomplished': None,
+            'project': self.object.project.id,
+            'shopper': self.object.shopper.id,
+            'saved_by_user': self.object.saved_by_user.id,
+            'questionnaire_script': self.object.questionnaire_script.id,
+            'questionnaire_template': self.object.questionnaire_template.id,
+            'entity': self.object.entity.id,
+            'evaluation_assessment_level': None
         }
         return self.data
 
@@ -52,7 +49,7 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
         super(EvaluationAPITestCase, self).test_create(data, **kwargs)
 
     def test_questionnaire_score_100(self):
-        template_questionnaire_json_data = json.load(open("mystery_shopping/questionnaires/tests/QuestionnaireTemplates.json"))
+        template_questionnaire_json_data = json.load(open('mystery_shopping/questionnaires/tests/QuestionnaireTemplates.json'))
         template_questionnaire_json = template_questionnaire_json_data[2]
         tenant = TenantFactory()
         created_by = UserFactory()
@@ -65,18 +62,19 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
         template_questionnaire_ser.save()
 
         evaluation_data = {
-            "evaluation_type": "visit",
-            "is_draft": False,
-            "suggested_start_date": datetime(2008, 1, 1),
-            "suggested_end_date": datetime(2016, 1, 1),
-            "status": ProjectStatus.PLANNED,
-            "time_accomplished": None,
-            "project": self.object.project.id,
-            "shopper": self.object.shopper.id,
-            "questionnaire_script": self.object.questionnaire_script.id,
-            "questionnaire_template": template_questionnaire_ser.instance.id,
-            "entity": self.object.entity.id,
-            "evaluation_assessment_level": None
+            'evaluation_type': 'visit',
+            'is_draft': False,
+            'suggested_start_date': datetime(2008, 1, 1),
+            'suggested_end_date': datetime(2016, 1, 1),
+            'status': ProjectStatus.PLANNED,
+            'time_accomplished': None,
+            'project': self.object.project.id,
+            'shopper': self.object.shopper.id,
+            'saved_by_user': self.object.saved_by_user.id,
+            'questionnaire_script': self.object.questionnaire_script.id,
+            'questionnaire_template': template_questionnaire_ser.instance.id,
+            'entity': self.object.entity.id,
+            'evaluation_assessment_level': None
         }
         evaluation_ser = EvaluationSerializer(data=evaluation_data)
         evaluation_ser.is_valid(raise_exception=True)
@@ -85,7 +83,7 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
         questionnaire = Questionnaire.objects.get(pk=evaluation_ser.data['questionnaire']['id'])
         for question in questionnaire.questions.all():
             for question_choice in question.question_choices.all():
-                # Select all questions with "positive" score
+                # Select all questions with 'positive' score
                 if question_choice.text in {'A', 'Adevar', 'Yes'}:
                     question.answer_choices = [question_choice.id]
                     question.save()
@@ -108,7 +106,7 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
         self.assertEqual(Decimal(evaluation_ser.data['questionnaire']['score']), Decimal(100))
 
     def test_questionnaire_score_75(self):
-        template_questionnaire_json_data = json.load(open("mystery_shopping/questionnaires/tests/QuestionnaireTemplates.json"))
+        template_questionnaire_json_data = json.load(open('mystery_shopping/questionnaires/tests/QuestionnaireTemplates.json'))
         template_questionnaire_json = template_questionnaire_json_data[2]
         tenant = TenantFactory()
         created_by = UserFactory()
@@ -121,18 +119,19 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
         template_questionnaire_ser.save()
 
         evaluation_data = {
-            "evaluation_type": "visit",
-            "is_draft": False,
-            "suggested_start_date": datetime(2008, 1, 1),
-            "suggested_end_date": datetime(2016, 1, 1),
-            "status": ProjectStatus.PLANNED,
-            "time_accomplished": None,
-            "project": self.object.project.id,
-            "shopper": self.object.shopper.id,
-            "questionnaire_script": self.object.questionnaire_script.id,
-            "questionnaire_template": template_questionnaire_ser.instance.id,
-            "entity": self.object.entity.id,
-            "evaluation_assessment_level": None
+            'evaluation_type': 'visit',
+            'is_draft': False,
+            'suggested_start_date': datetime(2008, 1, 1),
+            'suggested_end_date': datetime(2016, 1, 1),
+            'status': ProjectStatus.PLANNED,
+            'time_accomplished': None,
+            'project': self.object.project.id,
+            'shopper': self.object.shopper.id,
+            'saved_by_user': self.object.saved_by_user.id,
+            'questionnaire_script': self.object.questionnaire_script.id,
+            'questionnaire_template': template_questionnaire_ser.instance.id,
+            'entity': self.object.entity.id,
+            'evaluation_assessment_level': None
         }
         evaluation_ser = EvaluationSerializer(data=evaluation_data)
         evaluation_ser.is_valid(raise_exception=True)
@@ -140,7 +139,7 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
         questionnaire = Questionnaire.objects.get(pk=evaluation_ser.data['questionnaire']['id'])
         for question in questionnaire.questions.all():
             for question_choice in question.question_choices.all():
-                # Select all questions with "positive" score, except two of them
+                # Select all questions with 'positive' score, except two of them
                 if question_choice.text in {'B', 'Provocare', 'Yes'}:
                     question.answer_choices = [question_choice.id]
                     question.save()
@@ -162,7 +161,7 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
         self.assertEqual(Decimal(evaluation_ser.data['questionnaire']['score']), Decimal(75))
 
     def test_status_change_with_evaluation_ass_level(self):
-        template_questionnaire_json_data = json.load(open("mystery_shopping/questionnaires/tests/QuestionnaireTemplates.json"))
+        template_questionnaire_json_data = json.load(open('mystery_shopping/questionnaires/tests/QuestionnaireTemplates.json'))
         template_questionnaire_json = template_questionnaire_json_data[2]
         tenant = TenantFactory()
         created_by = UserFactory()
@@ -176,18 +175,19 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
         evaluation_assessment_level = EvaluationAssessmentLevelFactory(consultants=[])
 
         evaluation_data = {
-            "evaluation_type": "visit",
-            "is_draft": False,
-            "suggested_start_date": datetime(2008, 1, 1),
-            "suggested_end_date": datetime(2016, 1, 1),
-            "status": ProjectStatus.PLANNED,
-            "time_accomplished": None,
-            "project": self.object.project.id,
-            "shopper": self.object.shopper.id,
-            "questionnaire_script": self.object.questionnaire_script.id,
-            "questionnaire_template": template_questionnaire_ser.instance.id,
-            "entity": self.object.entity.id,
-            "evaluation_assessment_level": evaluation_assessment_level.id
+            'evaluation_type': 'visit',
+            'is_draft': False,
+            'suggested_start_date': datetime(2008, 1, 1),
+            'suggested_end_date': datetime(2016, 1, 1),
+            'status': ProjectStatus.PLANNED,
+            'time_accomplished': None,
+            'project': self.object.project.id,
+            'shopper': self.object.shopper.id,
+            'saved_by_user': self.object.saved_by_user.id,
+            'questionnaire_script': self.object.questionnaire_script.id,
+            'questionnaire_template': template_questionnaire_ser.instance.id,
+            'entity': self.object.entity.id,
+            'evaluation_assessment_level': evaluation_assessment_level.id
         }
         evaluation_ser = EvaluationSerializer(data=evaluation_data)
         evaluation_ser.is_valid(raise_exception=True)
@@ -196,7 +196,7 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
         questionnaire = Questionnaire.objects.get(pk=evaluation_ser.data['questionnaire']['id'])
         for question in questionnaire.questions.all():
             for question_choice in question.question_choices.all():
-                # Select all questions with "positive" score
+                # Select all questions with 'positive' score
                 if question_choice.text in {'A', 'Adevar', 'Yes'}:
                     question.answer_choices = [question_choice.id]
                     question.save()
