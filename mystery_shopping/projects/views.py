@@ -142,14 +142,16 @@ class EvaluationViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         project_id = request.data.get('project')
         self._if_not_mystery_and_evaluations_left_raise_error(request.data, project_id, 1)
+        self._set_saved_by_user(request.user, request.data)
         evaluation = self._create_evaluations(request)
         return Response(evaluation, status=status.HTTP_201_CREATED)
 
     @list_route(methods=['post'])
     def many(self, request, *args, **kwargs):
         project_id = request.data[0].get('project')
+        import ipdb; ipdb.set_trace()
         self._if_not_mystery_and_evaluations_left_raise_error(request.data, project_id, len(request.data))
-
+        self._set_saved_by_user_many(request.user, request.data)
         evaluations = self._create_evaluations(request, True)
         return Response(evaluations, status=status.HTTP_201_CREATED)
 
@@ -176,23 +178,23 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         return total_number_of_evaluations - current_number_of_evaluations
 
     def _create_evaluations(self, request, is_many=False):
-        if is_many:
-            for evaluation in request.data:
-                self._set_saved_by_user(request.user, evaluation)
-        else:
-            self._set_saved_by_user(request.user, request.data)
         serializer = self.get_serializer(data=request.data, many=is_many)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return serializer.data
 
     def _if_not_mystery_and_evaluations_left_raise_error(self, data, project_id, number_to_create):
+        import ipdb; ipdb.set_trace()
         are_evaluations_left = self._get_remaining_number_of_evaluations(project_id) >= number_to_create
         if self._is_mystery_project(project_id) and not are_evaluations_left:
             raise ValidationError('Number of evaluations exceeded.')
 
     def _set_saved_by_user(self, user, data):
         data['saved_by_user'] = user.id
+
+    def _set_saved_by_user_many(self, user, evaluations):
+        for evaluation in evaluations:
+            self._set_saved_by_user(user, evaluation)
 
 
 class EvaluationPerShopperViewSet(viewsets.ViewSet):
