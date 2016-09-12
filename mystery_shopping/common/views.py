@@ -14,7 +14,7 @@ from .serializer import CountryRegionSerializer
 from .serializer import CountySerializer
 from .serializer import CitySerializer
 from .serializer import SectorSerializer
-from mystery_shopping.common.uploads import handle_csv_with_uploaded_localities
+from mystery_shopping.common.uploads import handle_csv_with_uploaded_localities, handle_csv_with_uploaded_countries
 
 
 class CountryViewSet(viewsets.ModelViewSet):
@@ -67,6 +67,27 @@ class LocalityCsvUploadView(APIView):
         csv_file = request.data.get('file', None)
         if csv_file.content_type == 'text/csv':
             handle_csv_with_uploaded_localities(csv_file)
+
+            return Response({
+                'message': 'File uploaded successfully!'
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                'details': 'File type is not .csv'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CountryCsvUploadView(APIView):
+    """
+        A view for uploading a .csv with all the countries to the platform.
+    """
+    permission_classes = (IsAuthenticated, IsAdminUser)
+
+    def post(self, request, *args, **kwargs):
+
+        csv_file = request.data.get('file', None)
+        if csv_file.content_type == 'text/csv':
+            handle_csv_with_uploaded_countries(csv_file)
 
             return Response({
                 'message': 'File uploaded successfully!'

@@ -42,3 +42,23 @@ def handle_csv_with_uploaded_localities(csv_file, has_header=True):
         locality.save()
 
     return True
+
+
+def handle_csv_with_uploaded_countries(csv_file, has_header=True):
+    """
+        Parse the .csv file and save the countries to the database.
+        The .csv file should have the following columns:
+        -----------
+        | Country |
+        -----------
+    """
+    data = csv_file.read()
+    data = data.decode('utf8')
+    data = data.strip().split('\n')
+    # Remove first line if file has header
+    if has_header:
+        data.pop(0)
+
+    for country_name in data:
+        country_name = country_name.strip()
+        country, _ = Country.objects.qcreate(name=country_name)
