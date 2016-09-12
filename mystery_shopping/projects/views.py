@@ -149,7 +149,6 @@ class EvaluationViewSet(viewsets.ModelViewSet):
     @list_route(methods=['post'])
     def many(self, request, *args, **kwargs):
         project_id = request.data[0].get('project')
-        import ipdb; ipdb.set_trace()
         self._if_not_mystery_and_evaluations_left_raise_error(request.data, project_id, len(request.data))
         self._set_saved_by_user_many(request.user, request.data)
         evaluations = self._create_evaluations(request, True)
@@ -184,7 +183,6 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         return serializer.data
 
     def _if_not_mystery_and_evaluations_left_raise_error(self, data, project_id, number_to_create):
-        import ipdb; ipdb.set_trace()
         are_evaluations_left = self._get_remaining_number_of_evaluations(project_id) >= number_to_create
         if self._is_mystery_project(project_id) and not are_evaluations_left:
             raise ValidationError('Number of evaluations exceeded.')
