@@ -22,6 +22,7 @@ class SubIndustrySerializer(serializers.ModelSerializer):
     """
 
     """
+    full_name = serializers.CharField(source='return_industry_and_self', read_only=True)
     industry = IndustrySerializer(read_only=True)
 
     class Meta:
