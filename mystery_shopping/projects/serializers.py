@@ -21,7 +21,7 @@ from mystery_shopping.questionnaires.models import QuestionnaireQuestion, Questi
 from mystery_shopping.questionnaires.models import Questionnaire
 from mystery_shopping.questionnaires.constants import QuestionType
 from mystery_shopping.questionnaires.utils import update_attributes
-from mystery_shopping.users.serializers import ShopperSerializer
+from mystery_shopping.users.serializers import ShopperSerializer, DetractorRespondentSerializer
 from mystery_shopping.users.serializers import PersonToAssessSerializer
 from mystery_shopping.users.serializers import TenantProjectManagerSerializer
 from mystery_shopping.users.serializers import TenantConsultantSerializer
@@ -285,6 +285,7 @@ class EvaluationSerializer(serializers.ModelSerializer):
     section_repr = SectionSerializer(source='section', read_only=True)
     employee_repr = ClientUserRelatedField(source='employee', read_only=True)
     project_repr = ProjectShortSerializer(source='project', read_only=True)
+    detractor_info = DetractorRespondentSerializer(read_only=True)
 
     class Meta:
         model = Evaluation
@@ -310,6 +311,9 @@ class EvaluationSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         questionnaire_template = validated_data.get('questionnaire_template', None)
+        detractor_info = validated_data.pop('detractor_info', None)
+        detractor_instance = None
+
         if validated_data.get('type', 'm') == 'm':
             questionnaire_to_create = self._clone_questionnaire(questionnaire_template)
         else:
@@ -324,7 +328,13 @@ class EvaluationSerializer(serializers.ModelSerializer):
             questionnaire_to_create_ser.instance.create_cross_indexes(questionnaire_to_create['template_cross_indexes'])
         validated_data['questionnaire'] = questionnaire_to_create_ser.instance
 
+        if detractor_info:
+            detractor_instance = self._create_detractor(detractor_info)
+
         evaluation = Evaluation.objects.create(**validated_data)
+        detractor_instance.evaluation = evaluation.id
+        detractor_instance.save()
+
         return evaluation
 
     def update(self, instance, validated_data):
@@ -362,6 +372,14 @@ class EvaluationSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+    @staticmethod
+    def _create_detractor(detractor_info, evaluation_id=None):
+        detractor_info['evaluation'] = evaluation_id
+        detractor_to_create = DetractorRespondentSerializer(data=detractor_info)
+        detractor_to_create.is_valid(raise_exception=True)
+        detractor_to_create.save()
+        return detractor_to_create.instance
+
     def _clone_questionnaire(self, questionnaire_template):
         questionnaire_template_serialized = QuestionnaireTemplateSerializer(questionnaire_template)
         questionnaire_to_create = dict(questionnaire_template_serialized.data)
@@ -394,7 +412,8 @@ class EvaluationSerializer(serializers.ModelSerializer):
             question['question_choices'] = question.pop('template_question_choices')
         return questions
 
-    def _check_if_indicator_question_has_null_score(self, question):
+    @staticmethod
+    def _check_if_indicator_question_has_null_score(question):
         if question['type'] == QuestionType.INDICATOR_QUESTION:
-            if question['score'] == None:
+            if question['score'] is None:
                 raise serializers.ValidationError('Indicator Question isn\'t allowed to have null score')

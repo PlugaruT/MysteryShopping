@@ -329,7 +329,7 @@ class DetractorRespondent(models.Model):
     email = models.EmailField(blank=True)
     phone = models.CharField(max_length=30, blank=True)
 
-    evaluation = models.ForeignKey(Evaluation, related_name='detractors')
+    evaluation = models.ForeignKey(Evaluation, related_name='detractors', null=True)
 
     def __str__(self):
         return u'{} {}'.format(self.name, self.surname)

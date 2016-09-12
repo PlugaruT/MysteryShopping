@@ -285,3 +285,9 @@ class DetractorRespondentSerializer(serializers.ModelSerializer):
                 'required': False
             }
         }
+
+    def validate(self, attrs):
+        if attrs.get('email') or attrs.get('phone'):
+            return attrs
+        else:
+            raise serializers.ValidationError('Email or Phone field are required')
