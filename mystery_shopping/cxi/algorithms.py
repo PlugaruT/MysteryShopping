@@ -235,7 +235,6 @@ def get_per_day_questionnaire_data(questionnaire_list):
     result['number_of_entries'] = len(questionnaire_list)
     indicator_types_set = _get_indicator_questions(questionnaire_list)
     result['indicators'] = _get_only_indicator_score(indicator_types_set, questionnaire_list)
-    import ipdb; ipdb.set_trace()
     result['indicators']['cxi'] = sum(result['indicators'].values())/len(result['indicators'])
     return result
 

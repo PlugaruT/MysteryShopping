@@ -2,7 +2,6 @@ from datetime import datetime
 
 
 def check_q_param_date(string_to_check):
-    date = None
     try:
         date = datetime.strptime(string_to_check, '%Y-%m-%d').date()
         return date
@@ -11,7 +10,6 @@ def check_q_param_date(string_to_check):
 
 
 def check_interval_date(data):
-    import ipdb; ipdb.set_trace()
     start = check_q_param_date(data.get('start'))
     end = check_q_param_date(data.get('end'))
 
