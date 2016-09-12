@@ -13,6 +13,8 @@ from braces.views import LoginRequiredMixin
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 
+from mystery_shopping.users.models import DetractorRespondent
+from mystery_shopping.users.serializers import DetractorRespondentSerializer
 from .models import ClientEmployee
 from .models import ClientManager
 from .models import Shopper
@@ -153,3 +155,8 @@ class CollectorViewSet(viewsets.ModelViewSet):
 class PersonToAssessViewSet(viewsets.ModelViewSet):
     queryset = PersonToAssess.objects.all()
     serializer_class = PersonToAssessSerializer
+
+
+class DetractorRespondentViewSet(viewsets.ModelViewSet):
+    queryset = DetractorRespondent.objects.all()
+    serializer_class = DetractorRespondentSerializer

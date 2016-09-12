@@ -10,7 +10,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from mystery_shopping.companies.models import Company
 from mystery_shopping.companies.models import Entity
 from mystery_shopping.companies.models import Section
-from mystery_shopping.projects.models import Project
+from mystery_shopping.projects.models import Project, Evaluation
 from mystery_shopping.projects.models import ResearchMethodology
 from mystery_shopping.tenants.models import Tenant
 
@@ -318,3 +318,18 @@ class PersonToAssess(models.Model):
     person = GenericForeignKey('person_type', 'person_id')
 
     research_methodology = models.ForeignKey(ResearchMethodology, related_name='people_to_assess')
+
+
+class DetractorRespondent(models.Model):
+    """
+
+    """
+    name = models.CharField(max_length=20, blank=True)
+    surname = models.CharField(max_length=30, blank=True)
+    email = models.EmailField(blank=True)
+    phone = models.CharField(max_length=30, blank=True)
+
+    evaluation = models.ForeignKey(Evaluation, related_name='detractors')
+
+    def __str__(self):
+        return u'{} {}'.format(self.name, self.surname)
