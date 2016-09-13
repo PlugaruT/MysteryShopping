@@ -285,7 +285,7 @@ class EvaluationSerializer(serializers.ModelSerializer):
     section_repr = SectionSerializer(source='section', read_only=True)
     employee_repr = ClientUserRelatedField(source='employee', read_only=True)
     project_repr = ProjectShortSerializer(source='project', read_only=True)
-    detractor_info = DetractorRespondentSerializer(write_only=True)
+    detractor_info = DetractorRespondentSerializer(write_only=True, required=False)
 
     class Meta:
         model = Evaluation
