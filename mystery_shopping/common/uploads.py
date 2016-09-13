@@ -19,7 +19,6 @@ def handle_csv_with_uploaded_localities(csv_file, has_header=True):
     data = csv_file.read()
     data = data.decode('utf8')
     data = data.strip().split('\n')
-    # data = csv_file.read().decode('utf8').strip().split('\n')
 
     # Remove first line if file has header
     if has_header:
@@ -60,5 +59,4 @@ def handle_csv_with_uploaded_countries(csv_file, has_header=True):
         data.pop(0)
 
     for country_name in data:
-        country_name = country_name.strip()
-        country, _ = Country.objects.qcreate(name=country_name)
+        Country.objects.create(name=country_name.strip())

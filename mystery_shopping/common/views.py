@@ -58,16 +58,15 @@ class SectorViewSet(viewsets.ModelViewSet):
 
 
 class LocalityCsvUploadView(APIView):
-    """A view for uploading a .csv with all the localities to the platform.
+    """
+        A view for uploading a .csv with all the localities to the platform.
     """
     permission_classes = (IsAuthenticated, IsAdminUser)
 
     def post(self, request, *args, **kwargs):
-
         csv_file = request.data.get('file', None)
         if csv_file.content_type == 'text/csv':
             handle_csv_with_uploaded_localities(csv_file)
-
             return Response({
                 'message': 'File uploaded successfully!'
             }, status=status.HTTP_200_OK)
@@ -84,11 +83,9 @@ class CountryCsvUploadView(APIView):
     permission_classes = (IsAuthenticated, IsAdminUser)
 
     def post(self, request, *args, **kwargs):
-
         csv_file = request.data.get('file', None)
         if csv_file.content_type == 'text/csv':
             handle_csv_with_uploaded_countries(csv_file)
-
             return Response({
                 'message': 'File uploaded successfully!'
             }, status=status.HTTP_200_OK)
