@@ -1,7 +1,7 @@
 from collections import defaultdict
 
 from mystery_shopping.questionnaires.constants import QuestionType
-from mystery_shopping.questionnaires.models import Questionnaire
+from mystery_shopping.questionnaires.models import Questionnaire, QuestionnaireQuestion
 from mystery_shopping.projects.models import Entity
 from mystery_shopping.cxi.models import CodedCause
 from mystery_shopping.cxi.models import ProjectComment
@@ -155,6 +155,7 @@ def sort_indicators_per_pos(details, indicators):
     for entity, marks in indicators.get(entity_key, {}).items():
         pos_detail = dict()
         pos_detail['choice'] = entity
+        pos_detail['choice_id'] = indicators['ids'][entity]
         pos_detail['score'] = calculate_indicator_score(marks)
         pos_detail['number_of_respondents'] = len(marks)
         pos_detail['other_answer_choices'] = indicators['ids'][entity]
@@ -345,3 +346,21 @@ def get_company_indicator_questions_list(company):
             if question.type == QuestionType.INDICATOR_QUESTION:
                 indicators['indicator_list'].add(question.additional_info)
     return indicators
+
+
+class CodedCausesPercentageTable:
+    def __init__(self, indicator, tenant, project):
+        self.indicator = indicator
+        self.tenant = tenant
+        self.indicator_questions = QuestionnaireQuestion.objects.get_project_questions(project)
+        self.return_dict = defaultdict(lambda : defaultdict(list))
+
+
+    def get_data(self):
+        filtered_questions = self._get_sorted_questions()
+
+
+    def _get_sorted_questions(self):
+        return_dict = dict()
+        for score in range(1, 11):
+            pass
