@@ -84,6 +84,12 @@ class Department(models.Model):
     def __str__(self):
         return 'Name: %s, company: %s' % (self.name, self.company.name)
 
+    def get_managers(self):
+        return self.managers.all()
+
+    def get_entities(self):
+        return Entity.objects.filter(department=self).all()
+
 
 # PoS
 class Entity(models.Model):
@@ -112,6 +118,20 @@ class Entity(models.Model):
     def __str__(self):
         return 'Name: %s, department: %s' % (self.name, self.department.name)
 
+    def get_managers(self):
+        return self.managers.all()
+
+    def get_employees(self):
+        from mystery_shopping.users.models import ClientEmployee
+        return ClientEmployee.objects.filter(entity=self).all()
+
+    def get_sections(self):
+        return Section.objects.filter(entity=self)
+
+    def has_evaluations(self):
+        from mystery_shopping.projects.models import Evaluation
+        return Evaluation.objects.filter(entity=self).exists()
+
 
 class Section(models.Model):
     """
@@ -133,3 +153,14 @@ class Section(models.Model):
 
     def __str__(self):
         return 'Name: %s, entity: %s' % (self.name, self.entity.name)
+
+    def get_managers(self):
+        return self.managers.all()
+
+    def get_employees(self):
+        from mystery_shopping.users.models import ClientEmployee
+        return ClientEmployee.objects.filter(section=self).all()
+
+    def has_evaluations(self):
+        from mystery_shopping.projects.models import Evaluation
+        return Evaluation.objects.filter(section=self).exists()

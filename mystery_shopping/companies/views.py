@@ -95,6 +95,16 @@ class DepartmentViewSet(viewsets.ModelViewSet):
         request.data['tenant'] = request.user.tenant.pk
         return super(DepartmentViewSet, self).create(request, *args, **kwargs)
 
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        at_least_one_manager_has_evaluations = all([manager.has_evaluations() for manager in instance.get_managers()])
+        at_least_one_entity_has_evaluations = all([entity.has_evaluations() for entity in instance.get_entities()])
+
+        if at_least_one_manager_has_evaluations or at_least_one_entity_has_evaluations:
+            return Response({"You can not delete thisjnkljnkl object"}, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class EntityViewSet(viewsets.ModelViewSet):
     queryset = Entity.objects.all()
@@ -109,6 +119,17 @@ class EntityViewSet(viewsets.ModelViewSet):
         request.data['tenant'] = request.user.tenant.pk
         return super(EntityViewSet, self).create(request, *args, **kwargs)
 
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        at_least_one_manager_has_evaluations = all([manager.has_evaluations() for manager in instance.get_managers()])
+        at_least_one_employee_has_evaluations = all([employee.has_evaluations() for employee in instance.get_employees()])
+        at_least_one_section_has_evaluations = all([section.has_evaluations() for section in instance.get_sections()])
+
+        if at_least_one_manager_has_evaluations or at_least_one_employee_has_evaluations or at_least_one_section_has_evaluations:
+            return Response({"You can not delete this object"}, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class SectionViewSet(viewsets.ModelViewSet):
     queryset = Section.objects.all()
@@ -122,3 +143,14 @@ class SectionViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         request.data['tenant'] = request.user.tenant.pk
         return super(SectionViewSet, self).create(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        at_least_one_manager_has_evaluations = all([manager.has_evaluations() for manager in instance.get_managers()])
+        at_least_one_employee_has_evaluations = all([employee.has_evaluations() for employee in instance.get_employees()])
+
+        if at_least_one_manager_has_evaluations or at_least_one_employee_has_evaluations:
+            return Response({"You can not delete this object"}, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
