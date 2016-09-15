@@ -381,14 +381,16 @@ class CodedCausesPercentageTable:
 
     def _group_coded_causes(self):
         for score, info in self.filtered_questions.items():
-            coded_cause_dict = defaultdict(list)
+            coded_cause_dict = defaultdict(lambda: defaultdict(list))
             for why_cause in info['why_causes']:
                 coded_cause = why_cause.coded_causes.first()
-                coded_cause_dict[coded_cause.coded_label.name].append(why_cause)
+                coded_cause_dict[coded_cause.coded_label.name]['why_causes'].append(why_cause)
+                coded_cause_dict[coded_cause.coded_label.name]['sentiment'] = coded_cause.sentiment
             self.return_dict[score]['coded_causes'] = coded_cause_dict
 
     def _calculate_percentage(self):
         for score, info in self.return_dict.items():
-            for coded_cause, why_causes in info['coded_causes'].items():
-                percentage = round(len(why_causes)/self.return_dict[score]['number'] * 100, 2)
-                self.return_dict[score]['coded_causes'][coded_cause] = percentage
+            for coded_cause, coded_cause_info in info['coded_causes'].items():
+                percentage = round(len(coded_cause_info['why_causes'])/self.return_dict[score]['number'] * 100, 2)
+                self.return_dict[score]['coded_causes'][coded_cause]['percentage'] = percentage
+                self.return_dict[score]['coded_causes'][coded_cause].pop('why_causes')
