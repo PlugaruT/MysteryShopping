@@ -12,7 +12,7 @@ class Industry(models.Model):
 
     """
     # Attributes
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=200)
 
     class Meta:
         ordering = ('name',)
@@ -27,7 +27,7 @@ class SubIndustry(models.Model):
 
     """
     # Attributes
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=200)
     industry = models.ForeignKey(Industry, related_name='subindustry')
 
     class Meta:
@@ -35,6 +35,9 @@ class SubIndustry(models.Model):
 
     def __str__(self):
         return 'Name: %s' % self.name
+
+    def return_industry_and_subindustry(self):
+        return '{}: {}'.format(self.industry.name, self.name)
 
 
 class Company(models.Model):

@@ -2,7 +2,7 @@ from mystery_shopping.companies.models import Industry
 from mystery_shopping.companies.models import SubIndustry
 
 
-def handle_csv_with_uploaded_sub_industries(csv_file, has_header=True):
+def handle_csv_with_uploaded_sub_industries(csv_file, has_header=False):
     """
         Parse the .csv file and save the industries to the database.
         The .csv file should have the following columns:
@@ -26,5 +26,5 @@ def handle_csv_with_uploaded_sub_industries(csv_file, has_header=True):
 
 
 def extract_industry_details(industry_data):
-    industry_list = industry_data.split(',')
+    industry_list = industry_data.split('[],')
     return industry_list[0].strip(), industry_list[1].strip()
