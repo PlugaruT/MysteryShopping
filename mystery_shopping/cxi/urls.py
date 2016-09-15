@@ -4,7 +4,7 @@ from django.conf.urls import url
 
 from rest_framework.routers import DefaultRouter
 
-from mystery_shopping.cxi.views import WhyCauseViewSet
+from mystery_shopping.cxi.views import WhyCauseViewSet, CodedCausePercentage
 from .views import CodedCauseLabelViewSet
 from .views import CodedCauseViewSet
 from .views import ProjectCommentViewSet
@@ -29,4 +29,7 @@ urlpatterns = [
     url(r'^cxi/indicatorlist/$',
         IndicatorDashboardList.as_view(),
         name='indicator-list'),
+    url(r'^cxi/codedcausepercentage',
+        CodedCausePercentage.as_view(),
+        name='codedcause-percentage')
 ]

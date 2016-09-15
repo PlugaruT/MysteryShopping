@@ -5,6 +5,7 @@ from rest_framework.decorators import list_route
 from rest_framework.response import Response
 from rest_condition import Or
 
+from mystery_shopping.cxi.algorithms import CodedCausesPercentageTable
 from .algorithms import collect_data_for_overview_dashboard
 from .algorithms import get_project_indicator_questions_list
 from .algorithms import get_company_indicator_questions_list
@@ -37,6 +38,19 @@ class CodedCauseLabelViewSet(viewsets.ModelViewSet):
 class CodedCauseViewSet(viewsets.ModelViewSet):
     queryset = CodedCause.objects.all()
     serializer_class = CodedCauseSerializer
+
+    def get_queryset(self):
+        project_id = self.request.query_params.get('project')
+        if project_id:
+            try:
+                project = Project.objects.get(pk=project_id)
+                if self.request.user.tenant == project.tenant:
+                    return self.queryset.filter(project=project)
+                else:
+                    return self.queryset.none()
+            except (Project.DoesNotExist, ValueError):
+                return self.queryset.none()
+        return self.queryset.none()
 
     def create(self, request, *args, **kwargs):
         # add tenant from the request.user to the request.data that is sent to the Coded CauseSerializer
@@ -178,6 +192,38 @@ class IndicatorDashboardList(views.APIView):
         else:
             return Response({'detail': 'No query parameters were provided'}, status.HTTP_400_BAD_REQUEST)
 
+
+class CodedCausePercentage(views.APIView):
+    """
+
+    """
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager, IsCompanyManager),)
+    def get(self, request, *args, **kwargs):
+        indicator = request.query_params.get('indicator')
+        project_id = request.query_params.get('project')
+        pre_response = self._pre_process_request(project_id, request.user)
+        if pre_response:
+            return Response(**pre_response)
+        coded_cause_percentage = CodedCausesPercentageTable(indicator, request.user.tenant, project_id)
+        coded_cause_percentage.get_data()
+        return Response(coded_cause_percentage.return_dict, status=status.HTTP_200_OK)
+
+    def _pre_process_request(self, project_id, user):
+        if project_id is None:
+            return dict(status=status.HTTP_400_BAD_REQUEST)
+        try:
+            project = Project.objects.get(pk=project_id)
+        except Project.DoesNotExist:
+            return dict(data='Project does not exist',
+                        status=status.HTTP_400_BAD_REQUEST)
+
+        if user.tenant != project.tenant:
+            return dict(data='You do not have access to this project',
+                        status=status.HTTP_400_BAD_REQUEST)
+
+        return False
+
+
 class WhyCauseViewSet(viewsets.ModelViewSet):
     """
 
@@ -219,7 +265,7 @@ class WhyCauseViewSet(viewsets.ModelViewSet):
         return False
 
     def _encode_get(self, project_id):
-        questions = QuestionnaireQuestion.objects.get_project_questions(project_id)
+        questions = QuestionnaireQuestion.objects.get_project_indicator_questions(project_id)
         serializer = self.encode_serializer_class(questions, many=True)
 
         return dict(data=serializer.data, status=status.HTTP_200_OK)

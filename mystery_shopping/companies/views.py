@@ -46,7 +46,6 @@ class IndustryCsvUploadView(APIView):
     permission_classes = (IsAuthenticated, IsAdminUser)
 
     def post(self, request, *args, **kwargs):
-
         csv_file = request.data.get('file', None)
 
         if csv_file.content_type == 'text/csv':

@@ -89,7 +89,8 @@ class TestBuildResponse(TestCase):
                     },
                     'number_of_respondents': 2,
                     'choice': 'Aladeen',
-                    'other_answer_choices': self.entity.id
+                    'other_answer_choices': self.entity.id,
+                    'choice_id': self.entity.id
                 }]
             }],
             'gauge': {
@@ -128,6 +129,7 @@ class TestBuildResponse(TestCase):
                         'detractors': 100.0, 'promoters': 0.0,
                                                                           'passives': 0.0, 'indicator': -100.0},
                                                                 'other_answer_choices': self.entity.id,
+                                                                'choice_id': self.entity.id,
                                                                 'number_of_respondents':
                                                                     1, 'choice': 'Aladeen'}]}], 'project_comment': None}
 
@@ -205,6 +207,7 @@ class TestBuildResponse(TestCase):
                         },
                         'number_of_respondents': 2,
                         'other_answer_choices': self.entity.id,
+                        'choice_id': self.entity.id,
                         'choice': 'Aladeen'
                     }
                 ]
