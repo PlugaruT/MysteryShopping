@@ -54,6 +54,7 @@ class Company(models.Model):
     contact_person = models.CharField(max_length=100)
     contact_phone = models.CharField(max_length=20)
     contact_email = models.EmailField(max_length=50)
+    contact_position = models.CharField(max_length=100, blank=True)
     domain = models.CharField(verbose_name='the domain of the company on the platform', max_length=30)
     logo = models.ImageField(null=True, blank=True)
 
