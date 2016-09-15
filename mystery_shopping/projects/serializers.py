@@ -332,10 +332,7 @@ class EvaluationSerializer(serializers.ModelSerializer):
             detractor_instance = self._create_detractor(detractor_info)
 
         evaluation = Evaluation.objects.create(**validated_data)
-        if detractor_instance:
-            detractor_instance.evaluation = evaluation
-            detractor_instance.save()
-
+        self.set_evaluation_to_detractor(detractor_instance, evaluation)
         return evaluation
 
     def update(self, instance, validated_data):
@@ -372,6 +369,12 @@ class EvaluationSerializer(serializers.ModelSerializer):
         update_attributes(validated_data, instance)
         instance.save()
         return instance
+
+    @staticmethod
+    def set_evaluation_to_detractor(detractor_instance, evaluation):
+        if detractor_instance:
+            detractor_instance.evaluation = evaluation
+            detractor_instance.save()
 
     @staticmethod
     def _create_detractor(detractor_info, evaluation_id=None):
