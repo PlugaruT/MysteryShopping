@@ -363,12 +363,10 @@ class CodedCausesPercentageTable:
         self._calculate_percentage()
 
     def _get_sorted_questions(self):
-        sorted_questions = defaultdict(dict)
         for score in range(1, 11):
             self.filtered_questions[score]['questions'] = self.indicator_questions.filter(score=score)
             self.filtered_questions[score]['number'] = len(self.filtered_questions [score]['questions'])
             self.return_dict[score]['number'] = len(self.filtered_questions [score]['questions'])
-        return sorted_questions
 
     def _get_coded_causes_per_score(self):
         for score, info in self.filtered_questions.items():

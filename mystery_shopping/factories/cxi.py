@@ -6,6 +6,7 @@ from factory.fuzzy import FuzzyChoice
 
 from mystery_shopping.cxi.models import CodedCause, WhyCause
 from mystery_shopping.cxi.models import CodedCauseLabel
+from mystery_shopping.factories.projects import ProjectFactory
 from mystery_shopping.factories.questionnaires import QuestionFactory
 from mystery_shopping.factories.tenants import TenantFactory
 
@@ -23,6 +24,7 @@ class CodedCauseFactory(DjangoModelFactory):
         model = CodedCause
 
     tenant = SubFactory(TenantFactory)
+    project = SubFactory(ProjectFactory)
     coded_label = SubFactory(CodedCauseLabelFactory)
     type = FuzzyText(length=30)
     sentiment = FuzzyChoice(('a', 'f'))

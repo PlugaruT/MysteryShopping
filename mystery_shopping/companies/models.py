@@ -36,7 +36,7 @@ class SubIndustry(models.Model):
     def __str__(self):
         return 'Name: %s' % self.name
 
-    def return_industry_and_self(self):
+    def return_industry_and_subindustry(self):
         return '{}: {}'.format(self.industry.name, self.name)
 
 
