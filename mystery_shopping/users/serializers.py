@@ -2,6 +2,7 @@ import re
 
 from rest_framework import serializers
 
+from mystery_shopping.questionnaires.serializers import QuestionnaireQuestionSerializer
 from mystery_shopping.users.models import DetractorRespondent
 from .models import User
 from .models import TenantProductManager
@@ -273,6 +274,8 @@ class DetractorRespondentSerializer(serializers.ModelSerializer):
     """
 
     """
+
+    questions = QuestionnaireQuestionSerializer(source='get_detractor_questions', many=True, read_only=True)
 
     class Meta:
         model = DetractorRespondent

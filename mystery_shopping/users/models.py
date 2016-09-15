@@ -12,6 +12,7 @@ from mystery_shopping.companies.models import Entity
 from mystery_shopping.companies.models import Section
 from mystery_shopping.projects.models import Project, Evaluation
 from mystery_shopping.projects.models import ResearchMethodology
+from mystery_shopping.questionnaires.constants import QuestionType
 from mystery_shopping.tenants.models import Tenant
 
 
@@ -333,3 +334,6 @@ class DetractorRespondent(models.Model):
 
     def __str__(self):
         return u'{} {}'.format(self.name, self.surname)
+
+    def get_detractor_questions(self):
+        return self.evaluation.questionnaire.questions.filter(score__lt=7, type=QuestionType.INDICATOR_QUESTION)
