@@ -262,9 +262,14 @@ class ClientManager(ClientUserAbstract):
     def __str__(self):
         return u'{} {}'.format(self.user, self.place)
 
+    def has_evaluations(self):
+        return PersonToAssess.objects.filter(person_id=self.id,
+                                             person_type=ContentType.objects.get_for_model(self)).exists()
+
 
 class ClientEmployee(ClientUserAbstract):
-    """The model class for Client Employee user.
+    """
+    The model class for Client Employee user.
     """
     # Relations
     company = models.ForeignKey(Company)
@@ -276,6 +281,10 @@ class ClientEmployee(ClientUserAbstract):
 
     def __str__(self):
         return u'{} {} {}'.format(self.user, self.company, self.entity)
+
+    def has_evaluations(self):
+        return PersonToAssess.objects.filter(person_id=self.id,
+                                             person_type=ContentType.objects.get_for_model(self)).exists()
 
 
 class Shopper(models.Model):
@@ -297,9 +306,9 @@ class Shopper(models.Model):
 
 
 class Collector(models.Model):
-    '''
+    """
     A user model for the persons who will input the NPS questionnaires
-    '''
+    """
     user = models.OneToOneField(User, related_name='collector')
 
     def __str__(self):
