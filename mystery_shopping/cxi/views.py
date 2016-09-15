@@ -38,6 +38,19 @@ class CodedCauseViewSet(viewsets.ModelViewSet):
     queryset = CodedCause.objects.all()
     serializer_class = CodedCauseSerializer
 
+    def get_queryset(self):
+        project_id = self.request.query_params.get('project')
+        if project_id:
+            try:
+                project = Project.objects.get(pk=project_id)
+                if self.request.user.tenant == project.tenant:
+                    return self.queryset.filter(project=project)
+                else:
+                    return self.queryset.none()
+            except (Project.DoesNotExist, ValueError):
+                return self.queryset.none()
+        return self.queryset.none()
+
     def create(self, request, *args, **kwargs):
         # add tenant from the request.user to the request.data that is sent to the Coded CauseSerializer
         request.data['tenant'] = request.user.tenant.id
@@ -178,6 +191,18 @@ class IndicatorDashboardList(views.APIView):
         else:
             return Response({'detail': 'No query parameters were provided'}, status.HTTP_400_BAD_REQUEST)
 
+
+class CodedCausePercentage(views.APIView):
+    """
+
+    """
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager, IsCompanyManager),)
+    def get(self, request, *args, **kwargs):
+        indicator = request.query_params.get('indicator')
+
+        pass
+
+
 class WhyCauseViewSet(viewsets.ModelViewSet):
     """
 
@@ -219,7 +244,7 @@ class WhyCauseViewSet(viewsets.ModelViewSet):
         return False
 
     def _encode_get(self, project_id):
-        questions = QuestionnaireQuestion.objects.get_project_questions(project_id)
+        questions = QuestionnaireQuestion.objects.get_project_indicator_questions(project_id)
         serializer = self.encode_serializer_class(questions, many=True)
 
         return dict(data=serializer.data, status=status.HTTP_200_OK)

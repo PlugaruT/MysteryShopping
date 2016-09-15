@@ -43,13 +43,13 @@ class CodedCause(models.Model):
     """
     # Relations
     tenant = models.ForeignKey(Tenant)
+    project = models.ForeignKey(Project)
     coded_label = models.ForeignKey(CodedCauseLabel)
     raw_causes = models.ManyToManyField(WhyCause, related_name='coded_causes', blank=True)
     parent = models.ForeignKey('self', null=True, blank=True)
 
     # Attributes
     type = models.CharField(max_length=30, blank=True)
-
     sentiment_choices = Choices(('a', 'Appreciation'),
                                 ('f', 'Frustration'))
     sentiment = models.CharField(max_length=1, choices=sentiment_choices, default=sentiment_choices.a)
