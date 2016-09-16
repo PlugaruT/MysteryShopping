@@ -201,12 +201,15 @@ def calculate_overview_score(questionnaire_list, project, entity_id):
     overview_list = dict()
     overview_list['indicators'] = dict()
     indicator_types_set = set()
+    indicator_order = dict()
     for questionnaire in questionnaire_list:
         for indicator_question in questionnaire.questions.filter(type=QuestionType.INDICATOR_QUESTION).all():
+            indicator_order[indicator_question.additional_info] = indicator_question.order
             indicator_types_set.add(indicator_question.additional_info)
     for indicator_type in indicator_types_set:
         indicator_list = get_indicator_scores(questionnaire_list, indicator_type)
         overview_list['indicators'][indicator_type] = calculate_indicator_score(indicator_list)
+        overview_list['indicators'][indicator_type]['order'] = indicator_order[indicator_type]
 
     overview_list['project_comment'] = get_overview_project_comment(project, entity_id)
     return overview_list
