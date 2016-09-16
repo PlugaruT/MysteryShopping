@@ -384,8 +384,9 @@ class CodedCausesPercentageTable:
             coded_cause_dict = defaultdict(lambda: defaultdict(list))
             for why_cause in info['why_causes']:
                 coded_cause = why_cause.coded_causes.first()
-                coded_cause_dict[coded_cause.coded_label.name]['why_causes'].append(why_cause)
-                coded_cause_dict[coded_cause.coded_label.name]['sentiment'] = coded_cause.sentiment
+                if coded_cause:
+                    coded_cause_dict[coded_cause.coded_label.name]['why_causes'].append(why_cause)
+                    coded_cause_dict[coded_cause.coded_label.name]['sentiment'] = coded_cause.sentiment
             self.return_dict[score]['coded_causes'] = coded_cause_dict
 
     def _calculate_percentage(self):
