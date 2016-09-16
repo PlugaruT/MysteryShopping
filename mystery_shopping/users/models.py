@@ -3,6 +3,7 @@ from __future__ import unicode_literals, absolute_import
 
 from django.contrib.auth.models import AbstractUser
 from django.core.urlresolvers import reverse
+from django.core.validators import RegexValidator
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -323,12 +324,14 @@ class PersonToAssess(models.Model):
 
 class DetractorRespondent(models.Model):
     """
-
+        Model for storing information about detractors of an evaluation.
     """
     name = models.CharField(max_length=20, blank=True)
     surname = models.CharField(max_length=30, blank=True)
     email = models.EmailField(blank=True)
-    phone = models.CharField(max_length=30, blank=True)
+    phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$',
+                                 message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
+    phone = models.CharField(validators=[phone_regex], blank=True, max_length=15)
 
     evaluation = models.ForeignKey(Evaluation, related_name='detractors', null=True)
 
