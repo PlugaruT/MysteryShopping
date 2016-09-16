@@ -15,7 +15,7 @@ class CodedCauseLabel(models.Model):
     tenant = models.ForeignKey(Tenant)
 
     # Attributes
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=200)
 
     def __str__(self):
         return 'Label: {}'.format(self.name)
