@@ -7,6 +7,21 @@ from mystery_shopping.tenants.models import Tenant
 # TODO add description for classes
 
 
+class HasEvaluationsMixin:
+    @staticmethod
+    def check_for_evaluations(subdivisions):
+        return any((subdivision.has_evaluations() for subdivision in subdivisions))
+
+    def at_least_one_manager_has_evaluations(self):
+        return self.check_for_evaluations(self.managers.all())
+
+    def at_least_one_employee_has_evaluations(self):
+        return self.check_for_evaluations(self.employees.all())
+
+    def at_least_one_section_has_evaluations(self):
+        return self.check_for_evaluations(self.sections.all())
+
+
 class Industry(models.Model):
     """
 
@@ -63,7 +78,7 @@ class Company(models.Model):
         return 'Name: %s, domain: %s' % (self.name, self.domain)
 
 
-class Department(models.Model):
+class Department(HasEvaluationsMixin, models.Model):
     """
 
     """
@@ -85,19 +100,11 @@ class Department(models.Model):
         return 'Name: %s, company: %s' % (self.name, self.company.name)
 
     def has_evaluations(self):
-        managers = self.managers.all()
-        entities = Entity.objects.filter(department=self).all()
-        at_least_one_manager_has_evaluations = self.check_for_evaluations(managers)
-        at_least_one_entity_has_evaluations = self.check_for_evaluations(entities)
-        return at_least_one_entity_has_evaluations or at_least_one_manager_has_evaluations
-
-    @staticmethod
-    def check_for_evaluations(subdivisions):
-        return any([subdivision.has_evaluations() for subdivision in subdivisions])
+        return self.at_least_one_entity_has_evaluations() or self.at_least_one_manager_has_evaluations()
 
 
 # PoS
-class Entity(models.Model):
+class Entity(HasEvaluationsMixin, models.Model):
     """
 
     """
@@ -124,25 +131,14 @@ class Entity(models.Model):
         return 'Name: %s, department: %s' % (self.name, self.department.name)
 
     def has_evaluations(self):
-        from mystery_shopping.projects.models import Evaluation
-        from mystery_shopping.users.models import ClientEmployee
-        managers = self.managers.all()
-        employees = ClientEmployee.objects.filter(entity=self).all()
-        sections = Section.objects.filter(entity=self)
-        at_least_one_manager_has_evaluations = self.check_for_evaluations(managers)
-        at_least_one_employee_has_evaluations = self.check_for_evaluations(employees)
-        at_least_one_section_has_evaluations = self.check_for_evaluations(sections)
-        entity_has_evaluations = Evaluation.objects.filter(entity=self).exists()
-        has_evaluations = at_least_one_manager_has_evaluations or at_least_one_employee_has_evaluations or \
-            at_least_one_section_has_evaluations or entity_has_evaluations
-        return has_evaluations
+        return self.at_least_one_manager_has_evaluations() or self.at_least_one_employee_has_evaluations() or \
+               self.at_least_one_section_has_evaluations() or self.entity_has_at_least_one_evaluation()
 
-    @staticmethod
-    def check_for_evaluations(subdivisions):
-        return any([subdivision.has_evaluations() for subdivision in subdivisions])
+    def entity_has_at_least_one_evaluation(self):
+        return self.evaluations.exists()
 
 
-class Section(models.Model):
+class Section(HasEvaluationsMixin, models.Model):
     """
 
     """
@@ -164,17 +160,8 @@ class Section(models.Model):
         return 'Name: %s, entity: %s' % (self.name, self.entity.name)
 
     def has_evaluations(self):
-        from mystery_shopping.projects.models import Evaluation
-        from mystery_shopping.users.models import ClientEmployee
-        managers = self.managers.all()
-        employees = ClientEmployee.objects.filter(section=self).all()
-        at_least_one_manager_has_evaluations = self.check_for_evaluations(managers)
-        at_least_one_employee_has_evaluations = self.check_for_evaluations(employees)
-        section_has_evaluations = Evaluation.objects.filter(section=self).exists()
-        has_evaluations = at_least_one_manager_has_evaluations or at_least_one_employee_has_evaluations or \
-            section_has_evaluations
-        return has_evaluations
+        return self.at_least_one_manager_has_evaluations() or self.at_least_one_employee_has_evaluations or \
+               self.section_has_at_least_one_evaluation()
 
-    @staticmethod
-    def check_for_evaluations(subdivisions):
-        return any([subdivision.has_evaluations() for subdivision in subdivisions])
+    def section_has_at_least_one_evaluation(self):
+        return self.evaluations.exists()
