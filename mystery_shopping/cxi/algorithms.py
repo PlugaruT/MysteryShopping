@@ -330,7 +330,6 @@ def get_project_indicator_questions_list(project):
         return indicators
     for question in template_questionnaire.template_questions.all().order_by('-order'):
         if question.type == QuestionType.INDICATOR_QUESTION:
-            print(question.order)
             indicators['indicator_list'].add(question.additional_info)
     return indicators
 
