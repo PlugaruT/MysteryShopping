@@ -2,6 +2,8 @@ import re
 
 from rest_framework import serializers
 
+from mystery_shopping.questionnaires.serializers import QuestionnaireQuestionSerializer
+from mystery_shopping.users.models import DetractorRespondent
 from .models import User
 from .models import TenantProductManager
 from .models import TenantProjectManager
@@ -267,3 +269,28 @@ class PersonToAssessSerializer(serializers.ModelSerializer):
         fields = '__all__'
         extra_kwargs = {'research_methodology': {'required': False}}
 
+
+class DetractorRespondentSerializer(serializers.ModelSerializer):
+    """
+
+    """
+
+    questions = QuestionnaireQuestionSerializer(source='get_detractor_questions', many=True, read_only=True)
+
+    class Meta:
+        model = DetractorRespondent
+        fields = '__all__'
+        extra_kwargs = {
+            'email': {
+                'required': False
+            },
+            'phone': {
+                'required': False
+            }
+        }
+
+    def validate(self, attrs):
+        if attrs.get('email') or attrs.get('phone'):
+            return attrs
+        else:
+            raise serializers.ValidationError('Email or Phone field are required')

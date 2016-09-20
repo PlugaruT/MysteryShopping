@@ -46,7 +46,6 @@ class IndustryCsvUploadView(APIView):
     permission_classes = (IsAuthenticated, IsAdminUser)
 
     def post(self, request, *args, **kwargs):
-
         csv_file = request.data.get('file', None)
 
         if csv_file.content_type == 'text/csv':
@@ -95,6 +94,14 @@ class DepartmentViewSet(viewsets.ModelViewSet):
         request.data['tenant'] = request.user.tenant.pk
         return super(DepartmentViewSet, self).create(request, *args, **kwargs)
 
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        if instance.has_evaluations():
+            return Response({"You can not delete object"}, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class EntityViewSet(viewsets.ModelViewSet):
     queryset = Entity.objects.all()
@@ -109,6 +116,13 @@ class EntityViewSet(viewsets.ModelViewSet):
         request.data['tenant'] = request.user.tenant.pk
         return super(EntityViewSet, self).create(request, *args, **kwargs)
 
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.has_evaluations():
+            return Response({"You can not delete this object"}, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class SectionViewSet(viewsets.ModelViewSet):
     queryset = Section.objects.all()
@@ -122,3 +136,11 @@ class SectionViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         request.data['tenant'] = request.user.tenant.pk
         return super(SectionViewSet, self).create(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.has_evaluations():
+            return Response({"You can not delete this object"}, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+

@@ -1,7 +1,7 @@
 from collections import defaultdict
 
 from mystery_shopping.questionnaires.constants import QuestionType
-from mystery_shopping.questionnaires.models import Questionnaire
+from mystery_shopping.questionnaires.models import Questionnaire, QuestionnaireQuestion
 from mystery_shopping.projects.models import Entity
 from mystery_shopping.cxi.models import CodedCause
 from mystery_shopping.cxi.models import ProjectComment
@@ -155,6 +155,7 @@ def sort_indicators_per_pos(details, indicators):
     for entity, marks in indicators.get(entity_key, {}).items():
         pos_detail = dict()
         pos_detail['choice'] = entity
+        pos_detail['choice_id'] = indicators['ids'][entity]
         pos_detail['score'] = calculate_indicator_score(marks)
         pos_detail['number_of_respondents'] = len(marks)
         pos_detail['other_answer_choices'] = indicators['ids'][entity]
@@ -214,11 +215,22 @@ def _get_only_indicator_score(indicator_set, questionnaire_list):
 
 def _get_indicator_questions(questionnaire_list):
     indicator_types_set = set()
+    indicator_order = dict()
     for questionnaire in questionnaire_list:
+<<<<<<< HEAD
         for indicator_question in questionnaire.get_indicator_questions():
             indicator_types_set.add(indicator_question.additional_info)
     return indicator_types_set
 
+=======
+        for indicator_question in questionnaire.questions.filter(type=QuestionType.INDICATOR_QUESTION).all():
+            indicator_order[indicator_question.additional_info] = indicator_question.order
+            indicator_types_set.add(indicator_question.additional_info)
+    for indicator_type in indicator_types_set:
+        indicator_list = get_indicator_scores(questionnaire_list, indicator_type)
+        overview_list['indicators'][indicator_type] = calculate_indicator_score(indicator_list)
+        overview_list['indicators'][indicator_type]['order'] = indicator_order[indicator_type]
+>>>>>>> 3200edaaa1bb7cc002c66116c58d21b79cc82b63
 
 def calculate_overview_score(questionnaire_list, project, entity_id):
     overview_list = dict()
@@ -373,3 +385,52 @@ def get_company_indicator_questions_list(company):
             if question.type == QuestionType.INDICATOR_QUESTION:
                 indicators['indicator_list'].add(question.additional_info)
     return indicators
+
+
+class CodedCausesPercentageTable:
+    def __init__(self, indicator, tenant, project):
+        self.indicator = indicator
+        self.tenant = tenant
+        self.indicator_questions = QuestionnaireQuestion.objects.get_project_specific_indicator_questions(project, indicator)
+        self.return_dict = defaultdict(dict)
+        self.filtered_questions = defaultdict(dict)
+
+    def get_data(self):
+        self._get_sorted_questions()
+        self._get_coded_causes_per_score()
+        self._group_coded_causes()
+        self._calculate_percentage()
+
+    def _get_sorted_questions(self):
+        for score in range(1, 11):
+            self.filtered_questions[score]['questions'] = self.indicator_questions.filter(score=score)
+            self.filtered_questions[score]['number'] = len(self.filtered_questions [score]['questions'])
+            self.return_dict[score]['number'] = len(self.filtered_questions [score]['questions'])
+
+    def _get_coded_causes_per_score(self):
+        for score, info in self.filtered_questions.items():
+            self.filtered_questions[score]['why_causes'] = self._extract_why_causes(info['questions'])
+
+    def _extract_why_causes(self, questions):
+        why_list = list()
+        for question in questions:
+            for why_cause in question.why_causes.all():
+                why_list.append(why_cause)
+        return why_list
+
+    def _group_coded_causes(self):
+        for score, info in self.filtered_questions.items():
+            coded_cause_dict = defaultdict(lambda: defaultdict(list))
+            for why_cause in info['why_causes']:
+                coded_cause = why_cause.coded_causes.first()
+                if coded_cause:
+                    coded_cause_dict[coded_cause.coded_label.name]['why_causes'].append(why_cause)
+                    coded_cause_dict[coded_cause.coded_label.name]['sentiment'] = coded_cause.sentiment
+            self.return_dict[score]['coded_causes'] = coded_cause_dict
+
+    def _calculate_percentage(self):
+        for score, info in self.return_dict.items():
+            for coded_cause, coded_cause_info in info['coded_causes'].items():
+                percentage = round(len(coded_cause_info['why_causes'])/self.return_dict[score]['number'] * 100, 2)
+                self.return_dict[score]['coded_causes'][coded_cause]['percentage'] = percentage
+                self.return_dict[score]['coded_causes'][coded_cause].pop('why_causes')

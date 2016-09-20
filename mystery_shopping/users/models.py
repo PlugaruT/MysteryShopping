@@ -10,8 +10,9 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from mystery_shopping.companies.models import Company
 from mystery_shopping.companies.models import Entity
 from mystery_shopping.companies.models import Section
-from mystery_shopping.projects.models import Project
+from mystery_shopping.projects.models import Project, Evaluation
 from mystery_shopping.projects.models import ResearchMethodology
+from mystery_shopping.questionnaires.constants import QuestionType
 from mystery_shopping.tenants.models import Tenant
 
 
@@ -261,9 +262,14 @@ class ClientManager(ClientUserAbstract):
     def __str__(self):
         return u'{} {}'.format(self.user, self.place)
 
+    def has_evaluations(self):
+        return PersonToAssess.objects.filter(person_id=self.id,
+                                             person_type=ContentType.objects.get_for_model(self)).exists()
+
 
 class ClientEmployee(ClientUserAbstract):
-    """The model class for Client Employee user.
+    """
+    The model class for Client Employee user.
     """
     # Relations
     company = models.ForeignKey(Company)
@@ -275,6 +281,10 @@ class ClientEmployee(ClientUserAbstract):
 
     def __str__(self):
         return u'{} {} {}'.format(self.user, self.company, self.entity)
+
+    def has_evaluations(self):
+        return PersonToAssess.objects.filter(person_id=self.id,
+                                             person_type=ContentType.objects.get_for_model(self)).exists()
 
 
 class Shopper(models.Model):
@@ -296,9 +306,9 @@ class Shopper(models.Model):
 
 
 class Collector(models.Model):
-    '''
+    """
     A user model for the persons who will input the NPS questionnaires
-    '''
+    """
     user = models.OneToOneField(User, related_name='collector')
 
     def __str__(self):
@@ -318,3 +328,21 @@ class PersonToAssess(models.Model):
     person = GenericForeignKey('person_type', 'person_id')
 
     research_methodology = models.ForeignKey(ResearchMethodology, related_name='people_to_assess')
+
+
+class DetractorRespondent(models.Model):
+    """
+
+    """
+    name = models.CharField(max_length=20, blank=True)
+    surname = models.CharField(max_length=30, blank=True)
+    email = models.EmailField(blank=True)
+    phone = models.CharField(max_length=30, blank=True)
+
+    evaluation = models.ForeignKey(Evaluation, related_name='detractors', null=True)
+
+    def __str__(self):
+        return u'{} {}'.format(self.name, self.surname)
+
+    def get_detractor_questions(self):
+        return self.evaluation.questionnaire.questions.filter(score__lt=7, type=QuestionType.INDICATOR_QUESTION)

@@ -2,8 +2,10 @@ from django.conf.urls import url
 
 from rest_framework.routers import DefaultRouter
 
+
 from .views import CxiIndicatorTimelapse
 from .views import WhyCauseViewSet
+from .views import CodedCausePercentage
 from .views import CodedCauseLabelViewSet
 from .views import CodedCauseViewSet
 from .views import ProjectCommentViewSet
@@ -31,4 +33,7 @@ urlpatterns = [
     url(r'^cxi/indicatortimelapse/$',
         CxiIndicatorTimelapse.as_view(),
         name='indicator-timestamp'),
+    url(r'^cxi/codedcausepercentage',
+        CodedCausePercentage.as_view(),
+        name='codedcause-percentage')
 ]

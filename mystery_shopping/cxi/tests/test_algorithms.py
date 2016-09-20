@@ -406,6 +406,7 @@ class AlgorithmsTestCase(TestCase):
                     'tenant': coded_cause_1.tenant.id,
                     'type': 'a',
                     'id': coded_cause_1.id,
+                    'project': coded_cause_1.project.id,
                     'sentiment': coded_cause_1.sentiment,
                     'parent': None
                 }
@@ -417,6 +418,7 @@ class AlgorithmsTestCase(TestCase):
                     'tenant': coded_cause_2.tenant.id,
                     'type': 'b',
                     'id': coded_cause_2.id,
+                    'project': coded_cause_2.project.id,
                     'sentiment': coded_cause_2.sentiment,
                     'parent': None
                 }
@@ -428,6 +430,7 @@ class AlgorithmsTestCase(TestCase):
                     'tenant': coded_cause_3.tenant.id,
                     'type': 'c',
                     'id': coded_cause_3.id,
+                    'project': coded_cause_3.project.id,
                     'sentiment': coded_cause_3.sentiment,
                     'parent': None
                 }
@@ -439,10 +442,6 @@ class AlgorithmsTestCase(TestCase):
         for item in result:
             item['coded_cause']['coded_label'] = {}
 
+        print(result)
+
         self.assertCountEqual(expected_result, result)
-
-    def test_collect_data_for_indicator_dashboard(self):
-        pass
-
-    def test_collect_data_for_overview_dashboard(self):
-        pass

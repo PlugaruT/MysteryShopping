@@ -13,6 +13,8 @@ from braces.views import LoginRequiredMixin
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 
+from mystery_shopping.users.models import DetractorRespondent
+from mystery_shopping.users.serializers import DetractorRespondentSerializer
 from .models import ClientEmployee
 from .models import ClientManager
 from .models import Shopper
@@ -114,10 +116,24 @@ class ClientEmployeeViewSet(FilterQuerysetOnTenantMixIn,  viewsets.ModelViewSet)
     queryset = ClientEmployee.objects.all()
     serializer_class = ClientEmployeeSerializer
 
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.has_evaluations():
+            return Response({"You can not delete this object"}, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class ClientManagerViewSet(FilterQuerysetOnTenantMixIn, viewsets.ModelViewSet):
     queryset = ClientManager.objects.all()
     serializer_class = ClientManagerSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.has_evaluations():
+            return Response({'You can not delete this object'}, status.HTTP_405_METHOD_NOT_ALLOWED, )
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ShopperViewSet(viewsets.ModelViewSet):
@@ -153,3 +169,8 @@ class CollectorViewSet(viewsets.ModelViewSet):
 class PersonToAssessViewSet(viewsets.ModelViewSet):
     queryset = PersonToAssess.objects.all()
     serializer_class = PersonToAssessSerializer
+
+
+class DetractorRespondentViewSet(viewsets.ModelViewSet):
+    queryset = DetractorRespondent.objects.all()
+    serializer_class = DetractorRespondentSerializer

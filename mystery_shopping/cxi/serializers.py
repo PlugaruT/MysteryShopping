@@ -87,3 +87,14 @@ class ProjectCommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProjectComment
         fields = '__all__'
+        extra_kwargs = {
+            'indicator':{
+                'allow_null': True
+            }
+        }
+
+    def validate(self, attrs):
+        indicator = attrs.get('indicator')
+        if indicator is None:
+            attrs['indicator'] = ''
+        return attrs

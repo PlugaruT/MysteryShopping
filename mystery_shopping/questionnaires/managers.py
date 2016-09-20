@@ -24,6 +24,9 @@ class QuestionnaireQuerySet(QuerySet):
 
 
 class QuestionnaireQuestionQuerySet(QuerySet):
-    def get_project_questions(self, project):
+    def get_project_indicator_questions(self, project):
         return self.filter(questionnaire__evaluation__project=project,
                            type=QuestionType.INDICATOR_QUESTION)
+
+    def get_project_specific_indicator_questions(self, project, indicator):
+        return self.get_project_indicator_questions(project).filter(additional_info=indicator)

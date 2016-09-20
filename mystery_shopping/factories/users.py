@@ -4,7 +4,7 @@ from factory.django import DjangoModelFactory
 from factory import fuzzy, SubFactory, PostGenerationMethodCall, RelatedFactory
 
 from .tenants import TenantFactory
-from mystery_shopping.users.models import User, TenantProductManager, TenantProjectManager, Shopper
+from mystery_shopping.users.models import User, TenantProductManager, TenantProjectManager, Shopper, DetractorRespondent
 
 
 class UserFactory(DjangoModelFactory):
