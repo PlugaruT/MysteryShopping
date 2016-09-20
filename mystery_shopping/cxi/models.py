@@ -15,7 +15,7 @@ class CodedCauseLabel(models.Model):
     tenant = models.ForeignKey(Tenant)
 
     # Attributes
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=200)
 
     def __str__(self):
         return 'Label: {}'.format(self.name)
@@ -25,7 +25,7 @@ class WhyCause(models.Model):
     """
     Model for why causes for questions containing the reason why user answered to question
     """
-    answer = models.CharField(max_length=100)
+    answer = models.CharField(max_length=400)
     question = models.ForeignKey(QuestionnaireQuestion, related_name='why_causes')
     is_appreciation_cause = models.NullBooleanField()
 

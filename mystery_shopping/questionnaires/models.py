@@ -231,7 +231,7 @@ class QuestionAbstract(models.Model):
 
     """
     # Attributes
-    question_body = models.CharField(max_length=400)  # TODO: find optimal length
+    question_body = models.TextField()  # TODO: find optimal length
     type_choices = Choices((QuestionType.TEXT_FIELD, 'Text Field'),
                            (QuestionType.DATE_FIELD, 'Date Field'),
                            (QuestionType.SINGLE_CHOICE, 'Single Choice'),

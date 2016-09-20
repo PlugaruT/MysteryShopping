@@ -5,7 +5,7 @@ from model_utils import Choices
 from model_utils.models import TimeStampedModel
 from model_utils.fields import StatusField
 
-from mystery_shopping.companies.models import Company, Department, Entity, Section
+from mystery_shopping.companies.models import Department, Entity, Section
 from mystery_shopping.projects.managers import ProjectQuerySet
 from mystery_shopping.questionnaires.models import QuestionnaireScript, QuestionnaireTemplate
 from mystery_shopping.tenants.models import Tenant
@@ -68,7 +68,7 @@ class Project(models.Model):
     """
     # Relations
     tenant = models.ForeignKey(Tenant)
-    company = models.ForeignKey(Company)
+    company = models.ForeignKey('companies.Company')
     # this type of import is used to avoid import circles
     project_manager = models.ForeignKey('users.TenantProjectManager')
     consultants = models.ManyToManyField('users.TenantConsultant')

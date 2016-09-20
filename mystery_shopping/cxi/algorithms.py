@@ -201,12 +201,15 @@ def calculate_overview_score(questionnaire_list, project, entity_id):
     overview_list = dict()
     overview_list['indicators'] = dict()
     indicator_types_set = set()
+    indicator_order = dict()
     for questionnaire in questionnaire_list:
         for indicator_question in questionnaire.questions.filter(type=QuestionType.INDICATOR_QUESTION).all():
+            indicator_order[indicator_question.additional_info] = indicator_question.order
             indicator_types_set.add(indicator_question.additional_info)
     for indicator_type in indicator_types_set:
         indicator_list = get_indicator_scores(questionnaire_list, indicator_type)
         overview_list['indicators'][indicator_type] = calculate_indicator_score(indicator_list)
+        overview_list['indicators'][indicator_type]['order'] = indicator_order[indicator_type]
 
     overview_list['project_comment'] = get_overview_project_comment(project, entity_id)
     return overview_list
@@ -381,14 +384,17 @@ class CodedCausesPercentageTable:
 
     def _group_coded_causes(self):
         for score, info in self.filtered_questions.items():
-            coded_cause_dict = defaultdict(list)
+            coded_cause_dict = defaultdict(lambda: defaultdict(list))
             for why_cause in info['why_causes']:
                 coded_cause = why_cause.coded_causes.first()
-                coded_cause_dict[coded_cause.coded_label.name].append(why_cause)
+                if coded_cause:
+                    coded_cause_dict[coded_cause.coded_label.name]['why_causes'].append(why_cause)
+                    coded_cause_dict[coded_cause.coded_label.name]['sentiment'] = coded_cause.sentiment
             self.return_dict[score]['coded_causes'] = coded_cause_dict
 
     def _calculate_percentage(self):
         for score, info in self.return_dict.items():
-            for coded_cause, why_causes in info['coded_causes'].items():
-                percentage = round(len(why_causes)/self.return_dict[score]['number'] * 100, 2)
-                self.return_dict[score]['coded_causes'][coded_cause] = percentage
+            for coded_cause, coded_cause_info in info['coded_causes'].items():
+                percentage = round(len(coded_cause_info['why_causes'])/self.return_dict[score]['number'] * 100, 2)
+                self.return_dict[score]['coded_causes'][coded_cause]['percentage'] = percentage
+                self.return_dict[score]['coded_causes'][coded_cause].pop('why_causes')
