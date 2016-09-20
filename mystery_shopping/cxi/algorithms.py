@@ -328,7 +328,7 @@ def get_project_indicator_questions_list(project):
         indicators['indicator_list'] = list()
         indicators['detail'] = 'No Research Methodology or template questionnaire defined for this project'
         return indicators
-    for question in template_questionnaire.template_questions.all():
+    for question in template_questionnaire.template_questions.all().order_by('-order'):
         if question.type == QuestionType.INDICATOR_QUESTION:
             indicators['indicator_list'].add(question.additional_info)
     return indicators
