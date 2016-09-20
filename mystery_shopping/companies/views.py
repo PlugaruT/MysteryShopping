@@ -98,7 +98,8 @@ class DepartmentViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
 
         if instance.has_evaluations():
-            return Response({"You can not delete object"}, status.HTTP_405_METHOD_NOT_ALLOWED)
+            return Response({"You can not delete this object because some subdivisions have evaluations applied"},
+                            status.HTTP_400_BAD_REQUEST)
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -119,7 +120,8 @@ class EntityViewSet(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         if instance.has_evaluations():
-            return Response({"You can not delete this object"}, status.HTTP_405_METHOD_NOT_ALLOWED)
+            return Response({"You can not delete this object because some subdivisions have evaluations applied"},
+                            status.HTTP_400_BAD_REQUEST)
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -140,7 +142,8 @@ class SectionViewSet(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         if instance.has_evaluations():
-            return Response({"You can not delete this object"}, status.HTTP_405_METHOD_NOT_ALLOWED)
+            return Response({"You can not delete this object because some subdivisions have evaluations applied"},
+                            status.HTTP_400_BAD_REQUEST)
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
 

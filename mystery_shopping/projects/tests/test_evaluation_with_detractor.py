@@ -38,7 +38,7 @@ class TestEvaluationWithDetractor(TestCase):
         self.data['detractor_info'] = {
             'name': 'Tudor',
             'surname': 'Plugaru',
-            'phone': '1234',
+            'phone': '+37378166666',
             'email': 'demo@demo.com'
         }
         serializer = EvaluationSerializer(data=self.data)
