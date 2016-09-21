@@ -1,4 +1,5 @@
 from collections import defaultdict
+from collections import OrderedDict
 
 from mystery_shopping.questionnaires.constants import QuestionType
 from mystery_shopping.questionnaires.models import Questionnaire, QuestionnaireQuestion
@@ -197,7 +198,7 @@ def get_indicator_project_comment(project, entity_id, indicator_type):
     return None if project_comment is None else ProjectCommentSerializer(project_comment).data
 
 
-def _get_indicator_types(indicator_set, questionnaire_list):
+def get_indicator_types(indicator_set, questionnaire_list):
     return_dict = dict()
     for indicator_type in indicator_set:
         indicator_list = get_indicator_scores(questionnaire_list, indicator_type)
@@ -205,7 +206,7 @@ def _get_indicator_types(indicator_set, questionnaire_list):
     return return_dict
 
 
-def _get_only_indicator_score(indicator_set, questionnaire_list):
+def get_only_indicator_score(indicator_set, questionnaire_list):
     return_dict = dict()
     for indicator_type in indicator_set:
         indicator_list = get_indicator_scores(questionnaire_list, indicator_type)
@@ -213,30 +214,23 @@ def _get_only_indicator_score(indicator_set, questionnaire_list):
     return return_dict
 
 
-def _get_indicator_questions(questionnaire_list):
+def get_indicator_questions(questionnaire_list):
     indicator_types_set = set()
-    indicator_order = dict()
+    indicator_order = list()
     for questionnaire in questionnaire_list:
-<<<<<<< HEAD
-        for indicator_question in questionnaire.get_indicator_questions():
+        for indicator_question in questionnaire.get_indicator_questions().order_by('order'):
             indicator_types_set.add(indicator_question.additional_info)
-    return indicator_types_set
+            if indicator_question.additional_info not in indicator_order:
+                indicator_order.append(indicator_question.additional_info)
+    return indicator_types_set, indicator_order
 
-=======
-        for indicator_question in questionnaire.questions.filter(type=QuestionType.INDICATOR_QUESTION).all():
-            indicator_order[indicator_question.additional_info] = indicator_question.order
-            indicator_types_set.add(indicator_question.additional_info)
-    for indicator_type in indicator_types_set:
-        indicator_list = get_indicator_scores(questionnaire_list, indicator_type)
-        overview_list['indicators'][indicator_type] = calculate_indicator_score(indicator_list)
-        overview_list['indicators'][indicator_type]['order'] = indicator_order[indicator_type]
->>>>>>> 3200edaaa1bb7cc002c66116c58d21b79cc82b63
 
 def calculate_overview_score(questionnaire_list, project, entity_id):
     overview_list = dict()
     overview_list['indicators'] = dict()
-    indicator_types_set = _get_indicator_questions(questionnaire_list)
-    overview_list['indicators'] = _get_indicator_types(indicator_types_set, questionnaire_list)
+    overview_list['indicator_order'] = list()
+    indicator_types_set, overview_list['indicator_order'] = get_indicator_questions(questionnaire_list)
+    overview_list['indicators'] = get_indicator_types(indicator_types_set, questionnaire_list)
     overview_list['project_comment'] = get_overview_project_comment(project, entity_id)
     return overview_list
 
@@ -245,8 +239,8 @@ def get_per_day_questionnaire_data(questionnaire_list):
     result = dict()
     result['indicators'] = dict()
     result['number_of_entries'] = len(questionnaire_list)
-    indicator_types_set = _get_indicator_questions(questionnaire_list)
-    result['indicators'] = _get_only_indicator_score(indicator_types_set, questionnaire_list)
+    indicator_types_set = get_indicator_questions(questionnaire_list)
+    result['indicators'] = get_only_indicator_score(indicator_types_set, questionnaire_list)
     result['indicators']['cxi'] = sum(result['indicators'].values())/len(result['indicators'])
     return result
 
