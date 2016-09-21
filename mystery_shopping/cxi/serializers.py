@@ -6,6 +6,7 @@ from .models import CodedCause
 from .models import ProjectComment
 
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion
+from mystery_shopping.questionnaires.utils import update_attributes
 
 
 class CodedCauseLabelSerializer(serializers.ModelSerializer):
@@ -47,6 +48,18 @@ class CodedCauseSerializer(serializers.ModelSerializer):
         coded_cause = CodedCause.objects.create(**validated_data)
 
         return coded_cause
+
+    def update(self, instance, validated_data):
+        self.update_coded_label(instance, validated_data.pop('coded_label'))
+        update_attributes(validated_data, instance)
+        instance.save()
+        return instance
+
+    @staticmethod
+    def update_coded_label(instance, coded_label):
+        instance.coded_label.name = coded_label['name']
+        instance.coded_label.tenant = coded_label['tenant']
+        instance.coded_label.save()
 
 
 class WhyCauseSerializer(serializers.ModelSerializer):
