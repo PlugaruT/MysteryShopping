@@ -4,15 +4,13 @@ from rest_framework import viewsets
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
 from rest_condition import Or
-from datetime import timedelta
 
-from mystery_shopping.questionnaires.models import Questionnaire
+from mystery_shopping.cxi.algorithms import GetPerDayQuestionnaireData
 from mystery_shopping.questionnaires.utils import check_interval_date
 from .algorithms import CodedCausesPercentageTable
 from .algorithms import collect_data_for_overview_dashboard
 from .algorithms import get_project_indicator_questions_list
 from .algorithms import get_company_indicator_questions_list
-from .algorithms import get_per_day_questionnaire_data
 from .models import CodedCauseLabel
 from .models import CodedCause
 from .models import ProjectComment
@@ -78,34 +76,9 @@ class CxiIndicatorTimelapse(views.APIView):
     """
     def get(self, request, *args, **kwargs):
         company_id = request.query_params.get('company')
-        start, end  = check_interval_date(request.query_params)
-        questionnaires = Questionnaire.objects.get_questionnaires_for_company(company_id)\
-                                              .filter(modified__range=[start, end])
-        grouped_questionnaires = self._group_questionnaires(questionnaires, start, end)
-        response = self._build_result(grouped_questionnaires)
+        start, end = check_interval_date(request.query_params)
+        response = GetPerDayQuestionnaireData(start, end, company_id).build_response()
         return Response(response, status.HTTP_200_OK)
-
-    def _build_result(self, grouped_questionnaires):
-        return_dict = dict()
-        for date, questionnaires in grouped_questionnaires.items():
-            return_dict[str(date)] = get_per_day_questionnaire_data(questionnaires)
-        return return_dict
-
-    def _group_questionnaires(self, questionnaires, start, end):
-        result = dict()
-        for date in self._date_range(start, end + timedelta(days=1)):
-            self._add_questionnaires_for_date_if_they_exist(date, result, questionnaires)
-        return result
-
-    def _add_questionnaires_for_date_if_they_exist(self, date, result, questionnaires):
-        date_questionnaires = questionnaires.filter(modified__date=date)
-        if date_questionnaires.exists():
-            result[date] = date_questionnaires
-
-    @staticmethod
-    def _date_range(start_date, end_date):
-        for n in range(int((end_date - start_date).days)):
-            yield start_date + timedelta(n)
 
 
 class OverviewDashboard(views.APIView):

@@ -1,5 +1,6 @@
 from collections import defaultdict
 from collections import OrderedDict
+from datetime import timedelta
 
 from mystery_shopping.questionnaires.constants import QuestionType
 from mystery_shopping.questionnaires.models import Questionnaire, QuestionnaireQuestion
@@ -235,14 +236,67 @@ def calculate_overview_score(questionnaire_list, project, entity_id):
     return overview_list
 
 
-def get_per_day_questionnaire_data(questionnaire_list):
-    result = dict()
-    result['indicators'] = dict()
-    result['number_of_entries'] = len(questionnaire_list)
-    indicator_types_set = get_indicator_questions(questionnaire_list)
-    result['indicators'] = get_only_indicator_score(indicator_types_set, questionnaire_list)
-    result['indicators']['cxi'] = sum(result['indicators'].values())/len(result['indicators'])
-    return result
+class GetPerDayQuestionnaireData:
+    def __init__(self, start, end, company_id):
+        print(start)
+        self.questionnaire_list = Questionnaire.objects.get_questionnaires_for_company(company_id)\
+            .filter(modified__range=[start, end]).order_by('modified')
+
+    def build_response(self):
+        response = list()
+        grouped_questionnaires_by_date = self.group_questionnaires_by_date()
+        for date, questionnaires in grouped_questionnaires_by_date.items():
+            data = {
+                'date': date,
+                'number_of_questionnaires': len(questionnaires),
+                'indicators': self.calculate_indicators(questionnaires),
+                'entities': self.build_result_for_entities(questionnaires),
+                'sections': self.build_result_for_sections(questionnaires)
+            }
+            response.append(data)
+        return response
+
+    def build_result_for_entities(self, questionnaire_list):
+        result = dict()
+        grouped_questionnaires_by_entities = self.group_questionnaires_by_entity(questionnaire_list)
+        for entity, questionnaire in grouped_questionnaires_by_entities.items():
+            result[entity] = self.calculate_indicators(questionnaire)
+        return result
+
+    def build_result_for_sections(self, questionnaire_list):
+        result = dict()
+        grouped_questionnaires_by_sections = self.group_questionnaires_by_section(questionnaire_list)
+        for section, questionnaire in grouped_questionnaires_by_sections.items():
+            result[section] = self.calculate_indicators(questionnaire)
+        return result
+
+    def group_questionnaires_by_date(self):
+        result = dict()
+        for questionnaire in self.questionnaire_list:
+            result.setdefault(str(questionnaire.modified.date()), []).append(questionnaire)
+        return result
+
+    @staticmethod
+    def group_questionnaires_by_entity(questionnaire_list):
+        result = dict()
+        for questionnaire in questionnaire_list:
+            result.setdefault(questionnaire.get_entity().name, []).append(questionnaire)
+        return result
+
+    @staticmethod
+    def group_questionnaires_by_section(questionnaire_list):
+        result = dict()
+        for questionnaire in questionnaire_list:
+            if questionnaire.get_section():
+                result.setdefault(questionnaire.get_section().name, []).append(questionnaire)
+        return result
+
+    @staticmethod
+    def calculate_indicators(questionnaire_list):
+        indicator_types_set, _ = get_indicator_questions(questionnaire_list)
+        result = get_only_indicator_score(indicator_types_set, questionnaire_list)
+        result['CXI'] = sum(result.values()) / len(result)
+        return result
 
 
 def add_question_per_coded_cause(indicator_question, coded_cause_dict):
