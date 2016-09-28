@@ -238,7 +238,6 @@ def calculate_overview_score(questionnaire_list, project, entity_id):
 
 class GetPerDayQuestionnaireData:
     def __init__(self, start, end, company_id):
-        print(start)
         self.questionnaire_list = Questionnaire.objects.get_questionnaires_for_company(company_id)\
             .filter(modified__range=[start, end]).order_by('modified')
 
