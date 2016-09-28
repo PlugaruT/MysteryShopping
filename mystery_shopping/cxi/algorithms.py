@@ -248,8 +248,7 @@ class GetPerDayQuestionnaireData:
         for date, questionnaires in grouped_questionnaires_by_date.items():
             data = {
                 'date': date,
-                'number_of_questionnaires': len(questionnaires),
-                'indicators': self.calculate_indicators(questionnaires),
+                'general_indicators': self.calculate_indicators(questionnaires),
                 'entities': self.build_result_for_entities(questionnaires),
                 'sections': self.build_result_for_sections(questionnaires)
             }
@@ -293,9 +292,12 @@ class GetPerDayQuestionnaireData:
 
     @staticmethod
     def calculate_indicators(questionnaire_list):
+        result = dict()
+        result['indicators'] = dict()
         indicator_types_set, _ = get_indicator_questions(questionnaire_list)
-        result = get_only_indicator_score(indicator_types_set, questionnaire_list)
-        result['CXI'] = sum(result.values()) / len(result)
+        result['indicators'] = get_only_indicator_score(indicator_types_set, questionnaire_list)
+        result['indicators']['cxi'] = sum(result['indicators'].values()) / len(result['indicators'])
+        result['number_of_questionnaires'] = len(questionnaire_list)
         return result
 
 
