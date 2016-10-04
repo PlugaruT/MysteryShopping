@@ -330,9 +330,6 @@ class QuestionnaireQuestion(QuestionAbstract):
     def get_department(self):
         return self.get_entity().department
 
-    def get_coded_cause(self):
-        return self.why_causes.coded
-
 
 class QuestionChoiceAbstract(models.Model):
     """
