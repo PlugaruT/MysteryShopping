@@ -98,6 +98,25 @@ class QuestionnaireTemplateViewSet(viewsets.ModelViewSet):
         questionnaire.save()
         return Response(status=status.HTTP_202_ACCEPTED)
 
+    @detail_route(methods=['put'])
+    def clone(self, request, pk=None):
+        template_questionnaire = get_object_or_404(QuestionnaireTemplate, pk=pk)
+        cloned_template_questionnaire = self._clone_questionnaire_template(template_questionnaire)
+        cloned_template_questionnaire_serialized = QuestionnaireTemplateSerializer(data=cloned_template_questionnaire)
+        cloned_template_questionnaire_serialized.is_valid(raise_exception=True)
+        cloned_template_questionnaire_serialized.save()
+        return Response(data=cloned_template_questionnaire_serialized.data, status=status.HTTP_202_ACCEPTED)
+
+    @staticmethod
+    def _clone_questionnaire_template(questionnaire_template):
+        questionnaire_status = QuestionnaireTemplateStatus.objects.create()
+        questionnaire_template_serialized = QuestionnaireTemplateSerializer(questionnaire_template)
+        questionnaire_template_serialized = dict(questionnaire_template_serialized.data)
+        questionnaire_template_serialized.pop('id')
+        questionnaire_template_serialized.pop('status_repr')
+        questionnaire_template_serialized['status'] = questionnaire_status.id
+        return questionnaire_template_serialized
+
 
 class QuestionnaireViewSet(viewsets.ModelViewSet):
     queryset = Questionnaire.objects.all()
