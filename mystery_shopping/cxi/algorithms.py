@@ -381,7 +381,7 @@ class CodedCausesPercentageTable:
         response = list()
         questions_by_departments = self.group_questions_by_department(indicator_questions)
         for department, questions in questions_by_departments.items():
-            nr_of_why_causes = self.count_number_of_why_causes(questions)
+            nr_of_why_causes = len(questions)
             result = {
                 "id": department.id,
                 "name": department.name,
@@ -395,7 +395,7 @@ class CodedCausesPercentageTable:
         response = list()
         questions_by_entities = self.group_questions_by_entity(indicator_questions)
         for entity, questions in questions_by_entities.items():
-            nr_of_why_causes = self.count_number_of_why_causes(questions)
+            nr_of_why_causes = len(questions)
             result = {
                 "id": entity.id,
                 "name": entity.name,
@@ -409,7 +409,7 @@ class CodedCausesPercentageTable:
         response = list()
         questions_by_section = self.group_questions_by_section(indicator_questions)
         for section, questions in questions_by_section.items():
-            nr_of_why_causes = self.count_number_of_why_causes(questions)
+            nr_of_why_causes = len(questions)
             result = {
                 "id": section.id,
                 "name": section.name,
