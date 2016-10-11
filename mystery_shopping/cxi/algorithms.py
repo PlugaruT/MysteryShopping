@@ -356,12 +356,16 @@ class CodedCausesPercentageTable:
         self.indicator_questions = QuestionnaireQuestion.objects.get_project_specific_indicator_questions(project, indicator)
 
     def build_response(self):
-        response = defaultdict(dict)
+        response = list()
         coded_causes = self.extract_coded_causes_per_score()
         for score, coded_causes_info in coded_causes.items():
             number_of_questions = coded_causes_info.get('number_of_questions')
+            result = dict()
+            result['score'] = score
+            result['coded_causes'] = dict()
             for coded_cause, info in coded_causes_info['coded_causes'].items():
-                response[score][coded_cause] = self.build_response_for_coded_cause(info, number_of_questions)
+                result['coded_causes'][coded_cause] = self.build_response_for_coded_cause(info, number_of_questions)
+            response.append(result)
         return response
 
     def build_response_for_coded_cause(self, coded_cause_info, number_of_questions):
