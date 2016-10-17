@@ -152,11 +152,10 @@ class ShopperViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         project_type = self.request.query_params.get('type', 'm')
-
         if project_type == 'm':
-            queryset = self.queryset.filter(is_collector=False)
+            queryset = self.get_queryset().filter(is_collector=False)
         elif project_type == 'c':
-            queryset = self.queryset.filter(is_collector=True)
+            queryset = self.get_queryset().filter(is_collector=True)
 
         serializer = ShopperSerializer(queryset, many=True)
         return Response(serializer.data)
