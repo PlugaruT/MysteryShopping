@@ -171,6 +171,7 @@ class CompanySerializer(serializers.ModelSerializer):
     """
     departments_repr = DepartmentSerializer(source='departments', many=True, read_only=True)
     industry_repr = IndustrySerializer(source='industry', read_only=True)
+    subindustry_repr = SubIndustrySerializer(source='subindustry', read_only=True)
     country_repr = CountrySerializer(source='country', read_only=True)
 
     class Meta:

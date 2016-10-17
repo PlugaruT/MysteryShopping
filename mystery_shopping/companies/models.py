@@ -61,6 +61,7 @@ class Company(models.Model):
     """
     # Relations
     industry = models.ForeignKey(Industry)
+    subindustry = models.ForeignKey(SubIndustry, blank=True, null=True)
     country = models.ForeignKey(Country)
     tenant = models.ForeignKey(Tenant)
 
