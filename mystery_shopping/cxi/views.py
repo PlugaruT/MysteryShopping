@@ -136,7 +136,8 @@ class IndicatorDashboard(views.APIView):
             elif request.user.is_tenant_user() and company_id is not None:
                 project = Project.objects.get_latest_project_for_client_user(tenant=request.user.tenant, company=company_id)
         elif project_id:
-            if self.parameter_is_valid(entity_id) or self.parameter_is_valid(department_id):
+            # TODO: handle this in a more elegant way
+            if self.parameter_is_valid(entity_id) or self.parameter_is_valid(department_id) or self.parameter_is_valid(section_id):
                 return Response({
                     'detail': 'Entity param is invalid'
                 }, status.HTTP_400_BAD_REQUEST)

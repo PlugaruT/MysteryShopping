@@ -318,7 +318,8 @@ class CollectDataForIndicatorDashboard:
         return calculate_indicator_score(indicator_list)['indicator']
 
     def _get_project_comment(self):
-        return get_indicator_project_comment(self.project, self.department, self.entity_id, self.section_id, self.indicator_type)
+        return get_indicator_project_comment(self.project, self.department, self.entity_id, self.section_id,
+                                             self.indicator_type)
 
     def _get_indicator_details(self):
         return get_indicator_details(self.questionnaire_list, self.indicator_type)
