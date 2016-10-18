@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from mystery_shopping.companies.models import Department
+from mystery_shopping.companies.models import Department, Section
 from mystery_shopping.questionnaires.constants import QuestionType
 from mystery_shopping.questionnaires.models import Questionnaire, QuestionnaireQuestion
 from mystery_shopping.projects.models import Entity
@@ -265,12 +265,14 @@ def sort_question_by_coded_cause(coded_causes_dict):
 
 
 class CollectDataForIndicatorDashboard:
-    def __init__(self, project, department_id, entity_id, indicator_type):
+    def __init__(self, project, department_id, entity_id, section_id, indicator_type):
         self.project = project
         self.department_id = department_id
         self.entity_id = entity_id
+        self.section_id = section_id
         self.entity = Entity.objects.filter(pk=self.entity_id).first()
         self.department = Department.objects.filter(pk=self.department_id).first()
+        self.section = Section.objects.filter(pk=self.section_id).first()
         self.indicator_type = indicator_type
         self.questionnaire_list = self._get_questionnaire_list()
 
@@ -306,7 +308,7 @@ class CollectDataForIndicatorDashboard:
     def _get_gauge(self):
         indicator_list = get_indicator_scores(self.questionnaire_list, self.indicator_type)
         gauge = calculate_indicator_score(indicator_list)
-        if self.entity or self.department:
+        if self.entity or self.department or self.section:
             gauge['general_indicator'] = self._get_general_indicator()
         return gauge
 
@@ -316,7 +318,7 @@ class CollectDataForIndicatorDashboard:
         return calculate_indicator_score(indicator_list)['indicator']
 
     def _get_project_comment(self):
-        return get_indicator_project_comment(self.project, self.department, self.entity_id, self.indicator_type)
+        return get_indicator_project_comment(self.project, self.department, self.entity_id, self.section_id, self.indicator_type)
 
     def _get_indicator_details(self):
         return get_indicator_details(self.questionnaire_list, self.indicator_type)
@@ -324,7 +326,8 @@ class CollectDataForIndicatorDashboard:
     def _get_questionnaire_list(self):
         return Questionnaire.objects.get_project_questionnaires_for_subdivision(project=self.project,
                                                                                 department=self.department_id,
-                                                                                entity=self.entity)
+                                                                                entity=self.entity,
+                                                                                section=self.section)
 
     def _get_all_project_questionnaires(self):
         return Questionnaire.objects.get_project_questionnaires(self.project)

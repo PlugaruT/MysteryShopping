@@ -125,7 +125,7 @@ class IndicatorDashboard(views.APIView):
         company_id = request.query_params.get('company', None)
         department_id = request.query_params.get('department', None)
         entity_id = request.query_params.get('entity', None)
-        # section_id = request.query_params.get('section', None)
+        section_id = request.query_params.get('section', None)
         indicator_type = request.query_params.get('indicator', None)
         project = None
 
@@ -155,7 +155,7 @@ class IndicatorDashboard(views.APIView):
             }, status.HTTP_400_BAD_REQUEST)
 
         if project is not None:
-            response = CollectDataForIndicatorDashboard(project, department_id, entity_id, indicator_type).build_response()
+            response = CollectDataForIndicatorDashboard(project, department_id, entity_id, section_id, indicator_type).build_response()
 
             return Response(response, status.HTTP_200_OK)
 
