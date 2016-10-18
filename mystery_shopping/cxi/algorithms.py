@@ -197,7 +197,7 @@ def get_indicator_project_comment(project, entity_id, indicator_type):
     return None if project_comment is None else ProjectCommentSerializer(project_comment).data
 
 
-def calculate_overview_score(questionnaire_list, project, entity_id):
+def calculate_overview_score(questionnaire_list, project, department_id, entity_id):
     overview_list = dict()
     overview_list['indicators'] = dict()
     indicator_types_set = set()
@@ -211,7 +211,7 @@ def calculate_overview_score(questionnaire_list, project, entity_id):
         overview_list['indicators'][indicator_type] = calculate_indicator_score(indicator_list)
         overview_list['indicators'][indicator_type]['order'] = indicator_order[indicator_type]
 
-    overview_list['project_comment'] = get_overview_project_comment(project, entity_id)
+    overview_list['project_comment'] = get_overview_project_comment(project, entity_id) if entity_id else ''
     return overview_list
 
 
@@ -313,9 +313,9 @@ class CollectDataForIndicatorDashboard:
         return Questionnaire.objects.get_project_questionnaires(self.project)
 
 
-def collect_data_for_overview_dashboard(project, entity_id):
-    questionnaire_list = Questionnaire.objects.get_project_questionnaires_for_entity(project, entity_id)
-    return calculate_overview_score(questionnaire_list, project, entity_id)
+def collect_data_for_overview_dashboard(project, department_id, entity_id):
+    questionnaire_list = Questionnaire.objects.get_project_questionnaires_for_subdivision(project, department_id, entity_id)
+    return calculate_overview_score(questionnaire_list, project, department_id, entity_id)
 
 
 def get_project_indicator_questions_list(project):
