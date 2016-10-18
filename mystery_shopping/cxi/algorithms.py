@@ -1,5 +1,6 @@
 from collections import defaultdict
 
+from mystery_shopping.companies.models import Department
 from mystery_shopping.questionnaires.constants import QuestionType
 from mystery_shopping.questionnaires.models import Questionnaire, QuestionnaireQuestion
 from mystery_shopping.projects.models import Entity
@@ -211,7 +212,7 @@ def calculate_overview_score(questionnaire_list, project, department_id, entity_
         overview_list['indicators'][indicator_type] = calculate_indicator_score(indicator_list)
         overview_list['indicators'][indicator_type]['order'] = indicator_order[indicator_type]
 
-    overview_list['project_comment'] = get_overview_project_comment(project, entity_id) if entity_id else ''
+    overview_list['project_comment'] = get_overview_project_comment(project, entity_id) if entity_id else None
     return overview_list
 
 
@@ -251,10 +252,12 @@ def sort_question_by_coded_cause(coded_causes_dict):
 
 
 class CollectDataForIndicatorDashboard:
-    def __init__(self, project, entity_id, indicator_type):
+    def __init__(self, project, department_id, entity_id, indicator_type):
         self.project = project
+        self.department_id = department_id
         self.entity_id = entity_id
-        self.entity = Entity.objects.filter(pk=entity_id).first()
+        self.entity = Entity.objects.filter(pk=self.entity_id).first()
+        self.department = Department.objects.filter(pk=self.department_id).first()
         self.indicator_type = indicator_type
         self.questionnaire_list = self._get_questionnaire_list()
 
@@ -269,8 +272,7 @@ class CollectDataForIndicatorDashboard:
             'gauge': self._get_gauge(),
             'details': indicator_details['details'],
             'coded_causes': indicator_details['coded_causes'],
-            'project_comment': self._get_project_comment()
-
+            'project_comment': self._get_project_comment() if self.entity_id else None
         }
 
     @staticmethod
@@ -291,7 +293,7 @@ class CollectDataForIndicatorDashboard:
     def _get_gauge(self):
         indicator_list = get_indicator_scores(self.questionnaire_list, self.indicator_type)
         gauge = calculate_indicator_score(indicator_list)
-        if self.entity:
+        if self.entity or self.department:
             gauge['general_indicator'] = self._get_general_indicator()
         return gauge
 
@@ -307,14 +309,16 @@ class CollectDataForIndicatorDashboard:
         return get_indicator_details(self.questionnaire_list, self.indicator_type)
 
     def _get_questionnaire_list(self):
-        return Questionnaire.objects.get_project_questionnaires_for_entity(self.project, self.entity)
+        return Questionnaire.objects.get_project_questionnaires_for_subdivision(project=self.project,
+                                                                                department=self.department_id,
+                                                                                entity=self.entity)
 
     def _get_all_project_questionnaires(self):
         return Questionnaire.objects.get_project_questionnaires(self.project)
 
 
 def collect_data_for_overview_dashboard(project, department_id, entity_id):
-    questionnaire_list = Questionnaire.objects.get_project_questionnaires_for_subdivision(project, department_id, entity_id)
+    questionnaire_list = Questionnaire.objects.get_project_questionnaires_for_subdivision(project=project, entity=entity_id)
     return calculate_overview_score(questionnaire_list, project, department_id, entity_id)
 
 

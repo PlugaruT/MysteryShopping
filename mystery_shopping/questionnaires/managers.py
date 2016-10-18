@@ -13,7 +13,7 @@ class QuestionnaireQuerySet(QuerySet):
         return self.filter(template=template_questionnaire,
                            evaluation__project=project)
 
-    def get_project_questionnaires_for_subdivision(self, project, department, entity):
+    def get_project_questionnaires_for_subdivision(self, project, department=None, entity=None):
         questionnaires = self.get_project_questionnaires(project)
         if entity is not None:
             questionnaires = questionnaires.filter(evaluation__entity=entity)

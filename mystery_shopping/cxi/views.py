@@ -122,8 +122,9 @@ class IndicatorDashboard(views.APIView):
 
     def get(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
-        entity_id = request.query_params.get('entity', None)
         company_id = request.query_params.get('company', None)
+        department_id = request.query_params.get('department', None)
+        entity_id = request.query_params.get('entity', None)
         # section_id = request.query_params.get('section', None)
         indicator_type = request.query_params.get('indicator', None)
         project = None
@@ -135,7 +136,7 @@ class IndicatorDashboard(views.APIView):
             elif request.user.is_tenant_user() and company_id is not None:
                 project = Project.objects.get_latest_project_for_client_user(tenant=request.user.tenant, company=company_id)
         elif project_id:
-            if entity_id is not None and not entity_id.isdigit():
+            if self.parameter_is_valid(entity_id) or self.parameter_is_valid(department_id):
                 return Response({
                     'detail': 'Entity param is invalid'
                 }, status.HTTP_400_BAD_REQUEST)
@@ -154,13 +155,17 @@ class IndicatorDashboard(views.APIView):
             }, status.HTTP_400_BAD_REQUEST)
 
         if project is not None:
-            response = CollectDataForIndicatorDashboard(project, entity_id, indicator_type).build_response()
+            response = CollectDataForIndicatorDashboard(project, department_id, entity_id, indicator_type).build_response()
 
             return Response(response, status.HTTP_200_OK)
 
         return Response({
             'detail': 'Project was not provided'
         }, status.HTTP_400_BAD_REQUEST)
+
+    @staticmethod
+    def parameter_is_valid(parameter):
+        return parameter is not None and not parameter.isdigit()
 
 
 class IndicatorDashboardList(views.APIView):

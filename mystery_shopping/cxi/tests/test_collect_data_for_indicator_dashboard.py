@@ -14,22 +14,22 @@ class TestClassConstructor(TestCase):
     def test_that_project_is_set(self):
         project = Project()
 
-        obj = CollectDataForIndicatorDashboard(project, None, None)
+        obj = CollectDataForIndicatorDashboard(project, None, None, None)
         self.assertEquals(obj.project, project)
 
     def test_that_indicator_type_is_set(self):
         indicator_type = 'Example Indicator type'
-        obj = CollectDataForIndicatorDashboard(None, None, indicator_type)
+        obj = CollectDataForIndicatorDashboard(None, None, None, indicator_type)
         self.assertEquals(obj.indicator_type, indicator_type)
 
     def test_that_entity_is_null_when_entity_if_does_not_exist(self):
         entity_id = 42
-        obj = CollectDataForIndicatorDashboard(None, entity_id, None)
+        obj = CollectDataForIndicatorDashboard(None, None, entity_id, None)
         self.assertIsNone(obj.entity)
 
     def test_that_entity_is_fetched_from_db_the_given_entity_id_is_in_db(self):
         entity = EntityFactory.create()
-        obj = CollectDataForIndicatorDashboard(None, entity.pk, None)
+        obj = CollectDataForIndicatorDashboard(None, None, entity.pk, None)
         self.assertEquals(obj.entity, entity)
 
 
@@ -70,7 +70,7 @@ class TestBuildResponse(TestCase):
             },
             'coded_causes': []
         }
-        result = CollectDataForIndicatorDashboard(self.project, None, indicator_type).build_response()
+        result = CollectDataForIndicatorDashboard(self.project, None, None, indicator_type).build_response()
         self.assertDictEqual(result, expected_result)
 
     def test_when_there_is_one_indicator_questions_and_the_given_entity_is_none(self):
@@ -102,9 +102,7 @@ class TestBuildResponse(TestCase):
             'coded_causes': [],
             'project_comment': None
         }
-        self.maxDiff = None
-
-        result = CollectDataForIndicatorDashboard(self.project, None, self.indicator_type).build_response()
+        result = CollectDataForIndicatorDashboard(self.project, None, None, self.indicator_type).build_response()
         self.assertDictEqual(result, expected_result)
 
     def test_when_there_is_one_indicator_questions_and_entity_is_given(self):
@@ -134,7 +132,7 @@ class TestBuildResponse(TestCase):
                                                                     1, 'choice': 'Aladeen'}]}], 'project_comment': None}
 
         self.maxDiff = None
-        result = CollectDataForIndicatorDashboard(self.project, self.entity.id, self.indicator_type).build_response()
+        result = CollectDataForIndicatorDashboard(self.project, None, self.entity.id, self.indicator_type).build_response()
         self.assertDictEqual(expected_result, result)
 
     def test_when_there_is_one_indicator_questions_and_one_single_choice_question__and_the_given_entity_is_none(self):
@@ -223,7 +221,7 @@ class TestBuildResponse(TestCase):
             }
         }
 
-        result = CollectDataForIndicatorDashboard(self.project, None, self.indicator_type).build_response()
+        result = CollectDataForIndicatorDashboard(self.project, None, None, self.indicator_type).build_response()
         self._order_result_lists_in_dict_for_indicator_dashboard(expected_result)
         self._order_result_lists_in_dict_for_indicator_dashboard(result)
         self.assertDictEqual(expected_result, result)
