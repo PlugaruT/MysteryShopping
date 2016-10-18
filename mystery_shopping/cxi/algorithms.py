@@ -317,9 +317,11 @@ class CollectDataForIndicatorDashboard:
         return Questionnaire.objects.get_project_questionnaires(self.project)
 
 
-def collect_data_for_overview_dashboard(project, department_id, entity_id):
-    questionnaire_list = Questionnaire.objects.get_project_questionnaires_for_subdivision(project=project, entity=entity_id)
-    return calculate_overview_score(questionnaire_list, project, department_id, entity_id)
+def collect_data_for_overview_dashboard(project, department_id, entity_id, section_id):
+    questionnaire_list = Questionnaire.objects.get_project_questionnaires_for_subdivision(project=project,
+                                                                                          entity=entity_id,
+                                                                                          section=section_id)
+    return calculate_overview_score(questionnaire_list, project, department_id, entity_id, section_id)
 
 
 def get_project_indicator_questions_list(project):

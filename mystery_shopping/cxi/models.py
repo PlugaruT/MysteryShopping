@@ -3,7 +3,9 @@ from model_utils import Choices
 
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from mystery_shopping.projects.models import Project
-from mystery_shopping.projects.models import Entity
+from mystery_shopping.companies.models import Department
+from mystery_shopping.companies.models import Entity
+from mystery_shopping.companies.models import Section
 from mystery_shopping.tenants.models import Tenant
 
 
@@ -65,7 +67,9 @@ class ProjectComment(models.Model):
     """
     # Relations
     project = models.ForeignKey(Project)
+    department = models.ForeignKey(Department, null=True, blank=True)
     entity = models.ForeignKey(Entity, null=True, blank=True)
+    section = models.ForeignKey(Section, null=True, blank=True)
 
     # Attributes
     indicator = models.CharField(max_length=30, blank=True)

@@ -78,10 +78,10 @@ class OverviewDashboard(views.APIView):
         project_id = request.query_params.get('project', None)
         department_id = request.query_params.get('department', None)
         entity_id = request.query_params.get('entity', None)
-        # section_id = request.query_params.get('section', None)
+        section_id = request.query_params.get('section', None)
 
         if project_id:
-            if self.parameter_is_valid(entity_id) or self.parameter_is_valid(department_id):
+            if self.parameter_is_valid(entity_id) or self.parameter_is_valid(department_id) or self.parameter_is_valid(section_id):
 
                 return Response({
                     'detail': 'Entity param is invalid'
@@ -92,7 +92,7 @@ class OverviewDashboard(views.APIView):
                     return Response({'detail': 'You do not have permission to access to this project.'},
                                     status.HTTP_403_FORBIDDEN)
 
-                response = collect_data_for_overview_dashboard(project, department_id, entity_id)
+                response = collect_data_for_overview_dashboard(project, department_id, entity_id, section_id)
 
                 return Response(response, status.HTTP_200_OK)
 
