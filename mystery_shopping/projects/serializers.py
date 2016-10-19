@@ -421,3 +421,30 @@ class EvaluationSerializer(serializers.ModelSerializer):
         if question['type'] == QuestionType.INDICATOR_QUESTION:
             if question['score'] is None:
                 raise serializers.ValidationError('Indicator Question isn\'t allowed to have null score')
+
+
+class ProjectStatisticsForCompanySerializer(serializers.ModelSerializer):
+    """
+        Serializer for company view that will contain only time,
+        date and places/people to asses
+    """
+    entity_repr = EntitySerializer(source='entity', read_only=True)
+    section_repr = SectionSerializer(source='section', read_only=True)
+
+    class Meta:
+        model = Evaluation
+        fields = ('id', 'time_accomplished', 'section', 'entity', 'entity_repr', 'section_repr')
+
+
+class ProjectStatisticsForTenantSerializer(serializers.ModelSerializer):
+    """
+        Serializer for tenant view that will contain only time,
+        date and places/people to asses and collector information
+    """
+    entity_repr = EntitySerializer(source='entity', read_only=True)
+    section_repr = SectionSerializer(source='section', read_only=True)
+    shopper_repr = ShopperSerializer(source='shopper', read_only=True)
+
+    class Meta:
+        model = Evaluation
+        fields = ('id', 'time_accomplished', 'section', 'entity',  'entity_repr', 'section_repr', 'shopper_repr')
