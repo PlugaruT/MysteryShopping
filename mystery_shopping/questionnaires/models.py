@@ -170,6 +170,9 @@ class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
     def get_section(self):
         return self.evaluation.section
 
+    def get_department(self):
+        return self.get_entity().department
+
 
 class QuestionnaireBlockAbstract(models.Model):
     """

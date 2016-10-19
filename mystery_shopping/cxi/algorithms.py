@@ -249,10 +249,18 @@ class GetPerDayQuestionnaireData:
                 'date': date,
                 'general_indicators': self.calculate_indicators(questionnaires),
                 'entities': self.build_result_for_entities(questionnaires),
-                'sections': self.build_result_for_sections(questionnaires)
+                'sections': self.build_result_for_sections(questionnaires),
+                'departments': self.build_result_for_departments(questionnaires)
             }
             response.append(data)
         return response
+
+    def build_result_for_departments(self, questionnaire_list):
+        result = dict()
+        grouped_questionnaires_by_department = self.group_questionnaires_by_department(questionnaire_list)
+        for entity, questionnaire in grouped_questionnaires_by_department.items():
+            result[entity] = self.calculate_indicators(questionnaire)
+        return result
 
     def build_result_for_entities(self, questionnaire_list):
         result = dict()
@@ -272,6 +280,13 @@ class GetPerDayQuestionnaireData:
         result = dict()
         for questionnaire in self.questionnaire_list:
             result.setdefault(str(questionnaire.modified.date()), []).append(questionnaire)
+        return result
+
+    @staticmethod
+    def group_questionnaires_by_department(questionnaire_list):
+        result = dict()
+        for questionnaire in questionnaire_list:
+            result.setdefault(questionnaire.get_department().name, []).append(questionnaire)
         return result
 
     @staticmethod
