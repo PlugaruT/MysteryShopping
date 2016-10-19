@@ -297,7 +297,6 @@ class ProjectStatisticsForCompanyViewSet(viewsets.ViewSet):
             else:
                 queryset = Evaluation.objects.none()
 
-        # queryset = self.serializer_class.setup_eager_loading(queryset)
         serializer = ProjectStatisticsForCompanySerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -317,6 +316,5 @@ class ProjectStatisticsForTenantViewSet(viewsets.ViewSet):
             else:
                 queryset = Evaluation.objects.none()
 
-        # queryset = self.serializer_class.setup_eager_loading(queryset)
         serializer = ProjectStatisticsForTenantSerializer(queryset, many=True)
         return Response(serializer.data)
