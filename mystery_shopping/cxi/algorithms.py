@@ -432,8 +432,6 @@ class CodedCausesPercentageTable:
         for score, questions_info in grouped_questions_by_score.items():
             response[score]['why_causes'] = self._extract_why_causes(questions_info['questions'])
             response[score]['number_of_questions'] = questions_info['number_of_questions']
-            # response[score]['questions'] = questions_info['questions']
-            # response[score]['number_of_why_causes'] = len(response[score]['why_causes'])
         return response
 
     def group_questions_by_score(self):
@@ -483,7 +481,6 @@ class CodedCausesPercentageTable:
                 response[coded_cause_name]['number_of_why_causes'] = len(response[coded_cause_name]['why_causes'])
                 response[coded_cause_name]['sentiment'] = coded_cause.sentiment
                 response[coded_cause_name]['questions'].append(why_cause.question)
-                # response[coded_cause_name]['number_of_questions'] = len(response[coded_cause_name]['questions'])
         return response
 
     @staticmethod
@@ -493,6 +490,3 @@ class CodedCausesPercentageTable:
             for why_cause in question.why_causes.all():
                 why_list.append(why_cause)
         return why_list
-
-    def count_number_of_why_causes(self, questions):
-        return len(self._extract_why_causes(questions))
