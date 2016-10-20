@@ -154,12 +154,12 @@ class TestBuildResponse(TestCase):
         question2 = QuestionFactory(type='s', question_body='question', template_question=question_template,
                                     questionnaire=self.questionnaire2, block=block2)
 
-        choice_11 = ChoiceFactory(text='choice 1', question=question1)
+        choice_11 = ChoiceFactory(text='choice 1', question=question1, order=42)
 
         question1.answer = choice_11.text
         question1.answer_choices = [choice_11.id]
 
-        choice_21 = ChoiceFactory(text='choice 1', question=question2)
+        choice_21 = ChoiceFactory(text='choice 1', question=question2, order=42)
 
         question2.answer = choice_21.text
         question2.answer_choices = [choice_21.id]
@@ -179,6 +179,7 @@ class TestBuildResponse(TestCase):
                             'passives': 50.0
                         },
                         'number_of_respondents': 2,
+                        'order': 42,
                         'other_answer_choices': [],
                         'choice': question_template_choice1.text
                     },
@@ -190,6 +191,7 @@ class TestBuildResponse(TestCase):
                             'passives': None,
                         },
                         'number_of_respondents': 0,
+                        'order': 42,
                         'other_answer_choices': [],
                         'choice': question_template_choice2.text
                     }
@@ -222,7 +224,7 @@ class TestBuildResponse(TestCase):
                 'passives': 50.0
             }
         }
-
+        self.maxDiff = None
         result = CollectDataForIndicatorDashboard(self.project, None, self.indicator_type).build_response()
         self._order_result_lists_in_dict_for_indicator_dashboard(expected_result)
         self._order_result_lists_in_dict_for_indicator_dashboard(result)
