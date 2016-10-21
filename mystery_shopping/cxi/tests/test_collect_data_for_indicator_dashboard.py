@@ -224,7 +224,6 @@ class TestBuildResponse(TestCase):
                 'passives': 50.0
             }
         }
-        self.maxDiff = None
         result = CollectDataForIndicatorDashboard(self.project, None, self.indicator_type).build_response()
         self._order_result_lists_in_dict_for_indicator_dashboard(expected_result)
         self._order_result_lists_in_dict_for_indicator_dashboard(result)
