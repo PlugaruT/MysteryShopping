@@ -98,9 +98,11 @@ class QuestionnaireTemplateViewSet(viewsets.ModelViewSet):
         questionnaire.save()
         return Response(status=status.HTTP_202_ACCEPTED)
 
-    @detail_route(methods=['put'])
+    @detail_route(methods=['post'])
     def clone(self, request, pk=None):
         template_questionnaire = get_object_or_404(QuestionnaireTemplate, pk=pk)
+        template_questionnaire.title = request.data['title']
+        template_questionnaire.is_editable = True
         cloned_template_questionnaire = self._clone_questionnaire_template(template_questionnaire)
         cloned_template_questionnaire_serialized = QuestionnaireTemplateSerializer(data=cloned_template_questionnaire)
         cloned_template_questionnaire_serialized.is_valid(raise_exception=True)
