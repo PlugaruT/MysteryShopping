@@ -7,9 +7,9 @@ from .models import PlaceToAssess
 from .models import EvaluationAssessmentLevel
 from .models import EvaluationAssessmentComment
 
-from mystery_shopping.companies.models import Entity
+from mystery_shopping.companies.models import Entity, Department
 from mystery_shopping.companies.models import Section
-from mystery_shopping.companies.serializers import EntitySerializer
+from mystery_shopping.companies.serializers import EntitySerializer, DepartmentSerializer
 from mystery_shopping.companies.serializers import SectionSerializer
 
 from mystery_shopping.companies.serializers import CompanySerializer
@@ -71,7 +71,10 @@ class PlaceToAssessSerializer(serializers.ModelSerializer):
         """
         Serialize tagged objects to a simple textual representation.
         """
-        if instance.place_type.model == 'entity':
+        if instance.place_type.model == 'department':
+            to_serialize = Department.objects.get(pk=instance.place_id)
+            serializer = DepartmentSerializer(to_serialize)
+        elif instance.place_type.model == 'entity':
             to_serialize = Entity.objects.get(pk=instance.place_id)
             serializer = EntitySerializer(to_serialize)
         elif instance.place_type.model == 'section':
