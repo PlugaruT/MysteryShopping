@@ -5,7 +5,9 @@ from rest_framework.decorators import list_route
 from rest_framework.response import Response
 from rest_condition import Or
 
-from mystery_shopping.cxi.algorithms import CodedCausesPercentageTable
+from mystery_shopping.cxi.algorithms import GetPerDayQuestionnaireData
+from mystery_shopping.questionnaires.utils import check_interval_date
+from .algorithms import CodedCausesPercentageTable
 from .algorithms import collect_data_for_overview_dashboard
 from .algorithms import get_project_indicator_questions_list
 from .algorithms import get_company_indicator_questions_list
@@ -66,6 +68,17 @@ class CodedCauseViewSet(viewsets.ModelViewSet):
 class ProjectCommentViewSet(viewsets.ModelViewSet):
     queryset = ProjectComment.objects.all()
     serializer_class = ProjectCommentSerializer
+
+
+class CxiIndicatorTimelapse(views.APIView):
+    """
+
+    """
+    def get(self, request, *args, **kwargs):
+        company_id = request.query_params.get('company')
+        start, end = check_interval_date(request.query_params)
+        response = GetPerDayQuestionnaireData(start, end, company_id).build_response()
+        return Response(response, status.HTTP_200_OK)
 
 
 class OverviewDashboard(views.APIView):

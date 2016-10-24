@@ -1,10 +1,11 @@
-from django.conf.urls import patterns
-from django.conf.urls import include
 from django.conf.urls import url
 
 from rest_framework.routers import DefaultRouter
 
-from mystery_shopping.cxi.views import WhyCauseViewSet, CodedCausePercentage
+
+from .views import CxiIndicatorTimelapse
+from .views import WhyCauseViewSet
+from .views import CodedCausePercentage
 from .views import CodedCauseLabelViewSet
 from .views import CodedCauseViewSet
 from .views import ProjectCommentViewSet
@@ -29,6 +30,9 @@ urlpatterns = [
     url(r'^cxi/indicatorlist/$',
         IndicatorDashboardList.as_view(),
         name='indicator-list'),
+    url(r'^cxi/indicatortimelapse/$',
+        CxiIndicatorTimelapse.as_view(),
+        name='indicator-timestamp'),
     url(r'^cxi/codedcausepercentage',
         CodedCausePercentage.as_view(),
         name='codedcause-percentage')

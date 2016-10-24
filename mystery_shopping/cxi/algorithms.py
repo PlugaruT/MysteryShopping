@@ -1,5 +1,4 @@
 from collections import defaultdict
-from django.db.models import Q
 
 from mystery_shopping.companies.models import Department, Section
 from mystery_shopping.questionnaires.constants import QuestionType
@@ -203,22 +202,120 @@ def get_indicator_project_comment(project, department_id, entity_id, section_id,
     return None if project_comment is None else ProjectCommentSerializer(project_comment).data
 
 
+def get_indicator_types(indicator_set, questionnaire_list):
+    return_dict = dict()
+    for indicator_type in indicator_set:
+        indicator_list = get_indicator_scores(questionnaire_list, indicator_type)
+        return_dict[indicator_type] = calculate_indicator_score(indicator_list)
+    return return_dict
+
+
+def get_only_indicator_score(indicator_set, questionnaire_list):
+    return_dict = dict()
+    for indicator_type in indicator_set:
+        indicator_list = get_indicator_scores(questionnaire_list, indicator_type)
+        return_dict[indicator_type] = calculate_indicator_score(indicator_list).get('indicator')
+    return return_dict
+
+
+def get_indicator_questions(questionnaire_list):
+    indicator_types_set = set()
+    indicator_order = list()
+    for questionnaire in questionnaire_list:
+        for indicator_question in questionnaire.get_indicator_questions().order_by('order'):
+            indicator_types_set.add(indicator_question.additional_info)
+            if indicator_question.additional_info not in indicator_order:
+                indicator_order.append(indicator_question.additional_info)
+    return indicator_types_set, indicator_order
+
+
 def calculate_overview_score(questionnaire_list, project, department_id, entity_id, section_id):
     overview_list = dict()
     overview_list['indicators'] = dict()
-    indicator_types_set = set()
-    indicator_order = dict()
-    for questionnaire in questionnaire_list:
-        for indicator_question in questionnaire.questions.filter(type=QuestionType.INDICATOR_QUESTION).all():
-            indicator_order[indicator_question.additional_info] = indicator_question.order
-            indicator_types_set.add(indicator_question.additional_info)
-    for indicator_type in indicator_types_set:
-        indicator_list = get_indicator_scores(questionnaire_list, indicator_type)
-        overview_list['indicators'][indicator_type] = calculate_indicator_score(indicator_list)
-        overview_list['indicators'][indicator_type]['order'] = indicator_order[indicator_type]
-
+    overview_list['indicator_order'] = list()
+    indicator_types_set, overview_list['indicator_order'] = get_indicator_questions(questionnaire_list)
+    overview_list['indicators'] = get_indicator_types(indicator_types_set, questionnaire_list)
     overview_list['project_comment'] = get_overview_project_comment(project, department_id, entity_id, section_id)
     return overview_list
+
+
+class GetPerDayQuestionnaireData:
+    def __init__(self, start, end, company_id):
+        self.questionnaire_list = Questionnaire.objects.get_questionnaires_for_company(company_id)\
+            .filter(modified__range=[start, end]).order_by('modified')
+
+    def build_response(self):
+        response = list()
+        grouped_questionnaires_by_date = self.group_questionnaires_by_date()
+        for date, questionnaires in grouped_questionnaires_by_date.items():
+            data = {
+                'date': date,
+                'general_indicators': self.calculate_indicators(questionnaires),
+                'entities': self.build_result_for_entities(questionnaires),
+                'sections': self.build_result_for_sections(questionnaires),
+                'departments': self.build_result_for_departments(questionnaires)
+            }
+            response.append(data)
+        return response
+
+    def build_result_for_departments(self, questionnaire_list):
+        result = dict()
+        grouped_questionnaires_by_department = self.group_questionnaires_by_department(questionnaire_list)
+        for entity, questionnaire in grouped_questionnaires_by_department.items():
+            result[entity] = self.calculate_indicators(questionnaire)
+        return result
+
+    def build_result_for_entities(self, questionnaire_list):
+        result = dict()
+        grouped_questionnaires_by_entities = self.group_questionnaires_by_entity(questionnaire_list)
+        for entity, questionnaire in grouped_questionnaires_by_entities.items():
+            result[entity] = self.calculate_indicators(questionnaire)
+        return result
+
+    def build_result_for_sections(self, questionnaire_list):
+        result = dict()
+        grouped_questionnaires_by_sections = self.group_questionnaires_by_section(questionnaire_list)
+        for section, questionnaire in grouped_questionnaires_by_sections.items():
+            result[section] = self.calculate_indicators(questionnaire)
+        return result
+
+    def group_questionnaires_by_date(self):
+        result = dict()
+        for questionnaire in self.questionnaire_list:
+            result.setdefault(str(questionnaire.modified.date()), []).append(questionnaire)
+        return result
+
+    @staticmethod
+    def group_questionnaires_by_department(questionnaire_list):
+        result = dict()
+        for questionnaire in questionnaire_list:
+            result.setdefault(questionnaire.get_department().name, []).append(questionnaire)
+        return result
+
+    @staticmethod
+    def group_questionnaires_by_entity(questionnaire_list):
+        result = dict()
+        for questionnaire in questionnaire_list:
+            result.setdefault(questionnaire.get_entity().name, []).append(questionnaire)
+        return result
+
+    @staticmethod
+    def group_questionnaires_by_section(questionnaire_list):
+        result = dict()
+        for questionnaire in questionnaire_list:
+            if questionnaire.get_section():
+                result.setdefault(questionnaire.get_section().name, []).append(questionnaire)
+        return result
+
+    @staticmethod
+    def calculate_indicators(questionnaire_list):
+        result = dict()
+        result['indicators'] = dict()
+        indicator_types_set, _ = get_indicator_questions(questionnaire_list)
+        result['indicators'] = get_only_indicator_score(indicator_types_set, questionnaire_list)
+        result['indicators']['cxi'] = sum(result['indicators'].values()) / len(result['indicators'])
+        result['number_of_questionnaires'] = len(questionnaire_list)
+        return result
 
 
 def add_question_per_coded_cause(indicator_question, coded_cause_dict):
