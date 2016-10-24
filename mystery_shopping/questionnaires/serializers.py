@@ -3,6 +3,9 @@ from collections import OrderedDict
 from rest_framework import serializers
 
 from mystery_shopping.cxi.serializers import WhyCauseSerializer
+from mystery_shopping.users.models import DetractorRespondent
+from mystery_shopping.users.serializers import UserSerializer
+
 from mystery_shopping.questionnaires.models import CrossIndexQuestion, QuestionnaireTemplateStatus
 from .models import QuestionnaireScript
 from .models import Questionnaire
@@ -433,6 +436,7 @@ class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
     template_blocks = QuestionnaireTemplateBlockSerializer(many=True, required=False)
     template_cross_indexes = CrossIndexTemplateSerializer(many=True, required=False, read_only=True)
     status_repr = QuestionnaireTemplateStatusSerializer(source='status', read_only=True)
+    created_by_repr = UserSerializer(source='created_by', read_only=True)
 
     class Meta:
         model = QuestionnaireTemplate
@@ -528,3 +532,30 @@ class QuestionnaireSimpleSerializer(serializers.ModelSerializer):
     def setup_eager_loading(queryset):
         queryset = queryset.prefetch_related('blocks__questions')
         return queryset
+
+
+class DetractorRespondentSerializer(serializers.ModelSerializer):
+    """
+
+    """
+
+    questions = QuestionnaireQuestionSerializer(source='get_detractor_questions', many=True, read_only=True)
+
+    class Meta:
+        model = DetractorRespondent
+        fields = '__all__'
+        extra_kwargs = {
+            'email': {
+                'required': False
+            },
+            'phone': {
+                'required': False
+            }
+        }
+
+    def validate(self, attrs):
+        if attrs.get('email') or attrs.get('phone'):
+            return attrs
+        else:
+            raise serializers.ValidationError('Email or Phone field are required')
+
