@@ -119,6 +119,7 @@ class AlgorithmsTestCase(TestCase):
         for big_key in test_indicator_skeleton:
             for small_key in test_indicator_skeleton[big_key]:
                 test_indicator_skeleton[big_key][small_key]['marks'] = []
+                test_indicator_skeleton[big_key][small_key]['order'] = 0
                 test_indicator_skeleton[big_key][small_key]['other_choices'] = []
 
         # create a template questionnaire

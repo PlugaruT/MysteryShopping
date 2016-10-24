@@ -129,6 +129,7 @@ def create_details_skeleton(questionnaire_template):
         for question_choice in question.template_question_choices.all():
             indicator_skeleton[question.question_body][question_choice.text]['other_choices'] = []
             indicator_skeleton[question.question_body][question_choice.text]['marks'] = []
+            indicator_skeleton[question.question_body][question_choice.text]['order'] = question_choice.order
     return indicator_skeleton
 
 
@@ -139,6 +140,7 @@ def sort_indicator_categories(details, indicator_categories):
         for answer_choice in responses:
             answer_choice_result = dict()
             answer_choice_result['choice'] = answer_choice
+            answer_choice_result['order'] = responses[answer_choice]['order']
             answer_choice_result['score'] = calculate_indicator_score(responses[answer_choice]['marks'])
             answer_choice_result['number_of_respondents'] = len(responses[answer_choice]['marks'])
             answer_choice_result['other_answer_choices'] = responses[answer_choice]['other_choices']
