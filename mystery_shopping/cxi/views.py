@@ -80,8 +80,12 @@ class OverviewDashboard(views.APIView):
         entity_id = request.query_params.get('entity', None)
         section_id = request.query_params.get('section', None)
 
+        parameters_are_valid = self.parameter_is_valid(entity_id) or \
+                               self.parameter_is_valid(department_id) or \
+                               self.parameter_is_valid(section_id)
+
         if project_id:
-            if self.parameter_is_valid(entity_id) or self.parameter_is_valid(department_id) or self.parameter_is_valid(section_id):
+            if parameters_are_valid:
 
                 return Response({
                     'detail': 'Entity param is invalid'
@@ -129,6 +133,10 @@ class IndicatorDashboard(views.APIView):
         indicator_type = request.query_params.get('indicator', None)
         project = None
 
+        parameters_are_valid = self.parameter_is_valid(entity_id) or \
+                               self.parameter_is_valid(department_id) or \
+                               self.parameter_is_valid(section_id)
+
         if project_id is None:
             if request.user.is_client_user():
                 company = request.user.user_company()
@@ -137,7 +145,7 @@ class IndicatorDashboard(views.APIView):
                 project = Project.objects.get_latest_project_for_client_user(tenant=request.user.tenant, company=company_id)
         elif project_id:
             # TODO: handle this in a more elegant way
-            if self.parameter_is_valid(entity_id) or self.parameter_is_valid(department_id) or self.parameter_is_valid(section_id):
+            if parameters_are_valid:
                 return Response({
                     'detail': 'Entity param is invalid'
                 }, status.HTTP_400_BAD_REQUEST)
