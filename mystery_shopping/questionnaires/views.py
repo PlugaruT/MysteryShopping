@@ -101,13 +101,18 @@ class QuestionnaireTemplateViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['post'])
     def clone(self, request, pk=None):
         template_questionnaire = get_object_or_404(QuestionnaireTemplate, pk=pk)
-        template_questionnaire.title = request.data['title']
-        template_questionnaire.is_editable = True
+        new_title = request.data.get('title')
+        self.assign_new_title_and_make_it_editable(template_questionnaire, new_title)
         cloned_template_questionnaire = self._clone_questionnaire_template(template_questionnaire)
         cloned_template_questionnaire_serialized = QuestionnaireTemplateSerializer(data=cloned_template_questionnaire)
         cloned_template_questionnaire_serialized.is_valid(raise_exception=True)
         cloned_template_questionnaire_serialized.save()
         return Response(data=cloned_template_questionnaire_serialized.data, status=status.HTTP_202_ACCEPTED)
+
+    @staticmethod
+    def assign_new_title_and_make_it_editable(questionnaire, new_title):
+        questionnaire.title = new_title if new_title else questionnaire.title + '_copy'
+        questionnaire.is_editable = True
 
     @staticmethod
     def _clone_questionnaire_template(questionnaire_template):
