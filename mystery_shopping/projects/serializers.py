@@ -190,7 +190,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     evaluation_assessment_levels_repr = EvaluationAssessmentLevelSerializer(source='evaluation_assessment_levels',
                                                                             read_only=True, many=True)
     cxi_indicators = serializers.DictField(source='get_indicators_list', read_only=True)
-    # editable_places = serializers.ListField(source='get_editable_places', read_only=True)
+    editable_places = serializers.ListField(source='get_editable_places', read_only=True)
     is_questionnaire_editable = serializers.BooleanField(read_only=True)
 
     class Meta:
