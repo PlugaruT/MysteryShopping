@@ -13,11 +13,15 @@ class QuestionnaireQuerySet(QuerySet):
         return self.filter(template=template_questionnaire,
                            evaluation__project=project)
 
-    def get_project_questionnaires_for_entity(self, project, entity):
-        result = self.get_project_questionnaires(project)
-        if entity is not None:
-            result = result.filter(evaluation__entity=entity)
-        return result
+    def get_project_questionnaires_for_subdivision(self, project, department=None, entity=None, section=None):
+        questionnaires = self.get_project_questionnaires(project)
+        if section is not None:
+            questionnaires = questionnaires.filter(evaluation__section=section)
+        elif entity is not None:
+            questionnaires = questionnaires.filter(evaluation__entity=entity)
+        elif department is not None:
+            questionnaires = questionnaires.filter(evaluation__entity__department=department)
+        return questionnaires
 
 
 class QuestionnaireQuestionQuerySet(QuerySet):

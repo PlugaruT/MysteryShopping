@@ -1,4 +1,4 @@
-from mystery_shopping.companies.serializers import EntitySerializer, SectionSerializer
+from mystery_shopping.companies.serializers import EntitySerializer, SectionSerializer, DepartmentSerializer
 from mystery_shopping.projects.models import Project
 from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializer
 
@@ -34,7 +34,8 @@ def get_list_of_places_with_questionnaires_for_a_project(project):
 
     place_serializer_dispatcher = {
         'entity': EntitySerializer,
-        'section': SectionSerializer
+        'section': SectionSerializer,
+        'department': DepartmentSerializer
     }
 
     for place_to_assess in places_to_assess:

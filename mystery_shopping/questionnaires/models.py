@@ -321,6 +321,15 @@ class QuestionnaireQuestion(QuestionAbstract):
         self.save()
         return (self.score * self.weight) / 100
 
+    def get_entity(self):
+        return self.questionnaire.evaluation.entity
+
+    def get_section(self):
+        return self.questionnaire.evaluation.section
+
+    def get_department(self):
+        return self.get_entity().department
+
 
 class QuestionChoiceAbstract(models.Model):
     """
