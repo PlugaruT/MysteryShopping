@@ -458,12 +458,12 @@ class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
         parents = {}
         for template_block in template_blocks:
             template_block['questionnaire_template'] = questionnaire_template.id
-            if template_block['parent_order_number'] is None:
-                template_block.pop('parent_order_number', None)
+            parent_order_number = template_block.pop('parent_order_number', None)
+            if parent_order_number is None:
                 template_block['parent_block'] = None
                 self.create_template_block(template_block, parents)
             else:
-                template_block['parent_block'] = parents[template_block.pop('parent_order_number')]
+                template_block['parent_block'] = parents[parent_order_number]
                 self.create_template_block(template_block, parents)
 
         return questionnaire_template
@@ -477,13 +477,21 @@ class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-    @staticmethod
-    def create_template_block(template_block, parents):
+    def create_template_block(self, template_block, parents):
         order_number = template_block.pop('order_number', None)
+        self.remove_ids(template_block)
         template_block_ser = QuestionnaireTemplateBlockSerializer(data=template_block)
         template_block_ser.is_valid(raise_exception=True)
         template_block_ser.save()
         parents[order_number] = template_block_ser.instance.id
+
+    @staticmethod
+    def remove_ids(template_block):
+        for template_question in template_block['template_questions']:
+            template_question.pop('questionnaire_template', None)
+            template_question.pop('template_block', None)
+            for template_question_choice in template_question['template_question_choices']:
+                template_question_choice.pop('template_question', None)
 
 
 class QuestionSimpleSerializer(serializers.ModelSerializer):

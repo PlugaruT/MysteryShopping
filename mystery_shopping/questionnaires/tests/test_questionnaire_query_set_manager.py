@@ -32,7 +32,7 @@ class GetProjectQuestionnaires(TestCase):
         self.assertEquals(self._result(), [self.questionnaire])
 
     def _result(self):
-        return list(Questionnaire.objects.get_project_questionnaires(self.project))
+        return list(Questionnaire.objects.get_project_questionnaires(project=self.project))
 
 
 class GetProjectQuestionnairesForEntity(TestCase):
@@ -81,4 +81,4 @@ class GetProjectQuestionnairesForEntity(TestCase):
         self.assertCountEqual(self._result(None), [self.questionnaire1, self.questionnaire2])
 
     def _result(self, entity):
-        return list(Questionnaire.objects.get_project_questionnaires_for_entity(self.project, entity))
+        return list(Questionnaire.objects.get_project_questionnaires_for_subdivision(project=self.project, entity=entity))

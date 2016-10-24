@@ -26,6 +26,8 @@ from .serializers import ResearchMethodologySerializer
 from .serializers import EvaluationSerializer
 from .serializers import EvaluationAssessmentLevelSerializer
 from .serializers import EvaluationAssessmentCommentSerializer
+from .serializers import ProjectStatisticsForCompanySerializer
+from .serializers import ProjectStatisticsForTenantSerializer
 from .spreadsheets import EvaluationSpreadsheet
 
 from mystery_shopping.users.permissions import IsTenantProductManager, IsShopperAccountOwner
@@ -278,3 +280,41 @@ class EvaluationAssessmentCommentViewSet(viewsets.ModelViewSet):
     queryset = EvaluationAssessmentComment.objects.all()
     serializer_class = EvaluationAssessmentCommentSerializer
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant, IsShopper),)
+
+
+class ProjectStatisticsForCompanyViewSet(viewsets.ViewSet):
+    serializer_class = ProjectStatisticsForCompanySerializer
+    permission_classes = (IsAuthenticated, HasAccessToProjectsOrEvaluations,)
+
+    def list(self, request, company_pk=None, project_pk=None):
+        for_assessment = request.query_params.get('forAssessment', None)
+        queryset = Evaluation.objects.filter(project=project_pk, project__company=company_pk)
+        if for_assessment:
+            if request.user.user_type == 'tenantconsultant':
+                queryset = queryset.filter(evaluation_assessment_level__consultants__in=[request.user.user_type_attr])
+            elif request.user.user_type == 'tenantprojectmanager':
+                queryset = queryset.filter(evaluation_assessment_level__project_manager=request.user.user_type_attr)
+            else:
+                queryset = Evaluation.objects.none()
+
+        serializer = ProjectStatisticsForCompanySerializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+class ProjectStatisticsForTenantViewSet(viewsets.ViewSet):
+    serializer_class = ProjectStatisticsForTenantSerializer
+    permission_classes = (IsAuthenticated, HasAccessToProjectsOrEvaluations,)
+
+    def list(self, request, company_pk=None, project_pk=None):
+        for_assessment = request.query_params.get('forAssessment', None)
+        queryset = Evaluation.objects.filter(project=project_pk, project__company=company_pk)
+        if for_assessment:
+            if request.user.user_type == 'tenantconsultant':
+                queryset = queryset.filter(evaluation_assessment_level__consultants__in=[request.user.user_type_attr])
+            elif request.user.user_type == 'tenantprojectmanager':
+                queryset = queryset.filter(evaluation_assessment_level__project_manager=request.user.user_type_attr)
+            else:
+                queryset = Evaluation.objects.none()
+
+        serializer = ProjectStatisticsForTenantSerializer(queryset, many=True)
+        return Response(serializer.data)

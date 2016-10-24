@@ -1,6 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.db import models
+from django.db.models.query_utils import Q
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
 from model_utils.fields import StatusField
@@ -21,7 +22,8 @@ class PlaceToAssess(models.Model):
 
     A person to assess can either be an Entity or a Section
     """
-    limit = models.Q(app_label='companies', model='entity') |\
+    limit = models.Q(app_label='companies', model='department') |\
+            models.Q(app_label='companies', model='entity') |\
             models.Q(app_label='companies', model='section')
     place_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='content_type_place_to_assess')
     place_id = models.PositiveIntegerField()
@@ -105,7 +107,8 @@ class Project(models.Model):
         """
         editable_places = []
         if self.research_methodology:
-            places_to_asses = self.research_methodology.places_to_assess.all()
+            places_to_asses = self.research_methodology.places_to_assess.filter(~Q(place_type=ContentType.objects.get_for_model(Department)))
+
             for place_to_asses in places_to_asses:
                 if not place_to_asses.evaluations().filter(project=self).exists():
                     place_info = {

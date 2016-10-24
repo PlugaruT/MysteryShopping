@@ -7,9 +7,9 @@ from .models import PlaceToAssess
 from .models import EvaluationAssessmentLevel
 from .models import EvaluationAssessmentComment
 
-from mystery_shopping.companies.models import Entity
+from mystery_shopping.companies.models import Entity, Department
 from mystery_shopping.companies.models import Section
-from mystery_shopping.companies.serializers import EntitySerializer
+from mystery_shopping.companies.serializers import EntitySerializer, DepartmentSerializer
 from mystery_shopping.companies.serializers import SectionSerializer
 
 from mystery_shopping.companies.serializers import CompanySerializer
@@ -71,7 +71,10 @@ class PlaceToAssessSerializer(serializers.ModelSerializer):
         """
         Serialize tagged objects to a simple textual representation.
         """
-        if instance.place_type.model == 'entity':
+        if instance.place_type.model == 'department':
+            to_serialize = Department.objects.get(pk=instance.place_id)
+            serializer = DepartmentSerializer(to_serialize)
+        elif instance.place_type.model == 'entity':
             to_serialize = Entity.objects.get(pk=instance.place_id)
             serializer = EntitySerializer(to_serialize)
         elif instance.place_type.model == 'section':
@@ -421,3 +424,30 @@ class EvaluationSerializer(serializers.ModelSerializer):
         if question['type'] == QuestionType.INDICATOR_QUESTION:
             if question['score'] is None:
                 raise serializers.ValidationError('Indicator Question isn\'t allowed to have null score')
+
+
+class ProjectStatisticsForCompanySerializer(serializers.ModelSerializer):
+    """
+        Serializer for company view that will contain only time,
+        date and places/people to asses
+    """
+    entity_repr = EntitySerializer(source='entity', read_only=True)
+    section_repr = SectionSerializer(source='section', read_only=True)
+
+    class Meta:
+        model = Evaluation
+        fields = ('id', 'time_accomplished', 'section', 'entity', 'entity_repr', 'section_repr')
+
+
+class ProjectStatisticsForTenantSerializer(serializers.ModelSerializer):
+    """
+        Serializer for tenant view that will contain only time,
+        date and places/people to asses and collector information
+    """
+    entity_repr = EntitySerializer(source='entity', read_only=True)
+    section_repr = SectionSerializer(source='section', read_only=True)
+    shopper_repr = ShopperSerializer(source='shopper', read_only=True)
+
+    class Meta:
+        model = Evaluation
+        fields = ('id', 'time_accomplished', 'section', 'entity',  'entity_repr', 'section_repr', 'shopper_repr')

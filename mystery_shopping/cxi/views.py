@@ -89,11 +89,16 @@ class OverviewDashboard(views.APIView):
 
     def get(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
+        department_id = request.query_params.get('department', None)
         entity_id = request.query_params.get('entity', None)
-        # section_id = request.query_params.get('section', None)
+        section_id = request.query_params.get('section', None)
+
+        parameters_are_valid = self.parameter_is_valid(entity_id) or \
+                               self.parameter_is_valid(department_id) or \
+                               self.parameter_is_valid(section_id)
 
         if project_id:
-            if entity_id is not None and not entity_id.isdigit():
+            if parameters_are_valid:
 
                 return Response({
                     'detail': 'Entity param is invalid'
@@ -104,7 +109,7 @@ class OverviewDashboard(views.APIView):
                     return Response({'detail': 'You do not have permission to access to this project.'},
                                     status.HTTP_403_FORBIDDEN)
 
-                response = collect_data_for_overview_dashboard(project, entity_id)
+                response = collect_data_for_overview_dashboard(project, department_id, entity_id, section_id)
 
                 return Response(response, status.HTTP_200_OK)
 
@@ -114,6 +119,10 @@ class OverviewDashboard(views.APIView):
         return Response({
             'detail': 'Project param is invalid or was not provided'
         }, status.HTTP_400_BAD_REQUEST)
+
+    @staticmethod
+    def parameter_is_valid(parameter):
+        return parameter is not None and not parameter.isdigit()
 
 
 class IndicatorDashboard(views.APIView):
@@ -130,11 +139,16 @@ class IndicatorDashboard(views.APIView):
 
     def get(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
-        entity_id = request.query_params.get('entity', None)
         company_id = request.query_params.get('company', None)
-        # section_id = request.query_params.get('section', None)
+        department_id = request.query_params.get('department', None)
+        entity_id = request.query_params.get('entity', None)
+        section_id = request.query_params.get('section', None)
         indicator_type = request.query_params.get('indicator', None)
         project = None
+
+        parameters_are_valid = self.parameter_is_valid(entity_id) or \
+                               self.parameter_is_valid(department_id) or \
+                               self.parameter_is_valid(section_id)
 
         if project_id is None:
             if request.user.is_client_user():
@@ -143,7 +157,8 @@ class IndicatorDashboard(views.APIView):
             elif request.user.is_tenant_user() and company_id is not None:
                 project = Project.objects.get_latest_project_for_client_user(tenant=request.user.tenant, company=company_id)
         elif project_id:
-            if entity_id is not None and not entity_id.isdigit():
+            # TODO: handle this in a more elegant way
+            if parameters_are_valid:
                 return Response({
                     'detail': 'Entity param is invalid'
                 }, status.HTTP_400_BAD_REQUEST)
@@ -162,13 +177,17 @@ class IndicatorDashboard(views.APIView):
             }, status.HTTP_400_BAD_REQUEST)
 
         if project is not None:
-            response = CollectDataForIndicatorDashboard(project, entity_id, indicator_type).build_response()
+            response = CollectDataForIndicatorDashboard(project, department_id, entity_id, section_id, indicator_type).build_response()
 
             return Response(response, status.HTTP_200_OK)
 
         return Response({
             'detail': 'Project was not provided'
         }, status.HTTP_400_BAD_REQUEST)
+
+    @staticmethod
+    def parameter_is_valid(parameter):
+        return parameter is not None and not parameter.isdigit()
 
 
 class IndicatorDashboardList(views.APIView):
@@ -211,17 +230,19 @@ class CodedCausePercentage(views.APIView):
 
     """
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager, IsCompanyManager),)
+
     def get(self, request, *args, **kwargs):
         indicator = request.query_params.get('indicator')
         project_id = request.query_params.get('project')
         pre_response = self._pre_process_request(project_id, request.user)
         if pre_response:
             return Response(**pre_response)
-        coded_cause_percentage = CodedCausesPercentageTable(indicator, request.user.tenant, project_id)
-        coded_cause_percentage.get_data()
-        return Response(coded_cause_percentage.return_dict, status=status.HTTP_200_OK)
+        coded_cause_percentage = CodedCausesPercentageTable(indicator, project_id)
+        response = coded_cause_percentage.build_response()
+        return Response(response, status=status.HTTP_200_OK)
 
-    def _pre_process_request(self, project_id, user):
+    @staticmethod
+    def _pre_process_request(project_id, user):
         if project_id is None:
             return dict(status=status.HTTP_400_BAD_REQUEST)
         try:

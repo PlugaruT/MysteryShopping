@@ -36,13 +36,13 @@ class TestCollectDataForOverviewDashboard(TestCase):
             'project_comment': None,
             'indicators': {}
         }
-        result = collect_data_for_overview_dashboard(self.project, None)
+        result = collect_data_for_overview_dashboard(self.project, None, None, None)
         self.assertDictEqual(result, expected_result)
 
     def test_when_the_given_entity_is_none_and_one_indicator_type(self):
         self._generate_first_indicator_question(self.indicator_type, 5, self.template_indicator_question)
         self._generate_second_indicator_question(self.indicator_type, 9, self.template_indicator_question)
-        result = collect_data_for_overview_dashboard(self.project, None)
+        result = collect_data_for_overview_dashboard(self.project, None, None, None)
         expected_result = {
             'indicators': {
                 'random': {
@@ -62,7 +62,7 @@ class TestCollectDataForOverviewDashboard(TestCase):
             questionnaire_template=self.questionnaire_template, type='i', additional_info=indicator_type2)
         self._generate_first_indicator_question(self.indicator_type, 5, self.template_indicator_question)
         self._generate_second_indicator_question(indicator_type2, 9, template_indicator_question2)
-        result = collect_data_for_overview_dashboard(self.project, None)
+        result = collect_data_for_overview_dashboard(self.project, None, None, None)
         expected_result = {
             'project_comment': None,
             'indicators': {
@@ -103,7 +103,7 @@ class TestCollectDataForOverviewDashboard(TestCase):
             'project_comment': None
         }
 
-        result = collect_data_for_overview_dashboard(self.project, self.entity.pk)
+        result = collect_data_for_overview_dashboard(self.project, None, self.entity.pk, None)
         self.assertDictEqual(result, expected_result)
 
     def _generate_first_indicator_question(self, additional_info, score, question_template):
