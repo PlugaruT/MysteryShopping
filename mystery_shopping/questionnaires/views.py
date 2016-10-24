@@ -111,7 +111,7 @@ class QuestionnaireTemplateViewSet(viewsets.ModelViewSet):
 
     @staticmethod
     def assign_new_title_and_make_it_editable(questionnaire, new_title):
-        questionnaire.title = new_title if new_title else questionnaire.title + '_copy'
+        questionnaire.title = new_title if new_title else questionnaire.title + ' (Copy)'
         questionnaire.is_editable = True
 
     @staticmethod
