@@ -331,7 +331,7 @@ class AlgorithmsTestCase(TestCase):
 
             questionnaire_list.append(questionnaire)
 
-        overview_list = calculate_overview_score(questionnaire_list, None, None)
+        overview_list = calculate_overview_score(questionnaire_list, None, None, None, None)
         self.assertEqual(overview_list['indicators'][first_indicator]['promoters'], promoters)
         self.assertEqual(overview_list['indicators'][first_indicator]['detractors'], detractors)
         self.assertEqual(overview_list['indicators'][first_indicator]['passives'], passives)
