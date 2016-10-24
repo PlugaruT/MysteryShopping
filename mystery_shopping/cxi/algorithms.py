@@ -365,49 +365,141 @@ def get_company_indicator_questions_list(company):
 
 
 class CodedCausesPercentageTable:
-    def __init__(self, indicator, tenant, project):
-        self.indicator = indicator
-        self.tenant = tenant
+    def __init__(self, indicator, project):
         self.indicator_questions = QuestionnaireQuestion.objects.get_project_specific_indicator_questions(project, indicator)
-        self.return_dict = defaultdict(dict)
-        self.filtered_questions = defaultdict(dict)
 
-    def get_data(self):
-        self._get_sorted_questions()
-        self._get_coded_causes_per_score()
-        self._group_coded_causes()
-        self._calculate_percentage()
+    def build_response(self):
+        response = list()
+        coded_causes = self.extract_coded_causes_per_score()
+        for score, coded_causes_info in coded_causes.items():
+            number_of_questions = coded_causes_info.get('number_of_questions')
+            result = dict()
+            result['score'] = score
+            result['coded_causes'] = dict()
+            for coded_cause, info in coded_causes_info['coded_causes'].items():
+                result['coded_causes'][coded_cause] = self.build_response_for_coded_cause(info, number_of_questions)
+            response.append(result)
+        return response
 
-    def _get_sorted_questions(self):
+    def build_response_for_coded_cause(self, coded_cause_info, number_of_questions):
+        number_of_why_causes = coded_cause_info.get('number_of_why_causes')
+        questions = coded_cause_info.get('questions', [])
+        return {
+            "sentiment": coded_cause_info.get('sentiment'),
+            "percentage": self.calculate_percentage(number_of_why_causes, number_of_questions),
+            "departments": self.build_response_for_departments(questions, number_of_questions)
+        }
+
+    def build_response_for_departments(self, indicator_questions, number_of_questions):
+        response = list()
+        questions_by_departments = self.group_questions_by_department(indicator_questions)
+        for department, questions in questions_by_departments.items():
+            nr_of_why_causes = len(questions)
+            result = {
+                "id": department.id,
+                "name": department.name,
+                "percentage": self.calculate_percentage(nr_of_why_causes, number_of_questions),
+                "entities": self.build_response_for_entities(questions, number_of_questions)
+            }
+            response.append(result)
+        return response
+
+    def build_response_for_entities(self, indicator_questions, number_of_questions):
+        response = list()
+        questions_by_entities = self.group_questions_by_entity(indicator_questions)
+        for entity, questions in questions_by_entities.items():
+            nr_of_why_causes = len(questions)
+            result = {
+                "id": entity.id,
+                "name": entity.name,
+                "percentage": self.calculate_percentage(nr_of_why_causes, number_of_questions),
+                "sections": self.build_response_for_sections(questions, number_of_questions)
+            }
+            response.append(result)
+        return response
+
+    def build_response_for_sections(self, indicator_questions, number_of_questions):
+        response = list()
+        questions_by_section = self.group_questions_by_section(indicator_questions)
+        for section, questions in questions_by_section.items():
+            nr_of_why_causes = len(questions)
+            result = {
+                "id": section.id,
+                "name": section.name,
+                "percentage": self.calculate_percentage(nr_of_why_causes, number_of_questions)
+            }
+            response.append(result)
+        return response
+
+    def extract_coded_causes_per_score(self):
+        response = defaultdict(dict)
+        grouped_why_causes_by_score = self.extract_why_cause_per_score()
+        for score, why_causes_info in grouped_why_causes_by_score.items():
+            response[score]['coded_causes'] = self.extract_coded_cause(why_causes_info['why_causes'])
+            response[score]['number_of_questions'] = why_causes_info['number_of_questions']
+        return response
+
+    def extract_why_cause_per_score(self):
+        response = defaultdict(dict)
+        grouped_questions_by_score = self.group_questions_by_score()
+        for score, questions_info in grouped_questions_by_score.items():
+            response[score]['why_causes'] = self._extract_why_causes(questions_info['questions'])
+            response[score]['number_of_questions'] = questions_info['number_of_questions']
+        return response
+
+    def group_questions_by_score(self):
+        response = defaultdict(dict)
         for score in range(1, 11):
-            self.filtered_questions[score]['questions'] = self.indicator_questions.filter(score=score)
-            self.filtered_questions[score]['number'] = len(self.filtered_questions [score]['questions'])
-            self.return_dict[score]['number'] = len(self.filtered_questions [score]['questions'])
+            response[score]['questions'] = self.indicator_questions.filter(score=score)
+            response[score]['number_of_questions'] = len(self.indicator_questions.filter(score=score))
+        return response
 
-    def _get_coded_causes_per_score(self):
-        for score, info in self.filtered_questions.items():
-            self.filtered_questions[score]['why_causes'] = self._extract_why_causes(info['questions'])
+    @staticmethod
+    def group_questions_by_department(indicator_questions):
+        result = dict()
+        for indicator_question in indicator_questions:
+            department = indicator_question.get_department()
+            result.setdefault(department, []).append(indicator_question)
+        return result
 
-    def _extract_why_causes(self, questions):
+    @staticmethod
+    def group_questions_by_entity(indicator_questions):
+        result = dict()
+        for indicator_question in indicator_questions:
+            entity = indicator_question.get_entity()
+            result.setdefault(entity, []).append(indicator_question)
+        return result
+
+    @staticmethod
+    def group_questions_by_section(indicator_questions):
+        result = dict()
+        for indicator_question in indicator_questions:
+            section = indicator_question.get_section()
+            if section:
+                result.setdefault(section, []).append(indicator_question)
+        return result
+
+    @staticmethod
+    def calculate_percentage(number_of_why_causes, number_of_questions):
+        return round(number_of_why_causes / number_of_questions * 100, 2)
+
+    @staticmethod
+    def extract_coded_cause(why_causes):
+        response = defaultdict(lambda: defaultdict(list))
+        for why_cause in why_causes:
+            coded_cause = why_cause.coded_causes.first()
+            if coded_cause:
+                coded_cause_name = coded_cause.coded_label.name
+                response[coded_cause_name]['why_causes'].append(why_cause)
+                response[coded_cause_name]['number_of_why_causes'] = len(response[coded_cause_name]['why_causes'])
+                response[coded_cause_name]['sentiment'] = coded_cause.sentiment
+                response[coded_cause_name]['questions'].append(why_cause.question)
+        return response
+
+    @staticmethod
+    def _extract_why_causes(questions):
         why_list = list()
         for question in questions:
             for why_cause in question.why_causes.all():
                 why_list.append(why_cause)
         return why_list
-
-    def _group_coded_causes(self):
-        for score, info in self.filtered_questions.items():
-            coded_cause_dict = defaultdict(lambda: defaultdict(list))
-            for why_cause in info['why_causes']:
-                coded_cause = why_cause.coded_causes.first()
-                if coded_cause:
-                    coded_cause_dict[coded_cause.coded_label.name]['why_causes'].append(why_cause)
-                    coded_cause_dict[coded_cause.coded_label.name]['sentiment'] = coded_cause.sentiment
-            self.return_dict[score]['coded_causes'] = coded_cause_dict
-
-    def _calculate_percentage(self):
-        for score, info in self.return_dict.items():
-            for coded_cause, coded_cause_info in info['coded_causes'].items():
-                percentage = round(len(coded_cause_info['why_causes'])/self.return_dict[score]['number'] * 100, 2)
-                self.return_dict[score]['coded_causes'][coded_cause]['percentage'] = percentage
-                self.return_dict[score]['coded_causes'][coded_cause].pop('why_causes')

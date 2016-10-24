@@ -217,17 +217,19 @@ class CodedCausePercentage(views.APIView):
 
     """
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager, IsCompanyManager),)
+
     def get(self, request, *args, **kwargs):
         indicator = request.query_params.get('indicator')
         project_id = request.query_params.get('project')
         pre_response = self._pre_process_request(project_id, request.user)
         if pre_response:
             return Response(**pre_response)
-        coded_cause_percentage = CodedCausesPercentageTable(indicator, request.user.tenant, project_id)
-        coded_cause_percentage.get_data()
-        return Response(coded_cause_percentage.return_dict, status=status.HTTP_200_OK)
+        coded_cause_percentage = CodedCausesPercentageTable(indicator, project_id)
+        response = coded_cause_percentage.build_response()
+        return Response(response, status=status.HTTP_200_OK)
 
-    def _pre_process_request(self, project_id, user):
+    @staticmethod
+    def _pre_process_request(project_id, user):
         if project_id is None:
             return dict(status=status.HTTP_400_BAD_REQUEST)
         try:
