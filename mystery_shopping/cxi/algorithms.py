@@ -196,7 +196,7 @@ def get_overview_project_comment(project, department_id, entity_id, section_id):
 
 
 def get_indicator_project_comment(project, department_id, entity_id, section_id, indicator_type):
-    project_comment = ProjectComment.objects.filter(project=project, epartment=department_id,  entity=entity_id,
+    project_comment = ProjectComment.objects.filter(project=project, department=department_id,  entity=entity_id,
                                                     section=section_id, indicator=indicator_type).first()
     return None if project_comment is None else ProjectCommentSerializer(project_comment).data
 
