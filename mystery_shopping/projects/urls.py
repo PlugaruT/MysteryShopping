@@ -1,6 +1,8 @@
 from rest_framework.routers import DefaultRouter
 from rest_framework_nested.routers import NestedSimpleRouter
 
+from .views import ProjectStatisticsForCompanyViewSet
+from .views import ProjectStatisticsForTenantViewSet
 from .views import PlaceToAssessViewSet
 from .views import ProjectViewSet
 from .views import ResearchMethodologyViewSet
@@ -24,3 +26,6 @@ router.register(r'evaluationassessmentcomments', EvaluationAssessmentCommentView
 # of all project for a tenant.
 project_evaluation = NestedSimpleRouter(company_project_router, r'projects', lookup='project')
 project_evaluation.register(r'evaluations', EvaluationPerProjectViewSet, base_name='project-evaluations')
+project_evaluation.register(r'company-statistics', ProjectStatisticsForCompanyViewSet, base_name='project-company-statistics')
+project_evaluation.register(r'tenant-statistics', ProjectStatisticsForTenantViewSet, base_name='project-tenant-statistics')
+
