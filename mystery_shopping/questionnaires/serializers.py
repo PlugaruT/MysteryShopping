@@ -458,13 +458,12 @@ class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
         parents = {}
         for template_block in template_blocks:
             template_block['questionnaire_template'] = questionnaire_template.id
-            parent_order_number = template_block.get('parent_order_number')
+            parent_order_number = template_block.pop('parent_order_number', None)
             if parent_order_number is None:
-                template_block.pop('parent_order_number', None)
                 template_block['parent_block'] = None
                 self.create_template_block(template_block, parents)
             else:
-                template_block['parent_block'] = parents[template_block.pop('parent_order_number')]
+                template_block['parent_block'] = parents[parent_order_number]
                 self.create_template_block(template_block, parents)
 
         return questionnaire_template
