@@ -1,4 +1,5 @@
 from collections import defaultdict
+from django.db.models import Q
 
 from mystery_shopping.companies.models import Department, Section
 from mystery_shopping.questionnaires.constants import QuestionType
@@ -189,25 +190,14 @@ def get_indicator_details(questionnaire_list, indicator_type):
 
 
 def get_overview_project_comment(project, department_id, entity_id, section_id):
-    if section_id:
-        project_comment = ProjectComment.objects.filter(project=project, section=section_id, indicator="").first()
-    elif entity_id:
-        project_comment = ProjectComment.objects.filter(project=project, entity=entity_id, indicator="").first()
-    else:
-        project_comment = ProjectComment.objects.filter(project=project, department=department_id, indicator="").first()
+    project_comment = ProjectComment.objects.filter(project=project, department=department_id,  entity=entity_id,
+                                                    section=section_id, indicator="").first()
     return None if project_comment is None else ProjectCommentSerializer(project_comment).data
 
 
 def get_indicator_project_comment(project, department_id, entity_id, section_id, indicator_type):
-    if section_id:
-        project_comment = ProjectComment.objects.filter(project=project, section=section_id,
-                                                        indicator=indicator_type).first()
-    elif entity_id:
-        project_comment = ProjectComment.objects.filter(project=project, entity=entity_id,
-                                                        indicator=indicator_type).first()
-    else:
-        project_comment = ProjectComment.objects.filter(project=project, department=department_id,
-                                                        indicator=indicator_type).first()
+    project_comment = ProjectComment.objects.filter(project=project, epartment=department_id,  entity=entity_id,
+                                                    section=section_id, indicator=indicator_type).first()
     return None if project_comment is None else ProjectCommentSerializer(project_comment).data
 
 
