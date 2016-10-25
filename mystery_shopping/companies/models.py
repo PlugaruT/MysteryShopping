@@ -18,6 +18,9 @@ class HasEvaluationsMixin:
     def at_least_one_employee_has_evaluations(self):
         return self.check_for_evaluations(self.employees.all())
 
+    def at_least_one_entity_has_evaluations(self):
+        return self.check_for_evaluations(self.entities.all())
+
     def at_least_one_section_has_evaluations(self):
         return self.check_for_evaluations(self.sections.all())
 
