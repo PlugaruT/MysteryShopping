@@ -175,3 +175,9 @@ class PersonToAssessViewSet(viewsets.ModelViewSet):
 class DetractorRespondentViewSet(viewsets.ModelViewSet):
     queryset = DetractorRespondent.objects.all()
     serializer_class = DetractorRespondentSerializer
+
+    def list(self, request, *args, **kwargs):
+        project = self.request.query_params.get('project')
+        queryset = self.queryset.filter(evaluation__project=project)
+        serializer = DetractorRespondentSerializer(queryset, many=True)
+        return Response(serializer.data)

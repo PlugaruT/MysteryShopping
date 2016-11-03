@@ -5,6 +5,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.db import models
+from model_utils import Choices
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 
@@ -339,9 +340,14 @@ class DetractorRespondent(models.Model):
     surname = models.CharField(max_length=30, blank=True)
     email = models.EmailField(blank=True)
     comment = models.CharField(max_length=400, blank=True)
+    additional_comment = models.CharField(max_length=400, blank=True)
     phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$',
                                  message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
     phone = models.CharField(validators=[phone_regex], blank=True, max_length=15)
+    status_choices = Choices(('TO_CONTACT', 'To Contact'),
+                             ('CALL_BACK', 'Call Back'),
+                             ('CONTACTED', 'Contacted'))
+    status = models.CharField(max_length=11, choices=status_choices, default='TO_CONTACT')
 
     evaluation = models.ForeignKey(Evaluation, related_name='detractors', null=True)
 
@@ -350,3 +356,6 @@ class DetractorRespondent(models.Model):
 
     def get_detractor_questions(self):
         return self.evaluation.questionnaire.questions.filter(score__lt=7, type=QuestionType.INDICATOR_QUESTION)
+
+    def get_visited_place(self):
+        return self.evaluation.section if self.evaluation.section else self.evaluation.entity

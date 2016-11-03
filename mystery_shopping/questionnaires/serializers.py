@@ -540,6 +540,7 @@ class DetractorRespondentSerializer(serializers.ModelSerializer):
     questionnaire_title = serializers.CharField(source='evaluation.questionnaire.title', read_only=True)
     time_accomplished = serializers.DateTimeField(source='evaluation.time_accomplished', read_only=True)
     questions = QuestionnaireQuestionSerializer(source='get_detractor_questions', many=True, read_only=True)
+    visited_place = serializers.CharField(source='get_visited_place.name', read_only=True)
 
     class Meta:
         model = DetractorRespondent
