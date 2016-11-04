@@ -71,7 +71,6 @@ class WhyCauseSerializer(serializers.ModelSerializer):
         fields = ('id', 'answer', 'is_appreciation_cause', 'coded_causes', 'question')
         extra_kwargs = {
             'question': {
-                'write_only': True,
                 'required': False
             },
             'coded_causes': {

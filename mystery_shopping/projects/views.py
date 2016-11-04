@@ -284,7 +284,7 @@ class EvaluationAssessmentCommentViewSet(viewsets.ModelViewSet):
 
 class ProjectStatisticsForCompanyViewSet(viewsets.ViewSet):
     serializer_class = ProjectStatisticsForCompanySerializer
-    permission_classes = (IsAuthenticated, HasAccessToProjectsOrEvaluations,)
+    permission_classes = (IsAuthenticated, HasReadOnlyAccessToProjectsOrEvaluations,)
 
     def list(self, request, company_pk=None, project_pk=None):
         for_assessment = request.query_params.get('forAssessment', None)
