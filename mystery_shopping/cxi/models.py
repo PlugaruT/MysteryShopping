@@ -40,6 +40,10 @@ class WhyCause(models.Model):
         self.coded_causes.clear()
         self.coded_causes.set(coded_causes)
 
+    def _change_appreciation_cause(self):
+        self.is_appreciation_cause = not self.is_appreciation_cause
+        self.coded_causes.clear()
+
     def _update_answer(self, answer):
         self.answer = answer
         self.save()

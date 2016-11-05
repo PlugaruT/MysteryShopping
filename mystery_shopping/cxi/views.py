@@ -295,6 +295,14 @@ class WhyCauseViewSet(viewsets.ModelViewSet):
         serializer = WhyCauseSerializer(why_cause_to_serialize, many=True)
         return Response(serializer.data)
 
+    @detail_route(['put'])
+    def appreciation(self, request, pk=None):
+        why_cause = get_object_or_404(WhyCause, pk=pk)
+        why_cause._change_appreciation_cause()
+        why_cause.save()
+
+        return Response(status=status.HTTP_200_OK)
+
     def _pre_process_request(self, project_id, user):
         if project_id is None:
             return dict(status=status.HTTP_400_BAD_REQUEST)
