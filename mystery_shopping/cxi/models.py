@@ -48,6 +48,9 @@ class WhyCause(models.Model):
         self.answer = answer
         self.save()
 
+    def _update_coded_causes(self, coded_causes):
+        self.coded_causes.set(coded_causes)
+
     def _create_clones(self, new_answers):
         new_why_causes = list()
         for why_cause_answer in new_answers:

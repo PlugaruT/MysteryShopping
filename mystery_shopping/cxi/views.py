@@ -287,7 +287,12 @@ class WhyCauseViewSet(viewsets.ModelViewSet):
     @detail_route(['put'])
     def split(self, request, pk=None):
         why_cause = get_object_or_404(WhyCause, pk=pk)
+
         why_cause._update_answer(request.data.get('answer'))
+
+        validated_coded_causes = self._check_if_coded_causes_exist(request.data.get('coded_causes'))
+        # update them in case the why cause has been moved (on frontend) but no save has been issued.
+        why_cause._update_coded_causes(validated_coded_causes)
 
         new_why_causes_answers = request.data.get('split_list', [])
         why_cause_to_serialize =  why_cause._create_clones(new_why_causes_answers)
