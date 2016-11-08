@@ -66,12 +66,13 @@ class WhyCauseSerializer(serializers.ModelSerializer):
     """
     Serializer for WhyCause model
     """
+    split_list = serializers.ListField(write_only=True, required=False)
+
     class Meta:
         model = WhyCause
-        fields = ('id', 'answer', 'is_appreciation_cause', 'coded_causes', 'question')
+        fields = ('id', 'answer', 'is_appreciation_cause', 'coded_causes', 'question', 'split_list')
         extra_kwargs = {
             'question': {
-                'write_only': True,
                 'required': False
             },
             'coded_causes': {

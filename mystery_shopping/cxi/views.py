@@ -1,7 +1,8 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework import views
 from rest_framework import viewsets
-from rest_framework.decorators import list_route
+from rest_framework.decorators import list_route, detail_route
 from rest_framework.response import Response
 from rest_condition import Or
 
@@ -283,6 +284,29 @@ class WhyCauseViewSet(viewsets.ModelViewSet):
 
         return Response(**response)
 
+    @detail_route(['post'])
+    def split(self, request, pk=None):
+        why_cause = get_object_or_404(WhyCause, pk=pk)
+
+        why_cause.update_answer(request.data.get('answer'))
+
+        validated_coded_causes = self._check_if_coded_causes_exist(request.data.get('coded_causes'))
+        # update them in case the why cause has been moved (on frontend) but no save has been issued.
+        why_cause.update_coded_causes(validated_coded_causes)
+
+        new_why_causes_answers = request.data.get('split_list', [])
+        why_cause_to_serialize =  why_cause.create_clones(new_why_causes_answers)
+
+        serializer = WhyCauseSerializer(why_cause_to_serialize, many=True)
+        return Response(serializer.data)
+
+    @detail_route(['post'])
+    def appreciation(self, request, pk=None):
+        why_cause = get_object_or_404(WhyCause, pk=pk)
+        why_cause.change_appreciation_cause()
+
+        return Response(status=status.HTTP_200_OK)
+
     def _pre_process_request(self, project_id, user):
         if project_id is None:
             return dict(status=status.HTTP_400_BAD_REQUEST)
@@ -328,3 +352,4 @@ class WhyCauseViewSet(viewsets.ModelViewSet):
         for why_cause in why_causes:
             real_coded_causes = self._check_if_coded_causes_exist(why_cause_coded_causes_dict[why_cause.id])
             why_cause.set_coded_causes(real_coded_causes)
+

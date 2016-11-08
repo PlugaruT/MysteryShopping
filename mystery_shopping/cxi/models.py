@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from django.db import models
 from model_utils import Choices
 
@@ -38,6 +40,31 @@ class WhyCause(models.Model):
         self.coded_causes.clear()
         self.coded_causes.set(coded_causes)
 
+    def change_appreciation_cause(self):
+        self.is_appreciation_cause = not self.is_appreciation_cause
+        self.coded_causes.clear()
+        self.save()
+
+    def update_answer(self, answer):
+        self.answer = answer
+        self.save()
+
+    def update_coded_causes(self, coded_causes):
+        self.coded_causes.set(coded_causes)
+
+    def create_clones(self, new_answers):
+        new_why_causes = list()
+        for why_cause_answer in new_answers:
+            new_why_cause = deepcopy(self)
+            new_why_cause.answer = why_cause_answer
+            new_why_cause.pk = None
+            new_why_cause.save()
+
+            new_why_cause.coded_causes.set(self.coded_causes.all())
+
+            new_why_causes.append(new_why_cause)
+
+        return new_why_causes
 
 class CodedCause(models.Model):
     """
