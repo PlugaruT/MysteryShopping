@@ -40,18 +40,19 @@ class WhyCause(models.Model):
         self.coded_causes.clear()
         self.coded_causes.set(coded_causes)
 
-    def _change_appreciation_cause(self):
+    def change_appreciation_cause(self):
         self.is_appreciation_cause = not self.is_appreciation_cause
         self.coded_causes.clear()
+        self.save()
 
-    def _update_answer(self, answer):
+    def update_answer(self, answer):
         self.answer = answer
         self.save()
 
-    def _update_coded_causes(self, coded_causes):
+    def update_coded_causes(self, coded_causes):
         self.coded_causes.set(coded_causes)
 
-    def _create_clones(self, new_answers):
+    def create_clones(self, new_answers):
         new_why_causes = list()
         for why_cause_answer in new_answers:
             new_why_cause = deepcopy(self)

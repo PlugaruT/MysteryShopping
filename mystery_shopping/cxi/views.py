@@ -284,27 +284,26 @@ class WhyCauseViewSet(viewsets.ModelViewSet):
 
         return Response(**response)
 
-    @detail_route(['put'])
+    @detail_route(['post'])
     def split(self, request, pk=None):
         why_cause = get_object_or_404(WhyCause, pk=pk)
 
-        why_cause._update_answer(request.data.get('answer'))
+        why_cause.update_answer(request.data.get('answer'))
 
         validated_coded_causes = self._check_if_coded_causes_exist(request.data.get('coded_causes'))
         # update them in case the why cause has been moved (on frontend) but no save has been issued.
-        why_cause._update_coded_causes(validated_coded_causes)
+        why_cause.update_coded_causes(validated_coded_causes)
 
         new_why_causes_answers = request.data.get('split_list', [])
-        why_cause_to_serialize =  why_cause._create_clones(new_why_causes_answers)
+        why_cause_to_serialize =  why_cause.create_clones(new_why_causes_answers)
 
         serializer = WhyCauseSerializer(why_cause_to_serialize, many=True)
         return Response(serializer.data)
 
-    @detail_route(['put'])
+    @detail_route(['post'])
     def appreciation(self, request, pk=None):
         why_cause = get_object_or_404(WhyCause, pk=pk)
-        why_cause._change_appreciation_cause()
-        why_cause.save()
+        why_cause.change_appreciation_cause()
 
         return Response(status=status.HTTP_200_OK)
 
