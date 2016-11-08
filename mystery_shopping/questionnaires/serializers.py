@@ -1,5 +1,3 @@
-from collections import OrderedDict
-
 from rest_framework import serializers
 
 from mystery_shopping.cxi.serializers import WhyCauseSerializer
@@ -538,8 +536,11 @@ class DetractorRespondentSerializer(serializers.ModelSerializer):
     """
 
     """
-
+    saved_by = UserSerializer(source='evaluation.saved_by_user', read_only=True)
+    questionnaire_title = serializers.CharField(source='evaluation.questionnaire.title', read_only=True)
+    time_accomplished = serializers.DateTimeField(source='evaluation.time_accomplished', read_only=True)
     questions = QuestionnaireQuestionSerializer(source='get_detractor_questions', many=True, read_only=True)
+    visited_place = serializers.CharField(source='get_visited_place.name', read_only=True)
 
     class Meta:
         model = DetractorRespondent
