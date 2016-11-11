@@ -90,6 +90,8 @@ class ProjectPerCompanyViewSet(viewsets.ViewSet):
         project_type = project_type[0] if isinstance(project_type, list) else project_type
         queryset = self.queryset.filter(company=company_pk, type=project_type,
                                         tenant=self.request.user.tenant)
+        if self.request.user.user_type == 'tenantconsultant':
+            queryset = self.queryset.filter(consultants__user=self.request.user)
         serializer = ProjectSerializer(queryset, many=True)
         return Response(serializer.data)
 
