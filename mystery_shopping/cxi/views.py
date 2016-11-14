@@ -28,7 +28,7 @@ from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from mystery_shopping.projects.models import Project
 from mystery_shopping.companies.models import Company
 
-from mystery_shopping.users.permissions import IsCompanyProjectManager, IsCompanyManager
+from mystery_shopping.users.permissions import IsCompanyProjectManager, IsCompanyManager, IsTenantConsultant
 from mystery_shopping.users.permissions import IsTenantProductManager
 from mystery_shopping.users.permissions import IsTenantProjectManager
 
@@ -230,7 +230,8 @@ class CodedCausePercentage(views.APIView):
     """
 
     """
-    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager, IsCompanyManager),)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager, IsCompanyManager,
+                             IsTenantConsultant),)
 
     def get(self, request, *args, **kwargs):
         indicator = request.query_params.get('indicator')
@@ -265,7 +266,7 @@ class WhyCauseViewSet(viewsets.ModelViewSet):
     """
     queryset = WhyCause.objects.all()
     serializer_class = WhyCauseSerializer
-    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager, IsCompanyManager),)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
     encode_serializer_class = QuestionWithWhyCausesSerializer
 
     @list_route(['get', 'put'])
