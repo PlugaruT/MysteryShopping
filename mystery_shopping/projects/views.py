@@ -80,6 +80,12 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
         return Response(available_list_of_places, status=status.HTTP_200_OK)
 
+    @detail_route(methods=['post'])
+    def graph(self, request, pk=None):
+        project = get_object_or_404(Project, pk=pk)
+        project.save_graph_config(request.data)
+        return Response(status=status.HTTP_200_OK)
+
 
 class ProjectPerCompanyViewSet(viewsets.ViewSet):
     queryset = Project.objects.all()
@@ -116,6 +122,12 @@ class ProjectPerCompanyViewSet(viewsets.ViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
+
+    @detail_route(methods=['post'])
+    def graph(self, request, pk=None, company_pk=None):
+        project = get_object_or_404(Project, pk=pk)
+        project.save_graph_config(request.data)
+        return Response(status=status.HTTP_200_OK)
 
 
 class ResearchMethodologyViewSet(viewsets.ModelViewSet):
