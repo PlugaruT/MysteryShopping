@@ -321,7 +321,7 @@ class PersonToAssess(models.Model):
     """
     A class with a generic foreign key for setting people to be evaluated for a project.
 
-    A person to assess can deeither be a Client Manager or a Client Employee
+    A person to assess can either be a Client Manager or a Client Employee
     """
     limit = models.Q(app_label='users', model='clientmanager') |\
             models.Q(app_label='users', model='clientemployee')
