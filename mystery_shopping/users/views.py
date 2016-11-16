@@ -3,6 +3,7 @@ from __future__ import absolute_import, unicode_literals
 import json
 
 from django.core.urlresolvers import reverse
+from django.shortcuts import get_object_or_404
 from django.views.generic import DetailView, ListView, RedirectView, UpdateView
 from django.db.models import Q
 
@@ -11,9 +12,11 @@ from rest_framework import status
 from rest_condition import Or
 from braces.views import LoginRequiredMixin
 from rest_framework.decorators import detail_route, list_route
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from mystery_shopping.questionnaires.serializers import DetractorRespondentSerializer
+from mystery_shopping.questionnaires.serializers import DetractorRespondentForTenantSerializer, \
+    DetractorRespondentForClientSerializer
 from mystery_shopping.users.models import DetractorRespondent
 from .models import ClientEmployee
 from .models import ClientManager
@@ -35,7 +38,8 @@ from .serializers import TenantProductManagerSerializer
 from .serializers import TenantProjectManagerSerializer
 from .serializers import TenantConsultantSerializer
 from .serializers import PersonToAssessSerializer
-from mystery_shopping.users.permissions import IsTenantProductManager, IsShopperAccountOwner
+from mystery_shopping.users.permissions import IsTenantProductManager, IsShopperAccountOwner, \
+    HasReadOnlyAccessToProjectsOrEvaluations
 from mystery_shopping.users.permissions import IsTenantProjectManager
 from mystery_shopping.users.permissions import IsTenantConsultant
 
@@ -174,10 +178,29 @@ class PersonToAssessViewSet(viewsets.ModelViewSet):
 
 class DetractorRespondentViewSet(viewsets.ModelViewSet):
     queryset = DetractorRespondent.objects.all()
-    serializer_class = DetractorRespondentSerializer
+    serializer_class = DetractorRespondentForTenantSerializer
+    client_serializer_class = DetractorRespondentForClientSerializer
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
+
+    def get_queryset(self):
+        project = self.request.query_params.get('project')
+        return self.queryset.filter(evaluation__project=project)
 
     def list(self, request, *args, **kwargs):
-        project = self.request.query_params.get('project')
-        queryset = self.queryset.filter(evaluation__project=project)
-        serializer = DetractorRespondentSerializer(queryset, many=True)
+        serializer = self.serializer_class(self.get_queryset(), many=True)
+        return Response(serializer.data)
+
+    @list_route(methods=['get'],
+                permission_classes=(IsAuthenticated, HasReadOnlyAccessToProjectsOrEvaluations,),
+                url_path='client')
+    def client_list(self, request, *args, **kwargs):
+        serializer = self.client_serializer_class(self.get_queryset(), many=True)
+        return Response(serializer.data)
+
+    @detail_route(methods=['get'],
+                  permission_classes=(IsAuthenticated, HasReadOnlyAccessToProjectsOrEvaluations,),
+                  url_path='client')
+    def client_detail(self, request, pk=None):
+        instance = get_object_or_404(DetractorRespondent, pk=pk)
+        serializer = self.client_serializer_class(instance)
         return Response(serializer.data)

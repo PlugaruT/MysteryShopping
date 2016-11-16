@@ -162,7 +162,7 @@ class EvaluationViewSet(viewsets.ModelViewSet):
     def get_excel(self, request, pk=None):
         response = HttpResponse(content_type='application/vnd.ms-excel')
         response['Content-Disposition'] = "attachment; filename=test.xlsx"
-        instance = Evaluation.objects.get(pk=pk)
+        instance = get_object_or_404(Evaluation, pk=pk)
         evaluation_spreadsheet = EvaluationSpreadsheet(evaluation=instance)
         response.write(save_virtual_workbook(evaluation_spreadsheet.generate_spreadsheet()))
         return response

@@ -14,7 +14,7 @@ from mystery_shopping.companies.serializers import SectionSerializer
 
 from mystery_shopping.companies.serializers import CompanySerializer
 
-from mystery_shopping.questionnaires.serializers import QuestionnaireScriptSerializer, DetractorRespondentSerializer
+from mystery_shopping.questionnaires.serializers import QuestionnaireScriptSerializer, DetractorRespondentForTenantSerializer
 from mystery_shopping.questionnaires.serializers import QuestionnaireSerializer
 from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializer
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion, QuestionnaireScript
@@ -288,7 +288,7 @@ class EvaluationSerializer(serializers.ModelSerializer):
     section_repr = SectionSerializer(source='section', read_only=True)
     employee_repr = ClientUserRelatedField(source='employee', read_only=True)
     project_repr = ProjectShortSerializer(source='project', read_only=True)
-    detractor_info = DetractorRespondentSerializer(write_only=True, required=False)
+    detractor_info = DetractorRespondentForTenantSerializer(write_only=True, required=False)
 
     class Meta:
         model = Evaluation
@@ -382,7 +382,7 @@ class EvaluationSerializer(serializers.ModelSerializer):
     @staticmethod
     def _create_detractor(detractor_info, evaluation_id=None):
         detractor_info['evaluation'] = evaluation_id
-        detractor_to_create = DetractorRespondentSerializer(data=detractor_info)
+        detractor_to_create = DetractorRespondentForTenantSerializer(data=detractor_info)
         detractor_to_create.is_valid(raise_exception=True)
         detractor_to_create.save()
         return detractor_to_create.instance
