@@ -176,7 +176,7 @@ class PersonToAssessViewSet(viewsets.ModelViewSet):
     serializer_class = PersonToAssessSerializer
 
 
-class DetractorRespondentViewSet(viewsets.ModelViewSet):
+class DetractorRespondentForTenantViewSet(viewsets.ModelViewSet):
     queryset = DetractorRespondent.objects.all()
     serializer_class = DetractorRespondentForTenantSerializer
     client_serializer_class = DetractorRespondentForClientSerializer
@@ -186,21 +186,12 @@ class DetractorRespondentViewSet(viewsets.ModelViewSet):
         project = self.request.query_params.get('project')
         return self.queryset.filter(evaluation__project=project)
 
-    def list(self, request, *args, **kwargs):
-        serializer = self.serializer_class(self.get_queryset(), many=True)
-        return Response(serializer.data)
 
-    @list_route(methods=['get'],
-                permission_classes=(IsAuthenticated, HasReadOnlyAccessToProjectsOrEvaluations,),
-                url_path='client')
-    def client_list(self, request, *args, **kwargs):
-        serializer = self.client_serializer_class(self.get_queryset(), many=True)
-        return Response(serializer.data)
+class DetractorRespondentForClientViewSet(viewsets.ModelViewSet):
+    queryset = DetractorRespondent.objects.all()
+    serializer_class = DetractorRespondentForClientSerializer
+    permission_classes = (IsAuthenticated, HasReadOnlyAccessToProjectsOrEvaluations,)
 
-    @detail_route(methods=['get'],
-                  permission_classes=(IsAuthenticated, HasReadOnlyAccessToProjectsOrEvaluations,),
-                  url_path='client')
-    def client_detail(self, request, pk=None):
-        instance = get_object_or_404(DetractorRespondent, pk=pk)
-        serializer = self.client_serializer_class(instance)
-        return Response(serializer.data)
+    def get_queryset(self):
+        project = self.request.query_params.get('project')
+        return self.queryset.filter(evaluation__project=project)
