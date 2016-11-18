@@ -37,11 +37,6 @@ class EvaluationViewMixIn:
         response.write(save_virtual_workbook(evaluation_spreadsheet.generate_spreadsheet()))
         return response
 
-    def _enough_evaluations_available(self, is_many, data, project_id):
-        evaluations_left = self._get_remaining_number_of_evaluations(project_id)
-        evaluations_to_create = len(data) if is_many else 1
-        return evaluations_to_create < evaluations_left
-
     def _get_remaining_number_of_evaluations(self, project_id):
         total_number_of_evaluations = Project.objects.get(pk=project_id).research_methodology.number_of_evaluations
         current_number_of_evaluations = Evaluation.objects.filter(project=project_id).count()
