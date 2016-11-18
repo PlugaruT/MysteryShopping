@@ -5,8 +5,7 @@ from openpyxl.styles import Alignment
 from openpyxl.styles import Font
 from openpyxl.styles import PatternFill
 
-from .models import Evaluation
-from mystery_shopping.projects.constants import ProjectStatus
+from mystery_shopping.projects.constants import EvaluationStatus
 
 
 class EvaluationSpreadsheet:
@@ -35,7 +34,7 @@ class EvaluationSpreadsheet:
                                  3: PatternFill(fill_type='lightTrellis', start_color='11111111', end_color='FFFFFFFF')}
 
     def generate_spreadsheet(self):
-        if self.evaluation.status in ProjectStatus.EDITABLE_STATUSES:
+        if self.evaluation.status in EvaluationStatus.EDITABLE_STATUSES:
             self.big_merged_cell = 9
             self.small_merged_cell = 0
         else:

@@ -18,7 +18,7 @@ from .companies import EntityFactory
 
 from mystery_shopping.projects.models import ResearchMethodology
 from mystery_shopping.projects.models import Project
-from mystery_shopping.projects.constants import ProjectStatus
+from mystery_shopping.projects.constants import EvaluationStatus
 from mystery_shopping.projects.models import Evaluation
 from mystery_shopping.projects.models import EvaluationAssessmentLevel
 
@@ -89,7 +89,7 @@ class EvaluationFactory(DjangoModelFactory):
     is_draft = True
     suggested_start_date = FuzzyDate(date(1990, 12, 12))
     suggested_end_date = FuzzyDate(date(2000, 11, 2))
-    status = ProjectStatus.PLANNED
+    status = EvaluationStatus.PLANNED
     time_accomplished = None
 
 

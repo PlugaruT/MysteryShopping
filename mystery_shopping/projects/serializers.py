@@ -27,7 +27,7 @@ from mystery_shopping.users.serializers import TenantProjectManagerSerializer
 from mystery_shopping.users.serializers import TenantConsultantSerializer
 from mystery_shopping.users.serializer_fields import TenantUserRelatedField
 from mystery_shopping.users.serializer_fields import ClientUserRelatedField
-from mystery_shopping.projects.constants import ProjectStatus
+from mystery_shopping.projects.constants import EvaluationStatus
 
 from mystery_shopping.users.models import PersonToAssess
 from mystery_shopping.users.models import Shopper
@@ -342,7 +342,7 @@ class EvaluationSerializer(serializers.ModelSerializer):
         current_status = instance.status
         questionnaire = validated_data.pop('questionnaire', None)
 
-        if questionnaire and current_status in ProjectStatus.EDITABLE_STATUSES:
+        if questionnaire and current_status in EvaluationStatus.EDITABLE_STATUSES:
             for block in questionnaire.get('blocks', []):
                 for question in block.get('questions', []):
                     question_instance = QuestionnaireQuestion.objects.get(questionnaire=question.get('questionnaire'),
@@ -361,12 +361,12 @@ class EvaluationSerializer(serializers.ModelSerializer):
             instance.questionnaire = Questionnaire.objects.get(pk=instance.questionnaire.pk)
             instance.questionnaire.save()
 
-            if validated_data.get('status', ProjectStatus.PLANNED) == ProjectStatus.PLANNED:
-                instance.status = ProjectStatus.DRAFT
+            if validated_data.get('status', EvaluationStatus.PLANNED) == EvaluationStatus.PLANNED:
+                instance.status = EvaluationStatus.DRAFT
             else:
                 instance.status = validated_data.get('status')
 
-            if validated_data.get('status', None) == ProjectStatus.SUBMITTED:
+            if validated_data.get('status', None) == EvaluationStatus.SUBMITTED:
                 instance.questionnaire.calculate_score()
 
         update_attributes(validated_data, instance)

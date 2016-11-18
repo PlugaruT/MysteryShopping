@@ -6,7 +6,7 @@ from mystery_shopping.factories.companies import EntityFactory
 from mystery_shopping.factories.projects import ProjectFactory
 from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFactory, QuestionnaireScriptFactory
 from mystery_shopping.factories.users import ShopperFactory
-from mystery_shopping.projects.constants import ProjectStatus
+from mystery_shopping.projects.constants import EvaluationStatus
 from mystery_shopping.projects.serializers import EvaluationSerializer
 from mystery_shopping.users.models import DetractorRespondent
 
@@ -23,7 +23,7 @@ class TestEvaluationWithDetractor(TestCase):
             'is_draft': False,
             'suggested_start_date': datetime(2008, 1, 1),
             'suggested_end_date': datetime(2016, 1, 1),
-            'status': ProjectStatus.PLANNED,
+            'status': EvaluationStatus.PLANNED,
             'time_accomplished': None,
             'project': self.project.id,
             'shopper': self.shopper.id,

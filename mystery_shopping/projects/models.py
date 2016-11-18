@@ -13,7 +13,7 @@ from mystery_shopping.tenants.models import Tenant
 from mystery_shopping.questionnaires.models import QuestionnaireTemplate
 from mystery_shopping.questionnaires.models import Questionnaire
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion
-from mystery_shopping.projects.constants import ProjectStatus
+from mystery_shopping.projects.constants import EvaluationStatus
 
 
 class PlaceToAssess(models.Model):
@@ -168,13 +168,13 @@ class Evaluation(TimeStampedModel, models.Model):
 
     visit_time = models.DateTimeField(null=True)
 
-    STATUS = Choices((ProjectStatus.PLANNED, 'Planned'),
-                     (ProjectStatus.DRAFT, 'Draft'),
-                     (ProjectStatus.SUBMITTED, 'Submitted'),
-                     (ProjectStatus.REVIEWED, 'Reviewed'),
-                     (ProjectStatus.APPROVED, 'Approved'),
-                     (ProjectStatus.DECLINED, 'Declined'),
-                     (ProjectStatus.REJECTED, 'Rejected'))
+    STATUS = Choices((EvaluationStatus.PLANNED, 'Planned'),
+                     (EvaluationStatus.DRAFT, 'Draft'),
+                     (EvaluationStatus.SUBMITTED, 'Submitted'),
+                     (EvaluationStatus.REVIEWED, 'Reviewed'),
+                     (EvaluationStatus.APPROVED, 'Approved'),
+                     (EvaluationStatus.DECLINED, 'Declined'),
+                     (EvaluationStatus.REJECTED, 'Rejected'))
     status = StatusField()
     # For "Accomplished"
     time_accomplished = models.DateTimeField(null=True, blank=True)
@@ -189,7 +189,7 @@ class Evaluation(TimeStampedModel, models.Model):
             return '{}, time accomplished: {}'.format(self.project, str(self.time_accomplished))
 
     def save(self, *args, **kwargs):
-        if self.status == ProjectStatus.SUBMITTED:
+        if self.status == EvaluationStatus.SUBMITTED:
             self.questionnaire_template.is_editable = False
             self.questionnaire_template.save()
 
@@ -208,7 +208,7 @@ class Evaluation(TimeStampedModel, models.Model):
                 # defined for this project, thus assign the `approved` status
                 # for the submitted evaluation.
                 else:
-                    self.status = ProjectStatus.APPROVED
+                    self.status = EvaluationStatus.APPROVED
 
         super(Evaluation, self).save(*args, **kwargs)
 
