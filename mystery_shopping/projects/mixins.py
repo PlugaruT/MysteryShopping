@@ -37,9 +37,6 @@ class EvaluationViewMixIn:
         response.write(save_virtual_workbook(evaluation_spreadsheet.generate_spreadsheet()))
         return response
 
-    def _is_mystery_project(self, project_id):
-        return Project.objects.get_project_type(project_id) == ProjectType.MYSTERY_SHOPPING
-
     def _enough_evaluations_available(self, is_many, data, project_id):
         evaluations_left = self._get_remaining_number_of_evaluations(project_id)
         evaluations_to_create = len(data) if is_many else 1
