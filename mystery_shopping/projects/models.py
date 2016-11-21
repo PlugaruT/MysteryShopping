@@ -129,6 +129,9 @@ class Project(models.Model):
         else:
             return True
 
+    def get_total_number_of_evaluations(self):
+        return self.research_methodology.number_of_evaluations
+
 
 class Evaluation(TimeStampedModel, models.Model):
     """
