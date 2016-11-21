@@ -554,12 +554,6 @@ class DetractorRespondentForTenantSerializer(serializers.ModelSerializer):
             }
         }
 
-    def validate(self, attrs):
-        if attrs.get('email') or attrs.get('phone'):
-            return attrs
-        else:
-            raise serializers.ValidationError('Email or Phone field are required')
-
 class DetractorRespondentForClientSerializer(serializers.ModelSerializer):
     """
 
