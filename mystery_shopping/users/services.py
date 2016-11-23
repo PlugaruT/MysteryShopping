@@ -1,7 +1,7 @@
-from mystery_shopping.companies.serializers import EntitySerializer, SectionSerializer, DepartmentSerializer
+from mystery_shopping.companies.serializers import EntitySerializer, SectionSerializer
 from mystery_shopping.projects.constants import EvaluationStatus
 from mystery_shopping.projects.models import Project
-from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializer, QuestionnaireSerializer
+from mystery_shopping.projects.serializers import EvaluationSerializer
 
 
 class ShopperService:
@@ -56,7 +56,7 @@ class ShopperService:
             result.append({
                 'count': to_complete['count'],
                 'entity_repr': entity_repr,
-                'questionnaire': QuestionnaireSerializer(questionnaire).data
+                'evaluation': EvaluationSerializer(evaluation).data
             })
 
         return result
