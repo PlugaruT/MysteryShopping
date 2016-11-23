@@ -55,7 +55,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
         queryset = queryset.filter(tenant=self.request.user.tenant)
         return queryset
 
-    @list_route(permission_classes=(IsShopperAccountOwner,), methods=['get'])
+    @list_route(permission_classes=(IsAuthenticated, IsShopperAccountOwner), methods=['get'])
     def collectorevaluations(self, request):
         """A view to return a list of projects, which has places (entities or sections) paired up with their corresponding
         questionnaires.
@@ -67,10 +67,11 @@ class ProjectViewSet(viewsets.ModelViewSet):
         :returns: List of projects with place and questionnaire data.
         :rtype: list
         """
-        available_list_of_places = list()
         if request.user.is_collector():
             shopper_service = ShopperService(request.user.shopper)
             available_list_of_places = shopper_service.get_available_list_of_places_with_questionnaires()
+        else:
+            available_list_of_places = list()
 
         return Response(available_list_of_places, status=status.HTTP_200_OK)
 
