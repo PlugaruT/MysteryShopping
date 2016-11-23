@@ -315,7 +315,6 @@ class EvaluationSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         questionnaire_template = validated_data.get('questionnaire_template', None)
-        detractor_info = validated_data.pop('detractor_info', None)
 
         questionnaire_to_create = self._clone_questionnaire(questionnaire_template)
         questionnaire_to_create_ser = QuestionnaireSerializer(data=questionnaire_to_create)

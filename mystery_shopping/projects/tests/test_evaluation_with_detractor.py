@@ -3,7 +3,7 @@ from datetime import datetime
 from json import loads, dumps
 
 from mystery_shopping.factories.companies import EntityFactory
-from mystery_shopping.factories.projects import ProjectFactory
+from mystery_shopping.factories.projects import ProjectFactory, EvaluationFactory
 from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFactory, QuestionnaireScriptFactory
 from mystery_shopping.factories.users import ShopperFactory
 from mystery_shopping.projects.constants import EvaluationStatus
