@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from mystery_shopping.cxi.serializers import WhyCauseSerializer
 from .models import Project
 from .models import ResearchMethodology
 from .models import Evaluation
@@ -315,63 +316,66 @@ class EvaluationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         questionnaire_template = validated_data.get('questionnaire_template', None)
         detractor_info = validated_data.pop('detractor_info', None)
-        detractor_instance = None
 
-        if validated_data.get('type', 'm') == 'm':
-            questionnaire_to_create = self._clone_questionnaire(questionnaire_template)
-        else:
-            questionnaire_to_create = self._copy_questionnaire_from_request(validated_data.get('questionnaire', None),
-                                                                            questionnaire_template)
-
+        questionnaire_to_create = self._clone_questionnaire(questionnaire_template)
         questionnaire_to_create_ser = QuestionnaireSerializer(data=questionnaire_to_create)
         questionnaire_to_create_ser.is_valid(raise_exception=True)
         questionnaire_to_create_ser.save()
 
-        if validated_data.get('type', 'm') == 'm':
-            questionnaire_to_create_ser.instance.create_cross_indexes(questionnaire_to_create['template_cross_indexes'])
+
+        cross_indexes = questionnaire_to_create.get('template_cross_indexes', [])
+        if cross_indexes is not []:
+            questionnaire_to_create_ser.instance.create_cross_indexes(cross_indexes)
+
         validated_data['questionnaire'] = questionnaire_to_create_ser.instance
 
-        if detractor_info:
-            detractor_instance = self._create_detractor(detractor_info)
-
         evaluation = Evaluation.objects.create(**validated_data)
-        self.set_evaluation_to_detractor(detractor_instance, evaluation)
         return evaluation
 
     def update(self, instance, validated_data):
         current_status = instance.status
         questionnaire = validated_data.pop('questionnaire', None)
 
-        if questionnaire and current_status in EvaluationStatus.EDITABLE_STATUSES:
-            for block in questionnaire.get('blocks', []):
-                for question in block.get('questions', []):
-                    question_instance = QuestionnaireQuestion.objects.get(questionnaire=question.get('questionnaire'),
-                                                                          pk=question.get('question_id'))
-                    question_instance.answer = question.get('answer', None)
-                    question_instance.answer_choices = question.get('answer_choices', [])
-                    question_instance.comment = question.get('comment', None)
-                    question_instance.save()
+        detractor_info = validated_data.pop('detractor_info', None)
+        detractor_instance = None
+        if detractor_info:
+            detractor_instance = self._create_detractor(detractor_info)
+        self.set_evaluation_to_detractor(detractor_instance, instance)
 
-            # After updating only the questions above, the updates are not taken
-            # into account when returning the serialized evaluation instance. This
-            # is probably (I didn't investigate it a lot) because the evaluation's
-            # cache does not know that its questionnaire instance was changed and
-            # it uses the cached instance. For it to use the updated questionnaire
-            # representation, resubmit the questionnaire to the evaluation.
-            instance.questionnaire = Questionnaire.objects.get(pk=instance.questionnaire.pk)
-            instance.questionnaire.save()
+        if questionnaire and current_status in EvaluationStatus.EDITABLE_STATUSES:
+            self._update_questionnaire_answers(questionnaire)
 
             if validated_data.get('status', EvaluationStatus.PLANNED) == EvaluationStatus.PLANNED:
                 instance.status = EvaluationStatus.DRAFT
             else:
                 instance.status = validated_data.get('status')
 
-            if validated_data.get('status', None) == EvaluationStatus.SUBMITTED:
+            if validated_data.get('status') == EvaluationStatus.SUBMITTED and validated_data.get('type') == 'm':
                 instance.questionnaire.calculate_score()
 
         update_attributes(validated_data, instance)
         instance.save()
         return instance
+
+    def _update_questionnaire_answers(self, questionnaire):
+        for block in questionnaire.get('blocks', []):
+            for question in block.get('questions', []):
+                self._update_question_answer(question)
+
+    def _update_question_answer(self, question):
+            question_instance = QuestionnaireQuestion.objects.get(questionnaire=question.get('questionnaire'),
+                                                                  pk = question.get('question_id'))
+            question_instance.answer = question.get('answer')
+            question_instance.score = question.get('score')
+            question_instance.answer_choices = question.get('answer_choices', [])
+            question_instance.comment = question.get('comment')
+            why_causes = question.pop('why_causes', [])
+            for why_cause in why_causes:
+                why_cause['question'] = question_instance.id
+                why_cause_ser = WhyCauseSerializer(data=why_cause)
+                why_cause_ser.is_valid(raise_exception=True)
+                why_cause_ser.save()
+            question_instance.save()
 
     @staticmethod
     def set_evaluation_to_detractor(detractor_instance, evaluation):
