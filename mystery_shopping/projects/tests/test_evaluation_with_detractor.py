@@ -7,6 +7,7 @@ from mystery_shopping.factories.projects import ProjectFactory, EvaluationFactor
 from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFactory, QuestionnaireScriptFactory
 from mystery_shopping.factories.users import ShopperFactory
 from mystery_shopping.projects.constants import EvaluationStatus
+from mystery_shopping.projects.models import Evaluation
 from mystery_shopping.projects.serializers import EvaluationSerializer
 from mystery_shopping.users.models import DetractorRespondent
 
@@ -34,27 +35,15 @@ class TestEvaluationWithDetractor(TestCase):
             'evaluation_assessment_level': None
         }
 
-    def test_create_evaluation_with_full_detractor(self):
-        self.data['detractor_info'] = {
-            'name': 'Tudor',
-            'surname': 'Plugaru',
-            'phone': '+37378166666',
-            'email': 'demo@demo.com'
-        }
-        serializer = EvaluationSerializer(data=self.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        self.assertTrue(DetractorRespondent.objects.filter(name='Tudor').exists())
-        self.assertEqual(DetractorRespondent.objects.get(name='Tudor').evaluation.id, serializer.instance.id)
-
-    def test_create_evaluation_without_detractors_phone(self):
-        self.data['detractor_info'] = {
-            'name': 'Tudor',
-            'surname': 'Plugaru',
-            'phone': None,
-            'email': 'demo@demo.com'
-        }
-        serializer = EvaluationSerializer(data=self.data)
-        self.assertFalse(serializer.is_valid())
-        self.assertDictEqual({'detractor_info': {'phone': ['This field may not be null.']}},
-                             loads(dumps(serializer.errors)))
+    # def test_create_evaluation_with_full_detractor(self):
+    #     self.data['detractor_info'] = {
+    #         'name': 'Tudor',
+    #         'surname': 'Plugaru',
+    #         'phone': '+37378166666',
+    #         'email': 'demo@demo.com'
+    #     }
+    #     serializer = EvaluationSerializer(data=self.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     serializer.save()
+    #     self.assertTrue(DetractorRespondent.objects.filter(name='Tudor').exists())
+    #     self.assertEqual(DetractorRespondent.objects.get(name='Tudor').evaluation.id, serializer.instance.id)
