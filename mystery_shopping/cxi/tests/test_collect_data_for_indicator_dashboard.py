@@ -7,6 +7,7 @@ from mystery_shopping.factories.projects import ResearchMethodologyFactory, Proj
 from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFactory, QuestionnaireFactory, \
     IndicatorQuestionFactory, QuestionnaireBlockFactory, QuestionTemplateFactory, QuestionnaireTemplateQuestionChoiceFactory, \
     QuestionFactory, ChoiceFactory
+from mystery_shopping.projects.constants import EvaluationStatus
 from mystery_shopping.projects.models import Project
 
 
@@ -52,10 +53,10 @@ class TestBuildResponse(TestCase):
         # Dependency between Project Evaluation and Questionnaire
         self.questionnaire1 = QuestionnaireFactory.create(template=self.questionnaire_template, title='first')
         self.evaluation1 = EvaluationFactory.create(project=self.project, questionnaire=self.questionnaire1,
-                                                    entity=self.entity)
+                                                    entity=self.entity, status=EvaluationStatus.SUBMITTED)
         self.questionnaire2 = QuestionnaireFactory.create(template=self.questionnaire_template, title='second')
         self.evaluation2 = EvaluationFactory.create(project=self.project, questionnaire=self.questionnaire2,
-                                                    entity=self.entity)
+                                                    entity=self.entity, status=EvaluationStatus.SUBMITTED)
 
     def test_when_there_are_no_indicator_questions(self):
         indicator_type = fuzzy.FuzzyText(length=10)

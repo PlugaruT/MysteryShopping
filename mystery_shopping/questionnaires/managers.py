@@ -1,5 +1,6 @@
 from django.db.models.query import QuerySet
 
+from mystery_shopping.projects.constants import EvaluationStatus
 from mystery_shopping.questionnaires.constants import QuestionType
 
 
@@ -13,8 +14,18 @@ class QuestionnaireQuerySet(QuerySet):
         return self.filter(template=template_questionnaire,
                            evaluation__project=project)
 
+    def get_project_submitted_or_approved_questionnaires(self, project):
+        try:
+            template_questionnaire = project.research_methodology.questionnaires.first()
+        except AttributeError:
+            template_questionnaire = None
+
+        return self.filter(template=template_questionnaire,
+                           evaluation__project=project,
+                           evaluation__status__in=[EvaluationStatus.SUBMITTED, EvaluationStatus.APPROVED])
+
     def get_project_questionnaires_for_subdivision(self, project, department=None, entity=None, section=None):
-        questionnaires = self.get_project_questionnaires(project)
+        questionnaires = self.get_project_submitted_or_approved_questionnaires(project)
         if section is not None:
             questionnaires = questionnaires.filter(evaluation__section=section)
         elif entity is not None:

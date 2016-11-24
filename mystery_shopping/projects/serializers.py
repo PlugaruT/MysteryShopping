@@ -352,6 +352,9 @@ class EvaluationSerializer(serializers.ModelSerializer):
             if validated_data.get('status') == EvaluationStatus.SUBMITTED and validated_data.get('type') == 'm':
                 instance.questionnaire.calculate_score()
 
+        instance.questionnaire = Questionnaire.objects.get(pk=instance.questionnaire.pk)
+        instance.questionnaire.save()
+
         update_attributes(validated_data, instance)
         instance.save()
         return instance
