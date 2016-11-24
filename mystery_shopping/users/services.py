@@ -46,8 +46,6 @@ class ShopperService:
 
         for to_complete in to_complete_info:
             evaluation = to_complete['evaluation']
-            questionnaire = evaluation.questionnaire
-            entity_repr = None
             if evaluation.section is not None:
                 entity_repr = SectionSerializer(evaluation.section).data
             else:

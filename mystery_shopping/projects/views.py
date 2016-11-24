@@ -1,14 +1,17 @@
+from collections import namedtuple
+
 from django.shortcuts import get_object_or_404
 
 from rest_framework import viewsets
-from rest_framework.decorators import list_route
+from rest_framework.decorators import list_route, detail_route
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_condition import Or
 from rest_condition import And
 
-from mystery_shopping.projects.mixins import EvaluationViewMixIn
+from mystery_shopping.projects.constants import EvaluationStatus
+from mystery_shopping.projects.mixins import EvaluationViewMixIn, UpdateSerializerMixin
 from mystery_shopping.users.services import ShopperService
 from .models import PlaceToAssess
 from .models import Project
@@ -124,7 +127,7 @@ class ResearchMethodologyViewSet(viewsets.ModelViewSet):
         return queryset
 
 
-class EvaluationViewSet(EvaluationViewMixIn, viewsets.ModelViewSet):
+class EvaluationViewSet(UpdateSerializerMixin, EvaluationViewMixIn, viewsets.ModelViewSet):
     queryset = Evaluation.objects.all()
     serializer_class = EvaluationSerializer
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant, IsShopper),)
@@ -137,6 +140,30 @@ class EvaluationViewSet(EvaluationViewMixIn, viewsets.ModelViewSet):
         elif self.request.user.user_type is 'shopper':
             queryset = queryset.filter(shopper__user=self.request.user)
         return queryset
+
+    @detail_route(methods=['put'])
+    def collect(self, request, pk=None):
+        evaluation = get_object_or_404(Evaluation, pk=pk)
+        serializer = self._serializer_update(evaluation, request.data)
+
+        available_evaluation = self._check_if_available_evaluation(evaluation)
+
+        response = dict()
+        if available_evaluation.evaluation is not None:
+            response['evaluation'] = self.get_serializer(available_evaluation.evaluation).data
+            response['count'] = available_evaluation.count
+
+        return Response(response)
+
+    def _check_if_available_evaluation(self, evaluation):
+        AvailableEvaluation = namedtuple('AvailableEvaluation', ['evaluation', 'count'])
+
+        evaluations_to_collect = Evaluation.objects.filter(project=evaluation.project, shopper=evaluation.shopper,
+                                                           status=EvaluationStatus.PLANNED,
+                                                           entity=evaluation.entity, section=evaluation.section)
+
+        return AvailableEvaluation(evaluation=evaluations_to_collect.first(),
+                                   count=evaluations_to_collect.count())
 
 
 class EvaluationPerShopperViewSet(viewsets.ViewSet):

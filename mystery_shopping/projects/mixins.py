@@ -11,6 +11,14 @@ from mystery_shopping.projects.serializers import EvaluationSerializer
 from mystery_shopping.projects.spreadsheets import EvaluationSpreadsheet
 
 
+class UpdateSerializerMixin:
+    def _serializer_update(self, instance, data):
+        serializer = self.get_serializer(instance, data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return serializer
+
+
 class EvaluationViewMixIn:
     def create(self, request, *args, **kwargs):
         project_id = request.data.get('project')
