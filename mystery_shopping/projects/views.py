@@ -155,7 +155,8 @@ class EvaluationViewSet(UpdateSerializerMixin, EvaluationViewMixIn, viewsets.Mod
 
         return Response(response)
 
-    def _check_if_available_evaluation(self, evaluation):
+    @staticmethod
+    def _check_if_available_evaluation(evaluation):
         AvailableEvaluation = namedtuple('AvailableEvaluation', ['evaluation', 'count'])
 
         evaluations_to_collect = Evaluation.objects.filter(project=evaluation.project, shopper=evaluation.shopper,
@@ -209,7 +210,8 @@ class EvaluationPerProjectViewSet(EvaluationViewMixIn, viewsets.ViewSet):
         evaluation.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    def _get_evaluation(self, pk, company, project):
+    @staticmethod
+    def _get_evaluation(pk, company, project):
         queryset = Evaluation.objects.filter(pk=pk, project=project, project__company=company)
         return get_object_or_404(queryset, pk=pk)
 
