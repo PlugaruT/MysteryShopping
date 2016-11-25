@@ -25,15 +25,7 @@ class ShopperService:
             'places_with_questionnaires': self.get_list_of_places_with_questionnaires_for_a_project(project)
         }
 
-
-    def get_list_of_places_with_questionnaires_for_a_project(self, project):
-        '''Return the list of Entities for a specific project with corresponding questionnaires.
-        '''
-        result = list()
-        unique_evaluations = project.evaluations\
-            .filter(shopper=self.shopper, status=EvaluationStatus.PLANNED)\
-            .distinct('entity', 'section').all()
-
+    def _get_evaluations_and_their_count(self, project, unique_evaluations):
         to_complete_info = list()
         for to_complete in unique_evaluations:
             evaluation_count = dict()
@@ -44,6 +36,10 @@ class ShopperService:
                 .count()
             to_complete_info.append(evaluation_count)
 
+        return to_complete_info
+
+    def _build_result(self, to_complete_info):
+        result = list()
         for to_complete in to_complete_info:
             evaluation = to_complete['evaluation']
             if evaluation.section is not None:
@@ -58,3 +54,14 @@ class ShopperService:
             })
 
         return result
+
+    def get_list_of_places_with_questionnaires_for_a_project(self, project):
+        '''Return the list of Entities for a specific project with corresponding questionnaires.
+        '''
+        unique_evaluations = project.evaluations\
+            .filter(shopper=self.shopper, status=EvaluationStatus.PLANNED)\
+            .distinct('entity', 'section').all()
+
+        to_complete_info = self._get_evaluations_and_their_count(project, unique_evaluations)
+
+        return self._build_result(to_complete_info)
