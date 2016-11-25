@@ -532,9 +532,9 @@ class QuestionnaireSimpleSerializer(serializers.ModelSerializer):
         return queryset
 
 
-class DetractorRespondentSerializer(serializers.ModelSerializer):
+class DetractorRespondentForTenantSerializer(serializers.ModelSerializer):
     """
-
+    Serializer for Detractors for tenant (that included all the fields)
     """
     saved_by = UserSerializer(source='evaluation.saved_by_user', read_only=True)
     questionnaire_title = serializers.CharField(source='evaluation.questionnaire.title', read_only=True)
@@ -553,3 +553,16 @@ class DetractorRespondentSerializer(serializers.ModelSerializer):
                 'required': False
             }
         }
+
+class DetractorRespondentForClientSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Detractors for clients (that exclued the saved_by field)
+    """
+    questionnaire_title = serializers.CharField(source='evaluation.questionnaire.title', read_only=True)
+    time_accomplished = serializers.DateTimeField(source='evaluation.time_accomplished', read_only=True)
+    questions = QuestionnaireQuestionSerializer(source='get_detractor_questions', many=True, read_only=True)
+    visited_place = serializers.CharField(source='get_visited_place.name', read_only=True)
+
+    class Meta:
+        model = DetractorRespondent
+        fields = '__all__'
