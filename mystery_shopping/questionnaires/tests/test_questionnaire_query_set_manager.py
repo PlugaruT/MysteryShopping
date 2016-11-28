@@ -3,6 +3,7 @@ from django.test.testcases import TestCase
 from mystery_shopping.factories.companies import EntityFactory
 from mystery_shopping.factories.projects import ProjectFactory, ResearchMethodologyFactory, EvaluationFactory
 from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFactory, QuestionnaireFactory
+from mystery_shopping.projects.constants import EvaluationStatus
 from mystery_shopping.questionnaires.models import Questionnaire
 
 
@@ -10,7 +11,7 @@ class GetProjectQuestionnaires(TestCase):
     def setUp(self):
         self.project = ProjectFactory.create()
         self.questionnaire = QuestionnaireFactory.create()
-        EvaluationFactory.create(project=self.project, questionnaire=self.questionnaire)
+        EvaluationFactory.create(project=self.project, questionnaire=self.questionnaire, status=EvaluationStatus.SUBMITTED)
 
     def test_with_project_and_without_questionnaire_template(self):
         self.assertEquals(self._result(), [])
@@ -32,7 +33,7 @@ class GetProjectQuestionnaires(TestCase):
         self.assertEquals(self._result(), [self.questionnaire])
 
     def _result(self):
-        return list(Questionnaire.objects.get_project_questionnaires(project=self.project))
+        return list(Questionnaire.objects.get_project_submitted_or_approved_questionnaires(project=self.project))
 
 
 class GetProjectQuestionnairesForEntity(TestCase):
@@ -47,9 +48,11 @@ class GetProjectQuestionnairesForEntity(TestCase):
 
         # Dependency between Project Evaluation and Questionnaire
         self.questionnaire1 = QuestionnaireFactory.create(template=questionnaire_template, title='first')
-        self.evaluation1 = EvaluationFactory.create(project=self.project, questionnaire=self.questionnaire1)
+        self.evaluation1 = EvaluationFactory.create(project=self.project, questionnaire=self.questionnaire1,
+                                                    status=EvaluationStatus.SUBMITTED)
         self.questionnaire2 = QuestionnaireFactory.create(template=questionnaire_template, title='second')
-        self.evaluation2 = EvaluationFactory.create(project=self.project, questionnaire=self.questionnaire2)
+        self.evaluation2 = EvaluationFactory.create(project=self.project, questionnaire=self.questionnaire2,
+                                                    status=EvaluationStatus.SUBMITTED)
 
     def test_2_questionnaires_and_entity_is_linked_to_first_questionnaire(self):
         entity = EntityFactory.create()

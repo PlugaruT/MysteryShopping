@@ -1,4 +1,4 @@
-class ProjectStatus:
+class EvaluationStatus:
     PLANNED = 'planned'
     DRAFT = 'draft'
     SUBMITTED = 'submitted'
