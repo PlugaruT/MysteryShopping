@@ -34,16 +34,26 @@ class TestEvaluationWithDetractor(TestCase):
             'entity': self.entity.id,
             'evaluation_assessment_level': None
         }
+        self.evaluation = EvaluationSerializer(data=self.data)
+        self.evaluation.is_valid(raise_exception=True)
+        self.evaluation.save()
 
-    # def test_create_evaluation_with_full_detractor(self):
-    #     self.data['detractor_info'] = {
-    #         'name': 'Tudor',
-    #         'surname': 'Plugaru',
-    #         'phone': '+37378166666',
-    #         'email': 'demo@demo.com'
-    #     }
-    #     serializer = EvaluationSerializer(data=self.data)
-    #     serializer.is_valid(raise_exception=True)
-    #     serializer.save()
-    #     self.assertTrue(DetractorRespondent.objects.filter(name='Tudor').exists())
-    #     self.assertEqual(DetractorRespondent.objects.get(name='Tudor').evaluation.id, serializer.instance.id)
+    def test_create_evaluation_with_detractor(self):
+        detractor_info = {
+            'name': 'Tudor',
+            'surname': 'Plugaru',
+            'phone': '+37378166666',
+            'email': 'demo@demo.com'
+        }
+        evaluation = Evaluation.objects.get(pk=self.evaluation.instance.id)
+        serializer = EvaluationSerializer(evaluation)
+        serializer_data = serializer.data
+
+        serializer_data['detractor_info'] = detractor_info
+        serializer = EvaluationSerializer(evaluation, data=serializer_data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        self.assertTrue(DetractorRespondent.objects.filter(name=detractor_info['name']).exists())
+        self.assertEqual(DetractorRespondent.objects.get(name=detractor_info['name']).evaluation.id,
+                         serializer.instance.id)
