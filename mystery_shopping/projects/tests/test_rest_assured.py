@@ -9,7 +9,7 @@ from mystery_shopping.questionnaires.models import Questionnaire
 
 from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializer
 from mystery_shopping.projects.serializers import EvaluationSerializer
-from mystery_shopping.projects.constants import ProjectStatus
+from mystery_shopping.projects.constants import EvaluationStatus
 
 from mystery_shopping.factories.questionnaires import QuestionnaireTemplateStatusFactory
 from mystery_shopping.factories.projects import EvaluationFactory
@@ -32,7 +32,7 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
             'is_draft': False,
             'suggested_start_date': datetime(2008, 1, 1),
             'suggested_end_date': datetime(2016, 1, 1),
-            'status': ProjectStatus.PLANNED,
+            'status': EvaluationStatus.PLANNED,
             'time_accomplished': None,
             'project': self.object.project.id,
             'shopper': self.object.shopper.id,
@@ -66,7 +66,7 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
             'is_draft': False,
             'suggested_start_date': datetime(2008, 1, 1),
             'suggested_end_date': datetime(2016, 1, 1),
-            'status': ProjectStatus.PLANNED,
+            'status': EvaluationStatus.PLANNED,
             'time_accomplished': None,
             'project': self.object.project.id,
             'shopper': self.object.shopper.id,
@@ -97,7 +97,7 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
         import copy
         # create an editable copy
         eval_data = copy.deepcopy(evaluation_ser.data)
-        eval_data['status'] = ProjectStatus.SUBMITTED
+        eval_data['status'] = EvaluationStatus.SUBMITTED
 
         evaluation_ser = EvaluationSerializer(evaluation_ser.instance, data=eval_data)
         evaluation_ser.is_valid(raise_exception=True)
@@ -123,7 +123,7 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
             'is_draft': False,
             'suggested_start_date': datetime(2008, 1, 1),
             'suggested_end_date': datetime(2016, 1, 1),
-            'status': ProjectStatus.PLANNED,
+            'status': EvaluationStatus.PLANNED,
             'time_accomplished': None,
             'project': self.object.project.id,
             'shopper': self.object.shopper.id,
@@ -152,7 +152,7 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
         import copy
         # create an editable copy
         eval_data = copy.deepcopy(evaluation_ser.data)
-        eval_data['status'] = ProjectStatus.SUBMITTED
+        eval_data['status'] = EvaluationStatus.SUBMITTED
 
         evaluation_ser = EvaluationSerializer(evaluation_ser.instance, data=eval_data)
         evaluation_ser.is_valid(raise_exception=True)
@@ -179,7 +179,7 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
             'is_draft': False,
             'suggested_start_date': datetime(2008, 1, 1),
             'suggested_end_date': datetime(2016, 1, 1),
-            'status': ProjectStatus.PLANNED,
+            'status': EvaluationStatus.PLANNED,
             'time_accomplished': None,
             'project': self.object.project.id,
             'shopper': self.object.shopper.id,
@@ -210,10 +210,10 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
         import copy
         # create an editable copy
         eval_data = copy.deepcopy(evaluation_ser.data)
-        eval_data['status'] = ProjectStatus.APPROVED
+        eval_data['status'] = EvaluationStatus.APPROVED
 
         evaluation_ser = EvaluationSerializer(evaluation_ser.instance, data=eval_data)
         evaluation_ser.is_valid(raise_exception=True)
         evaluation_ser.save()
 
-        self.assertEqual(evaluation_ser.data['status'], ProjectStatus.APPROVED)
+        self.assertEqual(evaluation_ser.data['status'], EvaluationStatus.APPROVED)

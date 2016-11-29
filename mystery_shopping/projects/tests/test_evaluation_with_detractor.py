@@ -3,10 +3,11 @@ from datetime import datetime
 from json import loads, dumps
 
 from mystery_shopping.factories.companies import EntityFactory
-from mystery_shopping.factories.projects import ProjectFactory
+from mystery_shopping.factories.projects import ProjectFactory, EvaluationFactory
 from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFactory, QuestionnaireScriptFactory
 from mystery_shopping.factories.users import ShopperFactory
-from mystery_shopping.projects.constants import ProjectStatus
+from mystery_shopping.projects.constants import EvaluationStatus
+from mystery_shopping.projects.models import Evaluation
 from mystery_shopping.projects.serializers import EvaluationSerializer
 from mystery_shopping.users.models import DetractorRespondent
 
@@ -23,7 +24,7 @@ class TestEvaluationWithDetractor(TestCase):
             'is_draft': False,
             'suggested_start_date': datetime(2008, 1, 1),
             'suggested_end_date': datetime(2016, 1, 1),
-            'status': ProjectStatus.PLANNED,
+            'status': EvaluationStatus.PLANNED,
             'time_accomplished': None,
             'project': self.project.id,
             'shopper': self.shopper.id,
@@ -33,28 +34,26 @@ class TestEvaluationWithDetractor(TestCase):
             'entity': self.entity.id,
             'evaluation_assessment_level': None
         }
+        self.evaluation = EvaluationSerializer(data=self.data)
+        self.evaluation.is_valid(raise_exception=True)
+        self.evaluation.save()
 
-    def test_create_evaluation_with_full_detractor(self):
-        self.data['detractor_info'] = {
+    def test_create_evaluation_with_detractor(self):
+        detractor_info = {
             'name': 'Tudor',
             'surname': 'Plugaru',
             'phone': '+37378166666',
             'email': 'demo@demo.com'
         }
-        serializer = EvaluationSerializer(data=self.data)
+        evaluation = Evaluation.objects.get(pk=self.evaluation.instance.id)
+        serializer = EvaluationSerializer(evaluation)
+        serializer_data = serializer.data
+
+        serializer_data['detractor_info'] = detractor_info
+        serializer = EvaluationSerializer(evaluation, data=serializer_data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        self.assertTrue(DetractorRespondent.objects.filter(name='Tudor').exists())
-        self.assertEqual(DetractorRespondent.objects.get(name='Tudor').evaluation.id, serializer.instance.id)
 
-    def test_create_evaluation_without_detractors_phone(self):
-        self.data['detractor_info'] = {
-            'name': 'Tudor',
-            'surname': 'Plugaru',
-            'phone': None,
-            'email': 'demo@demo.com'
-        }
-        serializer = EvaluationSerializer(data=self.data)
-        self.assertFalse(serializer.is_valid())
-        self.assertDictEqual({'detractor_info': {'phone': ['This field may not be null.']}},
-                             loads(dumps(serializer.errors)))
+        self.assertTrue(DetractorRespondent.objects.filter(name=detractor_info['name']).exists())
+        self.assertEqual(DetractorRespondent.objects.get(name=detractor_info['name']).evaluation.id,
+                         serializer.instance.id)

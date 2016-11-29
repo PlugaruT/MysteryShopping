@@ -420,7 +420,7 @@ class CollectDataForIndicatorDashboard:
                                                                                 section=self.section)
 
     def _get_all_project_questionnaires(self):
-        return Questionnaire.objects.get_project_questionnaires(self.project)
+        return Questionnaire.objects.get_project_submitted_or_approved_questionnaires(self.project)
 
 
 def collect_data_for_overview_dashboard(project, department_id, entity_id, section_id):

@@ -1,17 +1,17 @@
+from collections import namedtuple
+
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponse
 
 from rest_framework import viewsets
-from rest_framework.decorators import detail_route, list_route
-from rest_framework.serializers import ValidationError
+from rest_framework.decorators import list_route, detail_route
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_condition import Or
 from rest_condition import And
 
-from openpyxl.writer.excel import save_virtual_workbook
-
+from mystery_shopping.projects.constants import EvaluationStatus
+from mystery_shopping.projects.mixins import EvaluationViewMixIn, UpdateSerializerMixin
 from mystery_shopping.users.services import ShopperService
 from .models import PlaceToAssess
 from .models import Project
@@ -19,7 +19,6 @@ from .models import ResearchMethodology
 from .models import Evaluation
 from .models import EvaluationAssessmentLevel
 from .models import EvaluationAssessmentComment
-from mystery_shopping.projects.constants import ProjectType
 from .serializers import PlaceToAssessSerializer
 from .serializers import ProjectSerializer
 from .serializers import ResearchMethodologySerializer
@@ -28,7 +27,6 @@ from .serializers import EvaluationAssessmentLevelSerializer
 from .serializers import EvaluationAssessmentCommentSerializer
 from .serializers import ProjectStatisticsForCompanySerializer
 from .serializers import ProjectStatisticsForTenantSerializer
-from .spreadsheets import EvaluationSpreadsheet
 
 from mystery_shopping.users.permissions import IsTenantProductManager, IsShopperAccountOwner
 from mystery_shopping.users.permissions import HasReadOnlyAccessToProjectsOrEvaluations
@@ -57,11 +55,10 @@ class ProjectViewSet(viewsets.ModelViewSet):
         project_type = self.request.query_params.get('type', 'm')
         project_type = project_type[0] if isinstance(project_type, list) else project_type
         queryset = queryset.filter(type=project_type)
-        # queryset = self.get_serializer_class().setup_eager_loading(queryset)
         queryset = queryset.filter(tenant=self.request.user.tenant)
         return queryset
 
-    @list_route(permission_classes=(IsShopperAccountOwner,), methods=['get'])
+    @list_route(permission_classes=(IsAuthenticated, IsShopperAccountOwner), methods=['get'])
     def collectorevaluations(self, request):
         """A view to return a list of projects, which has places (entities or sections) paired up with their corresponding
         questionnaires.
@@ -73,10 +70,11 @@ class ProjectViewSet(viewsets.ModelViewSet):
         :returns: List of projects with place and questionnaire data.
         :rtype: list
         """
-        available_list_of_places = list()
         if request.user.is_collector():
             shopper_service = ShopperService(request.user.shopper)
             available_list_of_places = shopper_service.get_available_list_of_places_with_questionnaires()
+        else:
+            available_list_of_places = list()
 
         return Response(available_list_of_places, status=status.HTTP_200_OK)
 
@@ -141,7 +139,7 @@ class ResearchMethodologyViewSet(viewsets.ModelViewSet):
         return queryset
 
 
-class EvaluationViewSet(viewsets.ModelViewSet):
+class EvaluationViewSet(UpdateSerializerMixin, EvaluationViewMixIn, viewsets.ModelViewSet):
     queryset = Evaluation.objects.all()
     serializer_class = EvaluationSerializer
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant, IsShopper),)
@@ -155,60 +153,30 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(shopper__user=self.request.user)
         return queryset
 
-    def create(self, request, *args, **kwargs):
-        project_id = request.data.get('project')
-        self._if_not_mystery_and_evaluations_left_raise_error(request.data, project_id, 1)
-        self._set_saved_by_user(request.user, request.data)
-        evaluation = self._create_evaluations(request)
-        return Response(evaluation, status=status.HTTP_201_CREATED)
+    @detail_route(methods=['put'])
+    def collect(self, request, pk=None):
+        evaluation = get_object_or_404(Evaluation, pk=pk)
+        serializer = self._serializer_update(evaluation, request.data)
 
-    @list_route(methods=['post'])
-    def many(self, request, *args, **kwargs):
-        project_id = request.data[0].get('project')
-        self._if_not_mystery_and_evaluations_left_raise_error(request.data, project_id, len(request.data))
-        self._set_saved_by_user_many(request.user, request.data)
-        evaluations = self._create_evaluations(request, True)
-        return Response(evaluations, status=status.HTTP_201_CREATED)
+        available_evaluation = self._check_if_available_evaluation(evaluation)
 
-    @detail_route(methods=['get'])
-    def get_excel(self, request, pk=None):
-        response = HttpResponse(content_type='application/vnd.ms-excel')
-        response['Content-Disposition'] = "attachment; filename=test.xlsx"
-        instance = Evaluation.objects.get(pk=pk)
-        evaluation_spreadsheet = EvaluationSpreadsheet(evaluation=instance)
-        response.write(save_virtual_workbook(evaluation_spreadsheet.generate_spreadsheet()))
-        return response
+        response = dict()
+        if available_evaluation.evaluation is not None:
+            response['evaluation'] = self.get_serializer(available_evaluation.evaluation).data
+            response['count'] = available_evaluation.count
 
-    def _is_mystery_project(self, project_id):
-        return Project.objects.get_project_type(project_id) == ProjectType.MYSTERY_SHOPPING
+        return Response(response)
 
-    def _enough_evaluations_available(self, is_many, data, project_id):
-        evaluations_left = self._get_remaining_number_of_evaluations(project_id)
-        evaluations_to_create = len(data) if is_many else 1
-        return evaluations_to_create < evaluations_left
+    @staticmethod
+    def _check_if_available_evaluation(evaluation):
+        AvailableEvaluation = namedtuple('AvailableEvaluation', ['evaluation', 'count'])
 
-    def _get_remaining_number_of_evaluations(self, project_id):
-        total_number_of_evaluations = Project.objects.get(pk=project_id).research_methodology.number_of_evaluations
-        current_number_of_evaluations = Evaluation.objects.filter(project=project_id).count()
-        return total_number_of_evaluations - current_number_of_evaluations
+        evaluations_to_collect = Evaluation.objects.filter(project=evaluation.project, shopper=evaluation.shopper,
+                                                           status=EvaluationStatus.PLANNED,
+                                                           entity=evaluation.entity, section=evaluation.section)
 
-    def _create_evaluations(self, request, is_many=False):
-        serializer = self.get_serializer(data=request.data, many=is_many)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return serializer.data
-
-    def _if_not_mystery_and_evaluations_left_raise_error(self, data, project_id, number_to_create):
-        are_evaluations_left = self._get_remaining_number_of_evaluations(project_id) >= number_to_create
-        if self._is_mystery_project(project_id) and not are_evaluations_left:
-            raise ValidationError('Number of evaluations exceeded.')
-
-    def _set_saved_by_user(self, user, data):
-        data['saved_by_user'] = user.id
-
-    def _set_saved_by_user_many(self, user, evaluations):
-        for evaluation in evaluations:
-            self._set_saved_by_user(user, evaluation)
+        return AvailableEvaluation(evaluation=evaluations_to_collect.first(),
+                                   count=evaluations_to_collect.count())
 
 
 class EvaluationPerShopperViewSet(viewsets.ViewSet):
@@ -226,62 +194,38 @@ class EvaluationPerShopperViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
 
-class EvaluationPerProjectViewSet(viewsets.ViewSet):
+class EvaluationPerProjectViewSet(EvaluationViewMixIn, viewsets.ViewSet):
     serializer_class = EvaluationSerializer
     permission_classes = (IsAuthenticated, HasAccessToProjectsOrEvaluations,)
 
     def list(self, request, company_pk=None, project_pk=None):
-        for_assessment = request.query_params.get('forAssessment', None)
         queryset = Evaluation.objects.filter(project=project_pk, project__company=company_pk)
-        if for_assessment:
-            if request.user.user_type == 'tenantconsultant':
-                queryset = queryset.filter(evaluation_assessment_level__consultants__in=[request.user.user_type_attr])
-            elif request.user.user_type == 'tenantprojectmanager':
-                queryset = queryset.filter(evaluation_assessment_level__project_manager=request.user.user_type_attr)
-            else:
-                queryset = Evaluation.objects.none()
-
         queryset = self.serializer_class.setup_eager_loading(queryset)
         serializer = EvaluationSerializer(queryset, many=True)
         return Response(serializer.data)
 
-    def create(self, request, pk=None, company_pk=None, project_pk=None):
-        is_many = True if isinstance(request.data, list) else False
-        project_id = request.data[0]['project'] if is_many else request.data['project']
-        total_number_of_evaluations = Project.objects.get(pk=project_id).research_methodology.number_of_evaluations
-        current_number_of_evaluations = Evaluation.objects.filter(project=project_id).count()
-        evaluations_left = total_number_of_evaluations - current_number_of_evaluations
-        evaluations_to_create = len(request.data) if is_many else 1
-        project_type = Project.objects.get_project_type(project_id)
-        if evaluations_to_create > evaluations_left and project_type == ProjectType.MYSTERY_SHOPPING:
-            raise ValidationError('Number of evaluations exceeded. Left: {}.'.format(evaluations_left))
-
-        serializer = EvaluationSerializer(data=request.data, many=is_many)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
     def retrieve(self, request, pk=None, company_pk=None, project_pk=None):
-        queryset = Evaluation.objects.filter(pk=pk, project=project_pk, project__company=company_pk)
-        queryset = self.serializer_class.setup_eager_loading(queryset)
-        evaluation = get_object_or_404(queryset, pk=pk)
+        evaluation = self._get_evaluation(pk, company_pk, project_pk)
         self.check_object_permissions(request, evaluation)
         serializer = EvaluationSerializer(evaluation)
         return Response(serializer.data)
 
     def update(self, request, pk=None, company_pk=None, project_pk=None):
-        queryset = Evaluation.objects.filter(pk=pk, project=project_pk, project__company=company_pk)
-        evaluation = get_object_or_404(queryset, pk=pk)
+        evaluation = self._get_evaluation(pk, company_pk, project_pk)
         serializer = EvaluationSerializer(evaluation, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
 
     def destroy(self, request, pk=None, company_pk=None, project_pk=None):
-        queryset = Evaluation.objects.filter(pk=pk, project=project_pk, project__company=company_pk)
-        evaluation = get_object_or_404(queryset, pk=pk)
+        evaluation = self._get_evaluation(pk, company_pk, project_pk)
         evaluation.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @staticmethod
+    def _get_evaluation(pk, company, project):
+        queryset = Evaluation.objects.filter(pk=pk, project=project, project__company=company)
+        return get_object_or_404(queryset, pk=pk)
 
 
 class EvaluationAssessmentLevelViewSet(viewsets.ModelViewSet):
