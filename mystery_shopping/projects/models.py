@@ -1,5 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.db.models.query_utils import Q
 from model_utils import Choices
@@ -83,6 +84,7 @@ class Project(models.Model):
     type_questionnaire = Choices(('m', 'Mystery Questionnaire'),
                                  ('c', 'Customer Experience Index Questionnaire'))
     type = models.CharField(max_length=1, choices=type_questionnaire, default=type_questionnaire.m)
+    graph_config = JSONField(null=True)
 
     objects = models.Manager.from_queryset(ProjectQuerySet)()
 
@@ -128,6 +130,10 @@ class Project(models.Model):
             return not self.research_methodology.get_questionnaires().filter(evaluation__project=self).exists()
         else:
             return True
+
+    def save_graph_config(self, config):
+        self.graph_config = config
+        self.save()
 
     def get_total_number_of_evaluations(self):
         return self.research_methodology.number_of_evaluations

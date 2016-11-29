@@ -197,6 +197,11 @@ class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = '__all__'
+        extra_kwargs = {
+            'graph_config': {
+                'required': False
+            }
+        }
 
     def create(self, validated_data):
         research_methodology = validated_data.pop('research_methodology', None)
