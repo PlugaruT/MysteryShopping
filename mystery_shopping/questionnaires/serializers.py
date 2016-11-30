@@ -303,6 +303,7 @@ class QuestionnaireSerializer(serializers.ModelSerializer):
     """
     blocks = QuestionnaireBlockSerializer(many=True, required=False)
     cross_indexes = CrossIndexSerializer(many=True, required=False, read_only=True)
+    description = serializers.CharField(source='template.description', read_only=True)
 
     class Meta:
         model = Questionnaire
