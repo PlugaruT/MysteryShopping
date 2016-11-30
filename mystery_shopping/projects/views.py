@@ -4,12 +4,14 @@ from django.shortcuts import get_object_or_404
 
 from rest_framework import viewsets
 from rest_framework.decorators import list_route, detail_route
+from rest_framework.mixins import ListModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_condition import Or
 from rest_condition import And
 
+from mystery_shopping.mystery_shopping_utils.paginators import EvaluationPagination
 from mystery_shopping.projects.constants import EvaluationStatus
 from mystery_shopping.projects.mixins import EvaluationViewMixIn, UpdateSerializerMixin
 from mystery_shopping.users.services import ShopperService
@@ -194,13 +196,19 @@ class EvaluationPerShopperViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
 
-class EvaluationPerProjectViewSet(EvaluationViewMixIn, viewsets.ViewSet):
+class EvaluationPerProjectViewSet(ListModelMixin, EvaluationViewMixIn, viewsets.GenericViewSet):
     serializer_class = EvaluationSerializer
     permission_classes = (IsAuthenticated, HasAccessToProjectsOrEvaluations,)
+    pagination_class = EvaluationPagination
+    queryset = Evaluation.objects.all()
 
     def list(self, request, company_pk=None, project_pk=None):
-        queryset = Evaluation.objects.filter(project=project_pk, project__company=company_pk)
+        queryset = self.queryset.filter(project=project_pk, project__company=company_pk)
         queryset = self.serializer_class.setup_eager_loading(queryset)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
         serializer = EvaluationSerializer(queryset, many=True)
         return Response(serializer.data)
 
