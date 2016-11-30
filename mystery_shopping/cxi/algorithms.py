@@ -1,5 +1,7 @@
 from collections import defaultdict
 
+from django.db.models import Count
+
 from mystery_shopping.companies.models import Department, Section
 from mystery_shopping.questionnaires.constants import QuestionType
 from mystery_shopping.questionnaires.models import Questionnaire, QuestionnaireQuestion
@@ -548,9 +550,11 @@ class CodedCausesPercentageTable:
 
     def group_questions_by_score(self):
         response = defaultdict(dict)
-        for score in range(1, 11):
+        questions_scores = self.indicator_questions.values('score').annotate(number_of_questions=Count('score'))
+        for item in questions_scores:
+            score = item['score']
             response[score]['questions'] = self.indicator_questions.filter(score=score)
-            response[score]['number_of_questions'] = len(self.indicator_questions.filter(score=score))
+            response[score]['number_of_questions'] = item['number_of_questions']
         return response
 
     @staticmethod
