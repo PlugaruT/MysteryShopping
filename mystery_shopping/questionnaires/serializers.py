@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from mystery_shopping.cxi.serializers import WhyCauseSerializer
 from mystery_shopping.users.models import DetractorRespondent
-from mystery_shopping.users.serializers import UserSerializer
+from mystery_shopping.users.serializers import UserSerializer, ShopperSerializer
 
 from mystery_shopping.questionnaires.models import CrossIndexQuestion, QuestionnaireTemplateStatus
 from .models import QuestionnaireScript
@@ -538,6 +538,7 @@ class DetractorRespondentForTenantSerializer(serializers.ModelSerializer):
     Serializer for Detractors for tenant (that included all the fields)
     """
     saved_by = UserSerializer(source='evaluation.saved_by_user', read_only=True)
+    shopper = ShopperSerializer(source='evaluation.shopper', read_only=True)
     questionnaire_title = serializers.CharField(source='evaluation.questionnaire.title', read_only=True)
     time_accomplished = serializers.DateTimeField(source='evaluation.time_accomplished', read_only=True)
     questions = QuestionnaireQuestionSerializer(source='get_detractor_questions', many=True, read_only=True)
