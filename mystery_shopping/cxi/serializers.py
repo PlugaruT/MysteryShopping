@@ -16,7 +16,7 @@ class CodedCauseLabelSerializer(serializers.ModelSerializer):
     class Meta:
         model = CodedCauseLabel
         fields = '__all__'
-        extra_kwargs = {'tenant' : {'required': False}}
+        extra_kwargs = {'tenant': {'required': False}}
 
 
 class WhyCauseSerializer(serializers.ModelSerializer):
@@ -38,6 +38,29 @@ class WhyCauseSerializer(serializers.ModelSerializer):
         }
 
 
+class SimpleQuestionnaireQuestionSerializer(serializers.ModelSerializer):
+    type = serializers.CharField(source='additional_info', read_only=True)
+
+    class Meta:
+        model = QuestionnaireQuestion
+        fields = ('type', 'id', 'score')
+        read_only_fields = ('type', 'id', 'score')
+
+
+class SimpleWhyCauseSerializer(serializers.ModelSerializer):
+    question = SimpleQuestionnaireQuestionSerializer()
+
+    class Meta:
+        model = WhyCause
+        fields = ('id', 'answer', 'is_appreciation_cause', 'coded_causes', 'question')
+
+    @staticmethod
+    def setup_eager_loading(queryset):
+        queryset = queryset.select_related('question')
+        queryset = queryset.prefetch_related('coded_causes')
+        return queryset
+
+
 class CodedCauseSerializer(serializers.ModelSerializer):
     """
         Serializer for coded causes
@@ -51,7 +74,7 @@ class CodedCauseSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def setup_eager_loading(queryset):
-        queryset = queryset.select_related('coded_label', 'coded_label__tenant')
+        queryset = queryset.select_related('coded_label', 'coded_label__tenant', 'project')
         queryset = queryset.prefetch_related('raw_causes', 'raw_causes__question', 'raw_causes__coded_causes')
         return queryset
 
@@ -107,7 +130,7 @@ class ProjectCommentSerializer(serializers.ModelSerializer):
         model = ProjectComment
         fields = '__all__'
         extra_kwargs = {
-            'indicator':{
+            'indicator': {
                 'allow_null': True
             }
         }

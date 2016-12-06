@@ -3,10 +3,14 @@ from rest_framework import status
 from rest_framework import views
 from rest_framework import viewsets
 from rest_framework.decorators import list_route, detail_route
+from rest_framework.mixins import ListModelMixin
 from rest_framework.response import Response
 from rest_condition import Or
 
 from mystery_shopping.cxi.algorithms import GetPerDayQuestionnaireData
+from mystery_shopping.cxi.serializers import SimpleWhyCauseSerializer
+from mystery_shopping.mystery_shopping_utils.paginators import FrustrationWhyCausesPagination, \
+    AppreciationWhyCausesPagination
 from mystery_shopping.questionnaires.utils import check_interval_date
 from .algorithms import CodedCausesPercentageTable
 from .algorithms import collect_data_for_overview_dashboard
@@ -48,10 +52,7 @@ class CodedCauseViewSet(viewsets.ModelViewSet):
         if project_id:
             try:
                 project = Project.objects.get(pk=project_id)
-                if self.request.user.tenant == project.tenant:
-                    return self.queryset.filter(project=project)
-                else:
-                    return self.queryset.none()
+                return self.queryset.filter(project=project) if self.request.user.tenant == project.tenant else self.queryset.none()
             except (Project.DoesNotExist, ValueError):
                 return self.queryset.none()
         return self.queryset.none()
@@ -290,6 +291,34 @@ class CodedCausePercentage(views.APIView):
         return False
 
 
+class FrustrationWhyCauseViewSet(ListModelMixin, viewsets.GenericViewSet):
+    serializer_class = SimpleWhyCauseSerializer
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
+    pagination_class = FrustrationWhyCausesPagination
+    queryset = WhyCause.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        project_id = request.query_params.get('project', None)
+        self.queryset = self.serializer_class.setup_eager_loading(self.queryset)
+        questions = QuestionnaireQuestion.objects.get_project_indicator_questions(project_id)
+        self.queryset = self.queryset.filter(question__in=questions, is_appreciation_cause=False, coded_causes__isnull=True)
+        return super(FrustrationWhyCauseViewSet, self).list(request, *args, **kwargs)
+
+
+class AppreciationWhyCauseViewSet(ListModelMixin, viewsets.GenericViewSet):
+    serializer_class = SimpleWhyCauseSerializer
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
+    pagination_class = AppreciationWhyCausesPagination
+    queryset = WhyCause.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        project_id = request.query_params.get('project', None)
+        self.queryset = self.serializer_class.setup_eager_loading(self.queryset)
+        questions = QuestionnaireQuestion.objects.get_project_indicator_questions(project_id)
+        self.queryset = self.queryset.filter(question__in=questions, is_appreciation_cause=True, coded_causes__isnull=True)
+        return super(AppreciationWhyCauseViewSet, self).list(request, *args, **kwargs)
+
+
 class WhyCauseViewSet(viewsets.ModelViewSet):
     """
 
@@ -298,27 +327,6 @@ class WhyCauseViewSet(viewsets.ModelViewSet):
     serializer_class = WhyCauseSerializer
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
     encode_serializer_class = QuestionWithWhyCausesSerializer
-
-    @list_route(['get', 'put'])
-    def encode(self, request):
-        project_id = request.query_params.get('project', None)
-        pre_response = self._pre_process_request(project_id, request.user)
-        if pre_response:
-            return Response(**pre_response)
-
-        response = dict()
-        if request.method == 'GET':
-            response = self._encode_get(project_id)
-
-        elif request.method == 'PUT':
-            response = self._encode_put(project_id, request.data)
-
-        return Response(**response)
-
-    @list_route(['put'])
-    def encode(self, request):
-        response = self._encode_put(project_id, request.data)
-        return Response(**response)
 
     @detail_route(['post'])
     def split(self, request, pk=None):
@@ -331,7 +339,7 @@ class WhyCauseViewSet(viewsets.ModelViewSet):
         why_cause.update_coded_causes(validated_coded_causes)
 
         new_why_causes_answers = request.data.get('split_list', [])
-        why_cause_to_serialize =  why_cause.create_clones(new_why_causes_answers)
+        why_cause_to_serialize = why_cause.create_clones(new_why_causes_answers)
 
         serializer = WhyCauseSerializer(why_cause_to_serialize, many=True)
         return Response(serializer.data)
@@ -344,49 +352,16 @@ class WhyCauseViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_200_OK)
 
     @staticmethod
-    def _pre_process_request(project_id, user):
-        if project_id is None:
-            return dict(status=status.HTTP_400_BAD_REQUEST)
-        try:
-            project = Project.objects.get(pk=project_id)
-        except Project.DoesNotExist:
-            return dict(data='Project does not exist',
-                        status=status.HTTP_400_BAD_REQUEST)
-
-        if user.tenant != project.tenant:
-            return dict(data='You do not have access to this project',
-                        status=status.HTTP_400_BAD_REQUEST)
-
-        return False
-
-    def _encode_get(self, project_id):
-        questions = QuestionnaireQuestion.objects.get_project_indicator_questions(project_id)
-        serializer = self.encode_serializer_class(questions, many=True)
-
-        return dict(data=serializer.data, status=status.HTTP_200_OK)
-
-    def _encode_put(self, project_id, data):
-        why_cause_coded_causes_dict = {x['id']: x.get('coded_causes', []) for x in data}
-        why_causes = self._get_why_causes(project_id, data)
-        self._set_coded_causes(why_causes, why_cause_coded_causes_dict)
-
-        return dict(status=status.HTTP_200_OK)
-
-    def _get_why_causes(self, project_id, data):
+    def _get_why_causes(project_id, data):
         why_causes_changes = {x['id']: x.get('coded_causes', []) for x in data}
-        return  WhyCause.objects.filter(pk__in=why_causes_changes.keys(),
-                                        question__questionnaire__evaluation__project=project_id)
+        return WhyCause.objects.filter(pk__in=why_causes_changes.keys(),
+                                       question__questionnaire__evaluation__project=project_id)
 
-    def _check_if_coded_causes_exist(self, coded_cause_ids):
+    @staticmethod
+    def _check_if_coded_causes_exist(coded_cause_ids):
         validated_coded_causes_list = list()
         for id in coded_cause_ids:
             if CodedCause.objects.filter(pk=id).exists():
                 validated_coded_causes_list.append(id)
 
         return validated_coded_causes_list
-
-    def _set_coded_causes(self, why_causes, why_cause_coded_causes_dict):
-        for why_cause in why_causes:
-            real_coded_causes = self._check_if_coded_causes_exist(why_cause_coded_causes_dict[why_cause.id])
-            why_cause.set_coded_causes(real_coded_causes)
-
