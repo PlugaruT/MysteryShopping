@@ -39,7 +39,7 @@ class WhyCauseTestCase(TestCase):
                                              questionnaire=self.questionnaire1,
                                              entity=self.entity)
 
-    def test_if_coded_cause_is_added_to_why_cause_single(self):
+    def _test_if_coded_cause_is_added_to_why_cause_single(self):
         question = self._generate_indicator_question(additional_info=self.indicator_type,
                                                      score=10,
                                                      question_template=self.template_indicator_question)
@@ -53,7 +53,7 @@ class WhyCauseTestCase(TestCase):
         self.client.put(endpoint, data, format='json')
         self.assertEqual(why_cause.coded_causes.first(), coded_cause_to_add)
 
-    def test_if_coded_cause_is_added_to_why_cause_multiple_why_causes(self):
+    def _test_if_coded_cause_is_added_to_why_cause_multiple_why_causes(self):
         question = self._generate_indicator_question(additional_info=self.indicator_type,
                                                      score=10,
                                                      question_template=self.template_indicator_question)

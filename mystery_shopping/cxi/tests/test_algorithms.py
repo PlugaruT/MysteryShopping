@@ -438,11 +438,9 @@ class AlgorithmsTestCase(TestCase):
             }
         ]
 
-        self.maxDiff = None
-
         for item in result:
             item['coded_cause']['coded_label'] = {}
-
-        print(result)
+            item['coded_cause'].pop('why_causes_count')
+            item['coded_cause'].pop('why_causes')
 
         self.assertCountEqual(expected_result, result)
