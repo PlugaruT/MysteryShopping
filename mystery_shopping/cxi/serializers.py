@@ -66,11 +66,13 @@ class CodedCauseSerializer(serializers.ModelSerializer):
         Serializer for coded causes
     """
     coded_label = CodedCauseLabelSerializer()
-    raw_causes = WhyCauseSerializer(many=True)
+    why_causes = WhyCauseSerializer(source='get_few_why_causes', many=True, read_only=True)
+    why_causes_count = serializers.IntegerField(source='get_number_of_why_causes', read_only=True)
 
     class Meta:
         model = CodedCause
         extra_kwargs = {'tenant': {'required': False}}
+        exclude = ('raw_causes',)
 
     @staticmethod
     def setup_eager_loading(queryset):

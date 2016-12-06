@@ -85,7 +85,6 @@ class CodedCauseViewSet(viewsets.ModelViewSet):
     def group_by_indicator(coded_causes):
         result = dict()
         for coded_cause in coded_causes:
-            coded_cause['number_of_why_causes'] = len(coded_cause['raw_causes'])
             result.setdefault(coded_cause['type'], []).append(coded_cause)
         return result
 
