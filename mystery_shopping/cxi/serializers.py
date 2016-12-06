@@ -19,17 +19,41 @@ class CodedCauseLabelSerializer(serializers.ModelSerializer):
         extra_kwargs = {'tenant' : {'required': False}}
 
 
+class WhyCauseSerializer(serializers.ModelSerializer):
+    """
+    Serializer for WhyCause model
+    """
+    split_list = serializers.ListField(write_only=True, required=False)
+
+    class Meta:
+        model = WhyCause
+        fields = ('id', 'answer', 'is_appreciation_cause', 'coded_causes', 'question', 'split_list')
+        extra_kwargs = {
+            'question': {
+                'required': False
+            },
+            'coded_causes': {
+                'required': False
+            }
+        }
+
+
 class CodedCauseSerializer(serializers.ModelSerializer):
     """
-
+        Serializer for coded causes
     """
     coded_label = CodedCauseLabelSerializer()
+    raw_causes = WhyCauseSerializer(many=True)
 
     class Meta:
         model = CodedCause
-        # fields = '__all__'
-        exclude = ('raw_causes',)
-        extra_kwargs = {'tenant' : {'required': False}}
+        extra_kwargs = {'tenant': {'required': False}}
+
+    @staticmethod
+    def setup_eager_loading(queryset):
+        queryset = queryset.select_related('coded_label', 'coded_label__tenant')
+        queryset = queryset.prefetch_related('raw_causes', 'raw_causes__question', 'raw_causes__coded_causes')
+        return queryset
 
     def create(self, validated_data):
         coded_cause_label = validated_data.get('coded_label', None)
@@ -60,25 +84,6 @@ class CodedCauseSerializer(serializers.ModelSerializer):
         instance.coded_label.name = coded_label['name']
         instance.coded_label.tenant = coded_label['tenant']
         instance.coded_label.save()
-
-
-class WhyCauseSerializer(serializers.ModelSerializer):
-    """
-    Serializer for WhyCause model
-    """
-    split_list = serializers.ListField(write_only=True, required=False)
-
-    class Meta:
-        model = WhyCause
-        fields = ('id', 'answer', 'is_appreciation_cause', 'coded_causes', 'question', 'split_list')
-        extra_kwargs = {
-            'question': {
-                'required': False
-            },
-            'coded_causes': {
-                'required': False
-            }
-        }
 
 
 class QuestionWithWhyCausesSerializer(serializers.ModelSerializer):

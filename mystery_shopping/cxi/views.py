@@ -40,6 +40,7 @@ class CodedCauseLabelViewSet(viewsets.ModelViewSet):
 
 class CodedCauseViewSet(viewsets.ModelViewSet):
     queryset = CodedCause.objects.all()
+    queryset = CodedCauseSerializer().setup_eager_loading(queryset)
     serializer_class = CodedCauseSerializer
 
     def get_queryset(self):
@@ -64,6 +65,35 @@ class CodedCauseViewSet(viewsets.ModelViewSet):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    @list_route(methods=['get'])
+    def sorted(self, request):
+        serializer = self.get_serializer(self.queryset, many=True)
+        response = self.group_by_indicator_and_sentiment(serializer.data)
+        return Response(response)
+
+    def group_by_indicator_and_sentiment(self, coded_causes):
+        result = dict()
+        grouped_by_indicator = self.group_by_indicator(coded_causes)
+        for indicator, grouped_coded_causes in grouped_by_indicator.items():
+            grouped_by_sentiment = self.group_by_sentiment(grouped_coded_causes)
+            result[indicator] = grouped_by_sentiment
+        return result
+
+    @staticmethod
+    def group_by_indicator(coded_causes):
+        result = dict()
+        for coded_cause in coded_causes:
+            coded_cause['number_of_why_causes'] = len(coded_cause['raw_causes'])
+            result.setdefault(coded_cause['type'], []).append(coded_cause)
+        return result
+
+    @staticmethod
+    def group_by_sentiment(coded_causes):
+        result = dict()
+        for coded_cause in coded_causes:
+            result.setdefault(coded_cause['sentiment'], []).append(coded_cause)
+        return result
 
 
 class ProjectCommentViewSet(viewsets.ModelViewSet):
@@ -285,6 +315,11 @@ class WhyCauseViewSet(viewsets.ModelViewSet):
 
         return Response(**response)
 
+    @list_route(['put'])
+    def encode(self, request):
+        response = self._encode_put(project_id, request.data)
+        return Response(**response)
+
     @detail_route(['post'])
     def split(self, request, pk=None):
         why_cause = get_object_or_404(WhyCause, pk=pk)
@@ -308,7 +343,8 @@ class WhyCauseViewSet(viewsets.ModelViewSet):
 
         return Response(status=status.HTTP_200_OK)
 
-    def _pre_process_request(self, project_id, user):
+    @staticmethod
+    def _pre_process_request(project_id, user):
         if project_id is None:
             return dict(status=status.HTTP_400_BAD_REQUEST)
         try:

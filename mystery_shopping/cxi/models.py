@@ -66,6 +66,7 @@ class WhyCause(models.Model):
 
         return new_why_causes
 
+
 class CodedCause(models.Model):
     """
     Model for Coded Causes that would allow to group different frustration or appreciation together
