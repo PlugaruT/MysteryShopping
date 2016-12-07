@@ -9,3 +9,8 @@ class EvaluationPagination(PageNumberPagination):
 class DetractorRespondentPaginator(PageNumberPagination):
 
     page_size = 20
+
+
+class ProjectStatisticsPaginator(PageNumberPagination):
+
+    page_size = 20
