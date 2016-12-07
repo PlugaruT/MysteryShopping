@@ -67,6 +67,29 @@ class CodedCauseViewSet(viewsets.ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
+    @detail_route(methods=['put'], url_path='save-why-cause')
+    def save_why_cause(self, request, pk=None):
+        coded_cause = get_object_or_404(CodedCause, pk=pk)
+        why_causes = WhyCause.objects.filter(id__in=request.data)
+        common_questions = self.get_common_question(why_causes, coded_cause)
+        invalid_why_causes = why_causes.filter(question__in=common_questions)
+        if invalid_why_causes:
+            return Response(invalid_why_causes.values_list('id', flat=True), status=status.HTTP_400_BAD_REQUEST)
+        self.clear_coded_cause(why_causes)
+        coded_cause.raw_causes.add(*list(why_causes))
+        return Response(status=status.HTTP_202_ACCEPTED)
+
+    @staticmethod
+    def get_common_question(why_causes, coded_cause):
+        questions_from_coded_cause = coded_cause.raw_causes.values_list('question', flat=True)
+        questions_from_why_causes = why_causes.values_list('question', flat=True)
+        return list(set(questions_from_coded_cause).intersection(questions_from_why_causes))
+
+    @staticmethod
+    def clear_coded_cause(why_causes):
+        for why_cause in why_causes:
+            why_cause.coded_causes.clear()
+
     @list_route(methods=['get'])
     def sorted(self, request):
         serializer = self.get_serializer(self.queryset, many=True)
@@ -323,6 +346,7 @@ class WhyCauseViewSet(viewsets.ModelViewSet):
 
     """
     queryset = WhyCause.objects.all()
+    queryset = WhyCauseSerializer.setup_eager_loading(queryset)
     serializer_class = WhyCauseSerializer
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
     encode_serializer_class = QuestionWithWhyCausesSerializer

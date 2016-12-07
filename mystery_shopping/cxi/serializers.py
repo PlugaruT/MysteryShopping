@@ -25,6 +25,12 @@ class WhyCauseSerializer(serializers.ModelSerializer):
     """
     split_list = serializers.ListField(write_only=True, required=False)
 
+    @staticmethod
+    def setup_eager_loading(queryset):
+        queryset = queryset.select_related('question')
+        queryset = queryset.prefetch_related('coded_causes', 'coded_causes__raw_causes')
+        return queryset
+
     class Meta:
         model = WhyCause
         fields = ('id', 'answer', 'is_appreciation_cause', 'coded_causes', 'question', 'split_list')
