@@ -321,9 +321,11 @@ class FrustrationWhyCauseViewSet(ListModelMixin, viewsets.GenericViewSet):
 
     def list(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
+        indicator = request.query_params.get('type', None)
         self.queryset = self.serializer_class.setup_eager_loading(self.queryset)
         questions = QuestionnaireQuestion.objects.get_project_indicator_questions(project_id)
-        self.queryset = self.queryset.filter(question__in=questions, is_appreciation_cause=False, coded_causes__isnull=True)
+        self.queryset = self.queryset.filter(question__in=questions, is_appreciation_cause=False,
+                                             coded_causes__isnull=True, question__additional_info=indicator)
         return super(FrustrationWhyCauseViewSet, self).list(request, *args, **kwargs)
 
 
@@ -335,9 +337,11 @@ class AppreciationWhyCauseViewSet(ListModelMixin, viewsets.GenericViewSet):
 
     def list(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
+        indicator = request.query_params.get('type', None)
         self.queryset = self.serializer_class.setup_eager_loading(self.queryset)
         questions = QuestionnaireQuestion.objects.get_project_indicator_questions(project_id)
-        self.queryset = self.queryset.filter(question__in=questions, is_appreciation_cause=True, coded_causes__isnull=True)
+        self.queryset = self.queryset.filter(question__in=questions, is_appreciation_cause=True,
+                                             coded_causes__isnull=True, question__additional_info=indicator)
         return super(AppreciationWhyCauseViewSet, self).list(request, *args, **kwargs)
 
 
