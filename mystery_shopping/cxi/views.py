@@ -97,11 +97,11 @@ class CodedCauseViewSet(viewsets.ModelViewSet):
         return Response(response)
 
     def group_by_indicator_and_sentiment(self, coded_causes):
-        result = dict()
+        result = list()
         grouped_by_indicator = self.group_by_indicator(coded_causes)
         for indicator, grouped_coded_causes in grouped_by_indicator.items():
             grouped_by_sentiment = self.group_by_sentiment(grouped_coded_causes)
-            result[indicator] = grouped_by_sentiment
+            result.append({indicator: grouped_by_sentiment})
         return result
 
     @staticmethod
