@@ -92,7 +92,8 @@ class CodedCauseViewSet(viewsets.ModelViewSet):
 
     @list_route(methods=['get'])
     def sorted(self, request):
-        serializer = self.get_serializer(self.queryset, many=True)
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
         response = self.group_by_indicator_and_sentiment(serializer.data)
         return Response(response)
 
