@@ -9,3 +9,8 @@ class FrustrationWhyCausesPagination(PageNumberPagination):
 class AppreciationWhyCausesPagination(PageNumberPagination):
 
     page_size = 20
+
+
+class WhyCausesPagination(PageNumberPagination):
+
+    page_size = 20

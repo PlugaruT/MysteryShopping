@@ -10,7 +10,7 @@ from rest_condition import Or
 from mystery_shopping.cxi.algorithms import GetPerDayQuestionnaireData
 from mystery_shopping.cxi.serializers import SimpleWhyCauseSerializer
 from mystery_shopping.mystery_shopping_utils.paginators import FrustrationWhyCausesPagination, \
-    AppreciationWhyCausesPagination
+    AppreciationWhyCausesPagination, WhyCausesPagination
 from mystery_shopping.questionnaires.utils import check_interval_date
 from .algorithms import CodedCausesPercentageTable
 from .algorithms import collect_data_for_overview_dashboard
@@ -340,7 +340,17 @@ class WhyCauseViewSet(viewsets.ModelViewSet):
     queryset = WhyCauseSerializer.setup_eager_loading(queryset)
     serializer_class = WhyCauseSerializer
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
-    encode_serializer_class = QuestionWithWhyCausesSerializer
+    pagination_class = WhyCausesPagination
+
+    def list(self, request, *args, **kwargs):
+        coded_cause_id = request.query_params.get('cause', None)
+        queryset = self.queryset.filter(coded_causes=coded_cause_id)
+        serializer = self.serializer_class(queryset, many=True)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @detail_route(['post'])
     def split(self, request, pk=None):
