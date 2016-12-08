@@ -12,9 +12,11 @@ from rest_framework import status
 from rest_condition import Or
 from braces.views import LoginRequiredMixin
 from rest_framework.decorators import detail_route, list_route
+from rest_framework.mixins import ListModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from mystery_shopping.mystery_shopping_utils.paginators import DetractorRespondentPaginator
 from mystery_shopping.questionnaires.serializers import DetractorRespondentForTenantSerializer, \
     DetractorRespondentForClientSerializer
 from mystery_shopping.users.models import DetractorRespondent
@@ -177,10 +179,10 @@ class PersonToAssessViewSet(viewsets.ModelViewSet):
 
 
 class DetractorRespondentForTenantViewSet(viewsets.ModelViewSet):
-    queryset = DetractorRespondent.objects.all()
     serializer_class = DetractorRespondentForTenantSerializer
-    client_serializer_class = DetractorRespondentForClientSerializer
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
+    queryset = DetractorRespondent.objects.all()
+    pagination_class = DetractorRespondentPaginator
 
     def get_queryset(self):
         project = self.request.query_params.get('project')
@@ -191,6 +193,7 @@ class DetractorRespondentForClientViewSet(viewsets.ModelViewSet):
     queryset = DetractorRespondent.objects.all()
     serializer_class = DetractorRespondentForClientSerializer
     permission_classes = (IsAuthenticated, HasReadOnlyAccessToProjectsOrEvaluations,)
+    pagination_class = DetractorRespondentPaginator
 
     def get_queryset(self):
         project = self.request.query_params.get('project')
