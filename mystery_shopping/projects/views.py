@@ -248,7 +248,7 @@ class EvaluationAssessmentCommentViewSet(viewsets.ModelViewSet):
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant, IsShopper),)
 
 
-class ProjectStatisticsForCompanyViewSet(ListModelMixin, viewsets.GenericViewSet):
+class ProjectStatisticsForCompanyViewSet(viewsets.ModelViewSet):
     serializer_class = ProjectStatisticsForCompanySerializer
     permission_classes = (IsAuthenticated, HasReadOnlyAccessToProjectsOrEvaluations,)
     pagination_class = ProjectStatisticsPaginator
@@ -257,10 +257,10 @@ class ProjectStatisticsForCompanyViewSet(ListModelMixin, viewsets.GenericViewSet
     def get_queryset(self):
         project = self.kwargs.get('project_pk', None)
         company = self.kwargs.get('company_pk', None)
-        return self.queryset.filter(project=project, project__company=company)
+        return self.queryset.filter(project=project, project__company=company, status=EvaluationStatus.APPROVED)
 
 
-class ProjectStatisticsForTenantViewSet(ListModelMixin, viewsets.GenericViewSet):
+class ProjectStatisticsForTenantViewSet(viewsets.ModelViewSet):
     serializer_class = ProjectStatisticsForTenantSerializer
     permission_classes = (IsAuthenticated, HasAccessToProjectsOrEvaluations,)
     pagination_class = ProjectStatisticsPaginator
@@ -269,4 +269,4 @@ class ProjectStatisticsForTenantViewSet(ListModelMixin, viewsets.GenericViewSet)
     def get_queryset(self):
         project = self.kwargs.get('project_pk', None)
         company = self.kwargs.get('company_pk', None)
-        return self.queryset.filter(project=project, project__company=company)
+        return self.queryset.filter(project=project, project__company=company, status=EvaluationStatus.APPROVED)
