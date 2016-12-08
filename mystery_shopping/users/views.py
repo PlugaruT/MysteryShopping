@@ -178,10 +178,10 @@ class PersonToAssessViewSet(viewsets.ModelViewSet):
     serializer_class = PersonToAssessSerializer
 
 
-class DetractorRespondentForTenantViewSet(ListModelMixin, viewsets.GenericViewSet):
-    queryset = DetractorRespondent.objects.all()
+class DetractorRespondentForTenantViewSet(viewsets.ModelViewSet):
     serializer_class = DetractorRespondentForTenantSerializer
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
+    queryset = DetractorRespondent.objects.all()
     pagination_class = DetractorRespondentPaginator
 
     def get_queryset(self):
@@ -189,7 +189,7 @@ class DetractorRespondentForTenantViewSet(ListModelMixin, viewsets.GenericViewSe
         return self.queryset.filter(evaluation__project=project)
 
 
-class DetractorRespondentForClientViewSet(ListModelMixin, viewsets.GenericViewSet):
+class DetractorRespondentForClientViewSet(viewsets.ModelViewSet):
     queryset = DetractorRespondent.objects.all()
     serializer_class = DetractorRespondentForClientSerializer
     permission_classes = (IsAuthenticated, HasReadOnlyAccessToProjectsOrEvaluations,)
