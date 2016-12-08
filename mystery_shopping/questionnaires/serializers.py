@@ -555,6 +555,7 @@ class DetractorRespondentForTenantSerializer(serializers.ModelSerializer):
             }
         }
 
+
 class DetractorRespondentForClientSerializer(serializers.ModelSerializer):
     """
     Serializer for Detractors for clients (that exclued the saved_by field)
