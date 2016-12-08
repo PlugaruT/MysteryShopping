@@ -92,25 +92,11 @@ class CodedCauseViewSet(viewsets.ModelViewSet):
 
     @list_route(methods=['get'])
     def sorted(self, request):
-        queryset = self.get_queryset()
+        indicator = self.request.query_params.get('type')
+        queryset = self.get_queryset().filter(type=indicator)
         serializer = self.get_serializer(queryset, many=True)
-        response = self.group_by_indicator_and_sentiment(serializer.data)
+        response = self.group_by_sentiment(serializer.data)
         return Response(response)
-
-    def group_by_indicator_and_sentiment(self, coded_causes):
-        result = list()
-        grouped_by_indicator = self.group_by_indicator(coded_causes)
-        for indicator, grouped_coded_causes in grouped_by_indicator.items():
-            grouped_by_sentiment = self.group_by_sentiment(grouped_coded_causes)
-            result.append({indicator: grouped_by_sentiment})
-        return result
-
-    @staticmethod
-    def group_by_indicator(coded_causes):
-        result = dict()
-        for coded_cause in coded_causes:
-            result.setdefault(coded_cause['type'], []).append(coded_cause)
-        return result
 
     @staticmethod
     def group_by_sentiment(coded_causes):
