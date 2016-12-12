@@ -16,20 +16,75 @@ class CodedCauseLabelSerializer(serializers.ModelSerializer):
     class Meta:
         model = CodedCauseLabel
         fields = '__all__'
-        extra_kwargs = {'tenant' : {'required': False}}
+        extra_kwargs = {'tenant': {'required': False}}
+
+
+class WhyCauseSerializer(serializers.ModelSerializer):
+    """
+    Serializer for WhyCause model
+    """
+    split_list = serializers.ListField(write_only=True, required=False)
+
+    @staticmethod
+    def setup_eager_loading(queryset):
+        queryset = queryset.select_related('question')
+        queryset = queryset.prefetch_related('coded_causes', 'coded_causes__raw_causes')
+        return queryset
+
+    class Meta:
+        model = WhyCause
+        fields = ('id', 'answer', 'is_appreciation_cause', 'coded_causes', 'question', 'split_list')
+        extra_kwargs = {
+            'question': {
+                'required': False
+            },
+            'coded_causes': {
+                'required': False
+            }
+        }
+
+
+class SimpleQuestionnaireQuestionSerializer(serializers.ModelSerializer):
+    type = serializers.CharField(source='additional_info', read_only=True)
+
+    class Meta:
+        model = QuestionnaireQuestion
+        fields = ('type', 'id', 'score')
+        read_only_fields = ('type', 'id', 'score')
+
+
+class SimpleWhyCauseSerializer(serializers.ModelSerializer):
+    question = SimpleQuestionnaireQuestionSerializer()
+
+    class Meta:
+        model = WhyCause
+        fields = ('id', 'answer', 'is_appreciation_cause', 'coded_causes', 'question')
+
+    @staticmethod
+    def setup_eager_loading(queryset):
+        queryset = queryset.select_related('question')
+        queryset = queryset.prefetch_related('coded_causes')
+        return queryset
 
 
 class CodedCauseSerializer(serializers.ModelSerializer):
     """
-
+        Serializer for coded causes
     """
     coded_label = CodedCauseLabelSerializer()
+    why_causes = WhyCauseSerializer(source='get_few_why_causes', many=True, read_only=True)
+    why_causes_count = serializers.IntegerField(source='get_number_of_why_causes', read_only=True)
 
     class Meta:
         model = CodedCause
-        # fields = '__all__'
+        extra_kwargs = {'tenant': {'required': False}}
         exclude = ('raw_causes',)
-        extra_kwargs = {'tenant' : {'required': False}}
+
+    @staticmethod
+    def setup_eager_loading(queryset):
+        queryset = queryset.select_related('coded_label', 'coded_label__tenant', 'project')
+        queryset = queryset.prefetch_related('raw_causes', 'raw_causes__question', 'raw_causes__coded_causes')
+        return queryset
 
     def create(self, validated_data):
         coded_cause_label = validated_data.get('coded_label', None)
@@ -62,25 +117,6 @@ class CodedCauseSerializer(serializers.ModelSerializer):
         instance.coded_label.save()
 
 
-class WhyCauseSerializer(serializers.ModelSerializer):
-    """
-    Serializer for WhyCause model
-    """
-    split_list = serializers.ListField(write_only=True, required=False)
-
-    class Meta:
-        model = WhyCause
-        fields = ('id', 'answer', 'is_appreciation_cause', 'coded_causes', 'question', 'split_list')
-        extra_kwargs = {
-            'question': {
-                'required': False
-            },
-            'coded_causes': {
-                'required': False
-            }
-        }
-
-
 class QuestionWithWhyCausesSerializer(serializers.ModelSerializer):
     """Serializes only the minimal required fields to be able to encode a question's answer
     for the Customer Experience Index indicators.
@@ -102,7 +138,7 @@ class ProjectCommentSerializer(serializers.ModelSerializer):
         model = ProjectComment
         fields = '__all__'
         extra_kwargs = {
-            'indicator':{
+            'indicator': {
                 'allow_null': True
             }
         }

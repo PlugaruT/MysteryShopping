@@ -66,6 +66,7 @@ class WhyCause(models.Model):
 
         return new_why_causes
 
+
 class CodedCause(models.Model):
     """
     Model for Coded Causes that would allow to group different frustration or appreciation together
@@ -82,9 +83,16 @@ class CodedCause(models.Model):
     sentiment_choices = Choices(('a', 'Appreciation'),
                                 ('f', 'Frustration'))
     sentiment = models.CharField(max_length=1, choices=sentiment_choices, default=sentiment_choices.a)
+    WHY_CAUSE_LIMIT = 3
 
     def __str__(self):
         return '{}, type: {}'.format(self.coded_label.name, self.type)
+
+    def get_few_why_causes(self):
+        return self.raw_causes.all()[:self.WHY_CAUSE_LIMIT]
+
+    def get_number_of_why_causes(self):
+        return self.raw_causes.count()
 
 
 class ProjectComment(models.Model):

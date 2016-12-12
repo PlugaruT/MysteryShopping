@@ -14,3 +14,18 @@ class DetractorRespondentPaginator(PageNumberPagination):
 class ProjectStatisticsPaginator(PageNumberPagination):
 
     page_size = 20
+
+
+class FrustrationWhyCausesPagination(PageNumberPagination):
+
+    page_size = 20
+
+
+class AppreciationWhyCausesPagination(PageNumberPagination):
+
+    page_size = 20
+
+
+class WhyCausesPagination(PageNumberPagination):
+
+    page_size = 20
