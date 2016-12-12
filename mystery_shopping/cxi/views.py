@@ -72,13 +72,15 @@ class CodedCauseViewSet(viewsets.ModelViewSet):
         coded_cause = get_object_or_404(CodedCause, pk=pk)
         why_causes = WhyCause.objects.filter(id__in=request.data)
         questions_from_why_causes = list(why_causes.values_list('question', flat=True))
+        questions_from_coded_cause = list(coded_cause.raw_causes.values_list('question', flat=True))
         dup_questions_from_why_causes = set(
             question for question in questions_from_why_causes if questions_from_why_causes.count(question) > 1)
         # common_questions = self.get_common_question(why_causes, coded_cause)
         # invalid_why_causes = why_causes.filter(question__in=common_questions)
         # if invalid_why_causes.exists():
         # return Response(invalid_why_causes.values_list('id', flat=True), status=status.HTTP_400_BAD_REQUEST)
-        why_causes = why_causes.exclude(question__in=dup_questions_from_why_causes)
+        all_questions = list(dup_questions_from_why_causes) + questions_from_coded_cause
+        why_causes = why_causes.exclude(question__in=all_questions)
         self.clear_coded_cause(why_causes)
         coded_cause.raw_causes.add(*list(why_causes))
         return Response(status=status.HTTP_202_ACCEPTED)
