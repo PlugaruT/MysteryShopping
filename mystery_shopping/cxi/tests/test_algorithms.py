@@ -218,7 +218,7 @@ class AlgorithmsTestCase(TestCase):
         indicator_question = MagicMock()
         indicator_question.id = indicator_question_id
         indicator_question.why_causes.all.return_value = [why_cause]
-        why_cause.coded_causes.first.return_value = coded_cause
+        why_cause.coded_causes.all.return_value = [coded_cause]
 
         add_question_per_coded_cause(indicator_question, coded_causes_dict)
         self.assertEqual(coded_causes_dict[coded_cause.id][0], indicator_question_id)
@@ -244,8 +244,6 @@ class AlgorithmsTestCase(TestCase):
             indicator_question.additional_info = indicator_type
             indicator_question.coded_causes.first.return_value = None
 
-            questionnaire.questions.filter().first.return_value = indicator_question
-
             question.type = QuestionType.SINGLE_CHOICE
             if q < 2:
                 question.answer = 'Romanian'
@@ -260,6 +258,7 @@ class AlgorithmsTestCase(TestCase):
             question.question_body = 'Language'
 
             question_list.append(question)
+            question_list.append(indicator_question)
 
             questionnaire.questions.all.return_value = question_list
             questionnaire_list.append(questionnaire)
@@ -288,7 +287,7 @@ class AlgorithmsTestCase(TestCase):
             indicator_question.score = mark
             indicator_question.additional_info = indicator_type
 
-            questionnaire.questions.filter().first.return_value = indicator_question
+            questionnaire.questions.all.return_value = [indicator_question]
 
             questionnaire.evaluation.section = None
 
