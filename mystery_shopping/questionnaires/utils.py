@@ -19,3 +19,10 @@ def check_interval_date(data):
 def update_attributes(validated_data, instance):
     for attr, value in validated_data.items():
         setattr(instance, attr, value)
+
+
+def first_or_none(list):
+    try:
+        return list[0]
+    except IndexError:
+        return None

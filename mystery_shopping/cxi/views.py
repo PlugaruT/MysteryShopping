@@ -9,6 +9,7 @@ from rest_condition import Or
 
 from mystery_shopping.cxi.algorithms import GetPerDayQuestionnaireData
 from mystery_shopping.cxi.serializers import SimpleWhyCauseSerializer
+from mystery_shopping.decorators import CacheResult
 from mystery_shopping.mystery_shopping_utils.paginators import FrustrationWhyCausesPagination, \
     AppreciationWhyCausesPagination, WhyCausesPagination
 from mystery_shopping.questionnaires.utils import check_interval_date
@@ -19,7 +20,6 @@ from .algorithms import get_company_indicator_questions_list
 from .models import CodedCauseLabel
 from .models import CodedCause
 from .models import ProjectComment
-from .serializers import QuestionWithWhyCausesSerializer
 from .algorithms import CollectDataForIndicatorDashboard
 from .models import WhyCause
 from .serializers import WhyCauseSerializer
@@ -151,7 +151,7 @@ class OverviewDashboard(views.APIView):
                     'detail': 'Entity param is invalid'
                 }, status.HTTP_400_BAD_REQUEST)
             try:
-                project = Project.objects.get(pk=project_id)
+                project = Project.objects.select_related('tenant').get(pk=project_id)
                 if request.user.tenant != project.tenant:
                     return Response({'detail': 'You do not have permission to access to this project.'},
                                     status.HTTP_403_FORBIDDEN)
@@ -210,7 +210,7 @@ class IndicatorDashboard(views.APIView):
                     'detail': 'Entity param is invalid'
                 }, status.HTTP_400_BAD_REQUEST)
             try:
-                project = Project.objects.get(pk=project_id)
+                project = Project.objects.select_related('tenant').get(pk=project_id)
             except (Project.DoesNotExist, ValueError):
                 return Response({'detail': 'No Project with this id exists or invalid project parameter'},
                                 status.HTTP_404_NOT_FOUND)
@@ -224,13 +224,18 @@ class IndicatorDashboard(views.APIView):
             }, status.HTTP_400_BAD_REQUEST)
 
         if project is not None:
-            response = CollectDataForIndicatorDashboard(project, department_id, entity_id, section_id, indicator_type).build_response()
+            response = self.collect_data_for_indicator_dashboard(project, department_id, entity_id, section_id, indicator_type)
 
             return Response(response, status.HTTP_200_OK)
 
         return Response({
             'detail': 'Project was not provided'
         }, status.HTTP_400_BAD_REQUEST)
+
+    @staticmethod
+    @CacheResult(age=60 * 60 * 24) # 24h
+    def collect_data_for_indicator_dashboard(project, department_id, entity_id, section_id, indicator_type):
+        return CollectDataForIndicatorDashboard(project, department_id, entity_id, section_id, indicator_type).build_response()
 
     @staticmethod
     def parameter_is_valid(parameter):
