@@ -89,7 +89,7 @@ class CodedCause(models.Model):
         return '{}, type: {}'.format(self.coded_label.name, self.type)
 
     def get_few_why_causes(self):
-        return self.raw_causes.all()[:self.WHY_CAUSE_LIMIT]
+        return self.raw_causes.prefetch_related('coded_causes').all()[:self.WHY_CAUSE_LIMIT]
 
     def get_number_of_why_causes(self):
         return self.raw_causes.count()

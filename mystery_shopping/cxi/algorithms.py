@@ -10,6 +10,7 @@ from mystery_shopping.cxi.models import CodedCause
 from mystery_shopping.cxi.models import ProjectComment
 from mystery_shopping.cxi.serializers import CodedCauseSerializer
 from mystery_shopping.cxi.serializers import ProjectCommentSerializer
+from mystery_shopping.questionnaires.utils import first_or_none
 
 
 def get_indicator_scores(questionnaire_list, indicator_type):
@@ -47,6 +48,7 @@ def calculate_indicator_score(indicator_marks):
     detractors = 0
     passives = 0
     promoters = 0
+    indicator_marks = [i for i in indicator_marks if i is not None]
 
     for mark in indicator_marks:
         if mark < 7:
@@ -77,7 +79,8 @@ def sort_indicator_question_marks(indicator_dict, indicator_question, question):
             indicator_dict[question.question_body][question.answer]['marks'].append(indicator_question.score)
         else:
             indicator_dict[question.question_body]['other']['marks'].append(indicator_question.score)
-            if question.answer.capitalize() not in indicator_dict[question.question_body]['other']['other_choices']:
+            if question.answer is not None and question.answer.capitalize() not in \
+                indicator_dict[question.question_body]['other']['other_choices']:
                 indicator_dict[question.question_body]['other']['other_choices'].append(question.answer)
 
 
@@ -92,9 +95,9 @@ def group_questions_by_answer(questionnaire_list, indicator_type, indicator_deta
     coded_causes_dict = defaultdict(list)
 
     for questionnaire in questionnaire_list:
-        questionnaire_indicator_question = questionnaire.questions.filter(
-            type=QuestionType.INDICATOR_QUESTION,
-            additional_info=indicator_type).first()
+        questionnaire_indicator_question = first_or_none([q for q in questionnaire.questions.all()
+                                                          if q.type == QuestionType.INDICATOR_QUESTION
+                                                          and q.additional_info == indicator_type])
 
         if questionnaire_indicator_question:
             add_question_per_coded_cause(questionnaire_indicator_question, coded_causes_dict)
@@ -108,13 +111,16 @@ def group_questions_by_answer(questionnaire_list, indicator_type, indicator_deta
 def group_questions_by_pos(questionnaire_list, indicator_type):
     indicator_pos_details = defaultdict(lambda: defaultdict(list))
     for questionnaire in questionnaire_list:
-        questionnaire_indicator_score = questionnaire.questions.filter(type=QuestionType.INDICATOR_QUESTION,
-                                                                       additional_info=indicator_type).first()
+        questionnaire_indicator_score = first_or_none([q for q in questionnaire.questions.all()
+                                                       if q.type == QuestionType.INDICATOR_QUESTION
+                                                       and q.additional_info == indicator_type])
         if questionnaire_indicator_score:
-            indicator_pos_details['entities'][questionnaire.evaluation.entity.name].append(questionnaire_indicator_score.score)
+            indicator_pos_details['entities'][questionnaire.evaluation.entity.name].append(
+                questionnaire_indicator_score.score)
             indicator_pos_details['ids'][questionnaire.evaluation.entity.name] = questionnaire.evaluation.entity.id
             if questionnaire.evaluation.section is not None:
-                indicator_pos_details['sections'][questionnaire.evaluation.section.name].append(questionnaire_indicator_score.score)
+                indicator_pos_details['sections'][questionnaire.evaluation.section.name].append(
+                    questionnaire_indicator_score.score)
     return indicator_pos_details
 
 
@@ -180,7 +186,8 @@ def get_indicator_details(questionnaire_list, indicator_type):
     """
     details = list()
     indicator_skeleton = create_details_skeleton(questionnaire_list.first().template)
-    indicator_categories, coded_causes_dict = group_questions_by_answer(questionnaire_list, indicator_type, indicator_skeleton)
+    indicator_categories, coded_causes_dict = group_questions_by_answer(questionnaire_list, indicator_type,
+                                                                        indicator_skeleton)
     sort_indicator_categories(details, indicator_categories)
 
     indicators_per_pos = group_questions_by_pos(questionnaire_list, indicator_type)
@@ -193,13 +200,13 @@ def get_indicator_details(questionnaire_list, indicator_type):
 
 
 def get_overview_project_comment(project, department_id, entity_id, section_id):
-    project_comment = ProjectComment.objects.filter(project=project, department=department_id,  entity=entity_id,
+    project_comment = ProjectComment.objects.filter(project=project, department=department_id, entity=entity_id,
                                                     section=section_id, indicator="").first()
     return None if project_comment is None else ProjectCommentSerializer(project_comment).data
 
 
 def get_indicator_project_comment(project, department_id, entity_id, section_id, indicator_type):
-    project_comment = ProjectComment.objects.filter(project=project, department=department_id,  entity=entity_id,
+    project_comment = ProjectComment.objects.filter(project=project, department=department_id, entity=entity_id,
                                                     section=section_id, indicator=indicator_type).first()
     return None if project_comment is None else ProjectCommentSerializer(project_comment).data
 
@@ -224,7 +231,8 @@ def get_indicator_questions(questionnaire_list):
     indicator_types_set = set()
     indicator_order = list()
     for questionnaire in questionnaire_list:
-        for indicator_question in questionnaire.get_indicator_questions().order_by('order'):
+        indicator_questions = [q for q in questionnaire.questions.all() if q.type == QuestionType.INDICATOR_QUESTION]
+        for indicator_question in indicator_questions:
             indicator_types_set.add(indicator_question.additional_info)
             if indicator_question.additional_info not in indicator_order:
                 indicator_order.append(indicator_question.additional_info)
@@ -243,7 +251,7 @@ def calculate_overview_score(questionnaire_list, project, department_id, entity_
 
 class GetPerDayQuestionnaireData:
     def __init__(self, start, end, company_id):
-        self.questionnaire_list = Questionnaire.objects.get_questionnaires_for_company(company_id)\
+        self.questionnaire_list = Questionnaire.objects.get_questionnaires_for_company(company_id) \
             .filter(modified__range=[start, end]).order_by('modified')
 
     def build_response(self):
@@ -329,7 +337,7 @@ def add_question_per_coded_cause(indicator_question, coded_cause_dict):
     :return: dict with sorted questions by coded_cause
     """
     why_causes = indicator_question.why_causes.all()
-    coded_causes = [why_cause.coded_causes.first() for why_cause in why_causes]
+    coded_causes = [first_or_none(why_cause.coded_causes.all()) for why_cause in why_causes]
 
     for coded_cause in coded_causes:
         if coded_cause:
@@ -416,19 +424,29 @@ class CollectDataForIndicatorDashboard:
         return get_indicator_details(self.questionnaire_list, self.indicator_type)
 
     def _get_questionnaire_list(self):
-        return Questionnaire.objects.get_project_questionnaires_for_subdivision(project=self.project,
-                                                                                department=self.department_id,
-                                                                                entity=self.entity,
-                                                                                section=self.section)
+        return (Questionnaire.objects
+                .select_related('template', 'evaluation', 'evaluation__entity')
+                .prefetch_related('questions', 'questions__why_causes', 'questions__why_causes__coded_causes__coded_label', 'questions__why_causes__coded_causes')
+                .get_project_questionnaires_for_subdivision(project=self.project,
+                                                            department=self.department_id,
+                                                            entity=self.entity,
+                                                            section=self.section))
 
     def _get_all_project_questionnaires(self):
-        return Questionnaire.objects.get_project_submitted_or_approved_questionnaires(self.project)
+        return (Questionnaire.objects
+                .select_related('template', 'evaluation', 'evaluation__entity')
+                .prefetch_related('questions', 'questions__why_causes', 'questions__why_causes__coded_causes__coded_label', 'questions__why_causes__coded_causes')
+                .get_project_submitted_or_approved_questionnaires(self.project))
 
 
 def collect_data_for_overview_dashboard(project, department_id, entity_id, section_id):
-    questionnaire_list = Questionnaire.objects.get_project_questionnaires_for_subdivision(project=project,
-                                                                                          entity=entity_id,
-                                                                                          section=section_id)
+    questionnaire_list = (Questionnaire.objects
+                          .select_related('template', 'evaluation')
+                          .prefetch_related('questions'))
+
+    questionnaire_list = questionnaire_list.get_project_questionnaires_for_subdivision(project=project,
+                                                                                       entity=entity_id,
+                                                                                       section=section_id)
     return calculate_overview_score(questionnaire_list, project, department_id, entity_id, section_id)
 
 
@@ -457,7 +475,9 @@ def get_company_indicator_questions_list(company):
             template_questionnaire = project.research_methodology.questionnaires.first()
         except AttributeError:
             indicators['indicator_list'] = list()
-            indicators['detail'] = '{} has either no Research Methodology or template questionnaire defined for this project'.format(project)
+            indicators[
+                'detail'] = '{} has either no Research Methodology or template questionnaire defined for this project'.format(
+                project)
             return indicators
         for question in template_questionnaire.template_questions.all():
             if question.type == QuestionType.INDICATOR_QUESTION:
@@ -467,7 +487,8 @@ def get_company_indicator_questions_list(company):
 
 class CodedCausesPercentageTable:
     def __init__(self, indicator, project):
-        self.indicator_questions = QuestionnaireQuestion.objects.get_project_specific_indicator_questions(project, indicator)
+        self.indicator_questions = QuestionnaireQuestion.objects.get_project_specific_indicator_questions(project,
+                                                                                                          indicator)
 
     def build_response(self):
         response = list()
@@ -590,7 +611,7 @@ class CodedCausesPercentageTable:
     def extract_coded_cause(why_causes):
         response = defaultdict(lambda: defaultdict(list))
         for why_cause in why_causes:
-            coded_cause = why_cause.coded_causes.first()
+            coded_cause = first_or_none(why_cause.coded_causes.all())
             if coded_cause:
                 coded_cause_name = coded_cause.coded_label.name
                 response[coded_cause_name]['why_causes'].append(why_cause)

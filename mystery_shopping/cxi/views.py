@@ -151,7 +151,7 @@ class OverviewDashboard(views.APIView):
                     'detail': 'Entity param is invalid'
                 }, status.HTTP_400_BAD_REQUEST)
             try:
-                project = Project.objects.get(pk=project_id)
+                project = Project.objects.select_related('tenant').get(pk=project_id)
                 if request.user.tenant != project.tenant:
                     return Response({'detail': 'You do not have permission to access to this project.'},
                                     status.HTTP_403_FORBIDDEN)
@@ -210,7 +210,7 @@ class IndicatorDashboard(views.APIView):
                     'detail': 'Entity param is invalid'
                 }, status.HTTP_400_BAD_REQUEST)
             try:
-                project = Project.objects.get(pk=project_id)
+                project = Project.objects.select_related('tenant').get(pk=project_id)
             except (Project.DoesNotExist, ValueError):
                 return Response({'detail': 'No Project with this id exists or invalid project parameter'},
                                 status.HTTP_404_NOT_FOUND)
