@@ -1,40 +1,37 @@
 from django.shortcuts import get_object_or_404
+from rest_condition import Or
 from rest_framework import status
 from rest_framework import views
 from rest_framework import viewsets
 from rest_framework.decorators import list_route, detail_route
 from rest_framework.mixins import ListModelMixin
 from rest_framework.response import Response
-from rest_condition import Or
 
+from mystery_shopping.common.decorators import CacheResult
+from mystery_shopping.companies.models import Company
 from mystery_shopping.cxi.algorithms import GetPerDayQuestionnaireData
 from mystery_shopping.cxi.serializers import SimpleWhyCauseSerializer
-from mystery_shopping.decorators import CacheResult
 from mystery_shopping.mystery_shopping_utils.paginators import FrustrationWhyCausesPagination, \
     AppreciationWhyCausesPagination, WhyCausesPagination
-from mystery_shopping.questionnaires.utils import check_interval_date
-from .algorithms import CodedCausesPercentageTable
-from .algorithms import collect_data_for_overview_dashboard
-from .algorithms import get_project_indicator_questions_list
-from .algorithms import get_company_indicator_questions_list
-from .models import CodedCauseLabel
-from .models import CodedCause
-from .models import ProjectComment
-from .algorithms import CollectDataForIndicatorDashboard
-from .models import WhyCause
-from .serializers import WhyCauseSerializer
-from .serializers import CodedCauseLabelSerializer
-from .serializers import CodedCauseSerializer
-from .serializers import ProjectCommentSerializer
-
-from mystery_shopping.questionnaires.models import QuestionnaireQuestion
-
 from mystery_shopping.projects.models import Project
-from mystery_shopping.companies.models import Company
-
+from mystery_shopping.questionnaires.models import QuestionnaireQuestion
+from mystery_shopping.questionnaires.utils import check_interval_date
 from mystery_shopping.users.permissions import IsCompanyProjectManager, IsCompanyManager, IsTenantConsultant
 from mystery_shopping.users.permissions import IsTenantProductManager
 from mystery_shopping.users.permissions import IsTenantProjectManager
+from .algorithms import CodedCausesPercentageTable
+from .algorithms import CollectDataForIndicatorDashboard
+from .algorithms import collect_data_for_overview_dashboard
+from .algorithms import get_company_indicator_questions_list
+from .algorithms import get_project_indicator_questions_list
+from .models import CodedCause
+from .models import CodedCauseLabel
+from .models import ProjectComment
+from .models import WhyCause
+from .serializers import CodedCauseLabelSerializer
+from .serializers import CodedCauseSerializer
+from .serializers import ProjectCommentSerializer
+from .serializers import WhyCauseSerializer
 
 
 class CodedCauseLabelViewSet(viewsets.ModelViewSet):
@@ -232,9 +229,8 @@ class IndicatorDashboard(views.APIView):
             'detail': 'Project was not provided'
         }, status.HTTP_400_BAD_REQUEST)
 
-    @staticmethod
     @CacheResult(age=60 * 60 * 24) # 24h
-    def collect_data_for_indicator_dashboard(project, department_id, entity_id, section_id, indicator_type):
+    def collect_data_for_indicator_dashboard(self, project, department_id, entity_id, section_id, indicator_type):
         return CollectDataForIndicatorDashboard(project, department_id, entity_id, section_id, indicator_type).build_response()
 
     @staticmethod
