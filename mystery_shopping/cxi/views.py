@@ -229,7 +229,7 @@ class IndicatorDashboard(views.APIView):
             'detail': 'Project was not provided'
         }, status.HTTP_400_BAD_REQUEST)
 
-    @CacheResult(age=60 * 60 * 24) # 24h
+    # @CacheResult(age=60 * 60 * 24) # 24h
     def collect_data_for_indicator_dashboard(self, project, department_id, entity_id, section_id, indicator_type):
         return CollectDataForIndicatorDashboard(project, department_id, entity_id, section_id, indicator_type).build_response()
 

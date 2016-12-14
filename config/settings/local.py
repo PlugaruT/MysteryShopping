@@ -67,3 +67,8 @@ NOSE_ARGS = [
 ]
 
 # Your local stuff: Below this line define 3rd party library settings
+
+REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'] = [
+    'rest_framework.authentication.BasicAuthentication',
+    'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+]
