@@ -355,7 +355,10 @@ class DetractorRespondent(models.Model):
         return u'{} {}'.format(self.name, self.surname)
 
     def get_detractor_questions(self):
-        return self.evaluation.questionnaire.get_indicator_questions()
+        return self.evaluation.questionnaire.get_indicator_questions().select_related('block__template_block')
 
     def get_visited_place(self):
         return self.evaluation.section if self.evaluation.section else self.evaluation.entity
+
+    def get_number_of_questions(self):
+        return self.evaluation.questionnaire.get_indicator_questions().count()
