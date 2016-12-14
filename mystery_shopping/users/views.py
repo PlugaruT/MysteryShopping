@@ -10,7 +10,7 @@ from rest_framework import viewsets
 from rest_framework import status
 from rest_condition import Or
 from braces.views import LoginRequiredMixin
-from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import generics
@@ -177,7 +177,7 @@ class PersonToAssessViewSet(viewsets.ModelViewSet):
 
 
 class DetractorFilter(django_filters.rest_framework.FilterSet):
-    entity = django_filters.NumberFilter(name="evaluation__entity")
+    entity = django_filters.AllValuesMultipleFilter(name="evaluation__entity")
     date = django_filters.DateFilter(name="evaluation__time_accomplished", lookup_expr='date')
 
     class Meta:
@@ -191,9 +191,8 @@ class DetractorRespondentForTenantViewSet(viewsets.ModelViewSet):
     queryset = DetractorRespondent.objects.all()
     queryset = serializer_class.setup_eager_loading(queryset)
     pagination_class = DetractorRespondentPaginator
-    filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
+    filter_backends = (DjangoFilterBackend, OrderingFilter)
     filter_class = DetractorFilter
-    search_fields = ('evaluation__entity__name',)
 
     def get_queryset(self):
         project = self.request.query_params.get('project')
