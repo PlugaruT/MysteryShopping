@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
-import json
 
+import django_filters
 from django.core.urlresolvers import reverse
-from django.shortcuts import get_object_or_404
 from django.views.generic import DetailView, ListView, RedirectView, UpdateView
 from django.db.models import Q
 
@@ -11,10 +10,9 @@ from rest_framework import viewsets
 from rest_framework import status
 from rest_condition import Or
 from braces.views import LoginRequiredMixin
-from rest_framework.decorators import detail_route, list_route
-from rest_framework.mixins import ListModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from django_filters.rest_framework import DjangoFilterBackend
 
 from mystery_shopping.mystery_shopping_utils.paginators import DetractorRespondentPaginator
 from mystery_shopping.questionnaires.serializers import DetractorRespondentForTenantSerializer, \
@@ -29,7 +27,6 @@ from .models import TenantProductManager
 from .models import TenantConsultant
 from .models import User
 from .models import PersonToAssess
-from mystery_shopping.users.services import ShopperService
 
 from .serializers import UserSerializer
 from .serializers import ClientEmployeeSerializer
@@ -40,8 +37,7 @@ from .serializers import TenantProductManagerSerializer
 from .serializers import TenantProjectManagerSerializer
 from .serializers import TenantConsultantSerializer
 from .serializers import PersonToAssessSerializer
-from mystery_shopping.users.permissions import IsTenantProductManager, IsShopperAccountOwner, \
-    HasReadOnlyAccessToProjectsOrEvaluations
+from mystery_shopping.users.permissions import IsTenantProductManager, HasReadOnlyAccessToProjectsOrEvaluations
 from mystery_shopping.users.permissions import IsTenantProjectManager
 from mystery_shopping.users.permissions import IsTenantConsultant
 
@@ -178,11 +174,23 @@ class PersonToAssessViewSet(viewsets.ModelViewSet):
     serializer_class = PersonToAssessSerializer
 
 
+class DetractorFilter(django_filters.rest_framework.FilterSet):
+    entity = django_filters.AllValuesMultipleFilter(name="evaluation__entity")
+    date = django_filters.DateFilter(name="evaluation__time_accomplished", lookup_expr='date')
+
+    class Meta:
+        model = DetractorRespondent
+        fields = ['entity', 'date']
+
+
 class DetractorRespondentForTenantViewSet(viewsets.ModelViewSet):
     serializer_class = DetractorRespondentForTenantSerializer
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
     queryset = DetractorRespondent.objects.all()
+    queryset = serializer_class.setup_eager_loading(queryset)
     pagination_class = DetractorRespondentPaginator
+    filter_backends = (DjangoFilterBackend,)
+    filter_class = DetractorFilter
 
     def get_queryset(self):
         project = self.request.query_params.get('project')
@@ -190,10 +198,13 @@ class DetractorRespondentForTenantViewSet(viewsets.ModelViewSet):
 
 
 class DetractorRespondentForClientViewSet(viewsets.ModelViewSet):
-    queryset = DetractorRespondent.objects.all()
     serializer_class = DetractorRespondentForClientSerializer
+    queryset = DetractorRespondent.objects.all()
+    queryset = serializer_class.setup_eager_loading(queryset)
     permission_classes = (IsAuthenticated, HasReadOnlyAccessToProjectsOrEvaluations,)
     pagination_class = DetractorRespondentPaginator
+    filter_backends = (DjangoFilterBackend,)
+    filter_class = DetractorFilter
 
     def get_queryset(self):
         project = self.request.query_params.get('project')

@@ -556,6 +556,18 @@ class DetractorRespondentForTenantSerializer(serializers.ModelSerializer):
             }
         }
 
+    @staticmethod
+    def setup_eager_loading(queryset):
+        queryset = queryset.select_related('evaluation', 'evaluation__questionnaire')
+        queryset = queryset.prefetch_related('evaluation__saved_by_user',
+                                             'evaluation__shopper',
+                                             'evaluation__shopper__user',
+                                             'evaluation__saved_by_user__tenantprojectmanager',
+                                             'evaluation__saved_by_user__tenantproductmanager',
+                                             'evaluation__saved_by_user__tenantconsultant',
+                                             'evaluation__questionnaire__blocks__questions__question_choices')
+        return queryset
+
 
 class DetractorRespondentForClientSerializer(serializers.ModelSerializer):
     """
@@ -569,3 +581,15 @@ class DetractorRespondentForClientSerializer(serializers.ModelSerializer):
     class Meta:
         model = DetractorRespondent
         fields = '__all__'
+
+    @staticmethod
+    def setup_eager_loading(queryset):
+        queryset = queryset.select_related('evaluation', 'evaluation__questionnaire')
+        queryset = queryset.prefetch_related('evaluation__saved_by_user',
+                                             'evaluation__shopper',
+                                             'evaluation__shopper__user',
+                                             'evaluation__saved_by_user__tenantprojectmanager',
+                                             'evaluation__saved_by_user__tenantproductmanager',
+                                             'evaluation__saved_by_user__tenantconsultant',
+                                             'evaluation__questionnaire__blocks__questions__question_choices')
+        return queryset
