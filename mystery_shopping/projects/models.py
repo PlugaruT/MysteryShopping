@@ -191,11 +191,11 @@ class Evaluation(TimeStampedModel, models.Model):
     class Meta:
         default_related_name = 'evaluations'
 
-    # def __str__(self):
-    #     if self.time_accomplished is not None:
-    #         return '{}, shopper: {}'.format(self.project, self.saved_by_user.username)
-    #     else:
-    #         return '{}, time accomplished: {}'.format(self.project, str(self.time_accomplished))
+    def __str__(self):
+        if self.time_accomplished is not None:
+            return '{}, shopper: {}'.format(self.project, self.saved_by_user.username)
+        else:
+            return '{}, time accomplished: {}'.format(self.project, str(self.time_accomplished))
 
     def save(self, *args, **kwargs):
         if self.status == EvaluationStatus.SUBMITTED:
