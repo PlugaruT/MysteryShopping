@@ -542,7 +542,6 @@ class DetractorRespondentForTenantSerializer(serializers.ModelSerializer):
     questionnaire_title = serializers.CharField(source='evaluation.questionnaire.title', read_only=True)
     time_accomplished = serializers.DateTimeField(source='evaluation.time_accomplished', read_only=True)
     questions = QuestionnaireQuestionSerializer(source='get_detractor_questions', many=True, read_only=True)
-    number_of_questions = serializers.IntegerField(source='get_number_of_questions', read_only=True)
     visited_place = serializers.CharField(source='get_visited_place.name', read_only=True)
 
     class Meta:
@@ -559,11 +558,14 @@ class DetractorRespondentForTenantSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def setup_eager_loading(queryset):
-        queryset = queryset.select_related('evaluation', 'evaluation__saved_by_user__tenantprojectmanager',
-                                           'evaluation__saved_by_user__tenantproductmanager',
-                                           'evaluation__saved_by_user__tenantconsultant')
-        queryset = queryset.prefetch_related('evaluation__saved_by_user', 'evaluation__shopper',
-                                             'evaluation__shopper__user')
+        queryset = queryset.select_related('evaluation', 'evaluation__questionnaire')
+        queryset = queryset.prefetch_related('evaluation__saved_by_user',
+                                             'evaluation__shopper',
+                                             'evaluation__shopper__user',
+                                             'evaluation__saved_by_user__tenantprojectmanager',
+                                             'evaluation__saved_by_user__tenantproductmanager',
+                                             'evaluation__saved_by_user__tenantconsultant',
+                                             'evaluation__questionnaire__blocks__questions__question_choices')
         return queryset
 
 
@@ -579,3 +581,15 @@ class DetractorRespondentForClientSerializer(serializers.ModelSerializer):
     class Meta:
         model = DetractorRespondent
         fields = '__all__'
+
+    @staticmethod
+    def setup_eager_loading(queryset):
+        queryset = queryset.select_related('evaluation', 'evaluation__questionnaire')
+        queryset = queryset.prefetch_related('evaluation__saved_by_user',
+                                             'evaluation__shopper',
+                                             'evaluation__shopper__user',
+                                             'evaluation__saved_by_user__tenantprojectmanager',
+                                             'evaluation__saved_by_user__tenantproductmanager',
+                                             'evaluation__saved_by_user__tenantconsultant',
+                                             'evaluation__questionnaire__blocks__questions__question_choices')
+        return queryset

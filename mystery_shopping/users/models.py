@@ -5,6 +5,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.db import models
+from django.db.models.aggregates import Count
 from model_utils import Choices
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -355,10 +356,7 @@ class DetractorRespondent(models.Model):
         return u'{} {}'.format(self.name, self.surname)
 
     def get_detractor_questions(self):
-        return self.evaluation.questionnaire.get_indicator_questions().select_related('block__template_block')
+        return self.evaluation.questionnaire.get_indicator_questions()
 
     def get_visited_place(self):
         return self.evaluation.section if self.evaluation.section else self.evaluation.entity
-
-    def get_number_of_questions(self):
-        return self.evaluation.questionnaire.get_indicator_questions().count()
