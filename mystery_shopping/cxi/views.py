@@ -16,6 +16,7 @@ from mystery_shopping.mystery_shopping_utils.paginators import FrustrationWhyCau
 from mystery_shopping.projects.models import Project
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from mystery_shopping.questionnaires.utils import check_interval_date
+from mystery_shopping.users.models import ClientManager
 from mystery_shopping.users.permissions import IsCompanyProjectManager, IsCompanyManager, IsTenantConsultant
 from mystery_shopping.users.permissions import IsTenantProductManager
 from mystery_shopping.users.permissions import IsTenantProjectManager
@@ -283,10 +284,17 @@ class CodedCausePercentage(views.APIView):
     def get(self, request, *args, **kwargs):
         indicator = request.query_params.get('indicator')
         project_id = request.query_params.get('project')
+        list_of_places = []
         pre_response = self._pre_process_request(project_id, request.user)
         if pre_response:
             return Response(**pre_response)
-        coded_cause_percentage = CodedCausesPercentageTable(indicator, project_id)
+        if isinstance(request.user.user_type_attr, ClientManager):
+            list_of_places = [place['place_id'] for place in request.user.list_of_poses]
+        indicator_questions = QuestionnaireQuestion.objects.get_indicator_questions_for_entities(project_id,
+                                                                                                 indicator,
+                                                                                                 list_of_places)
+
+        coded_cause_percentage = CodedCausesPercentageTable(indicator_questions)
         response = coded_cause_percentage.build_response()
         return Response(response, status=status.HTTP_200_OK)
 
@@ -302,7 +310,7 @@ class CodedCausePercentage(views.APIView):
 
         if user.tenant != project.tenant:
             return dict(data='You do not have access to this project',
-                        status=status.HTTP_400_BAD_REQUEST)
+                        status=status.HTTP_403_FORBIDDEN)
 
         return False
 
