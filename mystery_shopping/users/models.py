@@ -102,6 +102,8 @@ class User(AbstractUser):
                 # Return all the entities "under" the department
                 for entity in self.clientmanager.place.entities.all():
                     return_list.append(SimpleEntitySerializer(entity).data)
+            elif self.clientmanager.place_type_id == ContentType.objects.get(app_label='companies', model='entity').id:
+                return_list.append(SimpleEntitySerializer(self.clientmanager.place).data)
             return return_list
         else:
             return return_list

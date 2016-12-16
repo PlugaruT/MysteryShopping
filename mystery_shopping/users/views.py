@@ -201,11 +201,14 @@ class DetractorRespondentForClientViewSet(viewsets.ModelViewSet):
     serializer_class = DetractorRespondentForClientSerializer
     queryset = DetractorRespondent.objects.all()
     queryset = serializer_class.setup_eager_loading(queryset)
-    permission_classes = (IsAuthenticated, HasReadOnlyAccessToProjectsOrEvaluations,)
+    permission_classes = (IsAuthenticated, HasReadOnlyAccessToProjectsOrEvaluations)
     pagination_class = DetractorRespondentPaginator
     filter_backends = (DjangoFilterBackend,)
     filter_class = DetractorFilter
 
     def get_queryset(self):
         project = self.request.query_params.get('project')
+        list_of_places = [place['place_id'] for place in self.request.user.list_of_poses]
+        if isinstance(self.request.user.user_type_attr, ClientManager):
+            return self.queryset.filter(evaluation__project=project, evaluation__entity__in=list_of_places)
         return self.queryset.filter(evaluation__project=project)
