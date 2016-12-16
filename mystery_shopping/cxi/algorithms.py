@@ -486,9 +486,8 @@ def get_company_indicator_questions_list(company):
 
 
 class CodedCausesPercentageTable:
-    def __init__(self, indicator, project):
-        self.indicator_questions = QuestionnaireQuestion.objects.get_project_specific_indicator_questions(project,
-                                                                                                          indicator)
+    def __init__(self, indicator_questions):
+        self.indicator_questions = indicator_questions
 
     def build_response(self):
         response = list()

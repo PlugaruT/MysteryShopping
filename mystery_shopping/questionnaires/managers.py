@@ -40,8 +40,17 @@ class QuestionnaireQuerySet(QuerySet):
 
 class QuestionnaireQuestionQuerySet(QuerySet):
     def get_project_indicator_questions(self, project):
-        return self.filter(questionnaire__evaluation__project=project,
-                           type=QuestionType.INDICATOR_QUESTION)
+        return self.select_related('questionnaire', 'questionnaire__evaluation__project__company').prefetch_related(
+            'why_causes', 'why_causes__coded_causes',
+            'why_causes__coded_causes__coded_label').filter(questionnaire__evaluation__project=project,
+                                                            type=QuestionType.INDICATOR_QUESTION)
 
     def get_project_specific_indicator_questions(self, project, indicator):
         return self.get_project_indicator_questions(project).filter(additional_info=indicator)
+
+    def get_indicator_questions_for_entities(self, project, indicator, entities=None):
+        if entities:
+            return self.get_project_specific_indicator_questions(project, indicator).filter(
+                questionnaire__evaluation__entity__in=entities)
+        else:
+            return self.get_project_specific_indicator_questions(project, indicator)
