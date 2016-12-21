@@ -634,13 +634,15 @@ class CodedCausesPercentageTable:
 
     @staticmethod
     def calculate_percentage(number_of_why_causes, number_of_questions):
+        if number_of_questions == 0:
+            number_of_questions = 1
         return round(number_of_why_causes / number_of_questions * 100, 2)
 
     @staticmethod
     def extract_coded_cause(why_causes):
         response = defaultdict(lambda: defaultdict(list))
         for why_cause in why_causes:
-            coded_cause = first_or_none(why_cause.coded_causes_list)
+            coded_cause = first_or_none(why_cause.coded_causes.all())
             if coded_cause:
                 coded_cause_name = coded_cause.coded_label.name
                 response[coded_cause_name]['why_causes'].append(why_cause)
@@ -653,6 +655,6 @@ class CodedCausesPercentageTable:
     def _extract_why_causes(questions):
         why_list = list()
         for question in questions:
-            for why_cause in question.why_causes_list:
+            for why_cause in question.why_causes.all():
                 why_list.append(why_cause)
         return why_list
