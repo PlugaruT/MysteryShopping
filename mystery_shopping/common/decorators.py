@@ -1,6 +1,9 @@
 import hashlib
 
+import time
 from django.core.cache import cache
+from django.db import connection
+
 
 class CacheResult(object):
     def __init__(self, age=60 * 5):
@@ -25,3 +28,17 @@ class CacheResult(object):
             return result
 
         return wrap
+
+
+def timeit(method):
+    def timed(*args, **kw):
+        q_initial = len(connection.queries)
+        ts = time.time()
+        result = method(*args, **kw)
+        te = time.time()
+
+        print('%r %2.2f s' % (method.__name__, te-ts))
+        print('queries executed:', len(connection.queries) - q_initial)
+        return result
+
+    return timed

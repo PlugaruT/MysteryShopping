@@ -13,6 +13,7 @@ class CountrySerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = Country
+        fields = '__all__'
 
 
 class CountryRegionSerializer(serializers.ModelSerializer):
@@ -21,6 +22,7 @@ class CountryRegionSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = CountryRegion
+        fields = '__all__'
 
 
 class CountySerializer(serializers.ModelSerializer):
@@ -29,6 +31,7 @@ class CountySerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = County
+        fields = '__all__'
 
 
 class SectorSerializer(serializers.ModelSerializer):
@@ -37,6 +40,7 @@ class SectorSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = Sector
+        fields = '__all__'
 
 
 class CitySerializer(serializers.ModelSerializer):
@@ -48,3 +52,4 @@ class CitySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = City
+        fields = '__all__'
