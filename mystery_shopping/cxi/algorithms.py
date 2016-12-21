@@ -1,12 +1,13 @@
 from collections import defaultdict
 
 from django.db.models import Count
+from django.db.models.query import Prefetch
 
 from mystery_shopping.companies.models import Department, Section
 from mystery_shopping.questionnaires.constants import QuestionType
 from mystery_shopping.questionnaires.models import Questionnaire, QuestionnaireQuestion
 from mystery_shopping.projects.models import Entity
-from mystery_shopping.cxi.models import CodedCause
+from mystery_shopping.cxi.models import CodedCause, WhyCause
 from mystery_shopping.cxi.models import ProjectComment
 from mystery_shopping.cxi.serializers import CodedCauseSerializer
 from mystery_shopping.cxi.serializers import ProjectCommentSerializer
@@ -23,7 +24,7 @@ def get_indicator_scores(questionnaire_list, indicator_type):
     """
     indicator_marks = list()
     for questionnaire in questionnaire_list:
-        for question in questionnaire.questions.all():
+        for question in questionnaire.questions_list:
             if question.additional_info == indicator_type:
                 indicator_marks.append(question.score)
 
@@ -60,6 +61,9 @@ def calculate_indicator_score(indicator_marks):
 
     indicator_marks_length = len(indicator_marks)
 
+    if indicator_marks_length == 0:
+        indicator_marks_length = 1
+
     detractors_percentage = detractors / indicator_marks_length * 100
     passives_percentage = passives / indicator_marks_length * 100
     promoters_percentage = promoters / indicator_marks_length * 100
@@ -95,14 +99,14 @@ def group_questions_by_answer(questionnaire_list, indicator_type, indicator_deta
     coded_causes_dict = defaultdict(list)
 
     for questionnaire in questionnaire_list:
-        questionnaire_indicator_question = first_or_none([q for q in questionnaire.questions.all()
+        questionnaire_indicator_question = first_or_none([q for q in questionnaire.questions_list
                                                           if q.type == QuestionType.INDICATOR_QUESTION
                                                           and q.additional_info == indicator_type])
 
         if questionnaire_indicator_question:
             add_question_per_coded_cause(questionnaire_indicator_question, coded_causes_dict)
 
-            for question in questionnaire.questions.all():
+            for question in questionnaire.questions_list:
                 sort_indicator_question_marks(indicator_details, questionnaire_indicator_question, question)
 
     return indicator_details, coded_causes_dict
@@ -111,7 +115,7 @@ def group_questions_by_answer(questionnaire_list, indicator_type, indicator_deta
 def group_questions_by_pos(questionnaire_list, indicator_type):
     indicator_pos_details = defaultdict(lambda: defaultdict(list))
     for questionnaire in questionnaire_list:
-        questionnaire_indicator_score = first_or_none([q for q in questionnaire.questions.all()
+        questionnaire_indicator_score = first_or_none([q for q in questionnaire.questions_list
                                                        if q.type == QuestionType.INDICATOR_QUESTION
                                                        and q.additional_info == indicator_type])
         if questionnaire_indicator_score:
@@ -231,7 +235,7 @@ def get_indicator_questions(questionnaire_list):
     indicator_types_set = set()
     indicator_order = list()
     for questionnaire in questionnaire_list:
-        indicator_questions = [q for q in questionnaire.questions.all() if q.type == QuestionType.INDICATOR_QUESTION]
+        indicator_questions = [q for q in questionnaire.questions_list if q.type == QuestionType.INDICATOR_QUESTION]
         for indicator_question in indicator_questions:
             indicator_types_set.add(indicator_question.additional_info)
             if indicator_question.additional_info not in indicator_order:
@@ -336,8 +340,8 @@ def add_question_per_coded_cause(indicator_question, coded_cause_dict):
     :param coded_cause_dict: dict of existing coded_causes
     :return: dict with sorted questions by coded_cause
     """
-    why_causes = indicator_question.why_causes.all()
-    coded_causes = [first_or_none(why_cause.coded_causes.all()) for why_cause in why_causes]
+    why_causes = indicator_question.why_causes_list
+    coded_causes = [first_or_none(why_cause.coded_causes_list) for why_cause in why_causes]
 
     for coded_cause in coded_causes:
         if coded_cause:
@@ -400,7 +404,7 @@ class CollectDataForIndicatorDashboard:
 
     def _questionnaires_has_indicator_question(self):
         if self.questionnaire_list:
-            return self.questionnaire_list.first().get_indicator_question(self.indicator_type) is not None
+            return self.questionnaire_list[0].get_indicator_question(self.indicator_type) is not None
         else:
             return False
 
@@ -424,29 +428,55 @@ class CollectDataForIndicatorDashboard:
         return get_indicator_details(self.questionnaire_list, self.indicator_type)
 
     def _get_questionnaire_list(self):
+        coded_causes = Prefetch('coded_causes',
+                                queryset=CodedCause.objects.all()
+                                .only('coded_label__name', 'sentiment')
+                                .select_related('coded_label'), to_attr='coded_causes_list')
+        why_causes = Prefetch('why_causes',
+                              queryset=WhyCause.objects.all()
+                              .defer('answer')
+                              .prefetch_related(coded_causes), to_attr='why_causes_list')
+        questions = Prefetch('questions',
+                             queryset=QuestionnaireQuestion.objects.all()
+                             .defer('comment')
+                             .prefetch_related(why_causes), to_attr='questions_list')
         return (Questionnaire.objects
-                .select_related('template', 'evaluation', 'evaluation__entity')
-                .prefetch_related('questions', 'questions__why_causes', 'questions__why_causes__coded_causes__coded_label', 'questions__why_causes__coded_causes')
                 .get_project_questionnaires_for_subdivision(project=self.project,
                                                             department=self.department_id,
                                                             entity=self.entity,
-                                                            section=self.section))
+                                                            section=self.section)
+                .select_related('template', 'evaluation', 'evaluation__entity')
+                .prefetch_related(questions))
 
     def _get_all_project_questionnaires(self):
+        coded_causes = Prefetch('coded_causes',
+                                queryset=CodedCause.objects.all()
+                                .only('coded_label__name', 'sentiment')
+                                .select_related('coded_label'), to_attr='coded_causes_list')
+        why_causes = Prefetch('why_causes',
+                              queryset=WhyCause.objects.all()
+                              .prefetch_related(coded_causes), to_attr='why_causes_list')
+        questions = Prefetch('questions',
+                             queryset=QuestionnaireQuestion.objects.all()
+                             .defer('comment')
+                             .prefetch_related(why_causes), to_attr='questions_list')
+
         return (Questionnaire.objects
+                .get_project_submitted_or_approved_questionnaires(self.project)
                 .select_related('template', 'evaluation', 'evaluation__entity')
-                .prefetch_related('questions', 'questions__why_causes', 'questions__why_causes__coded_causes__coded_label', 'questions__why_causes__coded_causes')
-                .get_project_submitted_or_approved_questionnaires(self.project))
+                .prefetch_related(questions))
 
 
 def collect_data_for_overview_dashboard(project, department_id, entity_id, section_id):
+    questions = Prefetch('questions',
+                         queryset=QuestionnaireQuestion.objects.all(), to_attr='questions_list')
     questionnaire_list = (Questionnaire.objects
                           .select_related('template', 'evaluation')
-                          .prefetch_related('questions'))
+                          .prefetch_related(questions))
 
     questionnaire_list = questionnaire_list.get_project_questionnaires_for_subdivision(project=project,
                                                                                        entity=entity_id,
-                                                                                       section=section_id)
+                                                                                       section=section_id).all()
     return calculate_overview_score(questionnaire_list, project, department_id, entity_id, section_id)
 
 
@@ -610,7 +640,7 @@ class CodedCausesPercentageTable:
     def extract_coded_cause(why_causes):
         response = defaultdict(lambda: defaultdict(list))
         for why_cause in why_causes:
-            coded_cause = first_or_none(why_cause.coded_causes.all())
+            coded_cause = first_or_none(why_cause.coded_causes_list)
             if coded_cause:
                 coded_cause_name = coded_cause.coded_label.name
                 response[coded_cause_name]['why_causes'].append(why_cause)
@@ -623,6 +653,6 @@ class CodedCausesPercentageTable:
     def _extract_why_causes(questions):
         why_list = list()
         for question in questions:
-            for why_cause in question.why_causes.all():
+            for why_cause in question.why_causes_list:
                 why_list.append(why_cause)
         return why_list

@@ -7,7 +7,6 @@ from rest_framework.decorators import list_route, detail_route
 from rest_framework.mixins import ListModelMixin
 from rest_framework.response import Response
 
-from mystery_shopping.common.decorators import CacheResult
 from mystery_shopping.companies.models import Company
 from mystery_shopping.cxi.algorithms import GetPerDayQuestionnaireData
 from mystery_shopping.cxi.serializers import SimpleWhyCauseSerializer

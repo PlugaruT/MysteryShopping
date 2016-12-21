@@ -8,6 +8,7 @@ from model_utils.models import TimeStampedModel
 from mptt.models import MPTTModel, TreeForeignKey
 from datetime import datetime
 
+from mystery_shopping.questionnaires.utils import first_or_none
 from .constants import QuestionType
 from .managers import QuestionnaireQuerySet
 from .managers import QuestionnaireQuestionQuerySet
@@ -111,6 +112,9 @@ class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
         return 'Title: {}'.format(self.title)
 
     def get_indicator_question(self, indicator_type):
+        if self.questions_list:
+            return first_or_none([q for q in self.questions_list if
+                                  q.type == QuestionType.INDICATOR_QUESTION and q.additional_info == indicator_type])
         try:
             return self.questions.get(type=QuestionType.INDICATOR_QUESTION, additional_info=indicator_type)
         except:
@@ -449,4 +453,3 @@ class CrossIndexQuestion(models.Model):
 
     def question_score(self):
         return self.question.score
-
