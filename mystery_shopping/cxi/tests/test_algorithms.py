@@ -67,7 +67,7 @@ class AlgorithmsTestCase(TestCase):
             mock_question.additional_info = indicator_type
             mock_question.score = initial_score_list[i]
             # Assign questions to the questionnaire
-            questionnaire.questions.all.return_value = [mock_question,]
+            questionnaire.questions_list = [mock_question,]
             questionnaire_list.append(questionnaire)
 
         # Add another questionnaire with a different type of cxi question
@@ -217,8 +217,8 @@ class AlgorithmsTestCase(TestCase):
         indicator_question_id = randint(1, 100)
         indicator_question = MagicMock()
         indicator_question.id = indicator_question_id
-        indicator_question.why_causes.all.return_value = [why_cause]
-        why_cause.coded_causes.all.return_value = [coded_cause]
+        indicator_question.why_causes_list = [why_cause]
+        why_cause.coded_causes_list = [coded_cause]
 
         add_question_per_coded_cause(indicator_question, coded_causes_dict)
         self.assertEqual(coded_causes_dict[coded_cause.id][0], indicator_question_id)
@@ -242,7 +242,7 @@ class AlgorithmsTestCase(TestCase):
             indicator_question.score = mark
             indicator_question.id = indicator_question_id
             indicator_question.additional_info = indicator_type
-            indicator_question.coded_causes.first.return_value = None
+            indicator_question.coded_causes_list = []
 
             question.type = QuestionType.SINGLE_CHOICE
             if q < 2:
@@ -260,7 +260,7 @@ class AlgorithmsTestCase(TestCase):
             question_list.append(question)
             question_list.append(indicator_question)
 
-            questionnaire.questions.all.return_value = question_list
+            questionnaire.questions_list = question_list
             questionnaire_list.append(questionnaire)
 
         indicator_details = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
@@ -287,7 +287,7 @@ class AlgorithmsTestCase(TestCase):
             indicator_question.score = mark
             indicator_question.additional_info = indicator_type
 
-            questionnaire.questions.all.return_value = [indicator_question]
+            questionnaire.questions_list = [indicator_question]
 
             questionnaire.evaluation.section = None
 
@@ -327,7 +327,7 @@ class AlgorithmsTestCase(TestCase):
             indicator_question_2.score = initial_score_list[i]
             # Assign questions to the questionnaire
             questionnaire.get_indicator_questions.return_value.order_by.return_value = [indicator_question_1, indicator_question_2]
-            questionnaire.questions.all.return_value = [indicator_question_1, indicator_question_2]
+            questionnaire.questions_list = [indicator_question_1, indicator_question_2]
 
             questionnaire_list.append(questionnaire)
 
