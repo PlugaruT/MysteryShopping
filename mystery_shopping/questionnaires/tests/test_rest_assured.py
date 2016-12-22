@@ -24,7 +24,9 @@ class QuestionnaireTemplateAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCa
     user_factory = UserThatIsTenantProductManagerFactory
 
     def setUp(self):
-        self.json_data = json.load(open("mystery_shopping/questionnaires/tests/QuestionnaireTemplates.json"))
+        file = open("mystery_shopping/questionnaires/tests/QuestionnaireTemplates.json")
+        self.json_data = json.load(file)
+        file.close()
         super(QuestionnaireTemplateAPITestCase, self).setUp()
 
     def get_create_data(self):
@@ -45,7 +47,9 @@ class QuestionnaireTemplateBlockAPITestCase(ReadWriteRESTAPITestCaseMixin, BaseR
     user_factory = UserThatIsTenantProductManagerFactory
 
     def setUp(self):
-        self.json_data = json.load(open("mystery_shopping/questionnaires/tests/QuestionnaireTemplateBlocks.json"))
+        file = open("mystery_shopping/questionnaires/tests/QuestionnaireTemplateBlocks.json")
+        self.json_data = json.load(file)
+        file.close()
         super(QuestionnaireTemplateBlockAPITestCase, self).setUp()
 
     def get_create_data(self):
@@ -116,7 +120,9 @@ class QuestionnaireTemplateQuestionAPITestCase(ReadWriteRESTAPITestCaseMixin, Ba
     user_factory = UserThatIsTenantProductManagerFactory
 
     def setUp(self):
-        self.json_data = json.load(open("mystery_shopping/questionnaires/tests/QuestionnaireTemplateQuestions.json"))
+        file = open("mystery_shopping/questionnaires/tests/QuestionnaireTemplateQuestions.json")
+        self.json_data = json.load(file)
+        file.close()
         super(QuestionnaireTemplateQuestionAPITestCase, self).setUp()
 
     def get_create_data(self):

@@ -16,12 +16,12 @@ class TestClassConstructor(TestCase):
         project = Project()
 
         obj = CollectDataForIndicatorDashboard(project, None, None, None, None)
-        self.assertEquals(obj.project, project)
+        self.assertEqual(obj.project, project)
 
     def test_that_indicator_type_is_set(self):
         indicator_type = 'Example Indicator type'
         obj = CollectDataForIndicatorDashboard(None, None, None, None, indicator_type)
-        self.assertEquals(obj.indicator_type, indicator_type)
+        self.assertEqual(obj.indicator_type, indicator_type)
 
     def test_that_entity_is_null_when_entity_if_does_not_exist(self):
         entity_id = 42
@@ -31,7 +31,7 @@ class TestClassConstructor(TestCase):
     def test_that_entity_is_fetched_from_db_the_given_entity_id_is_in_db(self):
         entity = EntityFactory.create()
         obj = CollectDataForIndicatorDashboard(None, None, entity.pk, None, None)
-        self.assertEquals(obj.entity, entity)
+        self.assertEqual(obj.entity, entity)
 
 
 class TestBuildResponse(TestCase):

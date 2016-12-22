@@ -43,7 +43,7 @@ class TestProjectEditablePlaces(TestCase):
     def test_when_there_are_no_evaluations_for_any_entity(self):
         serializer = ProjectSerializer(self.project)
         # Check if the list contains information about 2 entities
-        self.assertEquals(len(serializer.data.get('editable_places')), 2)
+        self.assertEqual(len(serializer.data.get('editable_places')), 2)
         # The list should contain information about all entities because there are no evaluation for them
         self.assertEqual(serializer.data.get('editable_places')[0].get('place_id'), self.entity_1.id)
         self.assertEqual(serializer.data.get('editable_places')[1].get('place_id'), self.entity_2.id)

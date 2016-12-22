@@ -59,7 +59,7 @@ class TestEditPermissionsOnQuestionnaires(TestCase):
                                        'tenant': self.authentication.tenant.id
                                    }),
                                    content_type='application/json')
-        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_edit_block_when_flag_is_true(self):
         self.questionnaire.is_editable = True
@@ -90,7 +90,7 @@ class TestEditPermissionsOnQuestionnaires(TestCase):
                                        }]
                                    }),
                                    content_type='application/json')
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_edit_question_when_flag_is_false(self):
         response = self.client.put(reverse('questionnairetemplatequestion-detail', args=(self.question.pk,)),
@@ -102,7 +102,7 @@ class TestEditPermissionsOnQuestionnaires(TestCase):
                                        "weight": "44.64",
                                    }),
                                    content_type='application/json')
-        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_edit_question_when_flag_is_true(self):
         self.questionnaire.is_editable = True
@@ -116,7 +116,7 @@ class TestEditPermissionsOnQuestionnaires(TestCase):
                                        "weight": "44.64",
                                    }),
                                    content_type='application/json')
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_edit_question_choice_when_flag_is_false(self):
         response = self.client.put(reverse('questionnairetemplatequestionchoice-detail', args=(self.question_choice.pk,)),
@@ -127,7 +127,7 @@ class TestEditPermissionsOnQuestionnaires(TestCase):
                                    }),
                                    content_type='application/json')
 
-        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_edit_question_choice_when_flag_is_true(self):
         self.questionnaire.is_editable = True
@@ -140,4 +140,4 @@ class TestEditPermissionsOnQuestionnaires(TestCase):
                                    }),
                                    content_type='application/json')
 
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

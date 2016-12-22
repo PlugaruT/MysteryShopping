@@ -152,4 +152,3 @@ class HasAccessToDashboard(permissions.BasePermission):
         return False
 
 
-# TODO[iulian] add other permissions as needed.

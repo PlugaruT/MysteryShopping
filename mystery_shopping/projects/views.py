@@ -1,6 +1,7 @@
 from collections import namedtuple
 
 from django.shortcuts import get_object_or_404
+from rest_condition.permissions import C, Not, ConditionalPermission
 
 from rest_framework import viewsets
 from rest_framework.decorators import list_route, detail_route
@@ -89,7 +90,9 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
 class ProjectPerCompanyViewSet(viewsets.ViewSet):
     queryset = Project.objects.all()
-    permission_classes = (And(IsAuthenticated, Or(HasAccessToProjectsOrEvaluations, HasReadOnlyAccessToProjectsOrEvaluations)),)
+    permission_classes = [ConditionalPermission, IsAuthenticated]
+    permission_condition = (C(HasAccessToProjectsOrEvaluations) | HasReadOnlyAccessToProjectsOrEvaluations)
+
 
     def list(self, request, company_pk=None):
         project_type = self.request.query_params.get('type', 'm')

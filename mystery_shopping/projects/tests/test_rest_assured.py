@@ -49,7 +49,8 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
         super(EvaluationAPITestCase, self).test_create(data, **kwargs)
 
     def test_questionnaire_score_100(self):
-        template_questionnaire_json_data = json.load(open('mystery_shopping/questionnaires/tests/QuestionnaireTemplates.json'))
+        file = open('mystery_shopping/questionnaires/tests/QuestionnaireTemplates.json')
+        template_questionnaire_json_data = json.load(file)
         template_questionnaire_json = template_questionnaire_json_data[2]
         tenant = TenantFactory()
         created_by = UserFactory()
@@ -102,11 +103,12 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
         evaluation_ser = EvaluationSerializer(evaluation_ser.instance, data=eval_data)
         evaluation_ser.is_valid(raise_exception=True)
         evaluation_ser.save()
-
+        file.close()
         self.assertEqual(Decimal(evaluation_ser.data['questionnaire']['score']), Decimal(100))
 
     def test_questionnaire_score_75(self):
-        template_questionnaire_json_data = json.load(open('mystery_shopping/questionnaires/tests/QuestionnaireTemplates.json'))
+        file = open('mystery_shopping/questionnaires/tests/QuestionnaireTemplates.json')
+        template_questionnaire_json_data = json.load(file)
         template_questionnaire_json = template_questionnaire_json_data[2]
         tenant = TenantFactory()
         created_by = UserFactory()
@@ -157,11 +159,12 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
         evaluation_ser = EvaluationSerializer(evaluation_ser.instance, data=eval_data)
         evaluation_ser.is_valid(raise_exception=True)
         evaluation_ser.save()
-
+        file.close()
         self.assertEqual(Decimal(evaluation_ser.data['questionnaire']['score']), Decimal(75))
 
     def test_status_change_with_evaluation_ass_level(self):
-        template_questionnaire_json_data = json.load(open('mystery_shopping/questionnaires/tests/QuestionnaireTemplates.json'))
+        file = open('mystery_shopping/questionnaires/tests/QuestionnaireTemplates.json')
+        template_questionnaire_json_data = json.load(file)
         template_questionnaire_json = template_questionnaire_json_data[2]
         tenant = TenantFactory()
         created_by = UserFactory()
