@@ -49,9 +49,9 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
         super(EvaluationAPITestCase, self).test_create(data, **kwargs)
 
     def test_questionnaire_score_100(self):
-        file = open('mystery_shopping/questionnaires/tests/QuestionnaireTemplates.json')
-        template_questionnaire_json_data = json.load(file)
-        template_questionnaire_json = template_questionnaire_json_data[2]
+        with open('mystery_shopping/questionnaires/tests/QuestionnaireTemplates.json') as file:
+            template_questionnaire_json_data = json.load(file)
+            template_questionnaire_json = template_questionnaire_json_data[2]
         tenant = TenantFactory()
         created_by = UserFactory()
         status = QuestionnaireTemplateStatusFactory()
@@ -89,7 +89,6 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
                     question.answer_choices = [question_choice.id]
                     question.save()
 
-
         # Get updated evaluation
         evaluation_ser = EvaluationSerializer(evaluation_ser.instance)
         for block in evaluation_ser.data['questionnaire']['blocks']:
@@ -103,13 +102,12 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
         evaluation_ser = EvaluationSerializer(evaluation_ser.instance, data=eval_data)
         evaluation_ser.is_valid(raise_exception=True)
         evaluation_ser.save()
-        file.close()
         self.assertEqual(Decimal(evaluation_ser.data['questionnaire']['score']), Decimal(100))
 
     def test_questionnaire_score_75(self):
-        file = open('mystery_shopping/questionnaires/tests/QuestionnaireTemplates.json')
-        template_questionnaire_json_data = json.load(file)
-        template_questionnaire_json = template_questionnaire_json_data[2]
+        with open('mystery_shopping/questionnaires/tests/QuestionnaireTemplates.json') as file:
+            template_questionnaire_json_data = json.load(file)
+            template_questionnaire_json = template_questionnaire_json_data[2]
         tenant = TenantFactory()
         created_by = UserFactory()
         status = QuestionnaireTemplateStatusFactory()
@@ -159,13 +157,12 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
         evaluation_ser = EvaluationSerializer(evaluation_ser.instance, data=eval_data)
         evaluation_ser.is_valid(raise_exception=True)
         evaluation_ser.save()
-        file.close()
         self.assertEqual(Decimal(evaluation_ser.data['questionnaire']['score']), Decimal(75))
 
     def test_status_change_with_evaluation_ass_level(self):
-        file = open('mystery_shopping/questionnaires/tests/QuestionnaireTemplates.json')
-        template_questionnaire_json_data = json.load(file)
-        template_questionnaire_json = template_questionnaire_json_data[2]
+        with open('mystery_shopping/questionnaires/tests/QuestionnaireTemplates.json') as file:
+            template_questionnaire_json_data = json.load(file)
+            template_questionnaire_json = template_questionnaire_json_data[2]
         tenant = TenantFactory()
         created_by = UserFactory()
         status = QuestionnaireTemplateStatusFactory()
@@ -203,7 +200,6 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
                 if question_choice.text in {'A', 'Adevar', 'Yes'}:
                     question.answer_choices = [question_choice.id]
                     question.save()
-
 
         # Get updated evaluation
         evaluation_ser = EvaluationSerializer(evaluation_ser.instance)
