@@ -127,7 +127,14 @@ class CxiIndicatorTimelapse(views.APIView):
 
 class OverviewDashboard(views.APIView):
     """
+    View that returns overview information per each indicator for department, entity or section
 
+    Query params:
+
+     * `project`: **required**, project id for filtering evaluations
+     * `department`: department id
+     * `entity`: entity id
+     * `section`: section id
     """
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager, IsCompanyManager),)
 
@@ -275,7 +282,12 @@ class IndicatorDashboardList(views.APIView):
 
 class CodedCausePercentage(views.APIView):
     """
+    View for calculating percentage for each coded cause.
 
+    Query params:
+
+    * `indicator`: **required**, name of the indicator to filter coded causes.
+    * `project`: **required**, project id to filter coded causes.
     """
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager, IsCompanyManager,
                              IsTenantConsultant),)
