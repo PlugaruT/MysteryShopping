@@ -113,4 +113,4 @@ class TestSerializeCrossIndexForQuestionnaire(TestCase):
             ]
 
         result = loads(dumps(self.evaluation.data['questionnaire']['cross_indexes']))
-        self.assertEquals(expected_result, result)
+        self.assertEqual(expected_result, result)

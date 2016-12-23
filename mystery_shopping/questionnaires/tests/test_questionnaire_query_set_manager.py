@@ -14,7 +14,7 @@ class GetProjectQuestionnaires(TestCase):
         EvaluationFactory.create(project=self.project, questionnaire=self.questionnaire, status=EvaluationStatus.SUBMITTED)
 
     def test_with_project_and_without_questionnaire_template(self):
-        self.assertEquals(self._result(), [])
+        self.assertEqual(self._result(), [])
 
     def test_with_project_and_with_questionnaire_template(self):
         # Dependency between QuestionnaireTemplate and ResearchMethodology
@@ -30,7 +30,7 @@ class GetProjectQuestionnaires(TestCase):
         self.questionnaire.template = questionnaire_template
         self.questionnaire.save()
 
-        self.assertEquals(self._result(), [self.questionnaire])
+        self.assertEqual(self._result(), [self.questionnaire])
 
     def _result(self):
         return list(Questionnaire.objects.get_project_submitted_or_approved_questionnaires(project=self.project))
@@ -61,7 +61,7 @@ class GetProjectQuestionnairesForEntity(TestCase):
         self.evaluation1.entity = entity
         self.evaluation1.save()
 
-        self.assertEquals(self._result(entity), [self.questionnaire1])
+        self.assertEqual(self._result(entity), [self.questionnaire1])
 
     def test_2_questionnaires_when_both_are_linked_to_entities(self):
         entity = EntityFactory.create()
@@ -78,7 +78,7 @@ class GetProjectQuestionnairesForEntity(TestCase):
 
     def test_2_questionnaires_when_none_are_linked_to_entity(self):
         entity = EntityFactory.create()
-        self.assertEquals(self._result(entity), [])
+        self.assertEqual(self._result(entity), [])
 
     def test_2_questionnaires_when_entity_is_none(self):
         self.assertCountEqual(self._result(None), [self.questionnaire1, self.questionnaire2])

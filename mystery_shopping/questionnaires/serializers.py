@@ -425,7 +425,7 @@ class QuestionnaireTemplateStatusSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = QuestionnaireTemplateStatus
-        field = '__all__'
+        fields = '__all__'
 
 
 class QuestionnaireTemplateSerializer(serializers.ModelSerializer):

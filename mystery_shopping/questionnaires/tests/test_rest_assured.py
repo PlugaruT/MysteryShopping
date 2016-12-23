@@ -24,7 +24,8 @@ class QuestionnaireTemplateAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCa
     user_factory = UserThatIsTenantProductManagerFactory
 
     def setUp(self):
-        self.json_data = json.load(open("mystery_shopping/questionnaires/tests/QuestionnaireTemplates.json"))
+        with open("mystery_shopping/questionnaires/tests/QuestionnaireTemplates.json") as file:
+            self.json_data = json.load(file)
         super(QuestionnaireTemplateAPITestCase, self).setUp()
 
     def get_create_data(self):
@@ -39,13 +40,13 @@ class QuestionnaireTemplateAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCa
 
 
 class QuestionnaireTemplateBlockAPITestCase(ReadWriteRESTAPITestCaseMixin, BaseRESTAPITestCase):
-
     base_name = 'questionnairetemplateblock'
     factory_class = QuestionnaireTemplateBlockFactory
     user_factory = UserThatIsTenantProductManagerFactory
 
     def setUp(self):
-        self.json_data = json.load(open("mystery_shopping/questionnaires/tests/QuestionnaireTemplateBlocks.json"))
+        with open("mystery_shopping/questionnaires/tests/QuestionnaireTemplateBlocks.json") as file:
+            self.json_data = json.load(file)
         super(QuestionnaireTemplateBlockAPITestCase, self).setUp()
 
     def get_create_data(self):
@@ -110,13 +111,13 @@ class QuestionnaireTemplateBlockAPITestCase(ReadWriteRESTAPITestCaseMixin, BaseR
 
 
 class QuestionnaireTemplateQuestionAPITestCase(ReadWriteRESTAPITestCaseMixin, BaseRESTAPITestCase):
-
     base_name = 'questionnairetemplatequestion'
     factory_class = QuestionTemplateFactory
     user_factory = UserThatIsTenantProductManagerFactory
 
     def setUp(self):
-        self.json_data = json.load(open("mystery_shopping/questionnaires/tests/QuestionnaireTemplateQuestions.json"))
+        with open("mystery_shopping/questionnaires/tests/QuestionnaireTemplateQuestions.json") as file:
+            self.json_data = json.load(file)
         super(QuestionnaireTemplateQuestionAPITestCase, self).setUp()
 
     def get_create_data(self):
@@ -140,7 +141,8 @@ class QuestionnaireTemplateQuestionAPITestCase(ReadWriteRESTAPITestCaseMixin, Ba
 
         # Create the first question
         sibling_question = QuestionTemplateFactory(
-            questionnaire_template=self.object.questionnaire_template, template_block=self.object.template_block, order=1)
+            questionnaire_template=self.object.questionnaire_template, template_block=self.object.template_block,
+            order=1)
 
         # Create another question that should update the first one
         self.data = self.json_data[1]

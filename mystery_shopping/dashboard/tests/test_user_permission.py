@@ -18,7 +18,7 @@ class TestPermissionsToDashboard(APITestCase):
     def test_if_company_is_set_accordingly_to_dashboard(self):
         response = self.client.get('/api/v1/dashboard/templates/?company={}'.format(self.company.id))
         for dashboard in response.data:
-            self.assertEquals(self.company.id, dashboard.get('company'))
+            self.assertEqual(self.company.id, dashboard.get('company'))
 
     def test_if_modified_by_field_is_set_accordingly(self):
         response = self.client.post('/api/v1/dashboard/templates/?company={}'.format(self.company.id),
@@ -27,7 +27,7 @@ class TestPermissionsToDashboard(APITestCase):
                                                      'company': self.company.id,
                                                      'users': [self.user.id]
                                                     }), content_type='application/json')
-        self.assertEquals(self.user.id, response.data.get('modified_by'))
+        self.assertEqual(self.user.id, response.data.get('modified_by'))
 
     def test_when_is_publisher_flag_is_false(self):
         self.dashboard2.is_published = False
@@ -40,12 +40,12 @@ class TestPermissionsToDashboard(APITestCase):
         self.dashboard1.users.add(self.user)
         self.dashboard2.users.add(self.user)
         response = self.client.get('/api/v1/dashboard/templates/?company={}'.format(self.company.id))
-        self.assertEquals(2, len(response.data))
+        self.assertEqual(2, len(response.data))
 
     def test_when_user_is_tenant_manager_and_is_not_assigned_to_any_dashboard(self):
         response = self.client.get('/api/v1/dashboard/templates/?company={}'.format(self.company.id))
         # check if 2 dashboard are sent
-        self.assertEquals(2, len(response.data))
+        self.assertEqual(2, len(response.data))
         # check that users field is empty
         for dashboard in response.data:
             self.assertListEqual([], dashboard.get('users'))

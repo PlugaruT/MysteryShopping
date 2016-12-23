@@ -25,6 +25,12 @@ class DashboardTemplateSerializer(serializers.ModelSerializer):
         }
 
 
+    def create(self, validated_data):
+        users = validated_data.pop('users')
+        instance = DashboardTemplate.objects.create(**validated_data)
+        instance.users = users
+        return instance
+
 class DashboardCommentSerializer(serializers.ModelSerializer):
     """
 

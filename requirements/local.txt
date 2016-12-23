@@ -1,20 +1,19 @@
 # Local development dependencies go here
 -r base.txt
-Sphinx
-django-extensions==1.5.9
-Werkzeug==0.10.4
+Sphinx==1.5.1
+django-extensions==1.7.5
 
 # django-debug-toolbar that works with Django 1.5+
-django-debug-toolbar==1.5
+django-debug-toolbar==1.6
 
 # improved REPL
-ipdb==0.8.1
-awsebcli==3.7.6
+ipdb==0.10.1
+awsebcli==3.8.10
 
 # test
-coverage==4.0.2
-flake8==2.5.0
-django-test-plus==1.0.9
+coverage==4.2
+flake8==3.2.1
+django-test-plus==1.0.16
 factory_boy==2.6.0
 django-rest-assured==0.2.0
 django-nose==1.4.4
