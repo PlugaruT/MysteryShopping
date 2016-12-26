@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework import views
 from rest_framework import viewsets
 from rest_framework.decorators import list_route, detail_route
+from rest_framework.filters import SearchFilter
 from rest_framework.mixins import ListModelMixin
 from rest_framework.response import Response
 
@@ -49,7 +50,8 @@ class CodedCauseViewSet(viewsets.ModelViewSet):
         if project_id:
             try:
                 project = Project.objects.get(pk=project_id)
-                return self.queryset.filter(project=project) if self.request.user.tenant == project.tenant else self.queryset.none()
+                return self.queryset.filter(
+                    project=project) if self.request.user.tenant == project.tenant else self.queryset.none()
             except (Project.DoesNotExist, ValueError):
                 return self.queryset.none()
         return self.queryset.none()
@@ -118,6 +120,7 @@ class CxiIndicatorTimelapse(views.APIView):
     """
 
     """
+
     def get(self, request, *args, **kwargs):
         company_id = request.query_params.get('company')
         start, end = check_interval_date(request.query_params)
@@ -136,7 +139,8 @@ class OverviewDashboard(views.APIView):
      * `entity`: entity id
      * `section`: section id
     """
-    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager, IsCompanyManager),)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager,
+                             IsCompanyManager),)
 
     def get(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
@@ -150,7 +154,6 @@ class OverviewDashboard(views.APIView):
 
         if project_id:
             if parameters_are_valid:
-
                 return Response({
                     'detail': 'Entity param is invalid'
                 }, status.HTTP_400_BAD_REQUEST)
@@ -186,7 +189,8 @@ class IndicatorDashboard(views.APIView):
     :param indicator: can be anything
     """
 
-    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager, IsCompanyManager),)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager,
+                             IsCompanyManager),)
 
     def get(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
@@ -204,9 +208,11 @@ class IndicatorDashboard(views.APIView):
         if project_id is None:
             if request.user.is_client_user():
                 company = request.user.user_company()
-                project = Project.objects.get_latest_project_for_client_user(tenant=request.user.tenant, company=company)
+                project = Project.objects.get_latest_project_for_client_user(tenant=request.user.tenant,
+                                                                             company=company)
             elif request.user.is_tenant_user() and company_id is not None:
-                project = Project.objects.get_latest_project_for_client_user(tenant=request.user.tenant, company=company_id)
+                project = Project.objects.get_latest_project_for_client_user(tenant=request.user.tenant,
+                                                                             company=company_id)
         elif project_id:
             # TODO: handle this in a more elegant way
             if parameters_are_valid:
@@ -228,7 +234,8 @@ class IndicatorDashboard(views.APIView):
             }, status.HTTP_400_BAD_REQUEST)
 
         if project is not None:
-            response = self.collect_data_for_indicator_dashboard(project, department_id, entity_id, section_id, indicator_type)
+            response = self.collect_data_for_indicator_dashboard(project, department_id, entity_id, section_id,
+                                                                 indicator_type)
 
             return Response(response, status.HTTP_200_OK)
 
@@ -238,7 +245,8 @@ class IndicatorDashboard(views.APIView):
 
     # @CacheResult(age=60 * 60 * 24) # 24h
     def collect_data_for_indicator_dashboard(self, project, department_id, entity_id, section_id, indicator_type):
-        return CollectDataForIndicatorDashboard(project, department_id, entity_id, section_id, indicator_type).build_response()
+        return CollectDataForIndicatorDashboard(project, department_id, entity_id, section_id,
+                                                indicator_type).build_response()
 
     @staticmethod
     def parameter_is_valid(parameter):
@@ -249,7 +257,8 @@ class IndicatorDashboardList(views.APIView):
     """
 
     """
-    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager, IsCompanyManager),)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager,
+                             IsCompanyManager),)
 
     def get(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
@@ -260,7 +269,7 @@ class IndicatorDashboardList(views.APIView):
         if company_id:
             try:
                 company = Company.objects.get(pk=company_id)
-            except (Company.DoesNotExist , ValueError):
+            except (Company.DoesNotExist, ValueError):
                 return Response({'detail': 'No Company with this id exists or invalid company parameter'},
                                 status.HTTP_404_NOT_FOUND)
             response = get_company_indicator_questions_list(company)
@@ -327,15 +336,26 @@ class CodedCausePercentage(views.APIView):
 
 
 class FrustrationWhyCauseViewSet(ListModelMixin, viewsets.GenericViewSet):
+    """
+    View for listing all frustration Why Causes for a specific indicator. Response is paginated.
+
+    Query params:
+
+     * `project`: **required**, project id for filtering why causes
+     * `type`: **required**, indicator name to filter by
+     * `search`: search string used for search, it will do a case-insensitive partial match for field `answer`
+    """
     serializer_class = SimpleWhyCauseSerializer
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
     pagination_class = FrustrationWhyCausesPagination
+    filter_backends = (SearchFilter,)
+    search_fields = ('answer',)
     queryset = WhyCause.objects.all()
+    queryset = serializer_class.setup_eager_loading(queryset)
 
     def list(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
         indicator = request.query_params.get('type', None)
-        self.queryset = self.serializer_class.setup_eager_loading(self.queryset)
         questions = QuestionnaireQuestion.objects.get_project_indicator_questions(project_id)
         self.queryset = self.queryset.filter(question__in=questions, is_appreciation_cause=False,
                                              coded_causes__isnull=True, question__additional_info=indicator)
@@ -343,15 +363,26 @@ class FrustrationWhyCauseViewSet(ListModelMixin, viewsets.GenericViewSet):
 
 
 class AppreciationWhyCauseViewSet(ListModelMixin, viewsets.GenericViewSet):
+    """
+    View for listing all appreciation Why Causes for a specific indicator. Response is paginated.
+
+    Query params:
+
+     * `project`: **required**, project id for filtering why causes
+     * `type`: **required**, indicator name to filter by
+     * `search`: search string used for search, it will do a case-insensitive partial match for field `answer`
+    """
     serializer_class = SimpleWhyCauseSerializer
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
     pagination_class = AppreciationWhyCausesPagination
+    filter_backends = (SearchFilter,)
+    search_fields = ('answer',)
     queryset = WhyCause.objects.all()
+    queryset = serializer_class.setup_eager_loading(queryset)
 
     def list(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
         indicator = request.query_params.get('type', None)
-        self.queryset = self.serializer_class.setup_eager_loading(self.queryset)
         questions = QuestionnaireQuestion.objects.get_project_indicator_questions(project_id)
         self.queryset = self.queryset.filter(question__in=questions, is_appreciation_cause=True,
                                              coded_causes__isnull=True, question__additional_info=indicator)
