@@ -35,12 +35,19 @@ from .serializers import ProjectCommentSerializer
 from .serializers import WhyCauseSerializer
 
 
+class ClearCodedCauseMixin:
+    @staticmethod
+    def clear_coded_cause(why_causes):
+        for why_cause in why_causes:
+            why_cause.coded_causes.clear()
+
+
 class CodedCauseLabelViewSet(viewsets.ModelViewSet):
     queryset = CodedCauseLabel.objects.all()
     serializer_class = CodedCauseLabelSerializer
 
 
-class CodedCauseViewSet(viewsets.ModelViewSet):
+class CodedCauseViewSet(ClearCodedCauseMixin, viewsets.ModelViewSet):
     queryset = CodedCause.objects.all()
     queryset = CodedCauseSerializer().setup_eager_loading(queryset)
     serializer_class = CodedCauseSerializer
@@ -89,11 +96,6 @@ class CodedCauseViewSet(viewsets.ModelViewSet):
         questions_from_coded_cause = coded_cause.raw_causes.values_list('question', flat=True)
         questions_from_why_causes = why_causes.values_list('question', flat=True)
         return list(set(questions_from_coded_cause).intersection(questions_from_why_causes))
-
-    @staticmethod
-    def clear_coded_cause(why_causes):
-        for why_cause in why_causes:
-            why_cause.coded_causes.clear()
 
     @list_route(methods=['get'])
     def sorted(self, request):
@@ -389,7 +391,7 @@ class AppreciationWhyCauseViewSet(ListModelMixin, viewsets.GenericViewSet):
         return super(AppreciationWhyCauseViewSet, self).list(request, *args, **kwargs)
 
 
-class WhyCauseViewSet(viewsets.ModelViewSet):
+class WhyCauseViewSet(ClearCodedCauseMixin, viewsets.ModelViewSet):
     """
 
     """
@@ -408,6 +410,18 @@ class WhyCauseViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @list_route(['put'], url_path='clear')
+    def clear(self, request):
+        """
+        Endpoint for removing relation between why causes and coded cause. The request should contain list of id's of why causes
+        :param request: request info, request.data contains list of id's
+        :return: status code
+        """
+        why_causes = WhyCause.objects.filter(id__in=request.data)
+        self.clear_coded_cause(why_causes)
+        return Response(status=status.HTTP_202_ACCEPTED)
+
 
     @detail_route(['post'])
     def split(self, request, pk=None):
