@@ -10,13 +10,16 @@ from rest_framework.response import Response
 from mystery_shopping.companies.models import Company
 from mystery_shopping.cxi.algorithms import GetPerDayQuestionnaireData
 from mystery_shopping.cxi.serializers import SimpleWhyCauseSerializer
-from mystery_shopping.mystery_shopping_utils.paginators import FrustrationWhyCausesPagination, \
-    AppreciationWhyCausesPagination, WhyCausesPagination
+from mystery_shopping.mystery_shopping_utils.paginators import AppreciationWhyCausesPagination
+from mystery_shopping.mystery_shopping_utils.paginators import FrustrationWhyCausesPagination
+from mystery_shopping.mystery_shopping_utils.paginators import WhyCausesPagination
 from mystery_shopping.projects.models import Project
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from mystery_shopping.questionnaires.utils import check_interval_date
 from mystery_shopping.users.models import ClientManager
-from mystery_shopping.users.permissions import IsCompanyProjectManager, IsCompanyManager, IsTenantConsultant
+from mystery_shopping.users.permissions import IsCompanyManager
+from mystery_shopping.users.permissions import IsCompanyProjectManager
+from mystery_shopping.users.permissions import IsTenantConsultant
 from mystery_shopping.users.permissions import IsTenantProductManager
 from mystery_shopping.users.permissions import IsTenantProjectManager
 from .algorithms import CodedCausesPercentageTable
@@ -49,7 +52,8 @@ class CodedCauseViewSet(viewsets.ModelViewSet):
         if project_id:
             try:
                 project = Project.objects.get(pk=project_id)
-                return self.queryset.filter(project=project) if self.request.user.tenant == project.tenant else self.queryset.none()
+                return self.queryset.filter(
+                    project=project) if self.request.user.tenant == project.tenant else self.queryset.none()
             except (Project.DoesNotExist, ValueError):
                 return self.queryset.none()
         return self.queryset.none()
@@ -72,10 +76,7 @@ class CodedCauseViewSet(viewsets.ModelViewSet):
         questions_from_coded_cause = list(coded_cause.raw_causes.values_list('question', flat=True))
         dup_questions_from_why_causes = set(
             question for question in questions_from_why_causes if questions_from_why_causes.count(question) > 1)
-        # common_questions = self.get_common_question(why_causes, coded_cause)
-        # invalid_why_causes = why_causes.filter(question__in=common_questions)
-        # if invalid_why_causes.exists():
-        # return Response(invalid_why_causes.values_list('id', flat=True), status=status.HTTP_400_BAD_REQUEST)
+
         all_questions = list(dup_questions_from_why_causes) + questions_from_coded_cause
         why_causes = why_causes.exclude(question__in=all_questions)
         self.clear_coded_cause(why_causes)
@@ -118,6 +119,7 @@ class CxiIndicatorTimelapse(views.APIView):
     """
 
     """
+
     def get(self, request, *args, **kwargs):
         company_id = request.query_params.get('company')
         start, end = check_interval_date(request.query_params)
@@ -136,7 +138,8 @@ class OverviewDashboard(views.APIView):
      * `entity`: entity id
      * `section`: section id
     """
-    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager, IsCompanyManager),)
+    permission_classes = (
+        Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager, IsCompanyManager),)
 
     def get(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
@@ -150,7 +153,6 @@ class OverviewDashboard(views.APIView):
 
         if project_id:
             if parameters_are_valid:
-
                 return Response({
                     'detail': 'Entity param is invalid'
                 }, status.HTTP_400_BAD_REQUEST)
@@ -185,8 +187,8 @@ class IndicatorDashboard(views.APIView):
     :param project: will filter all questionnaires that are from this project
     :param indicator: can be anything
     """
-
-    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager, IsCompanyManager),)
+    permission_classes = (
+        Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager, IsCompanyManager),)
 
     def get(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
@@ -204,9 +206,11 @@ class IndicatorDashboard(views.APIView):
         if project_id is None:
             if request.user.is_client_user():
                 company = request.user.user_company()
-                project = Project.objects.get_latest_project_for_client_user(tenant=request.user.tenant, company=company)
+                project = Project.objects.get_latest_project_for_client_user(tenant=request.user.tenant,
+                                                                             company=company)
             elif request.user.is_tenant_user() and company_id is not None:
-                project = Project.objects.get_latest_project_for_client_user(tenant=request.user.tenant, company=company_id)
+                project = Project.objects.get_latest_project_for_client_user(tenant=request.user.tenant,
+                                                                             company=company_id)
         elif project_id:
             # TODO: handle this in a more elegant way
             if parameters_are_valid:
@@ -228,7 +232,8 @@ class IndicatorDashboard(views.APIView):
             }, status.HTTP_400_BAD_REQUEST)
 
         if project is not None:
-            response = self.collect_data_for_indicator_dashboard(project, department_id, entity_id, section_id, indicator_type)
+            response = self.collect_data_for_indicator_dashboard(project, department_id, entity_id, section_id,
+                                                                 indicator_type)
 
             return Response(response, status.HTTP_200_OK)
 
@@ -238,7 +243,8 @@ class IndicatorDashboard(views.APIView):
 
     # @CacheResult(age=60 * 60 * 24) # 24h
     def collect_data_for_indicator_dashboard(self, project, department_id, entity_id, section_id, indicator_type):
-        return CollectDataForIndicatorDashboard(project, department_id, entity_id, section_id, indicator_type).build_response()
+        return CollectDataForIndicatorDashboard(project, department_id, entity_id, section_id,
+                                                indicator_type).build_response()
 
     @staticmethod
     def parameter_is_valid(parameter):
@@ -249,7 +255,8 @@ class IndicatorDashboardList(views.APIView):
     """
 
     """
-    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager, IsCompanyManager),)
+    permission_classes = (
+        Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager, IsCompanyManager),)
 
     def get(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
@@ -260,7 +267,7 @@ class IndicatorDashboardList(views.APIView):
         if company_id:
             try:
                 company = Company.objects.get(pk=company_id)
-            except (Company.DoesNotExist , ValueError):
+            except (Company.DoesNotExist, ValueError):
                 return Response({'detail': 'No Company with this id exists or invalid company parameter'},
                                 status.HTTP_404_NOT_FOUND)
             response = get_company_indicator_questions_list(company)
@@ -400,12 +407,6 @@ class WhyCauseViewSet(viewsets.ModelViewSet):
         why_cause.change_appreciation_cause()
 
         return Response(status=status.HTTP_200_OK)
-
-    @staticmethod
-    def _get_why_causes(project_id, data):
-        why_causes_changes = {x['id']: x.get('coded_causes', []) for x in data}
-        return WhyCause.objects.filter(pk__in=why_causes_changes.keys(),
-                                       question__questionnaire__evaluation__project=project_id)
 
     @staticmethod
     def _check_if_coded_causes_exist(coded_cause_ids):

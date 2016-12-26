@@ -1,11 +1,11 @@
 from django.http.response import HttpResponse
+from django.shortcuts import get_object_or_404
 from openpyxl.writer.excel import save_virtual_workbook
 from rest_framework import status
 from rest_framework.decorators import list_route, detail_route
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
-from mystery_shopping.projects.constants import ProjectType
 from mystery_shopping.projects.models import Evaluation, Project
 from mystery_shopping.projects.serializers import EvaluationSerializer
 from mystery_shopping.projects.spreadsheets import EvaluationSpreadsheet
@@ -45,7 +45,7 @@ class EvaluationViewMixIn:
         return response
 
     def _get_remaining_number_of_evaluations(self, project_id):
-        project = Project.objects.get(pk=project_id)
+        project = get_object_or_404(Project, pk=project_id)
         total_number_of_evaluations = project.get_total_number_of_evaluations()
         current_number_of_evaluations = Evaluation.objects.filter(project=project_id).count()
         return total_number_of_evaluations - current_number_of_evaluations
