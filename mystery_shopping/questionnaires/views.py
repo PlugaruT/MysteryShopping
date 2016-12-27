@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.decorators import list_route, detail_route
 from rest_condition import Or
 
-from mystery_shopping.questionnaires.models import QuestionnaireTemplateStatus
+from .models import QuestionnaireTemplateStatus
 from .models import QuestionnaireScript
 from .models import Questionnaire
 from .models import QuestionnaireTemplate
@@ -36,9 +36,6 @@ from mystery_shopping.users.permissions import IsTenantProductManager
 from mystery_shopping.users.permissions import IsTenantProjectManager
 from mystery_shopping.users.permissions import IsTenantConsultant
 
-from mystery_shopping.projects.models import Project
-from mystery_shopping.cxi.serializers import QuestionWithWhyCausesSerializer
-
 
 class QuestionnaireScriptViewSet(viewsets.ModelViewSet):
     queryset = QuestionnaireScript.objects.all()
@@ -52,7 +49,8 @@ class QuestionnaireTemplateViewSet(viewsets.ModelViewSet):
     permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)
 
     def get_queryset(self):
-        """Filter queryset by Questionnaire type ('c' or 'm') and by Tenant the user belongs to.
+        """
+        Filter queryset by Questionnaire type ('c' or 'm') and by Tenant the user belongs to.
         """
         queryset = self.queryset.all()
         questionnaire_type = self.request.query_params.get('type', 'm')
