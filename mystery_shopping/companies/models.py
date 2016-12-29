@@ -35,14 +35,14 @@ class CompanyElement(models.Model, MPTTModel):
     It may be the company itself, a section, department, employee, etc.
     """
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
-    name = models.CharField(max_length=50)
-    type = models.CharField(max_length=50)
+    element_name = models.CharField(max_length=100)
+    element_type = models.CharField(max_length=100)
     additional_info = HStoreField()
 
     objects = models.Manager.from_queryset(CompanyElementQuerySet)()
 
     def __str__(self):
-        return 'company_element: {id: %s, name: %s, type: %s}' % (self.pk, self.name, self.domain)
+        return 'company_element: {id: %s, name: %s, type: %s}' % (self.pk, self.element_name, self.element_type)
 
 
 class Industry(models.Model):
