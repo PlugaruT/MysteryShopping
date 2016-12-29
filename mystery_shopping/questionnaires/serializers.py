@@ -142,9 +142,11 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('The Questionnaire Template this Question belongs to is not editable')
         template_question_choices = validated_data.pop('template_question_choices', [])
         siblings_to_update = validated_data.pop('siblings', [])
-        self.update_question_siblings(siblings_to_update, validated_data)
+
         template_question = QuestionnaireTemplateQuestion.objects.create(**validated_data)
         self.create_template_question_choices(template_question_choices, template_question.id)
+
+        template_question.update_siblings(siblings_to_update, template_question.template_block)
         return template_question
 
     def update(self, instance, validated_data):
@@ -153,9 +155,12 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
         instance.prepare_to_update()
         template_question_choices = validated_data.pop('template_question_choices', [])
         siblings_to_update = validated_data.pop('siblings', [])
-        self.update_question_siblings(siblings_to_update, validated_data)
+
         self.create_template_question_choices(template_question_choices, instance.id)
         update_attributes(validated_data, instance)
+
+        instance.update_siblings(siblings_to_update, validated_data.get('template_block'))
+
         instance.save()
         return instance
 
@@ -167,18 +172,6 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
                 data=template_question_choice)
             template_question_choice_ser.is_valid(raise_exception=True)
             template_question_choice_ser.save()
-
-    @staticmethod
-    def update_question_siblings(siblings_to_update, validated_data):
-        for sibling in siblings_to_update:
-            question_id = sibling.pop('question_id')
-            question_to_update = QuestionnaireTemplateQuestion.objects.filter(pk=question_id,
-                                                                              template_block=validated_data[
-                                                                                  'template_block']).first()
-            if question_to_update is not None:
-                update_attributes(sibling['question_changes'], question_to_update)
-                question_to_update.save()
-
 
 class QuestionnaireBlockSerializer(serializers.ModelSerializer):
     """

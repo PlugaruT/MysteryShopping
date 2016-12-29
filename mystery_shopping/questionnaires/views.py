@@ -176,6 +176,32 @@ class QuestionnaireTemplateQuestionViewSet(viewsets.ModelViewSet):
         template_question.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    @detail_route(methods=['put'], url_path='review-weights')
+    def review_weights(self, request, pk=None):
+        """
+        Endpoint for updating the weights of questions (even after the questionnaires is flagged as non-editable if it's a CXI project)
+        :param request: request with the question info and siblings' info (other questions' weights)
+        :param pk: pk of the questions
+        :return: status code ok
+        """
+
+        can_edit = QuestionnaireTemplateQuestion.objects.can_edit_weights(pk)
+
+        if not can_edit:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        template_question = get_object_or_404(QuestionnaireTemplateQuestion, pk=pk)
+        new_weight = request.data.get('weight')
+
+        if new_weight is not None:
+            template_question.weight = new_weight
+
+        siblings = request.data.get('siblings', [])
+        template_question.update_siblings(siblings, template_question.template_block)
+
+        template_question.save()
+        return Response(status=status.HTTP_200_OK)
+
 
 class QuestionnaireQuestionViewSet(viewsets.ModelViewSet):
     queryset = QuestionnaireQuestion.objects.all()
