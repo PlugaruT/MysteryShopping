@@ -2,6 +2,7 @@ from django.db.models.query import QuerySet
 
 from mystery_shopping.projects.constants import EvaluationStatus, ProjectType
 from mystery_shopping.questionnaires.constants import QuestionType
+from mystery_shopping.questionnaires.models import QuestionnaireTemplateQuestion
 
 
 class QuestionnaireQuerySet(QuerySet):
@@ -58,5 +59,8 @@ class QuestionnaireQuestionQuerySet(QuerySet):
 
 
 class QuestionnaireTemplateQuestionQuerySet(QuerySet):
-    def can_edit_weights(self, pk):
-        return self.filter(questionnaire_template__type=ProjectType.CUSTOMER_XP_INDEX, pk=pk).exists()
+    def is_question_editable(self, pk):
+        try:
+            return self.filter(questionnaire_template__type=ProjectType.CUSTOMER_XP_INDEX, pk=pk)
+        except QuestionnaireTemplateQuestion.DoesNotExist:
+            return None

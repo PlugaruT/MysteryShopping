@@ -217,7 +217,6 @@ def get_indicator_project_comment(project, department_id, entity_id, section_id,
 def calculate_cxi_score(return_dict, questionnaire_template):
     cxi_score = 0
     for indicator, values in return_dict.items():
-        print(indicator, values)
         indicator_score = values['indicator']
         weight = questionnaire_template.template_questions.get(additional_info=indicator).weight / 100
         cxi_score += indicator_score * float(weight)

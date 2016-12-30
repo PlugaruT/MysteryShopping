@@ -185,12 +185,11 @@ class QuestionnaireTemplateQuestionViewSet(viewsets.ModelViewSet):
         :return: status code ok
         """
 
-        can_edit = QuestionnaireTemplateQuestion.objects.can_edit_weights(pk)
+        template_question = QuestionnaireTemplateQuestion.objects.is_question_editable(pk)
 
-        if not can_edit:
+        if template_question is None:
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-        template_question = get_object_or_404(QuestionnaireTemplateQuestion, pk=pk)
         new_weight = request.data.get('weight')
 
         if new_weight is not None:
