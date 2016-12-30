@@ -1,6 +1,7 @@
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 
-from mystery_shopping.companies.models import SubIndustry
+from mystery_shopping.companies.models import SubIndustry, CompanyElement
 from .models import Industry, Company, Department, Entity, Section
 
 from mystery_shopping.common.serializer import CitySerializer
@@ -28,6 +29,42 @@ class SubIndustrySerializer(serializers.ModelSerializer):
     class Meta:
         model = SubIndustry
         fields = '__all__'
+
+
+class RecursiveFieldSerializer(serializers.BaseSerializer):
+    """
+    Serializer class used for recursive serialization of parent field from CompanyElement model
+    """
+
+    def to_representation(self, value):
+        ParentSerializer = self.parent.parent.__class__
+        serializer = ParentSerializer(value, context=self.context)
+        return serializer.data
+
+    def to_internal_value(self, data):
+        ParentSerializer = self.parent.parent.__class__
+        Model = ParentSerializer.Meta.model
+        try:
+            instance = Model.objects.get(pk=data)
+        except ObjectDoesNotExist:
+            raise serializers.ValidationError(
+                "Object {0} not found".format(
+                    Model().__class__.__name__
+                )
+            )
+        return instance
+
+
+class CompanyElementSerializer(serializers.ModelSerializer):
+    """
+    Serializer class user for serializing CompanyElement model
+    """
+    chil = RecursiveFieldSerializer(source='children', many=True, required=False)
+
+    class Meta:
+        model = CompanyElement
+        fields = ('element_name', 'element_type', 'chil')
+
 
 
 class SectionSerializer(serializers.ModelSerializer):
