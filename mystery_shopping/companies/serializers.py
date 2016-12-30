@@ -59,11 +59,12 @@ class CompanyElementSerializer(serializers.ModelSerializer):
     """
     Serializer class user for serializing CompanyElement model
     """
-    chil = RecursiveFieldSerializer(source='children', many=True, required=False)
+    children = RecursiveFieldSerializer(many=True, required=False)
+    additional_info = serializers.JSONField(required=False)
 
     class Meta:
         model = CompanyElement
-        fields = ('element_name', 'element_type', 'chil')
+        fields = ('element_name', 'element_type', 'children', 'additional_info')
 
 
 

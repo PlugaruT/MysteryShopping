@@ -41,7 +41,7 @@ class SubIndustryViewSet(viewsets.ModelViewSet):
 
 
 class CompanyElementViewSet(viewsets.ModelViewSet):
-    queryset = CompanyElement.objects.all()
+    queryset = CompanyElement.tree.root_nodes()
     serializer_class = CompanyElementSerializer
 
 
