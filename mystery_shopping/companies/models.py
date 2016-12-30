@@ -29,7 +29,7 @@ class HasEvaluationsMixin:
         return self.check_for_evaluations(self.sections.all())
 
 
-class CompanyElement(models.Model, MPTTModel):
+class CompanyElement(MPTTModel):
     """
     A generic company element.
     It may be the company itself, a section, department, employee, etc.
