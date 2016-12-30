@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework import views
 from rest_framework import viewsets
 from rest_framework.decorators import list_route, detail_route
+from rest_framework.filters import SearchFilter
 from rest_framework.mixins import ListModelMixin
 from rest_framework.response import Response
 
@@ -37,12 +38,19 @@ from .serializers import ProjectCommentSerializer
 from .serializers import WhyCauseSerializer
 
 
+class ClearCodedCauseMixin:
+    @staticmethod
+    def clear_coded_cause(why_causes):
+        for why_cause in why_causes:
+            why_cause.coded_causes.clear()
+
+
 class CodedCauseLabelViewSet(viewsets.ModelViewSet):
     queryset = CodedCauseLabel.objects.all()
     serializer_class = CodedCauseLabelSerializer
 
 
-class CodedCauseViewSet(viewsets.ModelViewSet):
+class CodedCauseViewSet(ClearCodedCauseMixin, viewsets.ModelViewSet):
     queryset = CodedCause.objects.all()
     queryset = CodedCauseSerializer().setup_eager_loading(queryset)
     serializer_class = CodedCauseSerializer
@@ -89,11 +97,6 @@ class CodedCauseViewSet(viewsets.ModelViewSet):
         questions_from_why_causes = why_causes.values_list('question', flat=True)
         return list(set(questions_from_coded_cause).intersection(questions_from_why_causes))
 
-    @staticmethod
-    def clear_coded_cause(why_causes):
-        for why_cause in why_causes:
-            why_cause.coded_causes.clear()
-
     @list_route(methods=['get'])
     def sorted(self, request):
         indicator = self.request.query_params.get('type')
@@ -138,8 +141,9 @@ class OverviewDashboard(views.APIView):
      * `entity`: entity id
      * `section`: section id
     """
-    permission_classes = (
-        Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager, IsCompanyManager),)
+
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager,
+                             IsCompanyManager),)
 
     def get(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
@@ -187,8 +191,10 @@ class IndicatorDashboard(views.APIView):
     :param project: will filter all questionnaires that are from this project
     :param indicator: can be anything
     """
-    permission_classes = (
-        Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager, IsCompanyManager),)
+
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager,
+                             IsCompanyManager),)
+
 
     def get(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
@@ -255,8 +261,9 @@ class IndicatorDashboardList(views.APIView):
     """
 
     """
-    permission_classes = (
-        Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager, IsCompanyManager),)
+
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager,
+                             IsCompanyManager),)
 
     def get(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
@@ -334,15 +341,26 @@ class CodedCausePercentage(views.APIView):
 
 
 class FrustrationWhyCauseViewSet(ListModelMixin, viewsets.GenericViewSet):
+    """
+    View for listing all frustration Why Causes for a specific indicator. Response is paginated.
+
+    Query params:
+
+     * `project`: **required**, project id for filtering why causes
+     * `type`: **required**, indicator name to filter by
+     * `search`: search string used for search, it will do a case-insensitive partial match for field `answer`
+    """
     serializer_class = SimpleWhyCauseSerializer
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
     pagination_class = FrustrationWhyCausesPagination
+    filter_backends = (SearchFilter,)
+    search_fields = ('answer',)
     queryset = WhyCause.objects.all()
+    queryset = serializer_class.setup_eager_loading(queryset)
 
     def list(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
         indicator = request.query_params.get('type', None)
-        self.queryset = self.serializer_class.setup_eager_loading(self.queryset)
         questions = QuestionnaireQuestion.objects.get_project_indicator_questions(project_id)
         self.queryset = self.queryset.filter(question__in=questions, is_appreciation_cause=False,
                                              coded_causes__isnull=True, question__additional_info=indicator)
@@ -350,22 +368,33 @@ class FrustrationWhyCauseViewSet(ListModelMixin, viewsets.GenericViewSet):
 
 
 class AppreciationWhyCauseViewSet(ListModelMixin, viewsets.GenericViewSet):
+    """
+    View for listing all appreciation Why Causes for a specific indicator. Response is paginated.
+
+    Query params:
+
+     * `project`: **required**, project id for filtering why causes
+     * `type`: **required**, indicator name to filter by
+     * `search`: search string used for search, it will do a case-insensitive partial match for field `answer`
+    """
     serializer_class = SimpleWhyCauseSerializer
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
     pagination_class = AppreciationWhyCausesPagination
+    filter_backends = (SearchFilter,)
+    search_fields = ('answer',)
     queryset = WhyCause.objects.all()
+    queryset = serializer_class.setup_eager_loading(queryset)
 
     def list(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
         indicator = request.query_params.get('type', None)
-        self.queryset = self.serializer_class.setup_eager_loading(self.queryset)
         questions = QuestionnaireQuestion.objects.get_project_indicator_questions(project_id)
         self.queryset = self.queryset.filter(question__in=questions, is_appreciation_cause=True,
                                              coded_causes__isnull=True, question__additional_info=indicator)
         return super(AppreciationWhyCauseViewSet, self).list(request, *args, **kwargs)
 
 
-class WhyCauseViewSet(viewsets.ModelViewSet):
+class WhyCauseViewSet(ClearCodedCauseMixin, viewsets.ModelViewSet):
     """
 
     """
@@ -384,6 +413,18 @@ class WhyCauseViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @list_route(['put'], url_path='clear')
+    def clear(self, request):
+        """
+        Endpoint for removing relation between why causes and coded cause. The request should contain list of id's of why causes
+        :param request: request info, request.data contains list of id's
+        :return: status code
+        """
+        why_causes = WhyCause.objects.filter(id__in=request.data)
+        self.clear_coded_cause(why_causes)
+        return Response(status=status.HTTP_202_ACCEPTED)
+
 
     @detail_route(['post'])
     def split(self, request, pk=None):
