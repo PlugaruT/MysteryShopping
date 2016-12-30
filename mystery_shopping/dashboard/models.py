@@ -1,6 +1,6 @@
 from django.db import models
 
-from mystery_shopping.companies.models import Company
+from mystery_shopping.companies.models import Company, CompanyElement
 from mystery_shopping.tenants.models import Tenant
 from mystery_shopping.projects.models import Project
 from mystery_shopping.users.models import User
@@ -13,6 +13,8 @@ class DashboardTemplate(models.Model):
     """
     # Relations
     tenant = models.ForeignKey(Tenant)
+    company_element = models.ForeignKey(CompanyElement)
+
     company = models.ForeignKey(Company)
     modified_by = models.ForeignKey(User)
     users = models.ManyToManyField(User, related_name='have_access')

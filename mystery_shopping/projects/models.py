@@ -44,6 +44,7 @@ class ResearchMethodology(models.Model):
     tenant = models.ForeignKey(Tenant)
     scripts = models.ManyToManyField(QuestionnaireScript)
     questionnaires = models.ManyToManyField(QuestionnaireTemplate)
+    company_elements = models.ManyToManyField('companies.CompanyElement')
 
     # Attributes
     number_of_evaluations = models.PositiveSmallIntegerField()  # or number_of_calls
@@ -71,6 +72,8 @@ class Project(models.Model):
     """
     # Relations
     tenant = models.ForeignKey(Tenant)
+    company_element = models.ForeignKey('companies.CompanyElement')
+
     company = models.ForeignKey('companies.Company')
     # this type of import is used to avoid import circles
     project_manager = models.ForeignKey('users.TenantProjectManager')
@@ -153,6 +156,9 @@ class Evaluation(TimeStampedModel, models.Model):
     type = models.CharField(max_length=1, choices=type_questionnaire, default=type_questionnaire.m)
 
     questionnaire_template = models.ForeignKey(QuestionnaireTemplate)
+    company_element = models.ForeignKey('companies.CompanyElement')
+
+    # Remove from here
     entity = models.ForeignKey(Entity)
     section = models.ForeignKey(Section, null=True, blank=True)
 
@@ -161,6 +167,7 @@ class Evaluation(TimeStampedModel, models.Model):
     employee_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='employee_type', null=True, blank=True)
     employee_id = models.PositiveIntegerField(null=True, blank=True)
     employee = GenericForeignKey('employee_type', 'employee_id')
+    # till here
 
     # For "Accomplished"
     questionnaire = models.OneToOneField(Questionnaire, null=True, blank=True, related_name='evaluation')
