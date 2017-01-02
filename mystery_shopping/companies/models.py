@@ -38,7 +38,10 @@ class CompanyElement(MPTTModel):
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
     element_name = models.CharField(max_length=100)
     element_type = models.CharField(max_length=100)
-    additional_info = HStoreField(blank=True)
+    logo = models.ImageField(null=True, blank=True)
+    additional_info = HStoreField(null=True, blank=True)
+
+    tenant = models.ForeignKey(Tenant)
 
 
     def __str__(self):
