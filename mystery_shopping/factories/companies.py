@@ -3,7 +3,7 @@ from factory import fuzzy, Sequence, SubFactory, PostGenerationMethodCall
 
 from .common import CountryFactory, CityFactory, SectorFactory
 from .tenants import TenantFactory
-from mystery_shopping.companies.models import Company, Industry, Department, Entity, Section
+from mystery_shopping.companies.models import Company, Industry, Department, Entity, Section, CompanyElement
 
 
 class IndustryFactory(DjangoModelFactory):
@@ -42,7 +42,7 @@ class DepartmentFactory(DjangoModelFactory):
 class EntityFactory(DjangoModelFactory):
     class Meta:
         model = Entity
-        
+
     department = SubFactory(DepartmentFactory)
     city = SubFactory(CityFactory)
     sector = SubFactory(SectorFactory)
@@ -61,3 +61,15 @@ class SectionFactory(DjangoModelFactory):
     tenant = SubFactory(TenantFactory)
 
     name = "The Carpet"
+
+
+class CompanyElementFactory(DjangoModelFactory):
+    class Meta:
+        model = CompanyElement
+
+    additional_info = {}
+    element_name = 'Default name'
+    element_type = 'Default type'
+    logo = None
+    parent = None
+    tenant = SubFactory(TenantFactory)

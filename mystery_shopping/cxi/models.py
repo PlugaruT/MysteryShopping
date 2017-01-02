@@ -101,19 +101,20 @@ class ProjectComment(models.Model):
 
     """
     # Relations
-    project = models.ForeignKey(Project)
     company_element = models.ForeignKey(CompanyElement, null=True, blank=True)
-
+    project = models.ForeignKey(Project)
+    # TODO: delete
     department = models.ForeignKey(Department, null=True, blank=True)
     entity = models.ForeignKey(Entity, null=True, blank=True)
     section = models.ForeignKey(Section, null=True, blank=True)
+    # till here.
 
     # Attributes
-    indicator = models.CharField(max_length=30, blank=True)
-    general = models.TextField(blank=True)
-    dynamics = models.TextField(blank=True)
-    details = models.TextField(blank=True)
     causes = models.TextField(blank=True)
+    details = models.TextField(blank=True)
+    dynamics = models.TextField(blank=True)
+    general = models.TextField(blank=True)
+    indicator = models.CharField(max_length=30, blank=True)
 
     class Meta:
         default_related_name = 'project_comments'

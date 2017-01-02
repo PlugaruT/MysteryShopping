@@ -12,18 +12,18 @@ class DashboardTemplate(models.Model):
     Model for storing the user defined dashboard structure
     """
     # Relations
-    tenant = models.ForeignKey(Tenant)
     company_element = models.ForeignKey(CompanyElement)
-
+    # TODO: delete
     company = models.ForeignKey(Company)
     modified_by = models.ForeignKey(User)
     users = models.ManyToManyField(User, related_name='have_access')
+    tenant = models.ForeignKey(Tenant)
 
     # Attributes
-    title = models.CharField(max_length=120)
-    widgets = models.TextField()
     is_published = models.BooleanField(default=False)
     modified_date = models.DateTimeField(default=datetime.now)
+    title = models.CharField(max_length=120)
+    widgets = models.TextField()
 
     def __str__(self):
         return 'Dashboard "{}" for {}'.format(self.title, self.tenant.name)
@@ -37,8 +37,8 @@ class DashboardComment(models.Model):
     dashboard = models.ForeignKey(DashboardTemplate, related_name='dashboard_comments')
 
     # Attributes
-    title = models.CharField(max_length=30, null=True, blank=True)
     comment = models.TextField()
+    title = models.CharField(max_length=30, null=True, blank=True)
 
     def __str__(self):
         return 'Dashboard Comment: {}'.format(self.title)
