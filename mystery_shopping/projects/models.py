@@ -41,14 +41,14 @@ class ResearchMethodology(models.Model):
 
     """
     # Relations
-    tenant = models.ForeignKey(Tenant)
-    scripts = models.ManyToManyField(QuestionnaireScript)
-    questionnaires = models.ManyToManyField(QuestionnaireTemplate)
     company_elements = models.ManyToManyField('companies.CompanyElement')
+    questionnaires = models.ManyToManyField(QuestionnaireTemplate)
+    scripts = models.ManyToManyField(QuestionnaireScript)
+    tenant = models.ForeignKey(Tenant)
 
     # Attributes
-    number_of_evaluations = models.PositiveSmallIntegerField()  # or number_of_calls
     description = models.TextField(blank=True)
+    number_of_evaluations = models.PositiveSmallIntegerField()  # or number_of_calls
 
     class Meta:
         verbose_name_plural = 'research methodologies'
@@ -72,10 +72,9 @@ class Project(models.Model):
     """
     # Relations
     tenant = models.ForeignKey(Tenant)
-    company_element = models.ForeignKey('companies.CompanyElement')
-
-    company = models.ForeignKey('companies.Company')
     # this type of import is used to avoid import circles
+    company_new = models.ForeignKey('companies.CompanyElement')
+    company = models.ForeignKey('companies.Company')
     project_manager = models.ForeignKey('users.TenantProjectManager')
     consultants = models.ManyToManyField('users.TenantConsultant')
     shoppers = models.ManyToManyField('users.Shopper', blank=True)

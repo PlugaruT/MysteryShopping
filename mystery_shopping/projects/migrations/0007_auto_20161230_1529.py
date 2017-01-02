@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='project',
-            name='company_element',
+            name='company_new',
             field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, related_name='projects', to='companies.CompanyElement'),
             preserve_default=False,
         ),

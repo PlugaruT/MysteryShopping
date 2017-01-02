@@ -35,16 +35,22 @@ class CompanyElement(MPTTModel):
     A generic company element.
     It may be the company itself, a section, department, employee, etc.
     """
+    # Relations
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
+    tenant = models.ForeignKey(Tenant)
+
+    # Attributes
+    additional_info = HStoreField(null=True, blank=True)
     element_name = models.CharField(max_length=100)
     element_type = models.CharField(max_length=100)
     logo = models.ImageField(null=True, blank=True)
-    additional_info = HStoreField(null=True, blank=True)
 
-    tenant = models.ForeignKey(Tenant)
 
     tree = TreeManager()
     objects = models.Manager.from_queryset(CompanyElementQuerySet)()
+
+    class Meta:
+        default_related_name = 'company_elements'
 
     def __str__(self):
         return 'company_element: {id: %s, name: %s, type: %s}' % (self.pk, self.element_name, self.element_type)
