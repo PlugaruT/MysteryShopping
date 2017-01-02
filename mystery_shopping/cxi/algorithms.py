@@ -214,12 +214,26 @@ def get_indicator_project_comment(project, department_id, entity_id, section_id,
                                                     section=section_id, indicator=indicator_type).first()
     return None if project_comment is None else ProjectCommentSerializer(project_comment).data
 
+def calculate_cxi_score(return_dict, questionnaire_template):
+    cxi_score = 0
+    for indicator, values in return_dict.items():
+        indicator_score = values['indicator']
+        weight = questionnaire_template.template_questions.get(additional_info=indicator).weight / 100
+        cxi_score += indicator_score * float(weight)
+
+    cxi_score = round(cxi_score, 2)
+
+    return {'indicator': cxi_score}
+
 
 def get_indicator_types(indicator_set, questionnaire_list):
     return_dict = dict()
     for indicator_type in indicator_set:
         indicator_list = get_indicator_scores(questionnaire_list, indicator_type)
         return_dict[indicator_type] = calculate_indicator_score(indicator_list)
+
+    questionnaire_template = questionnaire_list[0].template
+    return_dict['cxi'] = calculate_cxi_score(return_dict, questionnaire_template)
     return return_dict
 
 

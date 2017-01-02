@@ -1,6 +1,6 @@
 from django.db.models.query import QuerySet
 
-from mystery_shopping.projects.constants import EvaluationStatus
+from mystery_shopping.projects.constants import EvaluationStatus, ProjectType
 from mystery_shopping.questionnaires.constants import QuestionType
 
 
@@ -55,3 +55,11 @@ class QuestionnaireQuestionQuerySet(QuerySet):
                 questionnaire__evaluation__entity__in=entities)
         else:
             return self.get_project_specific_indicator_questions(project, indicator)
+
+
+class QuestionnaireTemplateQuestionQuerySet(QuerySet):
+    def is_question_editable(self, pk):
+        try:
+            return self.get(questionnaire_template__type=ProjectType.CUSTOMER_XP_INDEX, pk=pk)
+        except:
+            return None
