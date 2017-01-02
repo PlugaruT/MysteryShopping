@@ -8,6 +8,7 @@ from .models import Industry, Company, Department, Entity, Section, SubIndustry,
 class CompanyAdmin(admin.ModelAdmin):
     pass
 
+
 @admin.register(CompanyElement)
 class CompanyElementAdmin(MPTTModelAdmin):
-    pass
+    list_display = ['element_name', 'element_type', 'additional_info']

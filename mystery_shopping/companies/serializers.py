@@ -59,13 +59,17 @@ class CompanyElementSerializer(serializers.ModelSerializer):
     """
     Serializer class user for serializing CompanyElement model
     """
-    children = RecursiveFieldSerializer(many=True, required=False)
+    children = RecursiveFieldSerializer(many=True, required=False, read_only=True)
     additional_info = serializers.JSONField(required=False)
 
     class Meta:
         model = CompanyElement
-        fields = ('element_name', 'element_type', 'children', 'additional_info')
+        fields = ('id', 'element_name', 'element_type', 'children', 'additional_info', 'parent')
 
+    @staticmethod
+    def setup_eager_loading(queryset):
+        queryset = queryset.select_related('parent')
+        return queryset
 
 
 class SectionSerializer(serializers.ModelSerializer):

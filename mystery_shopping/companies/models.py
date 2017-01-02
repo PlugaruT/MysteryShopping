@@ -46,8 +46,6 @@ class CompanyElement(MPTTModel):
     logo = models.ImageField(null=True, blank=True)
 
 
-    tree = TreeManager()
-    objects = models.Manager.from_queryset(CompanyElementQuerySet)()
 
     class Meta:
         default_related_name = 'company_elements'
