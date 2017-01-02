@@ -45,8 +45,6 @@ class CompanyElement(MPTTModel):
     element_type = models.CharField(max_length=100)
     logo = models.ImageField(null=True, blank=True)
 
-
-
     class Meta:
         default_related_name = 'company_elements'
 

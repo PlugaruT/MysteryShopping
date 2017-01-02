@@ -39,6 +39,7 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
             'saved_by_user': self.object.saved_by_user.id,
             'questionnaire_script': self.object.questionnaire_script.id,
             'questionnaire_template': self.object.questionnaire_template.id,
+            'company_element': self.object.company_element.id,
             'entity': self.object.entity.id,
             'evaluation_assessment_level': None
         }
@@ -74,6 +75,7 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
             'saved_by_user': self.object.saved_by_user.id,
             'questionnaire_script': self.object.questionnaire_script.id,
             'questionnaire_template': template_questionnaire_ser.instance.id,
+            'company_element': self.object.company_element.id,
             'entity': self.object.entity.id,
             'evaluation_assessment_level': None
         }
@@ -130,6 +132,7 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
             'saved_by_user': self.object.saved_by_user.id,
             'questionnaire_script': self.object.questionnaire_script.id,
             'questionnaire_template': template_questionnaire_ser.instance.id,
+            'company_element': self.object.company_element.id,
             'entity': self.object.entity.id,
             'evaluation_assessment_level': None
         }
@@ -186,6 +189,7 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
             'saved_by_user': self.object.saved_by_user.id,
             'questionnaire_script': self.object.questionnaire_script.id,
             'questionnaire_template': template_questionnaire_ser.instance.id,
+            'company_element': self.object.company_element.id,
             'entity': self.object.entity.id,
             'evaluation_assessment_level': evaluation_assessment_level.id
         }

@@ -2,7 +2,7 @@ from django.test.testcases import TestCase
 from datetime import datetime
 from json import loads, dumps
 
-from mystery_shopping.factories.companies import EntityFactory
+from mystery_shopping.factories.companies import EntityFactory, CompanyElementFactory
 from mystery_shopping.factories.projects import ProjectFactory, EvaluationFactory
 from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFactory, QuestionnaireScriptFactory
 from mystery_shopping.factories.users import ShopperFactory
@@ -19,6 +19,7 @@ class TestEvaluationWithDetractor(TestCase):
         self.questionnaire_template = QuestionnaireTemplateFactory()
         self.questionnaire_script = QuestionnaireScriptFactory()
         self.entity = EntityFactory()
+        self.company_element = CompanyElementFactory()
         self.data = {
             'evaluation_type': 'visit',
             'is_draft': False,
@@ -31,6 +32,7 @@ class TestEvaluationWithDetractor(TestCase):
             'saved_by_user': self.shopper.user.id,
             'questionnaire_script': self.questionnaire_script.id,
             'questionnaire_template': self.questionnaire_template.id,
+            'company_element': self.company_element.id,
             'entity': self.entity.id,
             'evaluation_assessment_level': None
         }
