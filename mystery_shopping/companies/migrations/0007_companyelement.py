@@ -16,7 +16,7 @@ def save_section(section, parent):
     element = CompanyElement(element_name=section.name, element_type='Secțiune',
                              tenant=section.tenant, parent=parent)
 
-    element.additional_info = {'__old_section_id': section.pk}
+    element.additional_info = {'old_section_id': section.pk}
 
     element.save()
 
@@ -25,7 +25,7 @@ def save_entity(entity, parent):
     element = CompanyElement(element_name=entity.name, element_type='Entitate',
                              tenant=entity.tenant, parent=parent)
 
-    element.additional_info = {'__old_entity_id': entity.pk,
+    element.additional_info = {'old_entity_id': entity.pk,
                                'address': entity.address,
                                'coordinates': entity.coordinates}
 
@@ -44,7 +44,7 @@ def save_department(department, parent):
     element = CompanyElement(element_name=department.name, element_type='Departament',
                              tenant=department.tenant, parent=parent)
 
-    element.additional_info = {'__old_department_id': department.pk}
+    element.additional_info = {'old_department_id': department.pk}
 
     element.save()
 
@@ -56,7 +56,7 @@ def save_company(company):
     element = CompanyElement(element_name=company.name, element_type='Companie', tenant=company.tenant,
                              logo=company.logo)
 
-    element.additional_info = {'__old_company_id': company.pk,
+    element.additional_info = {'old_company_id': company.pk,
                                'contact_person': company.contact_person,
                                'contact_phone': company.contact_phone,
                                'contact_email': company.contact_email,
@@ -64,7 +64,7 @@ def save_company(company):
                                'domain': company.domain}
 
     if company.industry:
-        element.additional_info['indsutry'] = company.industry.name
+        element.additional_info['industry'] = company.industry.name
     if company.subindustry:
         element.additional_info['subindustry'] = company.subindustry.name
     if company.country:
