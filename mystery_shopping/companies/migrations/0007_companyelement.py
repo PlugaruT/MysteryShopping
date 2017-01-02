@@ -105,14 +105,11 @@ class Migration(migrations.Migration):
                 ('parent',
                  mptt.fields.TreeForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
                                             related_name='children', to='companies.CompanyElement')),
-                ('tenant', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='tenants.Tenant')),
+                ('tenant', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='company_elements', to='tenants.Tenant')),
             ],
             options={
                 'abstract': False,
             },
-            managers=[
-                ('tree', django.db.models.manager.Manager()),
-            ],
         ),
         migrations.RunPython(migrate_companies)
     ]

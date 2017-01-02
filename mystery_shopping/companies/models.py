@@ -9,6 +9,7 @@ from mystery_shopping.common.models import City, Country, Sector
 from mystery_shopping.companies.managers import CompanyElementQuerySet
 from mystery_shopping.tenants.models import Tenant
 
+
 # TODO add description for classes
 
 
@@ -45,14 +46,27 @@ class CompanyElement(MPTTModel):
     element_type = models.CharField(max_length=100)
     logo = models.ImageField(null=True, blank=True)
 
-
-
     class Meta:
         default_related_name = 'company_elements'
 
     def __str__(self):
         return 'company_element: {id: %s, name: %s, type: %s}' % (self.pk, self.element_name, self.element_type)
 
+
+class AdditionalInfoType(models.Model):
+    """
+    A saved additional info type for Company Element 'additional_info' attribute
+    """
+    # Relations
+    tenant = models.ForeignKey(Tenant, null=True, blank=True)
+
+    # Attributes
+    name = models.CharField(max_length=100)
+    input_type = models.CharField(max_length=50)
+    icon = models.CharField(max_length=50)
+
+    def __str__(self):
+        return 'additional_info_type: {id: %s, name: %s}' % (self.pk, self.name)
 
 class Industry(models.Model):
     """
