@@ -40,8 +40,6 @@ class CompanyElement(MPTTModel):
     element_type = models.CharField(max_length=100)
     additional_info = HStoreField(blank=True)
 
-    tree = TreeManager()
-    objects = models.Manager.from_queryset(CompanyElementQuerySet)()
 
     def __str__(self):
         return 'company_element: {id: %s, name: %s, type: %s}' % (self.pk, self.element_name, self.element_type)
