@@ -2,6 +2,7 @@ from django.contrib.postgres.fields.hstore import HStoreField
 from django.db import models
 from django.contrib.contenttypes.fields import GenericRelation
 from mptt.fields import TreeForeignKey
+from mptt.managers import TreeManager
 from mptt.models import MPTTModel
 
 from mystery_shopping.common.models import City, Country, Sector
@@ -37,8 +38,9 @@ class CompanyElement(MPTTModel):
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
     element_name = models.CharField(max_length=100)
     element_type = models.CharField(max_length=100)
-    additional_info = HStoreField()
+    additional_info = HStoreField(blank=True)
 
+    tree = TreeManager()
     objects = models.Manager.from_queryset(CompanyElementQuerySet)()
 
     def __str__(self):

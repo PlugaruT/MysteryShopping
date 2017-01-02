@@ -1,7 +1,7 @@
 from rest_framework.routers import DefaultRouter
 from rest_framework_nested.routers import NestedSimpleRouter
 from django.conf.urls import url
-from mystery_shopping.companies.views import SubIndustryViewSet, IndustryCsvUploadView
+from mystery_shopping.companies.views import SubIndustryViewSet, IndustryCsvUploadView, CompanyElementViewSet
 from .views import IndustryViewSet
 from .views import CompanyViewSet
 from .views import DepartmentViewSet
@@ -16,6 +16,7 @@ router.register(r'subindustries', SubIndustryViewSet)
 router.register(r'departments', DepartmentViewSet)
 router.register(r'entities', EntityViewSet)
 router.register(r'sections', SectionViewSet)
+router.register(r'company-element', CompanyElementViewSet)
 
 company_router_for_projects = DefaultRouter()
 company_router_for_projects.register(r'companies', CompanyViewSet, base_name='companies')

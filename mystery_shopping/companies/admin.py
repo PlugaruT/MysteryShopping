@@ -1,9 +1,13 @@
 from django.contrib import admin
+from mptt.admin import MPTTModelAdmin
 
-from mystery_shopping.companies.models import CompanyElement
-from .models import Industry, Company, Department, Entity, Section, SubIndustry
+from .models import Industry, Company, Department, Entity, Section, SubIndustry, CompanyElement
 
 
-@admin.register(Industry, SubIndustry, Company, Department, Entity, Section, CompanyElement)
+@admin.register(Industry, SubIndustry, Company, Department, Entity, Section)
 class CompanyAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(CompanyElement)
+class CompanyElementAdmin(MPTTModelAdmin):
     pass

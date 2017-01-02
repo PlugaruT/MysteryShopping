@@ -5,8 +5,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from mystery_shopping.companies.models import SubIndustry
-from mystery_shopping.companies.serializers import SubIndustrySerializer
+from mystery_shopping.companies.models import SubIndustry, CompanyElement
+from mystery_shopping.companies.serializers import SubIndustrySerializer, CompanyElementSerializer
 from mystery_shopping.companies.uploads import handle_csv_with_uploaded_sub_industries
 from .models import Industry
 from .models import Company
@@ -37,6 +37,12 @@ class SubIndustryViewSet(viewsets.ModelViewSet):
     queryset = SubIndustry.objects.all()
     serializer_class = SubIndustrySerializer
     permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultantViewOnly),)
+
+
+
+class CompanyElementViewSet(viewsets.ModelViewSet):
+    queryset = CompanyElement.tree.root_nodes()
+    serializer_class = CompanyElementSerializer
 
 
 class IndustryCsvUploadView(APIView):
