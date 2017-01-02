@@ -17,6 +17,7 @@ from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from mystery_shopping.projects.constants import EvaluationStatus
 
 
+# TODO: Delete model
 class PlaceToAssess(models.Model):
     """
     A class with a generic foreign key for setting places to be evaluated for a project.
@@ -71,22 +72,24 @@ class Project(models.Model):
 
     """
     # Relations
-    tenant = models.ForeignKey(Tenant)
     # this type of import is used to avoid import circles
+    consultants = models.ManyToManyField('users.TenantConsultant')
+    # TODO rename to 'company'
     company_new = models.ForeignKey('companies.CompanyElement')
+    # TODO delete
     company = models.ForeignKey('companies.Company')
     project_manager = models.ForeignKey('users.TenantProjectManager')
-    consultants = models.ManyToManyField('users.TenantConsultant')
-    shoppers = models.ManyToManyField('users.Shopper', blank=True)
     research_methodology = models.ForeignKey('ResearchMethodology', null=True, blank=True)
+    shoppers = models.ManyToManyField('users.Shopper', blank=True)
+    tenant = models.ForeignKey(Tenant)
 
     # Attributes
-    period_start = models.DateField()
-    period_end = models.DateField()
+    graph_config = JSONField(null=True)
     type_questionnaire = Choices(('m', 'Mystery Questionnaire'),
                                  ('c', 'Customer Experience Index Questionnaire'))
     type = models.CharField(max_length=1, choices=type_questionnaire, default=type_questionnaire.m)
-    graph_config = JSONField(null=True)
+    period_start = models.DateField()
+    period_end = models.DateField()
 
     objects = models.Manager.from_queryset(ProjectQuerySet)()
 
@@ -145,19 +148,17 @@ class Evaluation(TimeStampedModel, models.Model):
     """
     """
     # Relationships
+    company_element = models.ForeignKey('companies.CompanyElement')
     project = models.ForeignKey(Project)
-    shopper = models.ForeignKey('users.Shopper', null=True)
-    saved_by_user = models.ForeignKey('users.User')
     questionnaire_script = models.ForeignKey(QuestionnaireScript, null=True)
+    saved_by_user = models.ForeignKey('users.User')
+    shopper = models.ForeignKey('users.Shopper', null=True)
 
     type_questionnaire = Choices(('m', 'Mystery Evaluation'),
                                  ('c', 'Customer Experience Index Evaluation'))
     type = models.CharField(max_length=1, choices=type_questionnaire, default=type_questionnaire.m)
-
     questionnaire_template = models.ForeignKey(QuestionnaireTemplate)
-    company_element = models.ForeignKey('companies.CompanyElement')
-
-    # Remove from here
+    # TODO: Remove from here
     entity = models.ForeignKey(Entity)
     section = models.ForeignKey(Section, null=True, blank=True)
 
