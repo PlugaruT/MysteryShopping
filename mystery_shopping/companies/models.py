@@ -68,6 +68,7 @@ class AdditionalInfoType(models.Model):
     def __str__(self):
         return 'additional_info_type: {id: %s, name: %s}' % (self.pk, self.name)
 
+
 class Industry(models.Model):
     """
 
