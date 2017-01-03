@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from mystery_shopping.cxi.serializers import WhyCauseSerializer
@@ -15,7 +16,8 @@ from mystery_shopping.companies.serializers import SectionSerializer
 
 from mystery_shopping.companies.serializers import CompanySerializer
 
-from mystery_shopping.questionnaires.serializers import QuestionnaireScriptSerializer, DetractorRespondentForTenantSerializer
+from mystery_shopping.questionnaires.serializers import QuestionnaireScriptSerializer, \
+    DetractorRespondentForTenantSerializer
 from mystery_shopping.questionnaires.serializers import QuestionnaireSerializer
 from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializer
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion, QuestionnaireScript
@@ -57,16 +59,26 @@ class EvaluationAssessmentLevelSerializer(serializers.ModelSerializer):
     class Meta:
         model = EvaluationAssessmentLevel
         fields = '__all__'
-        extra_kwargs = {'consultants': {'allow_empty': True, 'many': True}}
+        extra_kwargs = {
+            'consultants': {
+                'allow_empty': True,
+                'many': True
+            }
+        }
 
 
 class PlaceToAssessSerializer(serializers.ModelSerializer):
     """
     """
+
     class Meta:
         model = PlaceToAssess
         fields = '__all__'
-        extra_kwargs = {'research_methodology': {'required': False}}
+        extra_kwargs = {
+            'research_methodology': {
+                'required': False
+            }
+        }
 
     def to_representation(self, instance):
         """
@@ -155,7 +167,7 @@ class ResearchMethodologySerializer(serializers.ModelSerializer):
     @staticmethod
     def link_research_methodology_to_project(project_id, research_methodology):
         if project_id:
-            project_to_set = Project.objects.filter(pk=project_id).first()
+            project_to_set = get_object_or_404(Project, pk=project_id)
             if project_to_set:
                 project_to_set.research_methodology = research_methodology
                 project_to_set.save()
@@ -238,7 +250,8 @@ class ProjectSerializer(serializers.ModelSerializer):
             # Map list of instances to list of instance id's, so that when calling serializer.is_valid method, it won't
             # throw the "expected id, got instance" error.
             research_methodology['scripts'] = list(map(lambda x: x.id, research_methodology.get('scripts', [])))
-            research_methodology['questionnaires'] = list(map(lambda x: x.id, research_methodology.get('questionnaires', [])))
+            research_methodology['questionnaires'] = list(
+                map(lambda x: x.id, research_methodology.get('questionnaires', [])))
 
             # Append '_repr' suffix to places_to_assess and people_to_assess fields such that when calling
             # ResearchMethodologySerializer's validation, it won't set these values to empty lists, because of not
@@ -326,7 +339,6 @@ class EvaluationSerializer(serializers.ModelSerializer):
         questionnaire_to_create_ser.is_valid(raise_exception=True)
         questionnaire_to_create_ser.save()
 
-
         cross_indexes = questionnaire_to_create.get('template_cross_indexes', [])
         if cross_indexes is not []:
             questionnaire_to_create_ser.instance.create_cross_indexes(cross_indexes)
@@ -370,19 +382,19 @@ class EvaluationSerializer(serializers.ModelSerializer):
                 self._update_question_answer(question)
 
     def _update_question_answer(self, question):
-            question_instance = QuestionnaireQuestion.objects.get(questionnaire=question.get('questionnaire'),
-                                                                  pk = question.get('question_id'))
-            question_instance.answer = question.get('answer')
-            question_instance.score = question.get('score')
-            question_instance.answer_choices = question.get('answer_choices', [])
-            question_instance.comment = question.get('comment')
-            why_causes = question.pop('why_causes', [])
-            for why_cause in why_causes:
-                why_cause['question'] = question_instance.id
-                why_cause_ser = WhyCauseSerializer(data=why_cause)
-                why_cause_ser.is_valid(raise_exception=True)
-                why_cause_ser.save()
-            question_instance.save()
+        questionnaire_pk = question.get('questionnaire')
+        pk = question.get('question_id')
+        question_instance = get_object_or_404(QuestionnaireQuestion, pk=pk, questionnaire=questionnaire_pk)
+
+        question_instance.answer = question.get('answer')
+        question_instance.score = question.get('score')
+        question_instance.answer_choices = question.get('answer_choices', [])
+        question_instance.comment = question.get('comment')
+
+        why_causes = question.pop('why_causes', [])
+        question_instance.create_why_causes(why_causes)
+
+        question_instance.save()
 
     @staticmethod
     def set_evaluation_to_detractor(detractor_instance, evaluation):
@@ -461,4 +473,4 @@ class ProjectStatisticsForTenantSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Evaluation
-        fields = ('id', 'time_accomplished', 'section', 'entity',  'entity_repr', 'section_repr', 'shopper_repr')
+        fields = ('id', 'time_accomplished', 'section', 'entity', 'entity_repr', 'section_repr', 'shopper_repr')

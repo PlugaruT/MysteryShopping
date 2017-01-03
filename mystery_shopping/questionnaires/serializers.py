@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from mystery_shopping.cxi.serializers import WhyCauseSerializer
@@ -23,6 +24,7 @@ from .utils import update_attributes
 class QuestionnaireTemplateQuestionChoiceSerializer(serializers.ModelSerializer):
     """
     """
+
     class Meta:
         model = QuestionnaireTemplateQuestionChoice
         fields = '__all__'
@@ -58,6 +60,7 @@ class QuestionnaireScriptSerializer(serializers.ModelSerializer):
     """
 
     """
+
     class Meta:
         model = QuestionnaireScript
         fields = ('id', 'title', 'description',)
@@ -265,9 +268,9 @@ class QuestionnaireTemplateBlockSerializer(serializers.ModelSerializer):
     def update_block_siblings(siblings_to_update, validated_data):
         for sibling in siblings_to_update:
             block_id = sibling.pop('block_id')
-            block_to_update = QuestionnaireTemplateBlock.objects.filter(pk=block_id,
-                                                                        questionnaire_template=validated_data[
-                                                                            'questionnaire_template']).first()
+            block_to_update = get_object_or_404(QuestionnaireTemplateBlock,
+                                                pk=block_id,
+                                                questionnaire_template=validated_data['questionnaire_template'])
             if block_to_update is not None:
                 update_attributes(sibling['block_changes'], block_to_update)
                 block_to_update.save()
@@ -344,6 +347,7 @@ class CrossIndexQuestionTemplateSerializer(serializers.ModelSerializer):
     """
 
     """
+
     class Meta:
         model = CrossIndexQuestionTemplate
         fields = ('template_question', 'weight')
@@ -415,7 +419,6 @@ class CrossIndexTemplateSerializer(serializers.ModelSerializer):
 
 
 class QuestionnaireTemplateStatusSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = QuestionnaireTemplateStatus
         fields = '__all__'
@@ -494,6 +497,7 @@ class QuestionSimpleSerializer(serializers.ModelSerializer):
     """
         Serializes questions simpler including needed fields
     """
+
     class Meta:
         model = QuestionnaireQuestion
         fields = ('id', 'question_body', 'score')

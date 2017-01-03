@@ -2,6 +2,7 @@ from decimal import Decimal
 
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
+from django.shortcuts import get_object_or_404
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
 
@@ -163,7 +164,7 @@ class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
                                               weight=template_question['weight'])
 
     def create_cross_index(self, template_cross_index):
-        template = CrossIndexTemplate.objects.get(id=template_cross_index['id'])
+        template = get_object_or_404(CrossIndexTemplate, pk=template_cross_index['id'])
         return CrossIndex.objects.create(template_cross_index=template, questionnaire=self,
                                          title=template_cross_index['title'])
 
@@ -329,7 +330,7 @@ class QuestionnaireQuestion(QuestionAbstract):
         score = Decimal(0)
         if self.max_score:
             for answer_choice_id in self.answer_choices:
-                answer_choice = QuestionnaireQuestionChoice.objects.get(pk=answer_choice_id)
+                answer_choice = get_object_or_404(QuestionnaireQuestionChoice, pk=answer_choice_id)
                 score += (answer_choice.score / self.max_score) * 100
 
         return score
@@ -338,7 +339,7 @@ class QuestionnaireQuestion(QuestionAbstract):
         score = Decimal(0)
         if self.max_score:
             for answer_choice_id in self.answer_choices:
-                answer_choice = QuestionnaireQuestionChoice.objects.get(pk=answer_choice_id)
+                answer_choice = get_object_or_404(QuestionnaireQuestionChoice, pk=answer_choice_id)
                 score += (answer_choice.score / self.max_score) * 100
 
         return score
@@ -362,6 +363,14 @@ class QuestionnaireQuestion(QuestionAbstract):
 
     def get_department(self):
         return self.get_entity().department
+
+    def create_why_causes(self, why_causes):
+        from mystery_shopping.cxi.serializers import WhyCauseSerializer
+        for why_cause in why_causes:
+            why_cause['question'] = self.id
+            why_cause_ser = WhyCauseSerializer(data=why_cause)
+            why_cause_ser.is_valid(raise_exception=True)
+            why_cause_ser.save()
 
 
 class QuestionChoiceAbstract(models.Model):

@@ -12,4 +12,4 @@ class EvaluationStatus:
 
 class ProjectType:
     MYSTERY_SHOPPING = 'm'
-    CUSTOMER_XP_INDEX = 'c'
+    CUSTOMER_EXPERIENCE_INDEX = 'c'
