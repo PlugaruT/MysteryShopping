@@ -56,8 +56,13 @@ class SubIndustryViewSet(viewsets.ModelViewSet):
 
 class CompanyElementViewSet(viewsets.ModelViewSet):
     serializer_class = CompanyElementSerializer
-    queryset = CompanyElement.objects.root_nodes()
+    queryset = CompanyElement.objects.all()
     queryset = serializer_class.setup_eager_loading(queryset)
+
+    def list(self, request, *args, **kwargs):
+        queryset = CompanyElement.objects.root_nodes()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
     @detail_route(methods=['post'])
     def clone(self, request, pk=None):
