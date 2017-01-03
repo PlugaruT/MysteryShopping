@@ -9,12 +9,14 @@ from model_utils.models import TimeStampedModel
 from mptt.models import MPTTModel, TreeForeignKey
 from datetime import datetime
 
-from mystery_shopping.questionnaires.utils import first_or_none
+from mystery_shopping.questionnaires.managers import QuestionnaireTemplateQuestionQuerySet
+from mystery_shopping.questionnaires.utils import first_or_none, update_attributes
 from .constants import QuestionType
 from .managers import QuestionnaireQuerySet
 from .managers import QuestionnaireQuestionQuerySet
 
 from mystery_shopping.tenants.models import Tenant
+
 
 # REMINDER: don't use newline characters in the representation
 
@@ -274,6 +276,9 @@ class QuestionnaireTemplateQuestion(QuestionAbstract):
     questionnaire_template = models.ForeignKey(QuestionnaireTemplate)
     template_block = models.ForeignKey(QuestionnaireTemplateBlock)
 
+    objects = models.Manager.from_queryset(QuestionnaireTemplateQuestionQuerySet)()
+
+
     class Meta:
         default_related_name = 'template_questions'
 
@@ -282,6 +287,18 @@ class QuestionnaireTemplateQuestion(QuestionAbstract):
 
     def prepare_to_update(self):
         self.template_question_choices.all().delete()
+
+    @staticmethod
+    def update_siblings(siblings_to_update, template_block):
+        for sibling in siblings_to_update:
+            question_id = sibling.pop('question_id')
+            try:
+                question_to_update = QuestionnaireTemplateQuestion.objects.get(pk=question_id,
+                                                                               template_block=template_block)
+                update_attributes(sibling['question_changes'], question_to_update)
+                question_to_update.save()
+            except QuestionnaireTemplateQuestion.DoesNotExist:
+                pass
 
 
 class QuestionnaireQuestion(QuestionAbstract):
