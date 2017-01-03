@@ -48,6 +48,9 @@ class CompanyElement(MPTTModel):
 
     class Meta:
         default_related_name = 'company_elements'
+        permissions = (
+            ('view_companyelement', 'View company element'),
+        )
 
     def __str__(self):
         return 'company_element: {id: %s, name: %s, type: %s}' % (self.pk, self.element_name, self.element_type)
