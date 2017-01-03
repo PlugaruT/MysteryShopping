@@ -175,12 +175,12 @@ class PersonToAssessViewSet(viewsets.ModelViewSet):
 
 
 class DetractorFilter(django_filters.rest_framework.FilterSet):
-    entity = django_filters.AllValuesMultipleFilter(name="evaluation__entity")
+    place = django_filters.AllValuesMultipleFilter(name="evaluation__company_element")
     date = django_filters.DateFilter(name="evaluation__time_accomplished", lookup_expr='date')
 
     class Meta:
         model = DetractorRespondent
-        fields = ['entity', 'date']
+        fields = ['place', 'date']
 
 
 class DetractorRespondentForTenantViewSet(viewsets.ModelViewSet):
