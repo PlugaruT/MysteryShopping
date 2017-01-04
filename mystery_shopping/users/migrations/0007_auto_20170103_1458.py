@@ -7,7 +7,7 @@ from django.contrib.auth.models import Permission, Group
 from django.contrib.contenttypes.models import ContentType
 
 
-def create_groups(apps, schema_editor,  with_create_permissions=True):
+def create_groups(apps, schema_editor, with_create_permissions=True):
     Group = apps.get_model('auth', 'Group')
     Group.objects.bulk_create([
         Group(name=u'Tenant Consultants'),
@@ -71,8 +71,15 @@ def add_permissions_to_group_from_whole_app(group_name, app_name):
     group.permissions.add(*permissions)
 
 
-class Migration(migrations.Migration):
+def add_single_permission_to_group(group_name, perm_name, app_name):
+    group, created = Group.objects.get_or_create(name=group_name)
+    content_types = ContentType.objects.filter(app_label=app_name)
+    permission = Permission.objects.get(content_type__app_label=app_name, content_type__in=content_types,
+                                        name=perm_name)
+    group.permissions.add(*permission)
 
+
+class Migration(migrations.Migration):
     dependencies = [
         ('users', '0006_auto_20161222_1351'),
     ]
