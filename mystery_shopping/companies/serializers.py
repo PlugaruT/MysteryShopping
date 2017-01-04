@@ -1,7 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 
-from mystery_shopping.companies.models import SubIndustry, CompanyElement
+from mystery_shopping.companies.models import SubIndustry, CompanyElement, AdditionalInfoType
 from .models import Industry, Company, Department, Entity, Section
 
 from mystery_shopping.common.serializer import CitySerializer
@@ -14,6 +14,7 @@ class IndustrySerializer(serializers.ModelSerializer):
     """
 
     """
+
     class Meta:
         model = Industry
         fields = '__all__'
@@ -57,7 +58,7 @@ class RecursiveFieldSerializer(serializers.BaseSerializer):
 
 class CompanyElementSerializer(serializers.ModelSerializer):
     """
-    Serializer class user for serializing CompanyElement model
+    Serializer class used for serializing CompanyElement model
     """
     children = RecursiveFieldSerializer(many=True, required=False, read_only=True)
     additional_info = serializers.JSONField(required=False)
@@ -70,6 +71,16 @@ class CompanyElementSerializer(serializers.ModelSerializer):
     def setup_eager_loading(queryset):
         queryset = queryset.select_related('parent')
         return queryset
+
+
+class AdditionalInfoTypeSerializer(serializers.ModelSerializer):
+    """
+    Serialize class for AdditionalInfoType model
+    """
+
+    class Meta:
+        model = AdditionalInfoType
+        fields = '__all__'
 
 
 class SectionSerializer(serializers.ModelSerializer):

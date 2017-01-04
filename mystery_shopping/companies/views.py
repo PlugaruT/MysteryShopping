@@ -7,8 +7,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from mystery_shopping.companies.models import SubIndustry, CompanyElement
-from mystery_shopping.companies.serializers import SubIndustrySerializer, CompanyElementSerializer
+from mystery_shopping.companies.models import SubIndustry, CompanyElement, AdditionalInfoType
+from mystery_shopping.companies.serializers import SubIndustrySerializer, CompanyElementSerializer, \
+    AdditionalInfoTypeSerializer
 from mystery_shopping.companies.uploads import handle_csv_with_uploaded_sub_industries
 from .models import Industry
 from .models import Company
@@ -91,6 +92,14 @@ class CompanyElementViewSet(viewsets.ModelViewSet):
         element.id = None
         element.element_name = '{} {}'.format(element.element_name, '(copy)')
         element.save()
+
+
+class AdditionalInfoTypeViewSet(viewsets.ModelViewSet):
+    """
+    View for CRUD operations on AdditionalInfoType model
+    """
+    serializer_class = AdditionalInfoTypeSerializer
+    queryset = AdditionalInfoType.objects.all()
 
 
 class IndustryCsvUploadView(APIView):
