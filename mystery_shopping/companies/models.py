@@ -2,11 +2,9 @@ from django.contrib.postgres.fields.hstore import HStoreField
 from django.db import models
 from django.contrib.contenttypes.fields import GenericRelation
 from mptt.fields import TreeForeignKey
-from mptt.managers import TreeManager
 from mptt.models import MPTTModel
 
 from mystery_shopping.common.models import City, Country, Sector
-from mystery_shopping.companies.managers import CompanyElementQuerySet
 from mystery_shopping.tenants.models import Tenant
 
 
