@@ -12,7 +12,7 @@ from mystery_shopping.companies.models import Section
 from mystery_shopping.tenants.models import Tenant
 
 
-class CodedCauseLabel(TenantMixin):
+class CodedCauseLabel(TenantMixin, models.Model):
     """
     Model of a Coded Cause name (label) that would allow to use the same name for different Coded Causes
     """
@@ -65,7 +65,7 @@ class WhyCause(models.Model):
         return new_why_causes
 
 
-class CodedCause(TenantMixin):
+class CodedCause(TenantMixin, models.Model):
     """
     Model for Coded Causes that would allow to group different frustration or appreciation together
     """
