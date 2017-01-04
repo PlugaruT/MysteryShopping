@@ -11,10 +11,11 @@ class TestPermissionsToDashboard(APITestCase):
         self.authenthification = AuthenticateUser()
         self.client = self.authenthification.client
         self.user = self.authenthification.user
+        self.tenant = self.user.tenant
         self.company_element = CompanyElementFactory()
         self.company = CompanyFactory()
-        self.dashboard1 = DashboardTemplateFactory(title='Dashboard 1', company=self.company)
-        self.dashboard2 = DashboardTemplateFactory(title='Dashboard 2', company=self.company)
+        self.dashboard1 = DashboardTemplateFactory(title='Dashboard 1', company=self.company, tenant=self.tenant)
+        self.dashboard2 = DashboardTemplateFactory(title='Dashboard 2', company=self.company, tenant=self.tenant)
 
     def test_if_company_is_set_accordingly_to_dashboard(self):
         response = self.client.get('/api/v1/dashboard/templates/?company={}'.format(self.company.id))

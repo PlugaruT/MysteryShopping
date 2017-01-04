@@ -5,6 +5,7 @@ from rest_framework import status
 from rest_framework.decorators import list_route, detail_route
 from rest_condition import Or
 
+from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from mystery_shopping.questionnaires.models import QuestionnaireTemplateStatus
 from .models import QuestionnaireScript
 from .models import Questionnaire
@@ -50,14 +51,13 @@ class QuestionnaireTemplateViewSet(viewsets.ModelViewSet):
     queryset = QuestionnaireTemplate.objects.all()
     serializer_class = QuestionnaireTemplateSerializer
     permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)
+    filter_backends = (TenantFilter,)
 
     def get_queryset(self):
         """Filter queryset by Questionnaire type ('c' or 'm') and by Tenant the user belongs to.
         """
-        queryset = self.queryset.all()
         questionnaire_type = self.request.query_params.get('type', 'm')
-        questionnaire_type = questionnaire_type[0] if isinstance(questionnaire_type, list) else questionnaire_type
-        queryset = queryset.filter(type=questionnaire_type, tenant=self.request.user.tenant)
+        queryset = self.queryset.filter(type=questionnaire_type)
         queryset = self.get_serializer_class().setup_eager_loading(queryset)
         return queryset
 

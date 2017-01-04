@@ -3,7 +3,7 @@ from django.conf.urls import url
 from rest_framework.routers import DefaultRouter
 
 from mystery_shopping.cxi.views import FrustrationWhyCauseViewSet, AppreciationWhyCauseViewSet
-from .views import CxiIndicatorTimelapse
+from .views import CxiIndicatorTimeLapse
 from .views import WhyCauseViewSet
 from .views import CodedCausePercentage
 from .views import CodedCauseLabelViewSet
@@ -33,7 +33,7 @@ urlpatterns = [
         IndicatorDashboardList.as_view(),
         name='indicator-list'),
     url(r'^cxi/indicatortimelapse/$',
-        CxiIndicatorTimelapse.as_view(),
+        CxiIndicatorTimeLapse.as_view(),
         name='indicator-timestamp'),
     url(r'^cxi/codedcausepercentage',
         CodedCausePercentage.as_view(),

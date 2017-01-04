@@ -8,12 +8,11 @@ from model_utils.models import TimeStampedModel
 from mptt.models import MPTTModel, TreeForeignKey
 from datetime import datetime
 
+from mystery_shopping.mystery_shopping_utils.models import TenantMixin
 from mystery_shopping.questionnaires.utils import first_or_none
 from .constants import QuestionType
 from .managers import QuestionnaireQuerySet
 from .managers import QuestionnaireQuestionQuerySet
-
-from mystery_shopping.tenants.models import Tenant
 
 # REMINDER: don't use newline characters in the representation
 
@@ -58,12 +57,11 @@ class QuestionnaireTemplateStatus(models.Model):
     archived_by = models.ForeignKey('users.User', null=True)
 
 
-class QuestionnaireTemplate(TimeStampedModel, QuestionnaireAbstract):
+class QuestionnaireTemplate(TenantMixin, TimeStampedModel, QuestionnaireAbstract):
     """
     Templates for questionnaires that will not contain answers.
     """
     # Relations
-    tenant = models.ForeignKey(Tenant)
     status = models.OneToOneField(QuestionnaireTemplateStatus)
     created_by = models.ForeignKey('users.User')
 

@@ -10,6 +10,7 @@ from rest_framework import status
 from mystery_shopping.companies.models import SubIndustry, CompanyElement
 from mystery_shopping.companies.serializers import SubIndustrySerializer, CompanyElementSerializer
 from mystery_shopping.companies.uploads import handle_csv_with_uploaded_sub_industries
+from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from .models import Industry
 from .models import Company
 from .models import Department
@@ -58,6 +59,7 @@ class CompanyElementViewSet(viewsets.ModelViewSet):
     serializer_class = CompanyElementSerializer
     queryset = CompanyElement.objects.root_nodes()
     queryset = serializer_class.setup_eager_loading(queryset)
+    filter_backends = (TenantFilter,)
 
     @detail_route(methods=['post'])
     def clone(self, request, pk=None):
@@ -109,6 +111,8 @@ class IndustryCsvUploadView(APIView):
             }, status=status.HTTP_400_BAD_REQUEST)
 
 
+
+# ToDo: remove this
 class CompanyViewSet(viewsets.ModelViewSet):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
@@ -195,3 +199,5 @@ class SectionViewSet(viewsets.ModelViewSet):
                             status.HTTP_400_BAD_REQUEST)
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+# till here.

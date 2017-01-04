@@ -14,6 +14,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 
+from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from mystery_shopping.mystery_shopping_utils.paginators import DetractorRespondentPaginator
 from mystery_shopping.questionnaires.serializers import DetractorRespondentForTenantSerializer, \
     DetractorRespondentForClientSerializer
@@ -41,7 +42,7 @@ from mystery_shopping.users.permissions import IsTenantProductManager, HasReadOn
 from mystery_shopping.users.permissions import IsTenantProjectManager
 from mystery_shopping.users.permissions import IsTenantConsultant
 
-
+# Todo: remove this
 class FilterQuerysetOnTenantMixIn:
     """
     Mixin class that adds 'get_queryset' that filters the queryset agains the request.user.tenant
@@ -51,52 +52,10 @@ class FilterQuerysetOnTenantMixIn:
         queryset = queryset.filter(tenant=self.request.user.tenant)
         return queryset
 
-
-class UserDetailView(LoginRequiredMixin, DetailView):
-    model = User
-    # These next two lines tell the view to index lookups by username
-    slug_field = "username"
-    slug_url_kwarg = "username"
-
-    # TODO: permission classes for editing profile
-    # authentificated, istenant__, isshopper..
-
-
-class UserRedirectView(LoginRequiredMixin, RedirectView):
-    permanent = False
-
-    def get_redirect_url(self):
-        return reverse("users:detail",
-                       kwargs={"username": self.request.user.username})
-
-
-class UserUpdateView(LoginRequiredMixin, UpdateView):
-
-    fields = ['name', ]
-
-    # we already imported User in the view code above, remember?
-    model = User
-
-    # send the user back to their own page after a successful update
-    def get_success_url(self):
-        return reverse("users:detail",
-                       kwargs={"username": self.request.user.username})
-
-    def get_object(self):
-        # Only get the User record for the user making the request
-        return User.objects.get(username=self.request.user.username)
-
-
-class UserListView(LoginRequiredMixin, ListView):
-    model = User
-    # These next two lines tell the view to index lookups by username
-    slug_field = "username"
-    slug_url_kwarg = "username"
-
-
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    filter_backends = (TenantFilter,)
 
 
 class TenantProductManagerViewSet(FilterQuerysetOnTenantMixIn, viewsets.ModelViewSet):
@@ -184,31 +143,32 @@ class DetractorFilter(django_filters.rest_framework.FilterSet):
 
 
 class DetractorRespondentForTenantViewSet(viewsets.ModelViewSet):
-    serializer_class = DetractorRespondentForTenantSerializer
-    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
     queryset = DetractorRespondent.objects.all()
-    queryset = serializer_class.setup_eager_loading(queryset)
-    pagination_class = DetractorRespondentPaginator
     filter_backends = (DjangoFilterBackend,)
     filter_class = DetractorFilter
+    pagination_class = DetractorRespondentPaginator
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
+    serializer_class = DetractorRespondentForTenantSerializer
 
     def get_queryset(self):
+        queryset = self.get_serializer_class().setup_eager_loading(self.queryset)
         project = self.request.query_params.get('project')
-        return self.queryset.filter(evaluation__project=project)
+        return queryset.filter(evaluation__project=project)
 
 
 class DetractorRespondentForClientViewSet(viewsets.ModelViewSet):
     serializer_class = DetractorRespondentForClientSerializer
     queryset = DetractorRespondent.objects.all()
-    queryset = serializer_class.setup_eager_loading(queryset)
     permission_classes = (IsAuthenticated, HasReadOnlyAccessToProjectsOrEvaluations)
     pagination_class = DetractorRespondentPaginator
     filter_backends = (DjangoFilterBackend,)
     filter_class = DetractorFilter
 
+    # TODO: Update this method
     def get_queryset(self):
+        queryset = self.get_serializer_class().setup_eager_loading(self.queryset)
         project = self.request.query_params.get('project')
         list_of_places = [place['place_id'] for place in self.request.user.list_of_poses]
         if isinstance(self.request.user.user_type_attr, ClientManager):
-            return self.queryset.filter(evaluation__project=project, evaluation__entity__in=list_of_places)
-        return self.queryset.filter(evaluation__project=project)
+            return queryset.filter(evaluation__project=project, evaluation__entity__in=list_of_places)
+        return queryset.filter(evaluation__project=project)
