@@ -18,6 +18,7 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 
 from mystery_shopping.mystery_shopping_utils.paginators import DetractorRespondentPaginator
+from mystery_shopping.mystery_shopping_utils.views import GetSerializerClassMixin
 from mystery_shopping.questionnaires.serializers import DetractorRespondentForTenantSerializer, \
     DetractorRespondentForClientSerializer
 from mystery_shopping.users.models import DetractorRespondent
@@ -98,14 +99,10 @@ class UserListView(LoginRequiredMixin, ListView):
     slug_url_kwarg = "username"
 
 
-class UserViewSet(viewsets.ModelViewSet):
+class UserViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-
-    def get_serializer_class(self):
-        if self.request.method == 'GET':
-            return UserSerializerGET
-        return self.serializer_class
+    serializer_class_get = UserSerializerGET
 
 
 class UserPermissionsViewSet(viewsets.ReadOnlyModelViewSet):
