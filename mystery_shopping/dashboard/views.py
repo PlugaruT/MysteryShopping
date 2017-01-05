@@ -5,6 +5,7 @@ from rest_condition import Or
 
 from datetime import datetime
 
+from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from mystery_shopping.users.permissions import HasAccessToDashboard
 from .models import DashboardTemplate
 from .models import DashboardComment
@@ -19,6 +20,7 @@ class DashboardTemplateView(viewsets.ModelViewSet):
     queryset = DashboardTemplate.objects.all()
     serializer_class = DashboardTemplateSerializer
     permission_classes = (HasAccessToDashboard,)
+    filter_backends = (TenantFilter,)
 
     def get_queryset(self):
         """
@@ -34,7 +36,7 @@ class DashboardTemplateView(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         request.data['modified_by'] = request.user.id
         request.data['modified_date'] = datetime.now()
-        serializer = self.get_serializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
@@ -44,7 +46,7 @@ class DashboardTemplateView(viewsets.ModelViewSet):
         instance = self.get_object()
         instance.modified_by = request.user
         instance.modified_date = datetime.now()
-        serializer = self.get_serializer(instance, data=request.data)
+        serializer = self.serializer_class(instance, data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         headers = self.get_success_headers(serializer.data)

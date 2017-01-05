@@ -8,6 +8,7 @@ from model_utils.models import TimeStampedModel
 from model_utils.fields import StatusField
 
 from mystery_shopping.companies.models import Department, Entity, Section
+from mystery_shopping.mystery_shopping_utils.models import TenantModel
 from mystery_shopping.projects.managers import ProjectQuerySet
 from mystery_shopping.questionnaires.models import QuestionnaireScript, QuestionnaireTemplate
 from mystery_shopping.tenants.models import Tenant
@@ -37,7 +38,7 @@ class PlaceToAssess(models.Model):
         return self.place.evaluations
 
 
-class ResearchMethodology(models.Model):
+class ResearchMethodology(TenantModel):
     """
 
     """
@@ -45,7 +46,6 @@ class ResearchMethodology(models.Model):
     company_elements = models.ManyToManyField('companies.CompanyElement')
     questionnaires = models.ManyToManyField(QuestionnaireTemplate)
     scripts = models.ManyToManyField(QuestionnaireScript)
-    tenant = models.ForeignKey(Tenant)
 
     # Attributes
     description = models.TextField(blank=True)
@@ -67,7 +67,7 @@ class ResearchMethodology(models.Model):
         return self.questionnaires.first().questionnaires
 
 
-class Project(models.Model):
+class Project(TenantModel):
     """
 
     """
@@ -81,9 +81,9 @@ class Project(models.Model):
     project_manager = models.ForeignKey('users.TenantProjectManager')
     research_methodology = models.ForeignKey('ResearchMethodology', null=True, blank=True)
     shoppers = models.ManyToManyField('users.Shopper', blank=True)
-    tenant = models.ForeignKey(Tenant)
 
     # Attributes
+    # Todo: decide if this belongs here
     graph_config = JSONField(null=True)
     type_questionnaire = Choices(('m', 'Mystery Questionnaire'),
                                  ('c', 'Customer Experience Index Questionnaire'))
@@ -106,6 +106,7 @@ class Project(models.Model):
         from mystery_shopping.cxi.algorithms import get_project_indicator_questions_list
         return get_project_indicator_questions_list(self)
 
+    # Todo: rewrite or delete
     def get_editable_places(self):
         """
         Function for getting all entities and sections that aren't included into any project and
@@ -136,6 +137,7 @@ class Project(models.Model):
         else:
             return True
 
+    # Todo: decide if this belongs here
     def save_graph_config(self, config):
         self.graph_config = config
         self.save()

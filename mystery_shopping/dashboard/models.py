@@ -1,13 +1,14 @@
 from django.db import models
 
 from mystery_shopping.companies.models import Company, CompanyElement
+from mystery_shopping.mystery_shopping_utils.models import TenantModel
 from mystery_shopping.tenants.models import Tenant
 from mystery_shopping.projects.models import Project
 from mystery_shopping.users.models import User
 from datetime import datetime
 
 
-class DashboardTemplate(models.Model):
+class DashboardTemplate(TenantModel):
     """
     Model for storing the user defined dashboard structure
     """
@@ -17,7 +18,6 @@ class DashboardTemplate(models.Model):
     company = models.ForeignKey(Company)
     modified_by = models.ForeignKey(User)
     users = models.ManyToManyField(User, related_name='have_access')
-    tenant = models.ForeignKey(Tenant)
 
     # Attributes
     is_published = models.BooleanField(default=False)
