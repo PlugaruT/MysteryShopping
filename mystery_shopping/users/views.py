@@ -151,7 +151,7 @@ class DetractorRespondentForTenantViewSet(viewsets.ModelViewSet):
     serializer_class = DetractorRespondentForTenantSerializer
 
     def get_queryset(self):
-        queryset = self.get_serializer_class().setup_eager_loading(self.queryset)
+        queryset = self.serializer_class.setup_eager_loading(self.queryset)
         project = self.request.query_params.get('project')
         return queryset.filter(evaluation__project=project)
 
@@ -166,7 +166,7 @@ class DetractorRespondentForClientViewSet(viewsets.ModelViewSet):
 
     # TODO: Update this method
     def get_queryset(self):
-        queryset = self.get_serializer_class().setup_eager_loading(self.queryset)
+        queryset = self.serializer_class.setup_eager_loading(self.queryset)
         project = self.request.query_params.get('project')
         list_of_places = [place['place_id'] for place in self.request.user.list_of_poses]
         if isinstance(self.request.user.user_type_attr, ClientManager):

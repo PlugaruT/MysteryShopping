@@ -58,7 +58,7 @@ class QuestionnaireTemplateViewSet(viewsets.ModelViewSet):
         """
         questionnaire_type = self.request.query_params.get('type', 'm')
         queryset = self.queryset.filter(type=questionnaire_type)
-        queryset = self.get_serializer_class().setup_eager_loading(queryset)
+        queryset = self.serializer_class.setup_eager_loading(queryset)
         return queryset
 
     def create(self, request, *args, **kwargs):
@@ -66,7 +66,7 @@ class QuestionnaireTemplateViewSet(viewsets.ModelViewSet):
         request.data['tenant'] = request.user.tenant.id
         request.data['created_by'] = request.user.id
         request.data['status'] = questionnaire_status.id
-        serializer = self.get_serializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
@@ -75,13 +75,13 @@ class QuestionnaireTemplateViewSet(viewsets.ModelViewSet):
     @list_route(methods=['get'])
     def get_archived(self, request):
         queryset = self.queryset.filter(is_archived=True)
-        serializer = self.get_serializer(queryset, many=True)
+        serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 
     @list_route(methods=['get'])
     def get_unarchived(self, request):
         queryset = self.queryset.filter(is_archived=False)
-        serializer = self.get_serializer(queryset, many=True)
+        serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 
     @detail_route(methods=['put'])
@@ -132,7 +132,7 @@ class QuestionnaireViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = Questionnaire.objects.all()
-        queryset = self.get_serializer_class().setup_eager_loading(queryset)
+        queryset = self.serializer_class.setup_eager_loading(queryset)
         return queryset
 
 
@@ -225,7 +225,7 @@ class QuestionnaireSimpleViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = Questionnaire.objects.all()
-        queryset = self.get_serializer_class().setup_eager_loading(queryset)
+        queryset = self.serializer_class.setup_eager_loading(queryset)
         return queryset
 
 

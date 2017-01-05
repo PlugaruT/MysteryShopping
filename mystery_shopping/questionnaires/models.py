@@ -8,7 +8,7 @@ from model_utils.models import TimeStampedModel
 from mptt.models import MPTTModel, TreeForeignKey
 from datetime import datetime
 
-from mystery_shopping.mystery_shopping_utils.models import TenantMixin
+from mystery_shopping.mystery_shopping_utils.models import TenantModel
 from mystery_shopping.questionnaires.utils import first_or_none
 from .constants import QuestionType
 from .managers import QuestionnaireQuerySet
@@ -57,7 +57,7 @@ class QuestionnaireTemplateStatus(models.Model):
     archived_by = models.ForeignKey('users.User', null=True)
 
 
-class QuestionnaireTemplate(TenantMixin, TimeStampedModel, QuestionnaireAbstract):
+class QuestionnaireTemplate(TenantModel, TimeStampedModel, QuestionnaireAbstract):
     """
     Templates for questionnaires that will not contain answers.
     """

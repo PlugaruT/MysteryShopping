@@ -1,14 +1,14 @@
 from django.db import models
 
 from mystery_shopping.companies.models import Company, CompanyElement
-from mystery_shopping.mystery_shopping_utils.models import TenantMixin
+from mystery_shopping.mystery_shopping_utils.models import TenantModel
 from mystery_shopping.tenants.models import Tenant
 from mystery_shopping.projects.models import Project
 from mystery_shopping.users.models import User
 from datetime import datetime
 
 
-class DashboardTemplate(TenantMixin, models.Model):
+class DashboardTemplate(TenantModel):
     """
     Model for storing the user defined dashboard structure
     """

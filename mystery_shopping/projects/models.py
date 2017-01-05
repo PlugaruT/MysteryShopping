@@ -8,7 +8,7 @@ from model_utils.models import TimeStampedModel
 from model_utils.fields import StatusField
 
 from mystery_shopping.companies.models import Department, Entity, Section
-from mystery_shopping.mystery_shopping_utils.models import TenantMixin
+from mystery_shopping.mystery_shopping_utils.models import TenantModel
 from mystery_shopping.projects.managers import ProjectQuerySet
 from mystery_shopping.questionnaires.models import QuestionnaireScript, QuestionnaireTemplate
 from mystery_shopping.tenants.models import Tenant
@@ -38,7 +38,7 @@ class PlaceToAssess(models.Model):
         return self.place.evaluations
 
 
-class ResearchMethodology(TenantMixin, models.Model):
+class ResearchMethodology(TenantModel):
     """
 
     """
@@ -67,7 +67,7 @@ class ResearchMethodology(TenantMixin, models.Model):
         return self.questionnaires.first().questionnaires
 
 
-class Project(TenantMixin, models.Model):
+class Project(TenantModel):
     """
 
     """

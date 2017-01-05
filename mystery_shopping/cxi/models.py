@@ -3,7 +3,7 @@ from copy import deepcopy
 from django.db import models
 from model_utils import Choices
 
-from mystery_shopping.mystery_shopping_utils.models import TenantMixin
+from mystery_shopping.mystery_shopping_utils.models import TenantModel
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from mystery_shopping.projects.models import Project
 from mystery_shopping.companies.models import Department, CompanyElement
@@ -12,7 +12,7 @@ from mystery_shopping.companies.models import Section
 from mystery_shopping.tenants.models import Tenant
 
 
-class CodedCauseLabel(TenantMixin, models.Model):
+class CodedCauseLabel(TenantModel):
     """
     Model of a Coded Cause name (label) that would allow to use the same name for different Coded Causes
     """
@@ -65,7 +65,7 @@ class WhyCause(models.Model):
         return new_why_causes
 
 
-class CodedCause(TenantMixin, models.Model):
+class CodedCause(TenantModel):
     """
     Model for Coded Causes that would allow to group different frustration or appreciation together
     """

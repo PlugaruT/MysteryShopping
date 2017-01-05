@@ -6,7 +6,7 @@ from rest_framework.filters import BaseFilterBackend
 from mystery_shopping.tenants.models import Tenant
 
 
-class TenantMixin(models.Model):
+class TenantModel(models.Model):
     """
     Generic abstract class model that has a reference to a `tenant`
     and some helpful methods on `tenant` handling.

@@ -96,7 +96,6 @@ class ProjectPerCompanyViewSet(viewsets.ViewSet):
     # ToDo: trebuie să definim cum folosim filtrele per tenant aici
     def list(self, request, company_pk=None):
         project_type = self.request.query_params.get('type', 'm')
-        project_type = project_type[0] if isinstance(project_type, list) else project_type
         queryset = self.queryset.filter(company=company_pk, type=project_type,
                                         tenant=self.request.user.tenant)
         if self.request.user.user_type == 'tenantconsultant':
@@ -162,7 +161,7 @@ class EvaluationViewSet(UpdateSerializerMixin, EvaluationViewMixIn, viewsets.Mod
 
         response = dict()
         if available_evaluation.evaluation is not None:
-            response['evaluation'] = self.get_serializer(available_evaluation.evaluation).data
+            response['evaluation'] = self.serializer_class(available_evaluation.evaluation).data
             response['count'] = available_evaluation.count
 
         return Response(response)
@@ -204,10 +203,10 @@ class EvaluationPerProjectViewSet(ListModelMixin, EvaluationViewMixIn, viewsets.
     # ToDo: trebuie să definim cum folosim filtrele per tenant aici
     def list(self, request, company_pk=None, project_pk=None):
         queryset = self.queryset.filter(project=project_pk, project__company=company_pk)
-        queryset = self.get_serializer_class().setup_eager_loading(queryset)
+        queryset = self.serializer_class.setup_eager_loading(queryset)
         page = self.paginate_queryset(queryset)
         if page is not None:
-            serializer = self.get_serializer(page, many=True)
+            serializer = self.serializer_class(page, many=True)
             return self.get_paginated_response(serializer.data)
         serializer = EvaluationSerializer(queryset, many=True)
         return Response(serializer.data)

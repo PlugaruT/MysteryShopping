@@ -7,7 +7,7 @@ from mptt.models import MPTTModel
 
 from mystery_shopping.common.models import City, Country, Sector
 from mystery_shopping.companies.managers import CompanyElementQuerySet
-from mystery_shopping.mystery_shopping_utils.models import TenantMixin
+from mystery_shopping.mystery_shopping_utils.models import TenantModel
 from mystery_shopping.tenants.models import Tenant
 
 
@@ -32,7 +32,7 @@ class HasEvaluationsMixin:
         return self.check_for_evaluations(self.sections.all())
 
 
-class CompanyElement(TenantMixin, MPTTModel):
+class CompanyElement(TenantModel, MPTTModel):
     """
     A generic company element.
     It may be the company itself, a section, department, employee, etc.
@@ -53,7 +53,7 @@ class CompanyElement(TenantMixin, MPTTModel):
         return 'company_element: {id: %s, name: %s, type: %s}' % (self.pk, self.element_name, self.element_type)
 
 
-class AdditionalInfoType(TenantMixin, models.Model):
+class AdditionalInfoType(TenantModel):
     """
     A saved additional info type for Company Element 'additional_info' attribute
     """
