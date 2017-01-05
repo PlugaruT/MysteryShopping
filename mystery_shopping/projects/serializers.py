@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from mystery_shopping.cxi.serializers import WhyCauseSerializer
@@ -56,7 +57,12 @@ class EvaluationAssessmentLevelSerializer(serializers.ModelSerializer):
     class Meta:
         model = EvaluationAssessmentLevel
         fields = '__all__'
-        extra_kwargs = {'consultants': {'allow_empty': True, 'many': True}}
+        extra_kwargs = {
+            'consultants': {
+                'allow_empty': True,
+                'many': True
+            }
+        }
 
 
 class PlaceToAssessSerializer(serializers.ModelSerializer):
@@ -66,7 +72,11 @@ class PlaceToAssessSerializer(serializers.ModelSerializer):
     class Meta:
         model = PlaceToAssess
         fields = '__all__'
-        extra_kwargs = {'research_methodology': {'required': False}}
+        extra_kwargs = {
+            'research_methodology': {
+                'required': False
+            }
+        }
 
     def to_representation(self, instance):
         """
@@ -155,7 +165,7 @@ class ResearchMethodologySerializer(serializers.ModelSerializer):
     @staticmethod
     def link_research_methodology_to_project(project_id, research_methodology):
         if project_id:
-            project_to_set = Project.objects.filter(pk=project_id).first()
+            project_to_set = get_object_or_404(Project, pk=project_id)
             if project_to_set:
                 project_to_set.research_methodology = research_methodology
                 project_to_set.save()
@@ -459,4 +469,4 @@ class ProjectStatisticsForTenantSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Evaluation
-        fields = ('id', 'time_accomplished', 'company_element', 'company_element_repr', 'shopper_repr')
+        fields = ('id', 'time_accomplished', 'section', 'entity', 'entity_repr', 'company_element', 'company_element_repr', 'section_repr', 'shopper_repr')

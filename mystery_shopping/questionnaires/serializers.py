@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from mystery_shopping.cxi.serializers import WhyCauseSerializer
@@ -23,6 +24,7 @@ from .utils import update_attributes
 class QuestionnaireTemplateQuestionChoiceSerializer(serializers.ModelSerializer):
     """
     """
+
     class Meta:
         model = QuestionnaireTemplateQuestionChoice
         fields = '__all__'
@@ -58,6 +60,7 @@ class QuestionnaireScriptSerializer(serializers.ModelSerializer):
     """
 
     """
+
     class Meta:
         model = QuestionnaireScript
         fields = ('id', 'title', 'description',)
@@ -142,9 +145,11 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('The Questionnaire Template this Question belongs to is not editable')
         template_question_choices = validated_data.pop('template_question_choices', [])
         siblings_to_update = validated_data.pop('siblings', [])
-        self.update_question_siblings(siblings_to_update, validated_data)
+
         template_question = QuestionnaireTemplateQuestion.objects.create(**validated_data)
         self.create_template_question_choices(template_question_choices, template_question.id)
+
+        template_question.update_siblings(siblings_to_update, template_question.template_block)
         return template_question
 
     def update(self, instance, validated_data):
@@ -153,9 +158,12 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
         instance.prepare_to_update()
         template_question_choices = validated_data.pop('template_question_choices', [])
         siblings_to_update = validated_data.pop('siblings', [])
-        self.update_question_siblings(siblings_to_update, validated_data)
+
         self.create_template_question_choices(template_question_choices, instance.id)
         update_attributes(validated_data, instance)
+
+        instance.update_siblings(siblings_to_update, validated_data.get('template_block'))
+
         instance.save()
         return instance
 
@@ -167,18 +175,6 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
                 data=template_question_choice)
             template_question_choice_ser.is_valid(raise_exception=True)
             template_question_choice_ser.save()
-
-    @staticmethod
-    def update_question_siblings(siblings_to_update, validated_data):
-        for sibling in siblings_to_update:
-            question_id = sibling.pop('question_id')
-            question_to_update = QuestionnaireTemplateQuestion.objects.filter(pk=question_id,
-                                                                              template_block=validated_data[
-                                                                                  'template_block']).first()
-            if question_to_update is not None:
-                update_attributes(sibling['question_changes'], question_to_update)
-                question_to_update.save()
-
 
 class QuestionnaireBlockSerializer(serializers.ModelSerializer):
     """
@@ -272,9 +268,9 @@ class QuestionnaireTemplateBlockSerializer(serializers.ModelSerializer):
     def update_block_siblings(siblings_to_update, validated_data):
         for sibling in siblings_to_update:
             block_id = sibling.pop('block_id')
-            block_to_update = QuestionnaireTemplateBlock.objects.filter(pk=block_id,
-                                                                        questionnaire_template=validated_data[
-                                                                            'questionnaire_template']).first()
+            block_to_update = get_object_or_404(QuestionnaireTemplateBlock,
+                                                pk=block_id,
+                                                questionnaire_template=validated_data['questionnaire_template'])
             if block_to_update is not None:
                 update_attributes(sibling['block_changes'], block_to_update)
                 block_to_update.save()
@@ -351,6 +347,7 @@ class CrossIndexQuestionTemplateSerializer(serializers.ModelSerializer):
     """
 
     """
+
     class Meta:
         model = CrossIndexQuestionTemplate
         fields = ('template_question', 'weight')
@@ -422,7 +419,6 @@ class CrossIndexTemplateSerializer(serializers.ModelSerializer):
 
 
 class QuestionnaireTemplateStatusSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = QuestionnaireTemplateStatus
         fields = '__all__'
@@ -501,6 +497,7 @@ class QuestionSimpleSerializer(serializers.ModelSerializer):
     """
         Serializes questions simpler including needed fields
     """
+
     class Meta:
         model = QuestionnaireQuestion
         fields = ('id', 'question_body', 'score')

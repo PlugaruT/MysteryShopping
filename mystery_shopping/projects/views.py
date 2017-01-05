@@ -1,7 +1,7 @@
 from collections import namedtuple
 
 from django.shortcuts import get_object_or_404
-from rest_condition.permissions import C, Not, ConditionalPermission
+from rest_condition.permissions import C, ConditionalPermission
 
 from rest_framework import viewsets
 from rest_framework.decorators import list_route, detail_route
@@ -10,7 +10,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_condition import Or
-from rest_condition import And
 
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from mystery_shopping.mystery_shopping_utils.paginators import EvaluationPagination, ProjectStatisticsPaginator
@@ -202,7 +201,7 @@ class EvaluationPerProjectViewSet(ListModelMixin, EvaluationViewMixIn, viewsets.
 
     # ToDo: trebuie să definim cum folosim filtrele per tenant aici
     def list(self, request, company_pk=None, project_pk=None):
-        queryset = self.queryset.filter(project=project_pk, project__company=company_pk)
+        queryset = Evaluation.objects.get_project_evaluations(project=project_pk, company=company_pk)
         queryset = self.serializer_class.setup_eager_loading(queryset)
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -231,7 +230,7 @@ class EvaluationPerProjectViewSet(ListModelMixin, EvaluationViewMixIn, viewsets.
 
     @staticmethod
     def _get_evaluation(pk, company, project):
-        queryset = Evaluation.objects.filter(pk=pk, project=project, project__company=company)
+        queryset = Evaluation.objects.get_project_evaluations(project=project, project__company=company)
         return get_object_or_404(queryset, pk=pk)
 
 
@@ -256,7 +255,7 @@ class ProjectStatisticsForCompanyViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         project = self.kwargs.get('project_pk', None)
         company = self.kwargs.get('company_pk', None)
-        return self.queryset.filter(project=project, project__company=company, status=EvaluationStatus.APPROVED)
+        return Evaluation.objects.get_completed_project_evaluations(project=project, company=company)
 
 
 class ProjectStatisticsForTenantViewSet(viewsets.ModelViewSet):
@@ -268,4 +267,4 @@ class ProjectStatisticsForTenantViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         project = self.kwargs.get('project_pk', None)
         company = self.kwargs.get('company_pk', None)
-        return self.queryset.filter(project=project, project__company=company, status=EvaluationStatus.APPROVED)
+        return Evaluation.objects.get_completed_project_evaluations(project=project, company=company)

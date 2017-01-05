@@ -2,17 +2,22 @@ from decimal import Decimal
 
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
+from django.shortcuts import get_object_or_404
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
 
 from mptt.models import MPTTModel, TreeForeignKey
 from datetime import datetime
 
+from mystery_shopping.questionnaires.managers import QuestionnaireTemplateQuestionQuerySet
+from mystery_shopping.questionnaires.utils import first_or_none, update_attributes
 from mystery_shopping.mystery_shopping_utils.models import TenantModel
-from mystery_shopping.questionnaires.utils import first_or_none
 from .constants import QuestionType
 from .managers import QuestionnaireQuerySet
 from .managers import QuestionnaireQuestionQuerySet
+
+from mystery_shopping.tenants.models import Tenant
+
 
 # REMINDER: don't use newline characters in the representation
 
@@ -159,7 +164,7 @@ class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
                                               weight=template_question['weight'])
 
     def create_cross_index(self, template_cross_index):
-        template = CrossIndexTemplate.objects.get(id=template_cross_index['id'])
+        template = get_object_or_404(CrossIndexTemplate, pk=template_cross_index['id'])
         return CrossIndex.objects.create(template_cross_index=template, questionnaire=self,
                                          title=template_cross_index['title'])
 
@@ -271,6 +276,9 @@ class QuestionnaireTemplateQuestion(QuestionAbstract):
     questionnaire_template = models.ForeignKey(QuestionnaireTemplate)
     template_block = models.ForeignKey(QuestionnaireTemplateBlock)
 
+    objects = models.Manager.from_queryset(QuestionnaireTemplateQuestionQuerySet)()
+
+
     class Meta:
         default_related_name = 'template_questions'
 
@@ -279,6 +287,18 @@ class QuestionnaireTemplateQuestion(QuestionAbstract):
 
     def prepare_to_update(self):
         self.template_question_choices.all().delete()
+
+    @staticmethod
+    def update_siblings(siblings_to_update, template_block):
+        for sibling in siblings_to_update:
+            question_id = sibling.pop('question_id')
+            try:
+                question_to_update = QuestionnaireTemplateQuestion.objects.get(pk=question_id,
+                                                                               template_block=template_block)
+                update_attributes(sibling['question_changes'], question_to_update)
+                question_to_update.save()
+            except QuestionnaireTemplateQuestion.DoesNotExist:
+                pass
 
 
 class QuestionnaireQuestion(QuestionAbstract):
@@ -310,7 +330,7 @@ class QuestionnaireQuestion(QuestionAbstract):
         score = Decimal(0)
         if self.max_score:
             for answer_choice_id in self.answer_choices:
-                answer_choice = QuestionnaireQuestionChoice.objects.get(pk=answer_choice_id)
+                answer_choice = get_object_or_404(QuestionnaireQuestionChoice, pk=answer_choice_id)
                 score += (answer_choice.score / self.max_score) * 100
 
         return score
@@ -319,7 +339,7 @@ class QuestionnaireQuestion(QuestionAbstract):
         score = Decimal(0)
         if self.max_score:
             for answer_choice_id in self.answer_choices:
-                answer_choice = QuestionnaireQuestionChoice.objects.get(pk=answer_choice_id)
+                answer_choice = get_object_or_404(QuestionnaireQuestionChoice, pk=answer_choice_id)
                 score += (answer_choice.score / self.max_score) * 100
 
         return score
@@ -343,6 +363,14 @@ class QuestionnaireQuestion(QuestionAbstract):
 
     def get_department(self):
         return self.get_entity().department
+
+    def create_why_causes(self, why_causes):
+        from mystery_shopping.cxi.serializers import WhyCauseSerializer
+        for why_cause in why_causes:
+            why_cause['question'] = self.id
+            why_cause_ser = WhyCauseSerializer(data=why_cause)
+            why_cause_ser.is_valid(raise_exception=True)
+            why_cause_ser.save()
 
 
 class QuestionChoiceAbstract(models.Model):

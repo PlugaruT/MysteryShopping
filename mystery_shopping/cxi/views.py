@@ -18,7 +18,9 @@ from mystery_shopping.projects.models import Project
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from mystery_shopping.questionnaires.utils import check_interval_date
 from mystery_shopping.users.models import ClientManager
-from mystery_shopping.users.permissions import IsCompanyProjectManager, IsCompanyManager, IsTenantConsultant
+from mystery_shopping.users.permissions import IsCompanyManager
+from mystery_shopping.users.permissions import IsCompanyProjectManager
+from mystery_shopping.users.permissions import IsTenantConsultant
 from mystery_shopping.users.permissions import IsTenantProductManager
 from mystery_shopping.users.permissions import IsTenantProjectManager
 from .algorithms import CodedCausesPercentageTable
@@ -82,10 +84,7 @@ class CodedCauseViewSet(ClearCodedCauseMixin, viewsets.ModelViewSet):
         questions_from_coded_cause = list(coded_cause.raw_causes.values_list('question', flat=True))
         dup_questions_from_why_causes = set(
             question for question in questions_from_why_causes if questions_from_why_causes.count(question) > 1)
-        # common_questions = self.get_common_question(why_causes, coded_cause)
-        # invalid_why_causes = why_causes.filter(question__in=common_questions)
-        # if invalid_why_causes.exists():
-        # return Response(invalid_why_causes.values_list('id', flat=True), status=status.HTTP_400_BAD_REQUEST)
+
         all_questions = list(dup_questions_from_why_causes) + questions_from_coded_cause
         why_causes = why_causes.exclude(question__in=all_questions)
         self.clear_coded_cause(why_causes)
@@ -143,6 +142,7 @@ class OverviewDashboard(views.APIView):
      * `entity`: entity id
      * `section`: section id
     """
+
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager,
                              IsCompanyManager),)
 
@@ -195,6 +195,7 @@ class IndicatorDashboard(views.APIView):
 
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager,
                              IsCompanyManager),)
+
 
     def get(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
@@ -261,6 +262,7 @@ class IndicatorDashboardList(views.APIView):
     """
 
     """
+
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager,
                              IsCompanyManager),)
 
@@ -453,12 +455,6 @@ class WhyCauseViewSet(ClearCodedCauseMixin, viewsets.ModelViewSet):
         why_cause.change_appreciation_cause()
 
         return Response(status=status.HTTP_200_OK)
-
-    @staticmethod
-    def _get_why_causes(project_id, data):
-        why_causes_changes = {x['id']: x.get('coded_causes', []) for x in data}
-        return WhyCause.objects.filter(pk__in=why_causes_changes.keys(),
-                                       question__questionnaire__evaluation__project=project_id)
 
     @staticmethod
     def _check_if_coded_causes_exist(coded_cause_ids):

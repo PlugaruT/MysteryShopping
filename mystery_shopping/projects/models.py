@@ -9,7 +9,7 @@ from model_utils.fields import StatusField
 
 from mystery_shopping.companies.models import Department, Entity, Section
 from mystery_shopping.mystery_shopping_utils.models import TenantModel
-from mystery_shopping.projects.managers import ProjectQuerySet
+from mystery_shopping.projects.managers import ProjectQuerySet, EvaluationQuerySet
 from mystery_shopping.questionnaires.models import QuestionnaireScript, QuestionnaireTemplate
 from mystery_shopping.tenants.models import Tenant
 from mystery_shopping.questionnaires.models import QuestionnaireTemplate
@@ -196,6 +196,8 @@ class Evaluation(TimeStampedModel, models.Model):
     status = StatusField()
     # For "Accomplished"
     time_accomplished = models.DateTimeField(null=True, blank=True)
+
+    objects = models.Manager.from_queryset(EvaluationQuerySet)()
 
     class Meta:
         default_related_name = 'evaluations'
