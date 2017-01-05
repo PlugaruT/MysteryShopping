@@ -7,8 +7,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from mystery_shopping.companies.models import SubIndustry, CompanyElement
-from mystery_shopping.companies.serializers import SubIndustrySerializer, CompanyElementSerializer
+from mystery_shopping.companies.models import SubIndustry, CompanyElement, AdditionalInfoType
+from mystery_shopping.companies.serializers import SubIndustrySerializer, CompanyElementSerializer, \
+    AdditionalInfoTypeSerializer
 from mystery_shopping.companies.uploads import handle_csv_with_uploaded_sub_industries
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from .models import Industry
@@ -57,9 +58,14 @@ class SubIndustryViewSet(viewsets.ModelViewSet):
 
 class CompanyElementViewSet(viewsets.ModelViewSet):
     serializer_class = CompanyElementSerializer
-    queryset = CompanyElement.objects.root_nodes()
+    queryset = CompanyElement.objects.all()
     queryset = serializer_class.setup_eager_loading(queryset)
     filter_backends = (TenantFilter,)
+
+    def list(self, request, *args, **kwargs):
+        queryset = CompanyElement.objects.root_nodes()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
     @detail_route(methods=['post'])
     def clone(self, request, pk=None):
@@ -88,6 +94,14 @@ class CompanyElementViewSet(viewsets.ModelViewSet):
         element.id = None
         element.element_name = '{} {}'.format(element.element_name, '(copy)')
         element.save()
+
+
+class AdditionalInfoTypeViewSet(viewsets.ModelViewSet):
+    """
+    View for CRUD operations on AdditionalInfoType model
+    """
+    serializer_class = AdditionalInfoTypeSerializer
+    queryset = AdditionalInfoType.objects.all()
 
 
 class IndustryCsvUploadView(APIView):

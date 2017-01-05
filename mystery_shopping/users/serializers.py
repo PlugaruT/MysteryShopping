@@ -15,6 +15,8 @@ from .models import Collector
 
 from mystery_shopping.companies.models import Company
 from mystery_shopping.tenants.serializers import TenantSerializer
+
+
 # try:
 #     from mystery_shopping.companies.serializers import EntitySerializer
 # except ImportError:
@@ -34,6 +36,7 @@ class UsersCreateMixin:
     Mixin class used to create (almost) all types of users.
 
     '''
+
     def create(self, validated_data):
         user = validated_data.pop('user', None)
 
@@ -53,6 +56,7 @@ class UsersUpdateMixin:
     Mixin class used to update (almost) all types of users.
 
     '''
+
     def update(self, instance, validated_data):
         user = validated_data.pop('user', None)
 
@@ -192,6 +196,7 @@ class TenantConsultantSerializer(UsersCreateMixin, UsersUpdateMixin, serializers
 class ClientProjectManagerSerializer(serializers.ModelSerializer):
     """Serializer class for ClientProjectManager user model.
     """
+
     class Meta:
         model = ClientProjectManager
         fields = '__all__'
@@ -242,6 +247,7 @@ class PersonToAssessRelatedField(serializers.RelatedField):
     """
     A custom field to use to serialize the instance of a person to assess according to it's type: ClientManager or ClientEmployee.
     """
+
     def to_representation(self, value):
         """
         Serialize tagged objects to a simple textual representation.
@@ -266,5 +272,3 @@ class PersonToAssessSerializer(serializers.ModelSerializer):
         model = PersonToAssess
         fields = '__all__'
         extra_kwargs = {'research_methodology': {'required': False}}
-
-
