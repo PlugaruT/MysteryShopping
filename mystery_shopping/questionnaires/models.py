@@ -15,6 +15,7 @@ from .managers import QuestionnaireQuestionQuerySet
 
 from mystery_shopping.tenants.models import Tenant
 
+
 # REMINDER: don't use newline characters in the representation
 
 
@@ -337,14 +338,8 @@ class QuestionnaireQuestion(QuestionAbstract):
         self.save()
         return (self.score * self.weight) / 100
 
-    def get_entity(self):
-        return self.questionnaire.evaluation.entity
-
-    def get_section(self):
-        return self.questionnaire.evaluation.section
-
-    def get_department(self):
-        return self.get_entity().department
+    def get_company_element(self):
+        return self.questionnaire.evaluation.company_element
 
 
 class QuestionChoiceAbstract(models.Model):

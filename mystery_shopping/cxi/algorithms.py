@@ -538,46 +538,20 @@ class CodedCausesPercentageTable:
         return {
             "sentiment": coded_cause_info.get('sentiment'),
             "percentage": self.calculate_percentage(number_of_why_causes, number_of_questions),
-            "departments": self.build_response_for_departments(questions, number_of_questions)
+            "company_elements": self.build_response_for_company_elements(questions, number_of_questions)
         }
 
-    def build_response_for_departments(self, indicator_questions, number_of_questions):
+    def build_response_for_company_elements(self, indicator_questions, number_of_questions):
         response = list()
-        questions_by_departments = self.group_questions_by_department(indicator_questions)
-        for department, questions in questions_by_departments.items():
+        questions_by_company_element = self.group_questions_by_company_element(indicator_questions)
+        for company_element, questions in questions_by_company_element.items():
             nr_of_why_causes = len(questions)
             result = {
-                "id": department.id,
-                "name": department.name,
+                "id": company_element.id,
+                "name": company_element.element_name,
                 "percentage": self.calculate_percentage(nr_of_why_causes, number_of_questions),
-                "entities": self.build_response_for_entities(questions, number_of_questions)
-            }
-            response.append(result)
-        return response
-
-    def build_response_for_entities(self, indicator_questions, number_of_questions):
-        response = list()
-        questions_by_entities = self.group_questions_by_entity(indicator_questions)
-        for entity, questions in questions_by_entities.items():
-            nr_of_why_causes = len(questions)
-            result = {
-                "id": entity.id,
-                "name": entity.name,
-                "percentage": self.calculate_percentage(nr_of_why_causes, number_of_questions),
-                "sections": self.build_response_for_sections(questions, number_of_questions)
-            }
-            response.append(result)
-        return response
-
-    def build_response_for_sections(self, indicator_questions, number_of_questions):
-        response = list()
-        questions_by_section = self.group_questions_by_section(indicator_questions)
-        for section, questions in questions_by_section.items():
-            nr_of_why_causes = len(questions)
-            result = {
-                "id": section.id,
-                "name": section.name,
-                "percentage": self.calculate_percentage(nr_of_why_causes, number_of_questions)
+                "company_elements": self.build_response_for_company_elements(questions, number_of_questions) if
+                company_element.children.exists() else []
             }
             response.append(result)
         return response
@@ -608,28 +582,11 @@ class CodedCausesPercentageTable:
         return response
 
     @staticmethod
-    def group_questions_by_department(indicator_questions):
+    def group_questions_by_company_element(indicator_questions):
         result = dict()
         for indicator_question in indicator_questions:
-            department = indicator_question.get_department()
-            result.setdefault(department, []).append(indicator_question)
-        return result
-
-    @staticmethod
-    def group_questions_by_entity(indicator_questions):
-        result = dict()
-        for indicator_question in indicator_questions:
-            entity = indicator_question.get_entity()
-            result.setdefault(entity, []).append(indicator_question)
-        return result
-
-    @staticmethod
-    def group_questions_by_section(indicator_questions):
-        result = dict()
-        for indicator_question in indicator_questions:
-            section = indicator_question.get_section()
-            if section:
-                result.setdefault(section, []).append(indicator_question)
+            company_element = indicator_question.get_company_element()
+            result.setdefault(company_element, []).append(indicator_question)
         return result
 
     @staticmethod
