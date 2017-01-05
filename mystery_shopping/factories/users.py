@@ -12,6 +12,7 @@ class UserFactory(DjangoModelFactory):
         model = User
         exclude = ('r_password',)
 
+    tenant = TenantFactory()
     username = fuzzy.FuzzyText(length=10)
     r_password = '1234'
     password = PostGenerationMethodCall('set_password', r_password)
@@ -49,6 +50,7 @@ class UserThatIsTenantProductManagerFactory(DjangoModelFactory):
         model = User
         exclude = ('r_password',)
 
+    tenant = TenantFactory()
     username = fuzzy.FuzzyText(length=10)
     r_password = '1234'
     password = PostGenerationMethodCall('set_password', r_password)

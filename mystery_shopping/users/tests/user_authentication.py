@@ -16,15 +16,15 @@ class AuthenticateUser:
         }
         self.tenant = Tenant.objects.create(name='tenant demo')
         self._set_user()
-        self._attach_tennant_product_manager_to_user()
+        self._attach_tenant_product_manager_to_user()
         self._set_client()
 
     def _set_user(self):
-        self.user, _ = User.objects.get_or_create(username=self.credentials.get('username'))
+        self.user, _ = User.objects.get_or_create(username=self.credentials.get('username'), tenant=self.tenant)
         self.user.set_password(self.credentials.get('password'))
         self.user.save()
 
-    def _attach_tennant_product_manager_to_user(self):
+    def _attach_tenant_product_manager_to_user(self):
         TenantProductManagerFactory(user=self.user, tenant=self.tenant)
 
     def _set_client(self):
