@@ -149,10 +149,6 @@ class User(TenantModel, AbstractUser):
             company = getattr(self, UserRole.CLIENT_EMPLOYEE, None).company
         return company
 
-    @property
-    def tenant(self):
-        return self.user_type_attr.tenant
-
 
 class TenantUserAbstract(models.Model):
     """The abstract class for Tenant User model.
