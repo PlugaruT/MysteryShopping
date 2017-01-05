@@ -11,9 +11,9 @@ from rest_framework.response import Response
 from mystery_shopping.companies.models import Company
 from mystery_shopping.cxi.algorithms import GetPerDayQuestionnaireData
 from mystery_shopping.cxi.serializers import SimpleWhyCauseSerializer
-from mystery_shopping.mystery_shopping_utils.paginators import AppreciationWhyCausesPagination
-from mystery_shopping.mystery_shopping_utils.paginators import FrustrationWhyCausesPagination
-from mystery_shopping.mystery_shopping_utils.paginators import WhyCausesPagination
+from mystery_shopping.mystery_shopping_utils.models import TenantFilter
+from mystery_shopping.mystery_shopping_utils.paginators import FrustrationWhyCausesPagination, \
+    AppreciationWhyCausesPagination, WhyCausesPagination
 from mystery_shopping.projects.models import Project
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from mystery_shopping.questionnaires.utils import check_interval_date
@@ -54,23 +54,23 @@ class CodedCauseViewSet(ClearCodedCauseMixin, viewsets.ModelViewSet):
     queryset = CodedCause.objects.all()
     queryset = CodedCauseSerializer().setup_eager_loading(queryset)
     serializer_class = CodedCauseSerializer
+    filter_backends = (TenantFilter,)
 
     def get_queryset(self):
         project_id = self.request.query_params.get('project')
         if project_id:
             try:
                 project = Project.objects.get(pk=project_id)
-                return self.queryset.filter(
-                    project=project) if self.request.user.tenant == project.tenant else self.queryset.none()
+                return self.queryset.filter(project=project)
             except (Project.DoesNotExist, ValueError):
-                return self.queryset.none()
+                self.queryset.none()
         return self.queryset.none()
 
     def create(self, request, *args, **kwargs):
         # add tenant from the request.user to the request.data that is sent to the Coded CauseSerializer
         request.data['tenant'] = request.user.tenant.id
         request.data['coded_label']['tenant'] = request.user.tenant.id
-        serializer = self.get_serializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
@@ -100,8 +100,8 @@ class CodedCauseViewSet(ClearCodedCauseMixin, viewsets.ModelViewSet):
     @list_route(methods=['get'])
     def sorted(self, request):
         indicator = self.request.query_params.get('type')
-        queryset = self.get_queryset().filter(type=indicator)
-        serializer = self.get_serializer(queryset, many=True)
+        queryset = self.filter_queryset(self.get_queryset().filter(type=indicator))
+        serializer = self.serializer_class(queryset, many=True)
         response = self.group_by_sentiment(serializer.data)
         return Response(response)
 
@@ -118,9 +118,10 @@ class ProjectCommentViewSet(viewsets.ModelViewSet):
     serializer_class = ProjectCommentSerializer
 
 
-class CxiIndicatorTimelapse(views.APIView):
+class CxiIndicatorTimeLapse(views.APIView):
     """
-
+    View that returns collected data and results divided per day
+    in a given time period.
     """
 
     def get(self, request, *args, **kwargs):
@@ -356,7 +357,9 @@ class FrustrationWhyCauseViewSet(ListModelMixin, viewsets.GenericViewSet):
     filter_backends = (SearchFilter,)
     search_fields = ('answer',)
     queryset = WhyCause.objects.all()
-    queryset = serializer_class.setup_eager_loading(queryset)
+
+    def get_queryset(self):
+        return self.serializer_class.setup_eager_loading(self.queryset)
 
     def list(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
@@ -383,7 +386,9 @@ class AppreciationWhyCauseViewSet(ListModelMixin, viewsets.GenericViewSet):
     filter_backends = (SearchFilter,)
     search_fields = ('answer',)
     queryset = WhyCause.objects.all()
-    queryset = serializer_class.setup_eager_loading(queryset)
+
+    def get_queryset(self):
+        return self.serializer_class.setup_eager_loading(self.queryset)
 
     def list(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
@@ -399,10 +404,12 @@ class WhyCauseViewSet(ClearCodedCauseMixin, viewsets.ModelViewSet):
 
     """
     queryset = WhyCause.objects.all()
-    queryset = WhyCauseSerializer.setup_eager_loading(queryset)
     serializer_class = WhyCauseSerializer
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
     pagination_class = WhyCausesPagination
+
+    def get_queryset(self):
+        return self.serializer_class.setup_eager_loading(self.queryset)
 
     def list(self, request, *args, **kwargs):
         coded_cause_id = request.query_params.get('cause', None)
@@ -410,7 +417,7 @@ class WhyCauseViewSet(ClearCodedCauseMixin, viewsets.ModelViewSet):
         serializer = self.serializer_class(queryset, many=True)
         page = self.paginate_queryset(queryset)
         if page is not None:
-            serializer = self.get_serializer(page, many=True)
+            serializer = self.serializer_class(page, many=True)
             return self.get_paginated_response(serializer.data)
         return Response(serializer.data, status=status.HTTP_200_OK)
 

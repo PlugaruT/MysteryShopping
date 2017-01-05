@@ -31,7 +31,6 @@ urlpatterns = [
     url(r'^api-token-refresh/', refresh_jwt_token),
 
     # User management
-    url(r'^users/', include("mystery_shopping.users.urls", namespace="users")),
     url(r'^accounts/', include('allauth.urls')),
 
     url(r'^api/v1/common/', include('mystery_shopping.common.urls', namespace='common')),

@@ -1,7 +1,7 @@
 from django.test.testcases import TestCase
 from json import loads, dumps
 
-from mystery_shopping.factories.companies import EntityFactory
+from mystery_shopping.factories.companies import EntityFactory, CompanyElementFactory
 from mystery_shopping.factories.projects import ProjectFactory
 from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFactory, QuestionTemplateFactory, \
     QuestionnaireTemplateBlockFactory
@@ -18,6 +18,7 @@ class TestSerializeCrossIndexForQuestionnaire(TestCase):
         shopper = ShopperFactory()
         saved_by_user = UserFactory()
         entity = EntityFactory()
+        company_element = CompanyElementFactory()
         self.template_questionnaire = QuestionnaireTemplateFactory(tenant=self.tenant)
 
         self.template_block = QuestionnaireTemplateBlockFactory(questionnaire_template=self.template_questionnaire)
@@ -48,8 +49,8 @@ class TestSerializeCrossIndexForQuestionnaire(TestCase):
             'shopper': shopper.id,
             'saved_by_user': saved_by_user.id,
             'questionnaire_template': self.template_questionnaire.id,
+            'company_element': company_element.id,
             'entity': entity.id,
-
         }
 
         self.evaluation = EvaluationSerializer(data=data)

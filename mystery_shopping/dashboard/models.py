@@ -1,27 +1,29 @@
 from django.db import models
 
-from mystery_shopping.companies.models import Company
+from mystery_shopping.companies.models import Company, CompanyElement
+from mystery_shopping.mystery_shopping_utils.models import TenantModel
 from mystery_shopping.tenants.models import Tenant
 from mystery_shopping.projects.models import Project
 from mystery_shopping.users.models import User
 from datetime import datetime
 
 
-class DashboardTemplate(models.Model):
+class DashboardTemplate(TenantModel):
     """
     Model for storing the user defined dashboard structure
     """
     # Relations
-    tenant = models.ForeignKey(Tenant)
+    company_element = models.ForeignKey(CompanyElement)
+    # TODO: delete
     company = models.ForeignKey(Company)
     modified_by = models.ForeignKey(User)
     users = models.ManyToManyField(User, related_name='have_access')
 
     # Attributes
-    title = models.CharField(max_length=120)
-    widgets = models.TextField()
     is_published = models.BooleanField(default=False)
     modified_date = models.DateTimeField(default=datetime.now)
+    title = models.CharField(max_length=120)
+    widgets = models.TextField()
 
     def __str__(self):
         return 'Dashboard "{}" for {}'.format(self.title, self.tenant.name)
@@ -35,8 +37,8 @@ class DashboardComment(models.Model):
     dashboard = models.ForeignKey(DashboardTemplate, related_name='dashboard_comments')
 
     # Attributes
-    title = models.CharField(max_length=30, null=True, blank=True)
     comment = models.TextField()
+    title = models.CharField(max_length=30, null=True, blank=True)
 
     def __str__(self):
         return 'Dashboard Comment: {}'.format(self.title)

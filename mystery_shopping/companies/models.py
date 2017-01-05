@@ -1,8 +1,15 @@
+from django.contrib.postgres.fields.hstore import HStoreField
 from django.db import models
 from django.contrib.contenttypes.fields import GenericRelation
+from mptt.fields import TreeForeignKey
+from mptt.models import MPTTModel
 
 from mystery_shopping.common.models import City, Country, Sector
+from mystery_shopping.companies.managers import CompanyElementQuerySet
+from mystery_shopping.mystery_shopping_utils.models import TenantModel
+# Todo: delete this (and the old company models).
 from mystery_shopping.tenants.models import Tenant
+
 
 # TODO add description for classes
 
@@ -23,6 +30,45 @@ class HasEvaluationsMixin:
 
     def at_least_one_section_has_evaluations(self):
         return self.check_for_evaluations(self.sections.all())
+
+
+class CompanyElement(TenantModel, MPTTModel):
+    """
+    A generic company element.
+    It may be the company itself, a section, department, employee, etc.
+    """
+    # Relations
+    parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
+
+    # Attributes
+    additional_info = HStoreField(null=True, blank=True)
+    element_name = models.CharField(max_length=100)
+    element_type = models.CharField(max_length=100)
+    logo = models.ImageField(null=True, blank=True)
+
+    objects = models.Manager.from_queryset(CompanyElementQuerySet)()
+
+    class Meta:
+        default_related_name = 'company_elements'
+        permissions = (
+            ('view_companyelement', 'View company element'),
+        )
+
+    def __str__(self):
+        return 'company_element: {id: %s, name: %s, type: %s}' % (self.pk, self.element_name, self.element_type)
+
+
+class AdditionalInfoType(TenantModel):
+    """
+    A saved additional info type for Company Element 'additional_info' attribute
+    """
+    # Attributes
+    name = models.CharField(max_length=100)
+    input_type = models.CharField(max_length=50)
+    icon = models.CharField(max_length=50)
+
+    def __str__(self):
+        return 'additional_info_type: {id: %s, name: %s}' % (self.pk, self.name)
 
 
 class Industry(models.Model):

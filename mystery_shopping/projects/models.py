@@ -8,6 +8,7 @@ from model_utils.models import TimeStampedModel
 from model_utils.fields import StatusField
 
 from mystery_shopping.companies.models import Department, Entity, Section
+from mystery_shopping.mystery_shopping_utils.models import TenantModel
 from mystery_shopping.projects.managers import ProjectQuerySet, EvaluationQuerySet
 from mystery_shopping.questionnaires.models import QuestionnaireScript, QuestionnaireTemplate
 from mystery_shopping.tenants.models import Tenant
@@ -17,6 +18,7 @@ from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from mystery_shopping.projects.constants import EvaluationStatus
 
 
+# TODO: Delete model
 class PlaceToAssess(models.Model):
     """
     A class with a generic foreign key for setting places to be evaluated for a project.
@@ -36,18 +38,18 @@ class PlaceToAssess(models.Model):
         return self.place.evaluations
 
 
-class ResearchMethodology(models.Model):
+class ResearchMethodology(TenantModel):
     """
 
     """
     # Relations
-    tenant = models.ForeignKey(Tenant)
-    scripts = models.ManyToManyField(QuestionnaireScript)
+    company_elements = models.ManyToManyField('companies.CompanyElement')
     questionnaires = models.ManyToManyField(QuestionnaireTemplate)
+    scripts = models.ManyToManyField(QuestionnaireScript)
 
     # Attributes
-    number_of_evaluations = models.PositiveSmallIntegerField()  # or number_of_calls
     description = models.TextField(blank=True)
+    number_of_evaluations = models.PositiveSmallIntegerField()  # or number_of_calls
 
     class Meta:
         verbose_name_plural = 'research methodologies'
@@ -65,26 +67,29 @@ class ResearchMethodology(models.Model):
         return self.questionnaires.first().questionnaires
 
 
-class Project(models.Model):
+class Project(TenantModel):
     """
 
     """
     # Relations
-    tenant = models.ForeignKey(Tenant)
-    company = models.ForeignKey('companies.Company')
     # this type of import is used to avoid import circles
-    project_manager = models.ForeignKey('users.TenantProjectManager')
     consultants = models.ManyToManyField('users.TenantConsultant')
-    shoppers = models.ManyToManyField('users.Shopper', blank=True)
+    # TODO rename to 'company'
+    company_new = models.ForeignKey('companies.CompanyElement')
+    # TODO delete
+    company = models.ForeignKey('companies.Company')
+    project_manager = models.ForeignKey('users.TenantProjectManager')
     research_methodology = models.ForeignKey('ResearchMethodology', null=True, blank=True)
+    shoppers = models.ManyToManyField('users.Shopper', blank=True)
 
     # Attributes
-    period_start = models.DateField()
-    period_end = models.DateField()
+    # Todo: decide if this belongs here
+    graph_config = JSONField(null=True)
     type_questionnaire = Choices(('m', 'Mystery Questionnaire'),
                                  ('c', 'Customer Experience Index Questionnaire'))
     type = models.CharField(max_length=1, choices=type_questionnaire, default=type_questionnaire.m)
-    graph_config = JSONField(null=True)
+    period_start = models.DateField()
+    period_end = models.DateField()
 
     objects = models.Manager.from_queryset(ProjectQuerySet)()
 
@@ -101,6 +106,7 @@ class Project(models.Model):
         from mystery_shopping.cxi.algorithms import get_project_indicator_questions_list
         return get_project_indicator_questions_list(self)
 
+    # Todo: rewrite or delete
     def get_editable_places(self):
         """
         Function for getting all entities and sections that aren't included into any project and
@@ -131,6 +137,7 @@ class Project(models.Model):
         else:
             return True
 
+    # Todo: decide if this belongs here
     def save_graph_config(self, config):
         self.graph_config = config
         self.save()
@@ -143,16 +150,17 @@ class Evaluation(TimeStampedModel, models.Model):
     """
     """
     # Relationships
+    company_element = models.ForeignKey('companies.CompanyElement')
     project = models.ForeignKey(Project)
-    shopper = models.ForeignKey('users.Shopper', null=True)
-    saved_by_user = models.ForeignKey('users.User')
     questionnaire_script = models.ForeignKey(QuestionnaireScript, null=True)
+    saved_by_user = models.ForeignKey('users.User')
+    shopper = models.ForeignKey('users.Shopper', null=True)
 
     type_questionnaire = Choices(('m', 'Mystery Evaluation'),
                                  ('c', 'Customer Experience Index Evaluation'))
     type = models.CharField(max_length=1, choices=type_questionnaire, default=type_questionnaire.m)
-
     questionnaire_template = models.ForeignKey(QuestionnaireTemplate)
+    # TODO: Remove from here
     entity = models.ForeignKey(Entity)
     section = models.ForeignKey(Section, null=True, blank=True)
 
@@ -161,6 +169,7 @@ class Evaluation(TimeStampedModel, models.Model):
     employee_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='employee_type', null=True, blank=True)
     employee_id = models.PositiveIntegerField(null=True, blank=True)
     employee = GenericForeignKey('employee_type', 'employee_id')
+    # till here
 
     # For "Accomplished"
     questionnaire = models.OneToOneField(Questionnaire, null=True, blank=True, related_name='evaluation')

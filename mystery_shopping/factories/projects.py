@@ -6,6 +6,7 @@ from factory.fuzzy import FuzzyDate
 from factory.fuzzy import FuzzyChoice
 from factory import post_generation
 
+from mystery_shopping.factories.companies import CompanyElementFactory
 from mystery_shopping.factories.users import UserFactory
 from .companies import CompanyFactory
 from .tenants import TenantFactory
@@ -39,12 +40,20 @@ class ResearchMethodologyFactory(DjangoModelFactory):
             for script in scripts:
                 self.scripts.add(script)
 
+    @post_generation
+    def company_elements(self, create, company_elements, **kwargs):
+        if not create:
+            return
+        if company_elements:
+            for company_element in company_elements:
+                self.company_elements.add(company_element)
 
 class ProjectFactory(DjangoModelFactory):
     class Meta:
         model = Project
 
     tenant = SubFactory(TenantFactory)
+    company_new = SubFactory(CompanyElementFactory)
     company = SubFactory(CompanyFactory)
     project_manager = SubFactory(TenantProjectManagerFactory)
     research_methodology = SubFactory(ResearchMethodologyFactory)
@@ -78,10 +87,13 @@ class EvaluationFactory(DjangoModelFactory):
     saved_by_user = SubFactory(UserFactory)
     questionnaire_script = SubFactory(QuestionnaireScriptFactory)
     questionnaire_template = SubFactory(QuestionnaireTemplateFactory)
+    company_element = SubFactory(CompanyElementFactory)
+    # TODO: delete
     entity = SubFactory(EntityFactory)
 
     section = None
     employee = None
+    # till here.
     questionnaire = None
 
     # TODO: define evaluation choices in a separate file

@@ -13,6 +13,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from mystery_shopping.companies.models import Company
 from mystery_shopping.companies.models import Entity
 from mystery_shopping.companies.models import Section
+from mystery_shopping.mystery_shopping_utils.models import TenantModel
 from mystery_shopping.projects.models import Project, Evaluation
 from mystery_shopping.projects.models import ResearchMethodology
 from mystery_shopping.questionnaires.constants import QuestionType
@@ -23,8 +24,7 @@ from mystery_shopping.tenants.models import Tenant
 from mystery_shopping.users.roles import UserRole
 
 
-class User(AbstractUser):
-
+class User(TenantModel, AbstractUser):
     # First Name and Last Name do not cover name patterns
     # around the globe.
     phone_number = models.CharField(max_length=20, blank=True)
@@ -148,10 +148,6 @@ class User(AbstractUser):
         if hasattr(self, UserRole.CLIENT_EMPLOYEE):
             company = getattr(self, UserRole.CLIENT_EMPLOYEE, None).company
         return company
-
-    @property
-    def tenant(self):
-        return self.user_type_attr.tenant
 
 
 class TenantUserAbstract(models.Model):

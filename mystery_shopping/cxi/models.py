@@ -3,21 +3,19 @@ from copy import deepcopy
 from django.db import models
 from model_utils import Choices
 
+from mystery_shopping.mystery_shopping_utils.models import TenantModel
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from mystery_shopping.projects.models import Project
-from mystery_shopping.companies.models import Department
+from mystery_shopping.companies.models import Department, CompanyElement
 from mystery_shopping.companies.models import Entity
 from mystery_shopping.companies.models import Section
 from mystery_shopping.tenants.models import Tenant
 
 
-class CodedCauseLabel(models.Model):
+class CodedCauseLabel(TenantModel):
     """
     Model of a Coded Cause name (label) that would allow to use the same name for different Coded Causes
     """
-    # Relations
-    tenant = models.ForeignKey(Tenant)
-
     # Attributes
     name = models.CharField(max_length=200)
 
@@ -67,12 +65,11 @@ class WhyCause(models.Model):
         return new_why_causes
 
 
-class CodedCause(models.Model):
+class CodedCause(TenantModel):
     """
     Model for Coded Causes that would allow to group different frustration or appreciation together
     """
     # Relations
-    tenant = models.ForeignKey(Tenant)
     project = models.ForeignKey(Project)
     coded_label = models.ForeignKey(CodedCauseLabel)
     raw_causes = models.ManyToManyField(WhyCause, related_name='coded_causes', blank=True)
@@ -101,17 +98,20 @@ class ProjectComment(models.Model):
 
     """
     # Relations
+    company_element = models.ForeignKey(CompanyElement, null=True, blank=True)
     project = models.ForeignKey(Project)
+    # TODO: delete
     department = models.ForeignKey(Department, null=True, blank=True)
     entity = models.ForeignKey(Entity, null=True, blank=True)
     section = models.ForeignKey(Section, null=True, blank=True)
+    # till here.
 
     # Attributes
-    indicator = models.CharField(max_length=30, blank=True)
-    general = models.TextField(blank=True)
-    dynamics = models.TextField(blank=True)
-    details = models.TextField(blank=True)
     causes = models.TextField(blank=True)
+    details = models.TextField(blank=True)
+    dynamics = models.TextField(blank=True)
+    general = models.TextField(blank=True)
+    indicator = models.CharField(max_length=30, blank=True)
 
     class Meta:
         default_related_name = 'project_comments'
