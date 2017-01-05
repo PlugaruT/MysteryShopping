@@ -42,6 +42,7 @@ THIRD_PARTY_APPS = (
     'allauth',  # registration
     'allauth.account',  # registration
     'allauth.socialaccount',  # registration
+    'guardian',
     'rest_framework',
     'mptt',
     'corsheaders',
@@ -220,6 +221,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
+    'guardian.backends.ObjectPermissionBackend',
 )
 
 # Some really nice defaults
