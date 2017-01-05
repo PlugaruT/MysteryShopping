@@ -1,5 +1,6 @@
 import re
 
+from django.contrib.auth.models import Permission, Group
 from rest_framework import serializers
 
 from .models import User
@@ -15,14 +16,12 @@ from .models import Collector
 
 from mystery_shopping.companies.models import Company
 from mystery_shopping.tenants.serializers import TenantSerializer
-# try:
-#     from mystery_shopping.companies.serializers import EntitySerializer
-# except ImportError:
-#     import sys
-#     EntitySerializer = sys.modules['mystery_shopping.companies.EntitySerializer']
+
 
 class SimpleCompanySerializer(serializers.ModelSerializer):
-    """A Company serializer that does not have any nested serializer fields."""
+    """
+    A Company serializer that does not have any nested serializer fields.
+    """
 
     class Meta:
         model = Company
@@ -30,10 +29,10 @@ class SimpleCompanySerializer(serializers.ModelSerializer):
 
 
 class UsersCreateMixin:
-    '''
+    """
     Mixin class used to create (almost) all types of users.
+    """
 
-    '''
     def create(self, validated_data):
         user = validated_data.pop('user', None)
 
@@ -49,10 +48,10 @@ class UsersCreateMixin:
 
 
 class UsersUpdateMixin:
-    '''
+    """
     Mixin class used to update (almost) all types of users.
+    """
 
-    '''
     def update(self, instance, validated_data):
         user = validated_data.pop('user', None)
 
@@ -70,8 +69,31 @@ class UsersUpdateMixin:
         return instance
 
 
+class PermissionSerializer(serializers.ModelSerializer):
+    """
+    Serializer class for Permission model
+    """
+
+    class Meta:
+        model = Permission
+        fields = '__all__'
+
+
+class GroupSerializer(serializers.ModelSerializer):
+    """
+    Serializer class for Group model
+    """
+
+    permissions = PermissionSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = Group
+        fields = '__all__'
+
+
 class UserSerializer(serializers.ModelSerializer):
-    """Serializer class for User model
+    """
+    Serializer class for User model
     """
     password = serializers.CharField(write_only=True, required=False)
     confirm_password = serializers.CharField(write_only=True, required=False)
@@ -86,7 +108,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'change_username',
                   'roles', 'password', 'confirm_password', 'tenant_repr', 'shopper', 'company', 'managed_entities',
-                  'has_overview_access')
+                  'has_overview_access', 'user_permissions', 'groups')
         extra_kwargs = {'username': {'validators': []},
                         'shopper': {'read_only': True},
                         'company': {'read_only': True},
@@ -153,6 +175,14 @@ class UserSerializer(serializers.ModelSerializer):
         return instance
 
 
+class UserSerializerGET(UserSerializer, serializers.ModelSerializer):
+    """
+    Serializer class that is used only for GET method
+    """
+    user_permissions = PermissionSerializer(many=True, required=False)
+    groups = GroupSerializer(many=True, required=False)
+
+
 class TenantProductManagerSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):
     """Serializer class for TenantProductManager user model.
     """
@@ -192,6 +222,7 @@ class TenantConsultantSerializer(UsersCreateMixin, UsersUpdateMixin, serializers
 class ClientProjectManagerSerializer(serializers.ModelSerializer):
     """Serializer class for ClientProjectManager user model.
     """
+
     class Meta:
         model = ClientProjectManager
         fields = '__all__'
@@ -242,6 +273,7 @@ class PersonToAssessRelatedField(serializers.RelatedField):
     """
     A custom field to use to serialize the instance of a person to assess according to it's type: ClientManager or ClientEmployee.
     """
+
     def to_representation(self, value):
         """
         Serialize tagged objects to a simple textual representation.
@@ -266,5 +298,3 @@ class PersonToAssessSerializer(serializers.ModelSerializer):
         model = PersonToAssess
         fields = '__all__'
         extra_kwargs = {'research_methodology': {'required': False}}
-
-

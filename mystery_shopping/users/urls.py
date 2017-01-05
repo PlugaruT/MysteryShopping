@@ -6,7 +6,8 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_nested.routers import SimpleRouter
 from rest_framework_nested.routers import NestedSimpleRouter
 
-from mystery_shopping.users.views import DetractorRespondentForTenantViewSet, DetractorRespondentForClientViewSet
+from mystery_shopping.users.views import DetractorRespondentForTenantViewSet, DetractorRespondentForClientViewSet, \
+    UserPermissionsViewSet, UserGroupsViewSet, PermissionsPerUserViewSet
 from . import views
 
 from .views import UserViewSet
@@ -64,6 +65,11 @@ router.register(r'tenantconsultants', TenantConsultantViewSet)
 router.register(r'peopletoassess', PersonToAssessViewSet)
 router.register(r'detractors', DetractorRespondentForTenantViewSet)
 router.register(r'detractorsforclient', DetractorRespondentForClientViewSet)
+router.register(r'permissions', UserPermissionsViewSet)
+router.register(r'groups', UserGroupsViewSet)
+
+user_permissions = NestedSimpleRouter(router, r'users', lookup='user')
+user_permissions.register(r'permissions', PermissionsPerUserViewSet, base_name='user-permissions')
 
 shopper_evaluation = NestedSimpleRouter(router, r'shoppers', lookup='shopper')
 shopper_evaluation.register(r'evaluations', EvaluationPerShopperViewSet, base_name='shopper-evaluations')
