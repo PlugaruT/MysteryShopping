@@ -53,6 +53,16 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='user',
+            name='address',
+            field=models.CharField(blank=True, max_length=100),
+        ),
+        migrations.AddField(
+            model_name='user',
+            name='job_title',
+            field=models.CharField(blank=True, max_length=60),
+        ),
+        migrations.AddField(
+            model_name='user',
             name='tenant',
             field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='tenants.Tenant'),
             preserve_default=False,

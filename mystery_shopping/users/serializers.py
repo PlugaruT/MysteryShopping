@@ -97,16 +97,13 @@ class UserSerializer(serializers.ModelSerializer):
     """
     password = serializers.CharField(write_only=True, required=False)
     confirm_password = serializers.CharField(write_only=True, required=False)
-    roles = serializers.ListField(read_only=True, source='user_roles')
     change_username = serializers.BooleanField(write_only=True, required=False)
-    managed_entities = serializers.ListField(source='list_of_poses', read_only=True)
-    has_overview_access = serializers.BooleanField(source='has_client_manager_overview_access', read_only=True)
 
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'change_username',
-                  'roles', 'password', 'confirm_password', 'tenant', 'shopper', 'managed_entities',
-                  'has_overview_access', 'user_permissions', 'groups')
+                  'password', 'confirm_password', 'tenant', 'user_permissions', 'groups',
+                  'date_of_birth', 'gender', 'has_drivers_license', 'job_title', 'address')
         extra_kwargs = {'username': {'validators': []},
                         'shopper': {'read_only': True},
                         'company': {'read_only': True},
@@ -175,12 +172,12 @@ class UserSerializer(serializers.ModelSerializer):
         return instance
 
 
-class UserSerializerGET(UserSerializer, serializers.ModelSerializer):
+class UserSerializerGET(serializers.ModelSerializer):
     """
     Serializer class that is used only for GET method
     """
-    user_permissions = PermissionSerializer(many=True, required=False)
-    groups = GroupSerializer(many=True, required=False)
+    user_permissions = PermissionSerializer(many=True, read_only=False)
+    groups = GroupSerializer(many=True, read_only=False)
     tenant = TenantSerializer(source='tenant', read_only=True)
     company = SimpleCompanySerializer(source='user_company', read_only=True)
 
