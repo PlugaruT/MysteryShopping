@@ -2,6 +2,7 @@
 from __future__ import absolute_import, unicode_literals
 
 import django_filters
+from django.contrib.auth.models import Permission, Group
 from django.core.urlresolvers import reverse
 from django.views.generic import DetailView, ListView, RedirectView, UpdateView
 from django.db.models import Q
@@ -10,15 +11,19 @@ from rest_framework import viewsets
 from rest_framework import status
 from rest_condition import Or
 from braces.views import LoginRequiredMixin
+from rest_framework.generics import ListAPIView
+from rest_framework.mixins import ListModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from mystery_shopping.mystery_shopping_utils.paginators import DetractorRespondentPaginator
+from mystery_shopping.mystery_shopping_utils.views import GetSerializerClassMixin
 from mystery_shopping.questionnaires.serializers import DetractorRespondentForTenantSerializer, \
     DetractorRespondentForClientSerializer
 from mystery_shopping.users.models import DetractorRespondent
+from mystery_shopping.users.serializers import PermissionSerializer, GroupSerializer, UserSerializerGET
 from .models import ClientEmployee
 from .models import ClientManager
 from .models import Shopper
@@ -47,6 +52,7 @@ class FilterQuerysetOnTenantMixIn:
     """
     Mixin class that adds 'get_queryset' that filters the queryset agains the request.user.tenant
     """
+
     def get_queryset(self):
         queryset = self.queryset.all()
         queryset = queryset.filter(tenant=self.request.user.tenant)
@@ -56,6 +62,37 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     filter_backends = (TenantFilter,)
+    serializer_class_get = UserSerializerGET
+
+
+class UserPermissionsViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    A simple ViewSet for viewing all user permissions. Provides 'read-only' actions.
+    """
+    permission_classes = (IsAuthenticated,)
+    queryset = Permission.objects.all()
+    serializer_class = PermissionSerializer
+
+
+class UserGroupsViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    A simple ViewSet for viewing all user groups. Provides 'read-only' actions.
+    """
+    permission_classes = (IsAuthenticated,)
+    queryset = Group.objects.all()
+    serializer_class = GroupSerializer
+
+
+class PermissionsPerUserViewSet(viewsets.ViewSet):
+    """
+    View for viewing all permissions for a specific user
+    """
+    permission_classes = (IsAuthenticated,)
+
+    def list(self, request, user_pk=None):
+        queryset = Permission.objects.filter(user=user_pk)
+        serializer = PermissionSerializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 class TenantProductManagerViewSet(FilterQuerysetOnTenantMixIn, viewsets.ModelViewSet):
@@ -73,7 +110,7 @@ class TenantConsultantViewSet(FilterQuerysetOnTenantMixIn, viewsets.ModelViewSet
     serializer_class = TenantConsultantSerializer
 
 
-class ClientEmployeeViewSet(FilterQuerysetOnTenantMixIn,  viewsets.ModelViewSet):
+class ClientEmployeeViewSet(FilterQuerysetOnTenantMixIn, viewsets.ModelViewSet):
     queryset = ClientEmployee.objects.all()
     serializer_class = ClientEmployeeSerializer
 
