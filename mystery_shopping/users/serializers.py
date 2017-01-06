@@ -117,12 +117,11 @@ class UserSerializer(serializers.ModelSerializer):
         # Todo: add regex checking for 'username' characters
         if User.objects.filter(username=username).exists():
             raise serializers.ValidationError({
-                'username': ['Username: \'{}\' is already taken, please choose another one.'.format(username)]
+                'key': 'VALIDATION_MESSAGE.USER.USERNAME_EXISTS'
             })
         if not re.match("^[a-zA-Z0-9@.+-_]+$", username):
             raise serializers.ValidationError({
-                'username': ['Username: \'{}\' contains illegal characters.'
-                             ' Allowed characters: letters, digits and @/./+/-/_ only.'.format(username)]
+                'key': 'VALIDATION_MESSAGE.USER.ILLEGAL_CHARS'
             })
         # No need to check len(username) > 30, as it does it by itself.
         return True
@@ -133,8 +132,8 @@ class UserSerializer(serializers.ModelSerializer):
         confirm_password = validated_data.pop('confirm_password', None)
         validated_data.pop('change_username', None)
 
-        user = User(**validated_data)
         self.check_username(validated_data['username'])
+        user = User(**validated_data)
 
         if password and confirm_password and password == confirm_password:
             user.set_password(password)

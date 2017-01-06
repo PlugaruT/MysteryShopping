@@ -3,23 +3,18 @@ from __future__ import absolute_import, unicode_literals
 
 import django_filters
 from django.contrib.auth.models import Permission, Group
-from django.core.urlresolvers import reverse
-from django.views.generic import DetailView, ListView, RedirectView, UpdateView
+from django.core.exceptions import ValidationError
 from django.db.models import Q
-
+import re
 from rest_framework import viewsets
 from rest_framework import status
 from rest_condition import Or
-from braces.views import LoginRequiredMixin
-from rest_framework.generics import ListAPIView
-from rest_framework.mixins import ListModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from mystery_shopping.mystery_shopping_utils.paginators import DetractorRespondentPaginator
-from mystery_shopping.mystery_shopping_utils.views import GetSerializerClassMixin
 from mystery_shopping.questionnaires.serializers import DetractorRespondentForTenantSerializer, \
     DetractorRespondentForClientSerializer
 from mystery_shopping.users.models import DetractorRespondent
@@ -73,6 +68,21 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer.save()
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    @staticmethod
+    def check_username(username):
+        # Todo: add regex checking for 'username' characters
+        if User.objects.filter(username=username).exists():
+            raise ValidationError({
+                'username': 'Username: \'{}\' is already taken, please choose another one.'.format(username)
+            })
+        if not re.match("^[a-zA-Z0-9@.+-_]+$", username):
+            raise ValidationError({
+                'username': 'Username: \'{}\' contains illegal characters.'
+                             ' Allowed characters: letters, digits and @/./+/-/_ only.'.format(username)
+            })
+        # No need to check len(username) > 30, as it does it by itself.
+        return True
 
 
 class UserPermissionsViewSet(viewsets.ReadOnlyModelViewSet):
