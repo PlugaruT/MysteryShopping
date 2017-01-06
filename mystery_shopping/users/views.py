@@ -47,6 +47,7 @@ from mystery_shopping.users.permissions import IsTenantProductManager, HasReadOn
 from mystery_shopping.users.permissions import IsTenantProjectManager
 from mystery_shopping.users.permissions import IsTenantConsultant
 
+
 # Todo: remove this
 class FilterQuerysetOnTenantMixIn:
     """
@@ -57,6 +58,7 @@ class FilterQuerysetOnTenantMixIn:
         queryset = self.queryset.all()
         queryset = queryset.filter(tenant=self.request.user.tenant)
         return queryset
+
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
