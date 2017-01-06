@@ -55,34 +55,36 @@ class FilterQuerysetOnTenantMixIn:
         return queryset
 
 
+class UserFilter(django_filters.rest_framework.FilterSet):
+    groups = django_filters.AllValuesMultipleFilter(name="groups")
+
+    class Meta:
+        model = User
+        fields = ['groups', ]
+
+
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    filter_backends = (TenantFilter,)
     serializer_class_get = UserSerializerGET
+    filter_backends = (TenantFilter, DjangoFilterBackend,)
+    filter_class = UserFilter
 
     def create(self, request, *args, **kwargs):
         request.data['tenant'] = request.user.tenant_id
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-    @staticmethod
-    def check_username(username):
-        # Todo: add regex checking for 'username' characters
-        if User.objects.filter(username=username).exists():
-            raise ValidationError({
-                'username': 'Username: \'{}\' is already taken, please choose another one.'.format(username)
-            })
-        if not re.match("^[a-zA-Z0-9@.+-_]+$", username):
-            raise ValidationError({
-                'username': 'Username: \'{}\' contains illegal characters.'
-                             ' Allowed characters: letters, digits and @/./+/-/_ only.'.format(username)
-            })
-        # No need to check len(username) > 30, as it does it by itself.
-        return True
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.tenant = request.user.tenant
+        serializer = self.get_serializer(instance, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class UserPermissionsViewSet(viewsets.ReadOnlyModelViewSet):
