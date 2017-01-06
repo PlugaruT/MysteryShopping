@@ -59,11 +59,8 @@ class ResearchMethodology(TenantModel):
     def __str__(self):
         return 'Short description: {}, nr. of visits: {}'.format(self.description[0:50], self.number_of_evaluations)
 
-    def prepare_for_update(self):
-        self.people_to_assess.all().delete()
-        self.places_to_assess.all().delete()
-
     def get_questionnaires(self):
+        # and the award for the most legible code gooooooes to:
         return self.questionnaires.first().questionnaires
 
 
@@ -73,17 +70,21 @@ class Project(TenantModel):
     """
     # Relations
     # this type of import is used to avoid import circles
+    consultants_new = models.ManyToManyField('users.User', related_name='consultant_projects')
     consultants = models.ManyToManyField('users.TenantConsultant')
     # TODO rename to 'company'
     company_new = models.ForeignKey('companies.CompanyElement')
     # TODO delete
     company = models.ForeignKey('companies.Company')
+    project_manager_new = models.ForeignKey('users.User', related_name='manager_projects')
     project_manager = models.ForeignKey('users.TenantProjectManager')
     research_methodology = models.ForeignKey('ResearchMethodology', null=True, blank=True)
+    # Todo (remove)
+    shoppers_new = models.ManyToManyField('users.User', blank=True, related_name='shopper_projects')
     shoppers = models.ManyToManyField('users.Shopper', blank=True)
 
     # Attributes
-    # Todo: decide if this belongs here
+    # Todo: (delete)
     graph_config = JSONField(null=True)
     type_questionnaire = Choices(('m', 'Mystery Questionnaire'),
                                  ('c', 'Customer Experience Index Questionnaire'))
@@ -153,14 +154,16 @@ class Evaluation(TimeStampedModel, models.Model):
     company_element = models.ForeignKey('companies.CompanyElement')
     project = models.ForeignKey(Project)
     questionnaire_script = models.ForeignKey(QuestionnaireScript, null=True)
-    saved_by_user = models.ForeignKey('users.User')
+    saved_by_user = models.ForeignKey('users.User', related_name='saved_evaluations')
+    # collector? FK to User
+    shopper_new = models.ForeignKey('users.User', null=True)
     shopper = models.ForeignKey('users.Shopper', null=True)
 
+    #  TODO: Remove from here
     type_questionnaire = Choices(('m', 'Mystery Evaluation'),
                                  ('c', 'Customer Experience Index Evaluation'))
     type = models.CharField(max_length=1, choices=type_questionnaire, default=type_questionnaire.m)
     questionnaire_template = models.ForeignKey(QuestionnaireTemplate)
-    # TODO: Remove from here
     entity = models.ForeignKey(Entity)
     section = models.ForeignKey(Section, null=True, blank=True)
 
@@ -240,6 +243,7 @@ class EvaluationAssessmentLevel(models.Model):
     # Relations
     project = models.ForeignKey(Project)
     previous_level = models.OneToOneField('self', null=True, blank=True, related_name='next_level')
+    users = models.ManyToManyField('users.User', blank=True)
     project_manager = models.ForeignKey('users.TenantProjectManager', null=True)
     consultants = models.ManyToManyField('users.TenantConsultant')
 
@@ -264,6 +268,7 @@ class EvaluationAssessmentComment(models.Model):
     commenter_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='commenter_type')
     commenter_id = models.PositiveIntegerField()
     commenter = GenericForeignKey('commenter_type', 'commenter_id')
+    user = models.ForeignKey('users.User')
     evaluation_assessment_level = models.ForeignKey(EvaluationAssessmentLevel)
     evaluation = models.ForeignKey(Evaluation)
     questionnaire = models.ForeignKey(Questionnaire)
