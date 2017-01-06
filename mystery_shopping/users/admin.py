@@ -24,7 +24,6 @@ class MyUserChangeForm(UserChangeForm):
 
 
 class MyUserCreationForm(UserCreationForm):
-
     error_message = UserCreationForm.error_messages.update({
         'duplicate_username': 'This username has already been taken.'
     })
@@ -43,8 +42,16 @@ class MyUserCreationForm(UserCreationForm):
 
 @admin.register(User)
 class UserAdmin(AuthUserAdmin):
+    list_display = ('username', 'email', 'first_name', 'last_name', 'tenant',)
     form = MyUserChangeForm
     add_form = MyUserCreationForm
+
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('tenant', 'username', 'password1', 'password2', ),
+        }),
+    )
 
 
 @admin.register(TenantProductManager, TenantProjectManager, TenantConsultant, ClientProjectManager, ClientManager, ClientEmployee, PersonToAssess)

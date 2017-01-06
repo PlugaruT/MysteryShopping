@@ -5,7 +5,6 @@ from django.contrib.auth.models import AbstractUser
 from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.db import models
-from django.db.models.aggregates import Count
 from model_utils import Choices
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -13,10 +12,9 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from mystery_shopping.companies.models import Company
 from mystery_shopping.companies.models import Entity
 from mystery_shopping.companies.models import Section
-from mystery_shopping.mystery_shopping_utils.models import TenantModel
+from mystery_shopping.mystery_shopping_utils.models import OptionalTenantModel
 from mystery_shopping.projects.models import Project, Evaluation
 from mystery_shopping.projects.models import ResearchMethodology
-from mystery_shopping.questionnaires.constants import QuestionType
 from mystery_shopping.tenants.models import Tenant
 
 
@@ -24,7 +22,7 @@ from mystery_shopping.tenants.models import Tenant
 from mystery_shopping.users.roles import UserRole
 
 
-class User(TenantModel, AbstractUser):
+class User(OptionalTenantModel, AbstractUser):
     # First Name and Last Name do not cover name patterns
     # around the globe.
     phone_number = models.CharField(max_length=20, blank=True)
