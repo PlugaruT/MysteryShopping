@@ -97,17 +97,15 @@ class UserSerializer(serializers.ModelSerializer):
     """
     password = serializers.CharField(write_only=True, required=False)
     confirm_password = serializers.CharField(write_only=True, required=False)
-    tenant_repr = TenantSerializer(source='tenant', read_only=True)
     roles = serializers.ListField(read_only=True, source='user_roles')
     change_username = serializers.BooleanField(write_only=True, required=False)
-    company = SimpleCompanySerializer(source='user_company', read_only=True)
     managed_entities = serializers.ListField(source='list_of_poses', read_only=True)
     has_overview_access = serializers.BooleanField(source='has_client_manager_overview_access', read_only=True)
 
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'change_username',
-                  'roles', 'password', 'confirm_password', 'tenant_repr', 'shopper', 'company', 'managed_entities',
+                  'roles', 'password', 'confirm_password', 'tenant', 'shopper', 'managed_entities',
                   'has_overview_access', 'user_permissions', 'groups')
         extra_kwargs = {'username': {'validators': []},
                         'shopper': {'read_only': True},
@@ -117,7 +115,7 @@ class UserSerializer(serializers.ModelSerializer):
     @staticmethod
     def check_username(username):
         # Todo: add regex checking for 'username' characters
-        if User.objects.filter(username=username).count():
+        if User.objects.filter(username=username).exists():
             raise serializers.ValidationError({
                 'username': ['Username: \'{}\' is already taken, please choose another one.'.format(username)]
             })
@@ -131,6 +129,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         password = validated_data.get('password', None)
+        groups = validated_data.pop('groups', None)
         confirm_password = validated_data.pop('confirm_password', None)
         validated_data.pop('change_username', None)
 
@@ -143,11 +142,13 @@ class UserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({'password': ['Provided passwords do not match.']})
 
         user.save()
+        user.groups.add(*groups)
         return user
 
     def update(self, instance, validated_data):
         # TODO improve password validation on update
         password = validated_data.pop('password', None)
+        groups = validated_data.pop('groups', None)
         confirm_password = validated_data.pop('confirm_password', None)
 
         if password and confirm_password:
@@ -171,7 +172,7 @@ class UserSerializer(serializers.ModelSerializer):
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
-
+        instance.groups.add(*groups)
         return instance
 
 
@@ -181,6 +182,8 @@ class UserSerializerGET(UserSerializer, serializers.ModelSerializer):
     """
     user_permissions = PermissionSerializer(many=True, required=False)
     groups = GroupSerializer(many=True, required=False)
+    tenant = TenantSerializer(source='tenant', read_only=True)
+    company = SimpleCompanySerializer(source='user_company', read_only=True)
 
 
 class TenantProductManagerSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):
