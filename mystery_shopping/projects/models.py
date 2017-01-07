@@ -1,6 +1,5 @@
-from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.postgres.fields import JSONField
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models.query_utils import Q
 from model_utils import Choices
@@ -70,22 +69,13 @@ class Project(TenantModel):
     """
     # Relations
     # this type of import is used to avoid import circles
-    consultants_new = models.ManyToManyField('users.User', related_name='consultant_projects')
-    consultants = models.ManyToManyField('users.TenantConsultant')
-    # TODO rename to 'company'
-    company_new = models.ForeignKey('companies.CompanyElement')
-    # TODO delete
-    company = models.ForeignKey('companies.Company')
-    project_manager_new = models.ForeignKey('users.User', related_name='manager_projects')
-    project_manager = models.ForeignKey('users.TenantProjectManager')
+    consultants = models.ManyToManyField('users.User', related_name='consultant_projects')
+    company = models.ForeignKey('companies.CompanyElement')
+    project_manager = models.ForeignKey('users.User', related_name='manager_projects')
     research_methodology = models.ForeignKey('ResearchMethodology', null=True, blank=True)
-    # Todo (remove)
-    shoppers_new = models.ManyToManyField('users.User', blank=True, related_name='shopper_projects')
-    shoppers = models.ManyToManyField('users.Shopper', blank=True)
+    shoppers = models.ManyToManyField('users.User', blank=True, related_name='shopper_projects')
 
     # Attributes
-    # Todo: (delete)
-    graph_config = JSONField(null=True)
     type_questionnaire = Choices(('m', 'Mystery Questionnaire'),
                                  ('c', 'Customer Experience Index Questionnaire'))
     type = models.CharField(max_length=1, choices=type_questionnaire, default=type_questionnaire.m)
@@ -155,26 +145,10 @@ class Evaluation(TimeStampedModel, models.Model):
     project = models.ForeignKey(Project)
     questionnaire_script = models.ForeignKey(QuestionnaireScript, null=True)
     saved_by_user = models.ForeignKey('users.User', related_name='saved_evaluations')
-    # collector? FK to User
-    shopper_new = models.ForeignKey('users.User', null=True)
-    shopper = models.ForeignKey('users.Shopper', null=True)
-
-    #  TODO: Remove from here
-    type_questionnaire = Choices(('m', 'Mystery Evaluation'),
-                                 ('c', 'Customer Experience Index Evaluation'))
-    type = models.CharField(max_length=1, choices=type_questionnaire, default=type_questionnaire.m)
-    questionnaire_template = models.ForeignKey(QuestionnaireTemplate)
-    entity = models.ForeignKey(Entity)
-    section = models.ForeignKey(Section, null=True, blank=True)
-
-    limit = models.Q(app_label='users', model='clientmanager') | \
-            models.Q(app_label='users', model='clientemployee')
-    employee_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='employee_type', null=True, blank=True)
-    employee_id = models.PositiveIntegerField(null=True, blank=True)
-    employee = GenericForeignKey('employee_type', 'employee_id')
-    # till here
+    shopper = models.ForeignKey('users.User', null=True)
 
     # For "Accomplished"
+    questionnaire_template = models.ForeignKey(QuestionnaireTemplate)
     questionnaire = models.OneToOneField(Questionnaire, null=True, blank=True, related_name='evaluation')
     evaluation_assessment_level = models.ForeignKey('EvaluationAssessmentLevel', null=True, blank=True)
 
@@ -186,6 +160,7 @@ class Evaluation(TimeStampedModel, models.Model):
 
     suggested_start_date = models.DateTimeField(null=True)
     suggested_end_date = models.DateTimeField(null=True)
+    time_accomplished = models.DateTimeField(null=True, blank=True)
 
     visit_time = models.DateTimeField(null=True)
 
@@ -197,8 +172,6 @@ class Evaluation(TimeStampedModel, models.Model):
                      (EvaluationStatus.DECLINED, 'Declined'),
                      (EvaluationStatus.REJECTED, 'Rejected'))
     status = StatusField()
-    # For "Accomplished"
-    time_accomplished = models.DateTimeField(null=True, blank=True)
 
     objects = models.Manager.from_queryset(EvaluationQuerySet)()
 
@@ -244,8 +217,6 @@ class EvaluationAssessmentLevel(models.Model):
     project = models.ForeignKey(Project)
     previous_level = models.OneToOneField('self', null=True, blank=True, related_name='next_level')
     users = models.ManyToManyField('users.User', blank=True)
-    project_manager = models.ForeignKey('users.TenantProjectManager', null=True)
-    consultants = models.ManyToManyField('users.TenantConsultant')
 
     # Attributes
     level = models.PositiveIntegerField(null=True, default=0,  blank=True)
@@ -255,7 +226,7 @@ class EvaluationAssessmentLevel(models.Model):
         default_related_name = 'evaluation_assessment_levels'
 
     def __str__(self):
-        return "Project: {}; level: {}".format(self.project, self.level)
+        return 'Project: {}; level: {}'.format(self.project, self.level)
 
 
 class EvaluationAssessmentComment(models.Model):
@@ -263,11 +234,6 @@ class EvaluationAssessmentComment(models.Model):
 
     """
     # Relations
-    limit = models.Q(app_label='users', model='tenantprojectmanager') | \
-            models.Q(app_label='users', model='tenantconsultant')
-    commenter_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='commenter_type')
-    commenter_id = models.PositiveIntegerField()
-    commenter = GenericForeignKey('commenter_type', 'commenter_id')
     user = models.ForeignKey('users.User')
     evaluation_assessment_level = models.ForeignKey(EvaluationAssessmentLevel)
     evaluation = models.ForeignKey(Evaluation)
@@ -281,4 +247,4 @@ class EvaluationAssessmentComment(models.Model):
         default_related_name = 'evaluation_assessment_comments'
 
     def __str__(self):
-        return "Comment: {}, consultant: {}".format(self.comment[:50], self.commenter)
+        return 'Comment: {}, consultant: {}'.format(self.comment[:50], self.commenter)

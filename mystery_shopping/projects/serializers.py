@@ -5,14 +5,10 @@ from mystery_shopping.cxi.serializers import WhyCauseSerializer
 from .models import Project
 from .models import ResearchMethodology
 from .models import Evaluation
-from .models import PlaceToAssess
 from .models import EvaluationAssessmentLevel
 from .models import EvaluationAssessmentComment
 
-from mystery_shopping.companies.models import Entity, Department
-from mystery_shopping.companies.models import Section
-from mystery_shopping.companies.serializers import EntitySerializer, DepartmentSerializer, CompanyElementSerializer
-from mystery_shopping.companies.serializers import SectionSerializer
+from mystery_shopping.companies.serializers import CompanyElementSerializer
 
 from mystery_shopping.companies.serializers import CompanySerializer
 
@@ -30,7 +26,6 @@ from mystery_shopping.users.serializers import TenantConsultantSerializer
 from mystery_shopping.users.serializer_fields import TenantUserRelatedField
 from mystery_shopping.projects.constants import EvaluationStatus
 
-from mystery_shopping.users.models import PersonToAssess
 from mystery_shopping.users.models import Shopper
 
 
@@ -65,45 +60,6 @@ class EvaluationAssessmentLevelSerializer(serializers.ModelSerializer):
         }
 
 
-class PlaceToAssessSerializer(serializers.ModelSerializer):
-    """
-    """
-
-    class Meta:
-        model = PlaceToAssess
-        fields = '__all__'
-        extra_kwargs = {
-            'research_methodology': {
-                'required': False
-            }
-        }
-
-    def to_representation(self, instance):
-        """
-        Serialize tagged objects to a simple textual representation.
-        """
-        if instance.place_type.model == 'department':
-            to_serialize = Department.objects.get(pk=instance.place_id)
-            serializer = DepartmentSerializer(to_serialize)
-        elif instance.place_type.model == 'entity':
-            to_serialize = Entity.objects.get(pk=instance.place_id)
-            serializer = EntitySerializer(to_serialize)
-        elif instance.place_type.model == 'section':
-            to_serialize = Section.objects.get(pk=instance.place_id)
-            serializer = SectionSerializer(to_serialize)
-        else:
-            raise Exception('Unexpected type of tagged object')
-
-        place_to_assess_dict = {
-            'place_type': instance.place_type_id,
-            'place_id': instance.place_id
-        }
-
-        place_to_assess_dict.update(serializer.data)
-
-        return place_to_assess_dict
-
-
 class ResearchMethodologySerializer(serializers.ModelSerializer):
     """
 
@@ -124,17 +80,12 @@ class ResearchMethodologySerializer(serializers.ModelSerializer):
 
         scripts = validated_data.pop('scripts', [])
         questionnaires = validated_data.pop('questionnaires', [])
-        places_to_assess = validated_data.pop('places_to_assess', [])
-        people_to_assess = validated_data.pop('people_to_assess', [])
 
         research_methodology = ResearchMethodology.objects.create(**validated_data)
 
         research_methodology.scripts.set(scripts)
         research_methodology.questionnaires.set(questionnaires)
 
-        self.set_places_to_asses(research_methodology, places_to_assess)
-
-        self.set_people_to_asses(research_methodology, people_to_assess)
         self.link_research_methodology_to_project(project_id, research_methodology)
 
         return research_methodology
@@ -144,16 +95,11 @@ class ResearchMethodologySerializer(serializers.ModelSerializer):
 
         scripts = validated_data.pop('scripts', [])
         questionnaires = validated_data.pop('questionnaires', [])
-        places_to_assess = validated_data.pop('places_to_assess', [])
-        people_to_assess = validated_data.pop('people_to_assess', [])
 
         instance.prepare_for_update()
 
         instance.scripts.set(scripts)
         instance.questionnaires.set(questionnaires)
-
-        self.set_places_to_asses(instance, places_to_assess)
-        self.set_people_to_asses(instance, people_to_assess)
 
         self.link_research_methodology_to_project(project_id, instance)
 
@@ -171,21 +117,13 @@ class ResearchMethodologySerializer(serializers.ModelSerializer):
                 project_to_set.save()
 
     @staticmethod
-    def set_places_to_asses(research_methodology, places_to_assess):
-        places_to_set = list()
-        for place_to_assess in places_to_assess:
-            place_to_assess['research_methodology'] = research_methodology
-            places_to_set.append(PlaceToAssess.objects.create(**place_to_assess))
-        research_methodology.places_to_assess.set(places_to_set)
-
-    @staticmethod
-    def set_people_to_asses(research_methodology, people_to_assess):
-        people_to_set = list()
-        for person_to_assess in people_to_assess:
-            person_to_assess['research_methodology'] = research_methodology
-            people_to_set.append(PersonToAssess.objects.create(**person_to_assess))
-        research_methodology.people_to_assess.set(people_to_set)
-
+    def _set_places_to_asses(research_methodology, places_to_assess):
+        # places_to_set = list()
+        # for place_to_assess in places_to_assess:
+        #     place_to_assess['research_methodology'] = research_methodology
+        #     places_to_set.append(PlaceToAssess.objects.create(**place_to_assess))
+        # research_methodology.places_to_assess.set(places_to_set)
+        pass
 
 class ProjectSerializer(serializers.ModelSerializer):
     """
@@ -218,6 +156,8 @@ class ProjectSerializer(serializers.ModelSerializer):
         research_methodology = validated_data.pop('research_methodology', None)
         consultants = validated_data.pop('consultants', [])
         validated_data.pop('shoppers', None)
+
+        # user.set_perm(); from django. blablabla
 
         project = Project.objects.create(**validated_data)
 

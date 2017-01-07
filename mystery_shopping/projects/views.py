@@ -16,13 +16,11 @@ from mystery_shopping.mystery_shopping_utils.paginators import EvaluationPaginat
 from mystery_shopping.projects.constants import EvaluationStatus
 from mystery_shopping.projects.mixins import EvaluationViewMixIn, UpdateSerializerMixin
 from mystery_shopping.users.services import ShopperService
-from .models import PlaceToAssess
 from .models import Project
 from .models import ResearchMethodology
 from .models import Evaluation
 from .models import EvaluationAssessmentLevel
 from .models import EvaluationAssessmentComment
-from .serializers import PlaceToAssessSerializer
 from .serializers import ProjectSerializer
 from .serializers import ResearchMethodologySerializer
 from .serializers import EvaluationSerializer
@@ -37,12 +35,6 @@ from mystery_shopping.users.permissions import IsTenantProjectManager
 from mystery_shopping.users.permissions import IsTenantConsultant
 from mystery_shopping.users.permissions import IsShopper
 from mystery_shopping.users.permissions import HasAccessToProjectsOrEvaluations
-
-
-class PlaceToAssessViewSet(viewsets.ModelViewSet):
-    queryset = PlaceToAssess.objects.all()
-    serializer_class = PlaceToAssessSerializer
-    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager),)
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
@@ -87,6 +79,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_200_OK)
 
 
+# Todo: try ModelViewSet
 class ProjectPerCompanyViewSet(viewsets.ViewSet):
     queryset = Project.objects.all()
     permission_classes = [ConditionalPermission, IsAuthenticated]
