@@ -13,8 +13,10 @@ from rest_condition import Or
 
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from mystery_shopping.mystery_shopping_utils.paginators import EvaluationPagination, ProjectStatisticsPaginator
+from mystery_shopping.mystery_shopping_utils.views import GetSerializerClassMixin
 from mystery_shopping.projects.constants import EvaluationStatus
 from mystery_shopping.projects.mixins import EvaluationViewMixIn, UpdateSerializerMixin
+from mystery_shopping.projects.serializers import ProjectSerializerGET
 from mystery_shopping.users.services import ShopperService
 from .models import Project
 from .models import ResearchMethodology
@@ -37,9 +39,10 @@ from mystery_shopping.users.permissions import IsShopper
 from mystery_shopping.users.permissions import HasAccessToProjectsOrEvaluations
 
 
-class ProjectViewSet(viewsets.ModelViewSet):
+class ProjectViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
+    serializer_class_get = ProjectSerializerGET
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager),)
     filter_backends = (TenantFilter,)
 
@@ -71,12 +74,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
             available_list_of_places = list()
 
         return Response(available_list_of_places, status=status.HTTP_200_OK)
-
-    @detail_route(methods=['post'])
-    def graph(self, request, pk=None):
-        project = get_object_or_404(Project, pk=pk)
-        project.save_graph_config(request.data)
-        return Response(status=status.HTTP_200_OK)
 
 
 # Todo: try ModelViewSet

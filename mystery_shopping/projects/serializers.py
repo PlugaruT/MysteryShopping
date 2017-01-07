@@ -20,13 +20,11 @@ from mystery_shopping.questionnaires.models import QuestionnaireQuestion, Questi
 from mystery_shopping.questionnaires.models import Questionnaire
 from mystery_shopping.questionnaires.constants import QuestionType
 from mystery_shopping.questionnaires.utils import update_attributes
-from mystery_shopping.users.serializers import ShopperSerializer
+from mystery_shopping.users.serializers import ShopperSerializer, UserSerializer
 from mystery_shopping.users.serializers import TenantProjectManagerSerializer
 from mystery_shopping.users.serializers import TenantConsultantSerializer
 from mystery_shopping.users.serializer_fields import TenantUserRelatedField
 from mystery_shopping.projects.constants import EvaluationStatus
-
-from mystery_shopping.users.models import Shopper
 
 
 class EvaluationAssessmentCommentSerializer(serializers.ModelSerializer):
@@ -127,30 +125,13 @@ class ResearchMethodologySerializer(serializers.ModelSerializer):
 
 class ProjectSerializer(serializers.ModelSerializer):
     """
-
+    Default serializer for project
     """
-    company_repr = CompanySerializer(source='company', read_only=True)
-    shoppers_repr = ShopperSerializer(source='shoppers', many=True, read_only=True)
-    project_manager_repr = TenantProjectManagerSerializer(source='project_manager', read_only=True)
     research_methodology = ResearchMethodologySerializer(required=False)
-    shoppers = serializers.PrimaryKeyRelatedField(queryset=Shopper.objects.all(), many=True, allow_null=True,
-                                                  required=False)
-    consultants_repr = TenantConsultantSerializer(source='consultants', read_only=True, many=True)
-    evaluation_assessment_levels_repr = EvaluationAssessmentLevelSerializer(source='evaluation_assessment_levels',
-                                                                            read_only=True, many=True)
-    cxi_indicators = serializers.DictField(source='get_indicators_list', read_only=True)
-    # TODO: change this for the new structure
-    editable_places = serializers.ListField(source='get_editable_places', read_only=True)
-    is_questionnaire_editable = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Project
         fields = '__all__'
-        extra_kwargs = {
-            'graph_config': {
-                'required': False
-            }
-        }
 
     def create(self, validated_data):
         research_methodology = validated_data.pop('research_methodology', None)
@@ -224,6 +205,25 @@ class ProjectSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+
+
+
+class ProjectSerializerGET(ProjectSerializer):
+    """
+    Get serializer for Project
+    """
+    company = CompanyElementSerializer(read_only=True)
+    shoppers = UserSerializer(many=True, read_only=True)
+    project_manager = UserSerializer(read_only=True)
+    consultants = UserSerializer(read_only=True, many=True)
+    evaluation_assessment_levels_repr = EvaluationAssessmentLevelSerializer(read_only=True, many=True)
+    cxi_indicators = serializers.DictField(source='get_indicators_list', read_only=True)
+    editable_places = serializers.ListField(source='get_editable_places', read_only=True)
+    is_questionnaire_editable = serializers.BooleanField(read_only=True)
+
+    class Meta:
+        model = Project
+        fields = '__all__'
 
 
 class ProjectShortSerializer(serializers.ModelSerializer):
