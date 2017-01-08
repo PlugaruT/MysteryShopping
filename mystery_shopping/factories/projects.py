@@ -8,11 +8,8 @@ from factory import post_generation
 
 from mystery_shopping.factories.companies import CompanyElementFactory
 from mystery_shopping.factories.users import UserFactory
-from .companies import CompanyFactory
 from .tenants import TenantFactory
 
-from .users import TenantProjectManagerFactory
-from .users import ShopperFactory
 from .questionnaires import QuestionnaireScriptFactory
 from .questionnaires import QuestionnaireTemplateFactory
 from .companies import EntityFactory
@@ -48,14 +45,14 @@ class ResearchMethodologyFactory(DjangoModelFactory):
             for company_element in company_elements:
                 self.company_elements.add(company_element)
 
+
 class ProjectFactory(DjangoModelFactory):
     class Meta:
         model = Project
 
     tenant = SubFactory(TenantFactory)
-    company_new = SubFactory(CompanyElementFactory)
-    company = SubFactory(CompanyFactory)
-    project_manager = SubFactory(TenantProjectManagerFactory)
+    company = SubFactory(CompanyElementFactory)
+    project_manager = SubFactory(UserFactory)
     research_methodology = SubFactory(ResearchMethodologyFactory)
 
     period_start = FuzzyDate(date(1990, 12, 12))
@@ -83,17 +80,11 @@ class EvaluationFactory(DjangoModelFactory):
         model = Evaluation
 
     project = SubFactory(ProjectFactory)
-    shopper = SubFactory(ShopperFactory)
+    shopper = SubFactory(UserFactory)
     saved_by_user = SubFactory(UserFactory)
     questionnaire_script = SubFactory(QuestionnaireScriptFactory)
     questionnaire_template = SubFactory(QuestionnaireTemplateFactory)
     company_element = SubFactory(CompanyElementFactory)
-    # TODO: delete
-    entity = SubFactory(EntityFactory)
-
-    section = None
-    employee = None
-    # till here.
     questionnaire = None
 
     # TODO: define evaluation choices in a separate file
@@ -111,13 +102,12 @@ class EvaluationAssessmentLevelFactory(DjangoModelFactory):
 
     project = SubFactory(ProjectFactory)
     previous_level = None
-    project_manager = SubFactory(TenantProjectManagerFactory)
     level = 0
 
     @post_generation
-    def consultants(self, create, consultants, **kwargs):
+    def users(self, create, users, **kwargs):
         if not create:
             return
-        if consultants:
-            for consultant in consultants:
-                self.consultants.add(consultant)
+        if users:
+            for user in users:
+                self.users.add(user)
