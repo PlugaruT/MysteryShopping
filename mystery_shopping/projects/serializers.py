@@ -28,9 +28,19 @@ from mystery_shopping.users.serializer_fields import TenantUserRelatedField
 
 class EvaluationAssessmentCommentSerializer(serializers.ModelSerializer):
     """
+    Default Evaluation Assessment Comment serializer.
+    """
+    class Meta:
+        model = EvaluationAssessmentComment
+        fields = '__all__'
+
+
+class EvaluationAssessmentCommentSerializerGET(EvaluationAssessmentCommentSerializer):
+    """
+    Nested Evaluation Assessment Comment serializer, with .
 
     """
-    commenter_repr = TenantUserRelatedField(source='commenter', read_only=True)
+    commenter = UserSerializer(read_only=True)
 
     class Meta:
         model = EvaluationAssessmentComment
@@ -39,12 +49,8 @@ class EvaluationAssessmentCommentSerializer(serializers.ModelSerializer):
 
 class EvaluationAssessmentLevelSerializer(serializers.ModelSerializer):
     """
-
+    Default Evaluation Assessment Level serializer.
     """
-    next_level = serializers.PrimaryKeyRelatedField(read_only=True)
-    project_manager_repr = TenantProjectManagerSerializer(source='project_manager', read_only=True)
-    consultants_repr = TenantConsultantSerializer(source='consultants', read_only=True, many=True)
-    comments = EvaluationAssessmentCommentSerializer(source='evaluation_assessment_comments', read_only=True, many=True)
 
     class Meta:
         model = EvaluationAssessmentLevel
@@ -55,6 +61,25 @@ class EvaluationAssessmentLevelSerializer(serializers.ModelSerializer):
                 'many': True
             }
         }
+
+
+class EvaluationAssessmentLevelSerializerGET(EvaluationAssessmentLevelSerializer):
+    """
+    Nested Evaluation Assessment Level serializer.
+    """
+    project_manager = UserSerializer(read_only=True)
+    consultants = UserSerializer(read_only=True, many=True)
+    comments = EvaluationAssessmentCommentSerializer(source='evaluation_assessment_comments', read_only=True, many=True)
+
+    class Meta:
+        model = EvaluationAssessmentLevel
+        fields = '__all__'
+        extra_kwargs = {
+            'next_level': {
+                'read_only': True
+            }
+        }
+
 
 
 class ResearchMethodologySerializer(serializers.ModelSerializer):
@@ -118,7 +143,7 @@ class ResearchMethodologySerializer(serializers.ModelSerializer):
 
 class ResearchMethodologySerializerGET(ResearchMethodologySerializer):
     """
-    GET serializer for Research Methodology with subserializers
+    GET Research Methodology serializer that uses nested serializers.
     """
     scripts = QuestionnaireScriptSerializer(many=True, read_only=True)
     questionnaires = QuestionnaireTemplateSerializer(many=True, read_only=True)
@@ -228,12 +253,8 @@ class ProjectShortSerializer(serializers.ModelSerializer):
 
 class EvaluationSerializer(serializers.ModelSerializer):
     """
+    Default Evaluation serializer that can update questionnaire answers and such.
     """
-    shopper_repr = ShopperSerializer(source='shopper', read_only=True)
-    questionnaire_script_repr = QuestionnaireScriptSerializer(source='questionnaire_script', read_only=True)
-    questionnaire = QuestionnaireSerializer(required=False)
-    company_element_repr = CompanyElementSerializer(source='company_element', read_only=True)
-    project_repr = ProjectShortSerializer(source='project', read_only=True)
     detractor_info = DetractorRespondentForTenantSerializer(write_only=True, required=False)
 
     class Meta:
@@ -247,15 +268,15 @@ class EvaluationSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def setup_eager_loading(queryset):
-        queryset = queryset.select_related('shopper__user', 'entity__city', 'questionnaire',
-                                           'questionnaire_template', 'section')
-        queryset = queryset.prefetch_related('questionnaire__blocks__questions__question_choices',
-                                             'entity__employees__company',
-                                             'entity__managers__user',
-                                             'entity__sections__managers',
-                                             'entity__sections__employees',
-                                             'section__managers',
-                                             'section__employees__company')
+        # queryset = queryset.select_related('shopper__user', 'entity__city', 'questionnaire',
+        #                                    'questionnaire_template', 'section')
+        # queryset = queryset.prefetch_related('questionnaire__blocks__questions__question_choices',
+        #                                      'entity__employees__company',
+        #                                      'entity__managers__user',
+        #                                      'entity__sections__managers',
+        #                                      'entity__sections__employees',
+        #                                      'section__managers',
+        #                                      'section__employees__company')
         return queryset
 
     def create(self, validated_data):
@@ -345,16 +366,6 @@ class EvaluationSerializer(serializers.ModelSerializer):
         questionnaire_to_create['blocks'] = self.build_blocks(questionnaire_to_create.pop('template_blocks'))
         return questionnaire_to_create
 
-    def _copy_questionnaire_from_request(self, questionnaire_from_request, questionnaire_template):
-        questionnaire = questionnaire_from_request
-        questionnaire['template'] = questionnaire_template.id
-        for block in questionnaire['blocks']:
-            block['template_block'] = block['template_block'].id
-            for question in block['questions']:
-                self._check_if_indicator_question_has_null_score(question)
-                question['template_question'] = question['template_question'].id
-        return questionnaire
-
     def build_blocks(self, blocks):
         for block in blocks:
             block['template_block'] = block.get('id')
@@ -377,16 +388,32 @@ class EvaluationSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError('Indicator Question isn\'t allowed to have null score')
 
 
+
+class EvaluationSerializerGET(EvaluationSerializer):
+    """
+    GET Evaluation serializer that uses nested serializers.
+    """
+    shopper = UserSerializer(read_only=True)
+    questionnaire_script = QuestionnaireScriptSerializer(read_only=True)
+    questionnaire = QuestionnaireSerializer(read_only=True)
+    company_element = CompanyElementSerializer(read_only=True)
+    project = ProjectShortSerializer(read_only=True)
+
+    class Meta:
+        model = Evaluation
+        fields = '__all__'
+
+
 class ProjectStatisticsForCompanySerializer(serializers.ModelSerializer):
     """
         Serializer for company view that will contain only time,
         date and places/people to asses
     """
-    company_element_repr = CompanyElementSerializer(source='company_element', read_only=True)
+    company_element = CompanyElementSerializer(read_only=True)
 
     class Meta:
         model = Evaluation
-        fields = ('id', 'time_accomplished', 'company_element', 'company_element_repr')
+        fields = ('id', 'time_accomplished', 'company_element')
 
 
 class ProjectStatisticsForTenantSerializer(serializers.ModelSerializer):
@@ -394,10 +421,9 @@ class ProjectStatisticsForTenantSerializer(serializers.ModelSerializer):
         Serializer for tenant view that will contain only time,
         date and places/people to asses and collector information
     """
-    company_element_repr = CompanyElementSerializer(source='company_element', read_only=True)
-    shopper_repr = ShopperSerializer(source='shopper', read_only=True)
+    company_element = CompanyElementSerializer(read_only=True)
+    shopper = UserSerializer(read_only=True)
 
     class Meta:
         model = Evaluation
-        fields = ('id', 'time_accomplished', 'section', 'entity', 'entity_repr', 'company_element',
-                  'company_element_repr', 'section_repr', 'shopper_repr')
+        fields = ('id', 'time_accomplished', 'company_element', 'shopper')

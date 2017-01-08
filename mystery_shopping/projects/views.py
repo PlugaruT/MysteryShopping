@@ -16,7 +16,8 @@ from mystery_shopping.mystery_shopping_utils.paginators import EvaluationPaginat
 from mystery_shopping.mystery_shopping_utils.views import GetSerializerClassMixin
 from mystery_shopping.projects.constants import EvaluationStatus
 from mystery_shopping.projects.mixins import EvaluationViewMixIn, UpdateSerializerMixin
-from mystery_shopping.projects.serializers import ProjectSerializerGET
+from mystery_shopping.projects.serializers import ProjectSerializerGET, ResearchMethodologySerializerGET, \
+    EvaluationSerializerGET, EvaluationAssessmentLevelSerializerGET, EvaluationAssessmentCommentSerializerGET
 from mystery_shopping.users.services import ShopperService
 from .models import Project
 from .models import ResearchMethodology
@@ -121,9 +122,10 @@ class ProjectPerCompanyViewSet(viewsets.ViewSet):
         return Response(status=status.HTTP_200_OK)
 
 
-class ResearchMethodologyViewSet(viewsets.ModelViewSet):
+class ResearchMethodologyViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
     queryset = ResearchMethodology.objects.all()
     serializer_class = ResearchMethodologySerializer
+    serializer_class_get = ResearchMethodologySerializerGET
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager),)
     filter_backends = (TenantFilter,)
 
@@ -131,7 +133,9 @@ class ResearchMethodologyViewSet(viewsets.ModelViewSet):
 class EvaluationViewSet(UpdateSerializerMixin, EvaluationViewMixIn, viewsets.ModelViewSet):
     queryset = Evaluation.objects.all()
     serializer_class = EvaluationSerializer
+    serializer_class_get = EvaluationSerializerGET
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant, IsShopper),)
+    pagination_class = EvaluationPagination
 
     def get_queryset(self):
         queryset = self.serializer_class.setup_eager_loading(self.queryset)
@@ -197,13 +201,13 @@ class EvaluationPerProjectViewSet(ListModelMixin, EvaluationViewMixIn, viewsets.
         if page is not None:
             serializer = self.serializer_class(page, many=True)
             return self.get_paginated_response(serializer.data)
-        serializer = EvaluationSerializer(queryset, many=True)
+        serializer = EvaluationSerializerGET(queryset, many=True)
         return Response(serializer.data)
 
     def retrieve(self, request, pk=None, company_pk=None, project_pk=None):
         evaluation = self._get_evaluation(pk, company_pk, project_pk)
         self.check_object_permissions(request, evaluation)
-        serializer = EvaluationSerializer(evaluation)
+        serializer = EvaluationSerializerGET(evaluation)
         return Response(serializer.data)
 
     def update(self, request, pk=None, company_pk=None, project_pk=None):
@@ -224,15 +228,17 @@ class EvaluationPerProjectViewSet(ListModelMixin, EvaluationViewMixIn, viewsets.
         return get_object_or_404(queryset, pk=pk)
 
 
-class EvaluationAssessmentLevelViewSet(viewsets.ModelViewSet):
+class EvaluationAssessmentLevelViewSet(GetSerializerClassMixin,viewsets.ModelViewSet):
     queryset = EvaluationAssessmentLevel.objects.all()
     serializer_class = EvaluationAssessmentLevelSerializer
+    serializer_class_get = EvaluationAssessmentLevelSerializerGET
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant, IsShopper),)
 
 
-class EvaluationAssessmentCommentViewSet(viewsets.ModelViewSet):
+class EvaluationAssessmentCommentViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
     queryset = EvaluationAssessmentComment.objects.all()
     serializer_class = EvaluationAssessmentCommentSerializer
+    serializer_class_get = EvaluationAssessmentCommentSerializerGET
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant, IsShopper),)
 
 
