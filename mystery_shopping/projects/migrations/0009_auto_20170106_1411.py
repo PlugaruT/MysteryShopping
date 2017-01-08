@@ -34,7 +34,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='project',
             name='consultants_new',
-            field=models.ManyToManyField(related_name='consultant_projects', to=settings.AUTH_USER_MODEL),
+            field=models.ManyToManyField(blank=True, related_name='consultant_projects', to=settings.AUTH_USER_MODEL),
         ),
         migrations.AddField(
             model_name='project',

@@ -3,10 +3,9 @@ from collections import defaultdict
 from django.db.models import Count
 from django.db.models.query import Prefetch
 
-from mystery_shopping.companies.models import Department, Section
+from mystery_shopping.companies.models import Department, Entity, Section
 from mystery_shopping.questionnaires.constants import QuestionType
 from mystery_shopping.questionnaires.models import Questionnaire, QuestionnaireQuestion
-from mystery_shopping.projects.models import Entity
 from mystery_shopping.cxi.models import CodedCause, WhyCause
 from mystery_shopping.cxi.models import ProjectComment
 from mystery_shopping.cxi.serializers import CodedCauseSerializer

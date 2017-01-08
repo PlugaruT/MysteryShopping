@@ -1,7 +1,6 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
-from mystery_shopping.cxi.serializers import WhyCauseSerializer
 from .models import Project
 from .models import ResearchMethodology
 from .models import Evaluation
@@ -9,9 +8,8 @@ from .models import EvaluationAssessmentLevel
 from .models import EvaluationAssessmentComment
 
 from mystery_shopping.companies.serializers import CompanyElementSerializer
-
-from mystery_shopping.companies.serializers import CompanySerializer
-
+from mystery_shopping.cxi.serializers import WhyCauseSerializer
+from mystery_shopping.projects.constants import EvaluationStatus
 from mystery_shopping.questionnaires.serializers import QuestionnaireScriptSerializer, \
     DetractorRespondentForTenantSerializer
 from mystery_shopping.questionnaires.serializers import QuestionnaireSerializer
@@ -24,7 +22,6 @@ from mystery_shopping.users.serializers import ShopperSerializer, UserSerializer
 from mystery_shopping.users.serializers import TenantProjectManagerSerializer
 from mystery_shopping.users.serializers import TenantConsultantSerializer
 from mystery_shopping.users.serializer_fields import TenantUserRelatedField
-from mystery_shopping.projects.constants import EvaluationStatus
 
 
 class EvaluationAssessmentCommentSerializer(serializers.ModelSerializer):
@@ -78,11 +75,13 @@ class ResearchMethodologySerializer(serializers.ModelSerializer):
 
         scripts = validated_data.pop('scripts', [])
         questionnaires = validated_data.pop('questionnaires', [])
+        company_elements = validated_data.pop('company_elements', [])
 
         research_methodology = ResearchMethodology.objects.create(**validated_data)
 
         research_methodology.scripts.set(scripts)
         research_methodology.questionnaires.set(questionnaires)
+        research_methodology.company_elements.set(company_elements)
 
         self.link_research_methodology_to_project(project_id, research_methodology)
 
@@ -93,11 +92,13 @@ class ResearchMethodologySerializer(serializers.ModelSerializer):
 
         scripts = validated_data.pop('scripts', [])
         questionnaires = validated_data.pop('questionnaires', [])
+        company_elements = validated_data.pop('company_elements', [])
 
         instance.prepare_for_update()
 
         instance.scripts.set(scripts)
         instance.questionnaires.set(questionnaires)
+        instance.company_elements.set(company_elements)
 
         self.link_research_methodology_to_project(project_id, instance)
 
@@ -123,6 +124,7 @@ class ResearchMethodologySerializer(serializers.ModelSerializer):
         # research_methodology.places_to_assess.set(places_to_set)
         pass
 
+
 class ProjectSerializer(serializers.ModelSerializer):
     """
     Default serializer for project
@@ -132,80 +134,58 @@ class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = '__all__'
+        extra_kwargs = {}
+
+    def _set_research_methodology(self, project, research_methodology_instance, data):
+        data['project_id'] = project.id
+        data['scripts'] = list(map(lambda x: x.id, data.get('scripts', [])))
+        data['company_elements'] = list(map(lambda x: x.id, data.get('company_elements', [])))
+        data['questionnaires'] = list(
+            map(lambda x: x.id, data.get('questionnaires', [])))
+        data['tenant'] = data['tenant'].id
+        research_methodology_ser = ResearchMethodologySerializer(instance=research_methodology_instance,
+                                                                 data=data)
+        research_methodology_ser.is_valid(raise_exception=True)
+        research_methodology_ser.save()
+        return research_methodology_ser.instance
 
     def create(self, validated_data):
         research_methodology = validated_data.pop('research_methodology', None)
         consultants = validated_data.pop('consultants', [])
-        validated_data.pop('shoppers', None)
+        shoppers = validated_data.pop('shoppers', [])
 
         # user.set_perm(); from django. blablabla
 
         project = Project.objects.create(**validated_data)
 
         project.consultants.set(consultants)
+        project.shoppers.set(shoppers)
 
         if research_methodology is not None:
-            research_methodology['project_id'] = project.id
-            research_methodology['scripts'] = list(map(lambda x: x.id, research_methodology.get('scripts', [])))
-            research_methodology['questionnaires'] = list(
-                map(lambda x: x.id, research_methodology.get('questionnaires', [])))
-            research_methodology['tenant'] = research_methodology['tenant'].id
-            research_methodology_ser = ResearchMethodologySerializer(data=research_methodology)
-            research_methodology_ser.is_valid(raise_exception=True)
-            research_methodology_ser.save()
+            project.research_methodology = self._set_research_methodology(project=project,
+                                                                          research_methodology_instance=None,
+                                                                          data=research_methodology)
 
         return project
 
     def update(self, instance, validated_data):
         consultants = validated_data.pop('consultants', [])
+        shoppers = validated_data.pop('shoppers', [])
         research_methodology = validated_data.pop('research_methodology', None)
 
         instance.consultants.set(consultants)
+        instance.shoppers.set(shoppers)
 
         if research_methodology is not None:
             research_methodology_instance = instance.research_methodology
-            research_methodology['project_id'] = instance.id
-            research_methodology['tenant'] = research_methodology['tenant'].id
-
-            # Map list of instances to list of instance id's, so that when calling serializer.is_valid method, it won't
-            # throw the "expected id, got instance" error.
-            research_methodology['scripts'] = list(map(lambda x: x.id, research_methodology.get('scripts', [])))
-            research_methodology['questionnaires'] = list(
-                map(lambda x: x.id, research_methodology.get('questionnaires', [])))
-
-            # Append '_repr' suffix to places_to_assess and people_to_assess fields such that when calling
-            # ResearchMethodologySerializer's validation, it won't set these values to empty lists, because of not
-            # finding 'places_to_assess_repr' values in data dict
-            research_methodology['places_to_assess_repr'] = research_methodology['places_to_assess']
-            for place in research_methodology['places_to_assess_repr']:
-                place['place_type'] = place.get('place_type').id
-                try:
-                    del place['research_methodology']
-                except KeyError:
-                    pass
-
-            research_methodology['people_to_assess_repr'] = research_methodology['people_to_assess']
-            for person in research_methodology['people_to_assess_repr']:
-                person['person_type'] = person.get('person_type').id
-                try:
-                    del person['research_methodology']
-                except KeyError:
-                    pass
-
-            if research_methodology_instance is not None:
-                research_methodology_ser = ResearchMethodologySerializer(research_methodology_instance,
-                                                                         data=research_methodology)
-            else:
-                research_methodology_ser = ResearchMethodologySerializer(data=research_methodology)
-            research_methodology_ser.is_valid(raise_exception=True)
-            research_methodology_ser.save()
-            instance.research_methodology = research_methodology_ser.instance
+            instance.research_methodology = self._set_research_methodology(project=instance,
+                                                                           research_methodology_instance=research_methodology_instance,
+                                                                           data=research_methodology)
 
         update_attributes(validated_data, instance)
         instance.save()
 
         return instance
-
 
 
 class ProjectSerializerGET(ProjectSerializer):
@@ -216,7 +196,7 @@ class ProjectSerializerGET(ProjectSerializer):
     shoppers = UserSerializer(many=True, read_only=True)
     project_manager = UserSerializer(read_only=True)
     consultants = UserSerializer(read_only=True, many=True)
-    evaluation_assessment_levels_repr = EvaluationAssessmentLevelSerializer(read_only=True, many=True)
+    evaluation_assessment_levels = EvaluationAssessmentLevelSerializer(read_only=True, many=True)
     cxi_indicators = serializers.DictField(source='get_indicators_list', read_only=True)
     editable_places = serializers.ListField(source='get_editable_places', read_only=True)
     is_questionnaire_editable = serializers.BooleanField(read_only=True)
@@ -409,4 +389,5 @@ class ProjectStatisticsForTenantSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Evaluation
-        fields = ('id', 'time_accomplished', 'section', 'entity', 'entity_repr', 'company_element', 'company_element_repr', 'section_repr', 'shopper_repr')
+        fields = ('id', 'time_accomplished', 'section', 'entity', 'entity_repr', 'company_element',
+                  'company_element_repr', 'section_repr', 'shopper_repr')

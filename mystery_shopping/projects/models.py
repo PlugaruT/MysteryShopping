@@ -1,12 +1,11 @@
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.db.models.query_utils import Q
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
 from model_utils.fields import StatusField
 
-from mystery_shopping.companies.models import Department, Entity, Section
+from mystery_shopping.companies.models import CompanyElement
 from mystery_shopping.mystery_shopping_utils.models import TenantModel
 from mystery_shopping.projects.managers import ProjectQuerySet, EvaluationQuerySet
 from mystery_shopping.questionnaires.models import QuestionnaireScript, QuestionnaireTemplate
@@ -24,8 +23,8 @@ class PlaceToAssess(models.Model):
 
     A person to assess can either be an Entity or a Section
     """
-    limit = models.Q(app_label='companies', model='department') |\
-            models.Q(app_label='companies', model='entity') |\
+    limit = models.Q(app_label='companies', model='department') | \
+            models.Q(app_label='companies', model='entity') | \
             models.Q(app_label='companies', model='section')
     place_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='content_type_place_to_assess')
     place_id = models.PositiveIntegerField()
@@ -69,7 +68,7 @@ class Project(TenantModel):
     """
     # Relations
     # this type of import is used to avoid import circles
-    consultants = models.ManyToManyField('users.User', related_name='consultant_projects')
+    consultants = models.ManyToManyField('users.User', blank=True, related_name='consultant_projects')
     company = models.ForeignKey('companies.CompanyElement')
     project_manager = models.ForeignKey('users.User', related_name='manager_projects')
     research_methodology = models.ForeignKey('ResearchMethodology', null=True, blank=True)
@@ -89,9 +88,11 @@ class Project(TenantModel):
         ordering = ('tenant',)
 
     def __str__(self):
-        return 'Project for {}, start: {}/{}/{}, end: {}/{}/{}'.format(self.company.name,
-                                                                       self.period_start.day, self.period_start.month, self.period_start.year%2000,
-                                                                       self.period_end.day, self.period_end.month, self.period_start.year%2000)
+        return 'Project for {}, start: {}/{}/{}, end: {}/{}/{}'.format(self.company,
+                                                                       self.period_start.day, self.period_start.month,
+                                                                       self.period_start.year % 2000,
+                                                                       self.period_end.day, self.period_end.month,
+                                                                       self.period_start.year % 2000)
 
     def get_indicators_list(self):
         from mystery_shopping.cxi.algorithms import get_project_indicator_questions_list
@@ -100,21 +101,13 @@ class Project(TenantModel):
     # Todo: rewrite or delete
     def get_editable_places(self):
         """
-        Function for getting all entities and sections that aren't included into any project and
-        doesn't have a questionnaire and can be removed from project
-        :return: A list of dicts with information about each place to asses
+        Function for getting all company elements that aren't included into any project and
+        don't have a questionnaire and can be removed from the project's research methodology
+        :return: A list of company elements' ids
         """
         editable_places = []
         if self.research_methodology:
-            places_to_asses = self.research_methodology.places_to_assess.filter(~Q(place_type=ContentType.objects.get_for_model(Department)))
-
-            for place_to_asses in places_to_asses:
-                if not place_to_asses.evaluations().filter(project=self).exists():
-                    place_info = {
-                        'place_type': place_to_asses.place_type_id,
-                        'place_id': place_to_asses.place_id
-                    }
-                    editable_places.append(place_info)
+            editable_places = CompanyElement.objects.get_list_of_editable_places(project=self)
         return editable_places
 
     def is_questionnaire_editable(self):
@@ -127,11 +120,6 @@ class Project(TenantModel):
             return not self.research_methodology.get_questionnaires().filter(evaluation__project=self).exists()
         else:
             return True
-
-    # Todo: decide if this belongs here
-    def save_graph_config(self, config):
-        self.graph_config = config
-        self.save()
 
     def get_total_number_of_evaluations(self):
         return self.research_methodology.number_of_evaluations
@@ -219,7 +207,7 @@ class EvaluationAssessmentLevel(models.Model):
     users = models.ManyToManyField('users.User', blank=True)
 
     # Attributes
-    level = models.PositiveIntegerField(null=True, default=0,  blank=True)
+    level = models.PositiveIntegerField(null=True, default=0, blank=True)
 
     class Meta:
         ordering = ('level',)
