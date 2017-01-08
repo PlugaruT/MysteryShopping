@@ -1,3 +1,5 @@
+from collections import namedtuple
+
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
@@ -57,50 +59,48 @@ class EvaluationAssessmentLevelSerializer(serializers.ModelSerializer):
 
 class ResearchMethodologySerializer(serializers.ModelSerializer):
     """
-
+    Default serializer for Research Methodology
     """
-    scripts = serializers.PrimaryKeyRelatedField(queryset=QuestionnaireScript.objects.all(), required=False, many=True)
-    scripts_repr = QuestionnaireScriptSerializer(source='scripts', many=True, read_only=True)
-    questionnaires_repr = QuestionnaireTemplateSerializer(source='questionnaires', many=True, read_only=True)
-    # TODO: handle this new naw on frontend
-    company_elements_repr = CompanyElementSerializer(source='company_elements', many=True, required=False)
     project_id = serializers.IntegerField(required=False)
 
     class Meta:
         model = ResearchMethodology
         fields = '__all__'
+        extra_kwargs = {
+            'scripts': {
+                'required': False
+            }
+        }
+
+    def _extract_attributes(self, data):
+        Fields = namedtuple('Fields', ['project_id', 'scripts', 'questionnaires', 'company_elements'])
+        fields = Fields(project_id=data.pop('project_id', None),
+                        scripts=data.pop('scripts', []),
+                        questionnaires=data.pop('questionnaires', []),
+                        company_elements=data.pop('company_elements', []))
+        return fields
+
+    def _set_many_to_many(self, instance, fields):
+        instance.scripts.set(fields.scripts)
+        instance.questionnaires.set(fields.questionnaires)
+        instance.company_elements.set(fields.company_elements)
+
 
     def create(self, validated_data):
-        project_id = validated_data.pop('project_id', None)
-
-        scripts = validated_data.pop('scripts', [])
-        questionnaires = validated_data.pop('questionnaires', [])
-        company_elements = validated_data.pop('company_elements', [])
+        popped_fields = self._extract_attributes(validated_data)
 
         research_methodology = ResearchMethodology.objects.create(**validated_data)
 
-        research_methodology.scripts.set(scripts)
-        research_methodology.questionnaires.set(questionnaires)
-        research_methodology.company_elements.set(company_elements)
-
-        self.link_research_methodology_to_project(project_id, research_methodology)
+        self._set_many_to_many(research_methodology, popped_fields)
+        self.link_research_methodology_to_project(popped_fields.project_id, research_methodology)
 
         return research_methodology
 
     def update(self, instance, validated_data):
-        project_id = validated_data.pop('project_id', None)
+        popped_fields = self._extract_attributes(validated_data)
 
-        scripts = validated_data.pop('scripts', [])
-        questionnaires = validated_data.pop('questionnaires', [])
-        company_elements = validated_data.pop('company_elements', [])
-
-        instance.prepare_for_update()
-
-        instance.scripts.set(scripts)
-        instance.questionnaires.set(questionnaires)
-        instance.company_elements.set(company_elements)
-
-        self.link_research_methodology_to_project(project_id, instance)
+        self._set_many_to_many(instance, popped_fields)
+        self.link_research_methodology_to_project(popped_fields.project_id, instance)
 
         update_attributes(validated_data, instance)
         instance.save()
@@ -115,14 +115,18 @@ class ResearchMethodologySerializer(serializers.ModelSerializer):
                 project_to_set.research_methodology = research_methodology
                 project_to_set.save()
 
-    @staticmethod
-    def _set_places_to_asses(research_methodology, places_to_assess):
-        # places_to_set = list()
-        # for place_to_assess in places_to_assess:
-        #     place_to_assess['research_methodology'] = research_methodology
-        #     places_to_set.append(PlaceToAssess.objects.create(**place_to_assess))
-        # research_methodology.places_to_assess.set(places_to_set)
-        pass
+
+class ResearchMethodologySerializerGET(ResearchMethodologySerializer):
+    """
+    GET serializer for Research Methodology with subserializers
+    """
+    scripts = QuestionnaireScriptSerializer(many=True, read_only=True)
+    questionnaires = QuestionnaireTemplateSerializer(many=True, read_only=True)
+    company_elements = CompanyElementSerializer(many=True, required=False)
+
+    class Meta:
+        model = ResearchMethodology
+        fields = '__all__'
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -134,7 +138,12 @@ class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = '__all__'
-        extra_kwargs = {}
+        extra_kwargs = {
+            'shoppers': {
+                'allow_null': True,
+                'required': False
+            }
+        }
 
     def _set_research_methodology(self, project, research_methodology_instance, data):
         data['project_id'] = project.id
@@ -192,6 +201,7 @@ class ProjectSerializerGET(ProjectSerializer):
     """
     Get serializer for Project
     """
+    research_methodology = ResearchMethodologySerializerGET(required=False)
     company = CompanyElementSerializer(read_only=True)
     shoppers = UserSerializer(many=True, read_only=True)
     project_manager = UserSerializer(read_only=True)
