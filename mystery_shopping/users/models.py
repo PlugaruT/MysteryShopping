@@ -68,25 +68,25 @@ class User(OptionalTenantModel, AbstractUser):
     @property
     def user_roles(self):
         roles = []
-        if hasattr(self, 'tenantproductmanager'):
-            roles.append('tenantproductmanager')
-        if hasattr(self, 'tenantprojectmanager'):
-            roles.append('tenantprojectmanager')
-        if hasattr(self, 'tenantconsultant'):
-            roles.append('tenantconsultant')
-        if hasattr(self, 'shopper'):
-            if self.shopper.is_collector:
-                roles.append('collector')
-            else:
-                roles.append('shopper')
-        if hasattr(self, 'clientprojectmanager'):
-            roles.append('clientprojectmanager')
-        if hasattr(self, 'clientmanager'):
-            roles.append('clientmanager')
-        if hasattr(self, 'clientemployee'):
-            roles.append('clientemployee')
-        if getattr(self, 'is_staff', False) is True:
-            roles.append('admin')
+        # if hasattr(self, 'tenantproductmanager'):
+        #     roles.append('tenantproductmanager')
+        # if hasattr(self, 'tenantprojectmanager'):
+        #     roles.append('tenantprojectmanager')
+        # if hasattr(self, 'tenantconsultant'):
+        #     roles.append('tenantconsultant')
+        # if hasattr(self, 'shopper'):
+        #     if self.shopper.is_collector:
+        #         roles.append('collector')
+        #     else:
+        #         roles.append('shopper')
+        # if hasattr(self, 'clientprojectmanager'):
+        #     roles.append('clientprojectmanager')
+        # if hasattr(self, 'clientmanager'):
+        #     roles.append('clientmanager')
+        # if hasattr(self, 'clientemployee'):
+        #     roles.append('clientemployee')
+        # if getattr(self, 'is_staff', False) is True:
+        #     roles.append('admin')
         return roles
 
     @property
@@ -139,12 +139,12 @@ class User(OptionalTenantModel, AbstractUser):
 
     def user_company(self):
         company = None
-        if hasattr(self, UserRole.CLIENT_PROJECT_MANAGER):
-            company = getattr(self, UserRole.CLIENT_PROJECT_MANAGER, None).company
-        if hasattr(self, UserRole.CLIENT_MANAGER):
-            company = getattr(self, UserRole.CLIENT_MANAGER, None).company
-        if hasattr(self, UserRole.CLIENT_EMPLOYEE):
-            company = getattr(self, UserRole.CLIENT_EMPLOYEE, None).company
+        # if hasattr(self, UserRole.CLIENT_PROJECT_MANAGER):
+        #     company = getattr(self, UserRole.CLIENT_PROJECT_MANAGER, None).company
+        # if hasattr(self, UserRole.CLIENT_MANAGER):
+        #     company = getattr(self, UserRole.CLIENT_MANAGER, None).company
+        # if hasattr(self, UserRole.CLIENT_EMPLOYEE):
+        #     company = getattr(self, UserRole.CLIENT_EMPLOYEE, None).company
         return company
 
 

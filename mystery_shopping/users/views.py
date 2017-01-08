@@ -2,23 +2,22 @@
 from __future__ import absolute_import, unicode_literals
 
 import django_filters
-from django.core.urlresolvers import reverse
-from django.views.generic import DetailView, ListView, RedirectView, UpdateView
 from django.db.models import Q
 
 from rest_framework import viewsets
 from rest_framework import status
 from rest_condition import Or
-from braces.views import LoginRequiredMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from mystery_shopping.mystery_shopping_utils.paginators import DetractorRespondentPaginator
+from mystery_shopping.mystery_shopping_utils.views import GetSerializerClassMixin
 from mystery_shopping.questionnaires.serializers import DetractorRespondentForTenantSerializer, \
     DetractorRespondentForClientSerializer
 from mystery_shopping.users.models import DetractorRespondent
+from mystery_shopping.users.serializers import UserSerializerGET
 from .models import ClientEmployee
 from .models import ClientManager
 from .models import Shopper
@@ -52,9 +51,11 @@ class FilterQuerysetOnTenantMixIn:
         queryset = queryset.filter(tenant=self.request.user.tenant)
         return queryset
 
-class UserViewSet(viewsets.ModelViewSet):
+
+class UserViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    serializer_class_get = UserSerializerGET
     filter_backends = (TenantFilter,)
 
 

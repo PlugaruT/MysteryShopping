@@ -6,7 +6,9 @@ from rest_framework.decorators import list_route, detail_route
 from rest_condition import Or
 
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
+from mystery_shopping.mystery_shopping_utils.views import GetSerializerClassMixin
 from mystery_shopping.questionnaires.models import QuestionnaireTemplateStatus
+from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializerGET
 from .models import QuestionnaireScript
 from .models import Questionnaire
 from .models import QuestionnaireTemplate
@@ -44,9 +46,10 @@ class QuestionnaireScriptViewSet(viewsets.ModelViewSet):
     permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)
 
 
-class QuestionnaireTemplateViewSet(viewsets.ModelViewSet):
+class QuestionnaireTemplateViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
     queryset = QuestionnaireTemplate.objects.all()
     serializer_class = QuestionnaireTemplateSerializer
+    serializer_class_get = QuestionnaireTemplateSerializerGET
     permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)
     filter_backends = (TenantFilter,)
 

@@ -17,12 +17,6 @@ from mystery_shopping.companies.models import Company
 from mystery_shopping.tenants.serializers import TenantSerializer
 
 
-# try:
-#     from mystery_shopping.companies.serializers import EntitySerializer
-# except ImportError:
-#     import sys
-#     EntitySerializer = sys.modules['mystery_shopping.companies.EntitySerializer']
-
 class SimpleCompanySerializer(serializers.ModelSerializer):
     """A Company serializer that does not have any nested serializer fields."""
 
@@ -79,18 +73,11 @@ class UserSerializer(serializers.ModelSerializer):
     """
     password = serializers.CharField(write_only=True, required=False)
     confirm_password = serializers.CharField(write_only=True, required=False)
-    tenant_repr = TenantSerializer(source='tenant', read_only=True)
-    roles = serializers.ListField(read_only=True, source='user_roles')
     change_username = serializers.BooleanField(write_only=True, required=False)
-    company = SimpleCompanySerializer(source='user_company', read_only=True)
-    managed_entities = serializers.ListField(source='list_of_poses', read_only=True)
-    has_overview_access = serializers.BooleanField(source='has_client_manager_overview_access', read_only=True)
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'change_username',
-                  'roles', 'password', 'confirm_password', 'tenant_repr', 'shopper', 'company', 'managed_entities',
-                  'has_overview_access')
+        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'change_username', 'password', 'confirm_password')
         extra_kwargs = {'username': {'validators': []},
                         'shopper': {'read_only': True},
                         'company': {'read_only': True},
@@ -156,6 +143,23 @@ class UserSerializer(serializers.ModelSerializer):
 
         return instance
 
+
+class UserSerializerGET(UserSerializer):
+    """
+    Nested serializer class for User model
+    """
+    tenant = TenantSerializer(read_only=True)
+    roles = serializers.ListField(read_only=True, source='user_roles')
+    # Update for new structure
+    company = SimpleCompanySerializer(source='user_company', read_only=True)
+    managed_entities = serializers.ListField(source='list_of_poses', read_only=True)
+    # till here.
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'change_username',
+                  'roles', 'password', 'confirm_password', 'company', 'managed_entities', 'tenant')
+#
 
 class TenantProductManagerSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):
     """Serializer class for TenantProductManager user model.

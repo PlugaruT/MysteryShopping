@@ -5,6 +5,7 @@ from rest_condition import Or
 
 from datetime import datetime
 
+from mystery_shopping.dashboard.serializers import DashboardTemplateSerializerGET
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from mystery_shopping.users.permissions import HasAccessToDashboard
 from .models import DashboardTemplate
@@ -19,6 +20,7 @@ class DashboardTemplateView(viewsets.ModelViewSet):
     """
     queryset = DashboardTemplate.objects.all()
     serializer_class = DashboardTemplateSerializer
+    serializer_class_get = DashboardTemplateSerializerGET
     permission_classes = (HasAccessToDashboard,)
     filter_backends = (TenantFilter,)
 

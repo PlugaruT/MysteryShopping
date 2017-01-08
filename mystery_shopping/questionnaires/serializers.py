@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 from mystery_shopping.cxi.serializers import WhyCauseSerializer
 from mystery_shopping.users.models import DetractorRespondent
-from mystery_shopping.users.serializers import UserSerializer, ShopperSerializer
+from mystery_shopping.users.serializers import ShopperSerializer, UserSerializerGET
 
 from mystery_shopping.questionnaires.models import CrossIndexQuestion, QuestionnaireTemplateStatus
 from .models import QuestionnaireScript
@@ -426,12 +426,10 @@ class QuestionnaireTemplateStatusSerializer(serializers.ModelSerializer):
 
 class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
     """
-
+    Default Questionnaire Template serializer.
     """
     template_blocks = QuestionnaireTemplateBlockSerializer(many=True, required=False)
     template_cross_indexes = CrossIndexTemplateSerializer(many=True, required=False, read_only=True)
-    status_repr = QuestionnaireTemplateStatusSerializer(source='status', read_only=True)
-    created_by_repr = UserSerializer(source='created_by', read_only=True)
 
     class Meta:
         model = QuestionnaireTemplate
@@ -493,6 +491,18 @@ class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
                 template_question_choice.pop('template_question', None)
 
 
+class QuestionnaireTemplateSerializerGET(QuestionnaireTemplateSerializer):
+    """
+    Nested Questionnaire Template serializer.
+    """
+    status = QuestionnaireTemplateStatusSerializer(read_only=True)
+    created_by = UserSerializerGET(read_only=True)
+
+    class Meta:
+        model = QuestionnaireTemplate
+        fields = '__all__'
+
+
 class QuestionSimpleSerializer(serializers.ModelSerializer):
     """
         Serializes questions simpler including needed fields
@@ -534,7 +544,7 @@ class DetractorRespondentForTenantSerializer(serializers.ModelSerializer):
     """
     Serializer for Detractors for tenant (that included all the fields)
     """
-    saved_by = UserSerializer(source='evaluation.saved_by_user', read_only=True)
+    saved_by = UserSerializerGET(source='evaluation.saved_by_user', read_only=True)
     shopper = ShopperSerializer(source='evaluation.shopper', read_only=True)
     questionnaire_title = serializers.CharField(source='evaluation.questionnaire.title', read_only=True)
     time_accomplished = serializers.DateTimeField(source='evaluation.time_accomplished', read_only=True)

@@ -16,14 +16,11 @@ from mystery_shopping.questionnaires.serializers import QuestionnaireScriptSeria
     DetractorRespondentForTenantSerializer
 from mystery_shopping.questionnaires.serializers import QuestionnaireSerializer
 from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializer
-from mystery_shopping.questionnaires.models import QuestionnaireQuestion, QuestionnaireScript
+from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from mystery_shopping.questionnaires.models import Questionnaire
 from mystery_shopping.questionnaires.constants import QuestionType
 from mystery_shopping.questionnaires.utils import update_attributes
-from mystery_shopping.users.serializers import ShopperSerializer, UserSerializer
-from mystery_shopping.users.serializers import TenantProjectManagerSerializer
-from mystery_shopping.users.serializers import TenantConsultantSerializer
-from mystery_shopping.users.serializer_fields import TenantUserRelatedField
+from mystery_shopping.users.serializers import UserSerializer
 
 
 class EvaluationAssessmentCommentSerializer(serializers.ModelSerializer):
@@ -79,7 +76,6 @@ class EvaluationAssessmentLevelSerializerGET(EvaluationAssessmentLevelSerializer
                 'read_only': True
             }
         }
-
 
 
 class ResearchMethodologySerializer(serializers.ModelSerializer):
