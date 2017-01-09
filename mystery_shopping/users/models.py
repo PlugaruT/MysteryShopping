@@ -5,18 +5,18 @@ from django.contrib.auth.models import AbstractUser
 from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.db import models
+from guardian.shortcuts import get_objects_for_user
 from model_utils import Choices
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 
-from mystery_shopping.companies.models import Company
+from mystery_shopping.companies.models import Company, CompanyElement
 from mystery_shopping.companies.models import Entity
 from mystery_shopping.companies.models import Section
 from mystery_shopping.mystery_shopping_utils.models import OptionalTenantModel
 from mystery_shopping.projects.models import Project, Evaluation
 from mystery_shopping.projects.models import ResearchMethodology
 from mystery_shopping.tenants.models import Tenant
-
 
 # @python_2_unicode_compatible
 from mystery_shopping.users.roles import UserRole
@@ -91,20 +91,7 @@ class User(OptionalTenantModel, AbstractUser):
 
     @property
     def list_of_poses(self):
-        return_list = list()
-        if hasattr(self, 'clientmanager'):
-            # Import it here as at the top it causes an ImportError
-            from mystery_shopping.companies.serializers import SimpleEntitySerializer
-            # Check if he's/she's a manager of a department
-            if self.clientmanager.place_type_id == ContentType.objects.get(app_label='companies', model='department').id:
-                # Return all the entities "under" the department
-                for entity in self.clientmanager.place.entities.all():
-                    return_list.append(SimpleEntitySerializer(entity).data)
-            elif self.clientmanager.place_type_id == ContentType.objects.get(app_label='companies', model='entity').id:
-                return_list.append(SimpleEntitySerializer(self.clientmanager.place).data)
-            return return_list
-        else:
-            return return_list
+        return get_objects_for_user(self, klass=CompanyElement, perms=[])
 
     @property
     def has_client_manager_overview_access(self):
@@ -203,7 +190,7 @@ class TenantConsultant(TenantUserAbstract):
         return u'{} {}'.format(self.user, self.tenant)
 
     def get_type(self):
-       return 'tenantconsultant'
+        return 'tenantconsultant'
 
 
 class ClientUserAbstract(models.Model):
@@ -248,10 +235,11 @@ class ClientManager(ClientUserAbstract):
     """
     # Relations
     company = models.ForeignKey(Company, related_name='managers')
-    limit = models.Q(app_label='companies', model='department') |\
-            models.Q(app_label='companies', model='entity') |\
+    limit = models.Q(app_label='companies', model='department') | \
+            models.Q(app_label='companies', model='entity') | \
             models.Q(app_label='companies', model='section')
-    place_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='place_type', null=True, blank=True)
+    place_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='place_type', null=True,
+                                   blank=True)
     place_id = models.PositiveIntegerField(null=True, blank=True)
     place = GenericForeignKey('place_type', 'place_id')
 
@@ -320,7 +308,7 @@ class PersonToAssess(models.Model):
 
     A person to assess can either be a Client Manager or a Client Employee
     """
-    limit = models.Q(app_label='users', model='clientmanager') |\
+    limit = models.Q(app_label='users', model='clientmanager') | \
             models.Q(app_label='users', model='clientemployee')
     person_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='content_type_person_to_assess')
     person_id = models.PositiveIntegerField()

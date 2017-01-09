@@ -5,7 +5,9 @@ from django import forms
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as AuthUserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
+from guardian.admin import GuardedModelAdmin
 
+from mystery_shopping.tenants.models import Tenant
 from .models import User
 from .models import TenantProductManager
 from .models import TenantProjectManager
@@ -41,7 +43,7 @@ class MyUserCreationForm(UserCreationForm):
 
 
 @admin.register(User)
-class UserAdmin(AuthUserAdmin):
+class UserAdmin(AuthUserAdmin, GuardedModelAdmin):
     list_display = ('username', 'email', 'first_name', 'last_name', 'tenant',)
     form = MyUserChangeForm
     add_form = MyUserCreationForm

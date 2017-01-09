@@ -2,14 +2,11 @@
 from __future__ import absolute_import, unicode_literals
 
 import django_filters
-from django.core.urlresolvers import reverse
-from django.views.generic import DetailView, ListView, RedirectView, UpdateView
 from django.db.models import Q
 
 from rest_framework import viewsets
 from rest_framework import status
 from rest_condition import Or
-from braces.views import LoginRequiredMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
@@ -42,15 +39,18 @@ from mystery_shopping.users.permissions import IsTenantProductManager, HasReadOn
 from mystery_shopping.users.permissions import IsTenantProjectManager
 from mystery_shopping.users.permissions import IsTenantConsultant
 
+
 # Todo: remove this
 class FilterQuerysetOnTenantMixIn:
     """
     Mixin class that adds 'get_queryset' that filters the queryset agains the request.user.tenant
     """
+
     def get_queryset(self):
         queryset = self.queryset.all()
         queryset = queryset.filter(tenant=self.request.user.tenant)
         return queryset
+
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -73,7 +73,7 @@ class TenantConsultantViewSet(FilterQuerysetOnTenantMixIn, viewsets.ModelViewSet
     serializer_class = TenantConsultantSerializer
 
 
-class ClientEmployeeViewSet(FilterQuerysetOnTenantMixIn,  viewsets.ModelViewSet):
+class ClientEmployeeViewSet(FilterQuerysetOnTenantMixIn, viewsets.ModelViewSet):
     queryset = ClientEmployee.objects.all()
     serializer_class = ClientEmployeeSerializer
 

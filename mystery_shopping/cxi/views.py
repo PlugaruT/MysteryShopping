@@ -196,7 +196,6 @@ class IndicatorDashboard(views.APIView):
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager,
                              IsCompanyManager),)
 
-
     def get(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
         company_id = request.query_params.get('company', None)
@@ -310,12 +309,11 @@ class CodedCausePercentage(views.APIView):
     def get(self, request, *args, **kwargs):
         indicator = request.query_params.get('indicator')
         project_id = request.query_params.get('project')
-        list_of_places = []
+        tenant = self.request.user.tenant
+        list_of_places = request.user.list_of_poses.filter(tenant=tenant).values_list('id', flat=True)
         pre_response = self._pre_process_request(project_id, request.user)
         if pre_response:
             return Response(**pre_response)
-        if isinstance(request.user.user_type_attr, ClientManager):
-            list_of_places = [place['place_id'] for place in request.user.list_of_poses]
         indicator_questions = QuestionnaireQuestion.objects.get_indicator_questions_for_entities(project_id,
                                                                                                  indicator,
                                                                                                  list_of_places)
@@ -431,7 +429,6 @@ class WhyCauseViewSet(ClearCodedCauseMixin, viewsets.ModelViewSet):
         why_causes = WhyCause.objects.filter(id__in=request.data)
         self.clear_coded_cause(why_causes)
         return Response(status=status.HTTP_202_ACCEPTED)
-
 
     @detail_route(['post'])
     def split(self, request, pk=None):
