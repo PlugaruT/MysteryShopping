@@ -73,6 +73,17 @@ class CompanyElementSerializer(serializers.ModelSerializer):
         return queryset
 
 
+class SimpleCompanyElementSerializer(serializers.ModelSerializer):
+    """
+    Serializer class used for serializing only top level CompanyElement model (companies)
+    """
+    additional_info = serializers.JSONField(read_only=True)
+
+    class Meta:
+        model = CompanyElement
+        fields = ('id', 'element_name', 'element_type', 'additional_info')
+
+
 class AdditionalInfoTypeSerializer(serializers.ModelSerializer):
     """
     Serialize class for AdditionalInfoType model

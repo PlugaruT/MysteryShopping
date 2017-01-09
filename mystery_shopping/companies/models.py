@@ -2,6 +2,7 @@ from django.contrib.postgres.fields.hstore import HStoreField
 from django.db import models
 from django.contrib.contenttypes.fields import GenericRelation
 from mptt.fields import TreeForeignKey
+from mptt.managers import TreeManager
 from mptt.models import MPTTModel
 
 from mystery_shopping.common.models import City, Country, Sector
@@ -46,6 +47,7 @@ class CompanyElement(TenantModel, MPTTModel):
     element_type = models.CharField(max_length=100)
     logo = models.ImageField(null=True, blank=True)
 
+    tree = TreeManager()
     objects = models.Manager.from_queryset(CompanyElementQuerySet)()
 
     class Meta:

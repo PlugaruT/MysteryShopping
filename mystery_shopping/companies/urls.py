@@ -17,7 +17,7 @@ router.register(r'subindustries', SubIndustryViewSet)
 router.register(r'departments', DepartmentViewSet)
 router.register(r'entities', EntityViewSet)
 router.register(r'sections', SectionViewSet)
-router.register(r'company-element', CompanyElementViewSet)
+router.register(r'company-elements', CompanyElementViewSet)
 router.register(r'info-type', AdditionalInfoTypeViewSet)
 
 company_router_for_projects = DefaultRouter()
