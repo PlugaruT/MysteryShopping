@@ -91,7 +91,7 @@ class User(OptionalTenantModel, AbstractUser):
 
     @property
     def list_of_poses(self):
-        return get_objects_for_user(self, klass=CompanyElement, perms=[])
+        return get_objects_for_user(self, klass=CompanyElement, perms=[]).filter(tenant=self.tenant)
 
     @property
     def has_client_manager_overview_access(self):

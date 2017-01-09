@@ -164,11 +164,8 @@ class DetractorRespondentForClientViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filter_class = DetractorFilter
 
-    # TODO: Update this method
     def get_queryset(self):
         queryset = self.serializer_class.setup_eager_loading(self.queryset)
         project = self.request.query_params.get('project')
-        list_of_places = [place['place_id'] for place in self.request.user.list_of_poses]
-        if isinstance(self.request.user.user_type_attr, ClientManager):
-            return queryset.filter(evaluation__project=project, evaluation__entity__in=list_of_places)
-        return queryset.filter(evaluation__project=project)
+        list_of_places = self.request.user.list_of_poses.values_list('id', flat=True)
+        return queryset.filter(evaluation__project=project, evaluation__company_element__in=list_of_places)
