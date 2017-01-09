@@ -21,10 +21,10 @@ router.register(r'company-elements', CompanyElementViewSet)
 router.register(r'info-type', AdditionalInfoTypeViewSet)
 
 company_router_for_projects = DefaultRouter()
-company_router_for_projects.register(r'companies', CompanyViewSet, base_name='companies')
+company_router_for_projects.register(r'company-elements', CompanyElementViewSet, base_name='company-elements')
 
-company_project_router = NestedSimpleRouter(company_router_for_projects, r'companies', lookup='company')
-company_project_router.register(r'projects', ProjectPerCompanyViewSet, base_name='company-projects')
+company_project_router = NestedSimpleRouter(company_router_for_projects, r'company-elements', lookup='company_element')
+company_project_router.register(r'projects', ProjectPerCompanyViewSet, base_name='company-element-projects')
 
 urlpatterns = [
     url(r'^upload/industries/$', IndustryCsvUploadView.as_view(), name='upload-industries')

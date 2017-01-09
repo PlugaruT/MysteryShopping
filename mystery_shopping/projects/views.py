@@ -78,45 +78,45 @@ class ProjectViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
 
 
 # Todo: try ModelViewSet
-class ProjectPerCompanyViewSet(viewsets.ViewSet):
+class ProjectPerCompanyViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     permission_classes = [ConditionalPermission, IsAuthenticated]
     permission_condition = (C(HasAccessToProjectsOrEvaluations) | HasReadOnlyAccessToProjectsOrEvaluations)
 
     # ToDo: trebuie să definim cum folosim filtrele per tenant aici
-    def list(self, request, company_pk=None):
+    def list(self, request, company_element_pk=None):
         project_type = self.request.query_params.get('type', 'm')
-        queryset = self.queryset.filter(company=company_pk, type=project_type,
+        queryset = self.queryset.filter(company=company_element_pk, type=project_type,
                                         tenant=self.request.user.tenant)
         if self.request.user.user_type == 'tenantconsultant':
             queryset = self.queryset.filter(consultants__user=self.request.user)
-        serializer = ProjectSerializer(queryset, many=True)
+        serializer = ProjectSerializerGET(queryset, many=True)
         return Response(serializer.data)
 
-    def create(self, request, pk=None, company_pk=None):
+    def create(self, request, pk=None, company_element_pk=None):
         serializer = ProjectSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def retrieve(self, request, pk=None, company_pk=None):
-        queryset = self.queryset.filter(pk=pk, company=company_pk)
+    def retrieve(self, request, pk=None, company_element_pk=None):
+        queryset = self.queryset.filter(pk=pk, company=company_element_pk)
         project = get_object_or_404(queryset, pk=pk)
         self.check_object_permissions(request, project)
-        serializer = ProjectSerializer(project)
+        serializer = ProjectSerializerGET(project)
         return Response(serializer.data)
 
-    def update(self, request, pk=None, company_pk=None):
+    def update(self, request, pk=None, company_element_pk=None):
         request.data['research_methodology']['tenant'] = request.user.tenant.pk
-        queryset = self.queryset.filter(pk=pk, company=company_pk)
+        queryset = self.queryset.filter(pk=pk, company=company_element_pk)
         evaluation = get_object_or_404(queryset, pk=pk)
-        serializer = ProjectSerializer(evaluation, data=request.data)
+        serializer = ProjectSerializerGET(evaluation, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
 
     @detail_route(methods=['post'])
-    def graph(self, request, pk=None, company_pk=None):
+    def graph(self, request, pk=None, company_element_pk=None):
         project = get_object_or_404(Project, pk=pk)
         project.save_graph_config(request.data)
         return Response(status=status.HTTP_200_OK)
@@ -194,8 +194,8 @@ class EvaluationPerProjectViewSet(ListModelMixin, EvaluationViewMixIn, viewsets.
     queryset = Evaluation.objects.all()
 
     # ToDo: trebuie să definim cum folosim filtrele per tenant aici
-    def list(self, request, company_pk=None, project_pk=None):
-        queryset = Evaluation.objects.get_project_evaluations(project=project_pk, company=company_pk)
+    def list(self, request, company_element_pk=None, project_pk=None):
+        queryset = Evaluation.objects.get_project_evaluations(project=project_pk, company=company_element_pk)
         queryset = self.serializer_class.setup_eager_loading(queryset)
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -204,21 +204,21 @@ class EvaluationPerProjectViewSet(ListModelMixin, EvaluationViewMixIn, viewsets.
         serializer = EvaluationSerializerGET(queryset, many=True)
         return Response(serializer.data)
 
-    def retrieve(self, request, pk=None, company_pk=None, project_pk=None):
-        evaluation = self._get_evaluation(pk, company_pk, project_pk)
+    def retrieve(self, request, pk=None, company_element_pk=None, project_pk=None):
+        evaluation = self._get_evaluation(pk, company_element_pk, project_pk)
         self.check_object_permissions(request, evaluation)
         serializer = EvaluationSerializerGET(evaluation)
         return Response(serializer.data)
 
-    def update(self, request, pk=None, company_pk=None, project_pk=None):
-        evaluation = self._get_evaluation(pk, company_pk, project_pk)
+    def update(self, request, pk=None, company_element_pk=None, project_pk=None):
+        evaluation = self._get_evaluation(pk, company_element_pk, project_pk)
         serializer = EvaluationSerializer(evaluation, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
 
-    def destroy(self, request, pk=None, company_pk=None, project_pk=None):
-        evaluation = self._get_evaluation(pk, company_pk, project_pk)
+    def destroy(self, request, pk=None, company_element_pk=None, project_pk=None):
+        evaluation = self._get_evaluation(pk, company_element_pk, project_pk)
         evaluation.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -250,8 +250,8 @@ class ProjectStatisticsForCompanyViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         project = self.kwargs.get('project_pk', None)
-        company = self.kwargs.get('company_pk', None)
-        return Evaluation.objects.get_completed_project_evaluations(project=project, company=company)
+        company_element = self.kwargs.get('company_element_pk', None)
+        return Evaluation.objects.get_completed_project_evaluations(project=project, company_element=company_element)
 
 
 class ProjectStatisticsForTenantViewSet(viewsets.ModelViewSet):
@@ -262,5 +262,5 @@ class ProjectStatisticsForTenantViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         project = self.kwargs.get('project_pk', None)
-        company = self.kwargs.get('company_pk', None)
-        return Evaluation.objects.get_completed_project_evaluations(project=project, company=company)
+        company_element = self.kwargs.get('company_element_pk', None)
+        return Evaluation.objects.get_completed_project_evaluations(project=project, company_element=company_element)

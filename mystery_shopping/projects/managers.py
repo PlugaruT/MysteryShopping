@@ -34,7 +34,7 @@ class EvaluationQuerySet(QuerySet):
         """
         return self.filter(project=project, project__company=company)
 
-    def get_completed_project_evaluations(self, project, company):
+    def get_completed_project_evaluations(self, project, company_element):
         """Return list of evaluations that belong to a project
         """
-        return self.get_project_evaluations(project=project, company=company).filter(status=EvaluationStatus.APPROVED)
+        return self.get_project_evaluations(project=project, company=company_element).filter(status=EvaluationStatus.APPROVED)
