@@ -126,11 +126,12 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         password = validated_data.get('password', None)
         groups = validated_data.pop('groups', None)
+        user_permissions = validated_data.pop('user_permissions', None)
         confirm_password = validated_data.pop('confirm_password', None)
         validated_data.pop('change_username', None)
-
         self.check_username(validated_data['username'])
         user = User(**validated_data)
+        self.check_username(validated_data['username'])
 
         if password and confirm_password and password == confirm_password:
             user.set_password(password)
@@ -139,12 +140,14 @@ class UserSerializer(serializers.ModelSerializer):
 
         user.save()
         user.groups.add(*groups)
+        user.user_permissions.add(*user_permissions)
         return user
 
     def update(self, instance, validated_data):
         # TODO improve password validation on update
         password = validated_data.pop('password', None)
         groups = validated_data.pop('groups', None)
+        user_permissions = validated_data.pop('user_permissions', None)
         confirm_password = validated_data.pop('confirm_password', None)
 
         if password and confirm_password:
@@ -169,6 +172,7 @@ class UserSerializer(serializers.ModelSerializer):
             setattr(instance, attr, value)
         instance.save()
         instance.groups.add(*groups)
+        instance.user_permissions.add(*user_permissions)
         return instance
 
 
