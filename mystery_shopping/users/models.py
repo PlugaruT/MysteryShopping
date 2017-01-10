@@ -335,6 +335,7 @@ class DetractorRespondent(models.Model):
     status = models.CharField(max_length=11, choices=status_choices, default='TO_CONTACT')
 
     evaluation = models.ForeignKey(Evaluation, related_name='detractors', null=True)
+    number_of_questions = models.IntegerField(default=0)
 
     def __str__(self):
         return u'{} {}'.format(self.name, self.surname)
@@ -343,4 +344,4 @@ class DetractorRespondent(models.Model):
         return self.evaluation.questionnaire.get_indicator_questions()
 
     def get_visited_place(self):
-        return self.evaluation.section if self.evaluation.section else self.evaluation.entity
+        return self.evaluation.company_element
