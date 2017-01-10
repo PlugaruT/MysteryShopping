@@ -176,14 +176,13 @@ class UserSerializer(serializers.ModelSerializer):
         return instance
 
 
-class UserSerializerGET(serializers.ModelSerializer):
+class UserSerializerGET(UserSerializer):
     """
     Serializer class that is used only for GET method
     """
     user_permissions = PermissionSerializer(many=True, read_only=False)
     groups = GroupSerializer(many=True, read_only=False)
-    tenant = TenantSerializer(source='tenant', read_only=True)
-    company = SimpleCompanySerializer(source='user_company', read_only=True)
+    tenant = TenantSerializer(read_only=True)
 
 
 class TenantProductManagerSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):

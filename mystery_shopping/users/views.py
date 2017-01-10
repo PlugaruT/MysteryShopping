@@ -9,12 +9,14 @@ import re
 from rest_framework import viewsets
 from rest_framework import status
 from rest_condition import Or
+from rest_framework.decorators import list_route
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from mystery_shopping.mystery_shopping_utils.paginators import DetractorRespondentPaginator
+from mystery_shopping.mystery_shopping_utils.views import GetSerializerClassMixin
 from mystery_shopping.questionnaires.serializers import DetractorRespondentForTenantSerializer, \
     DetractorRespondentForClientSerializer
 from mystery_shopping.users.models import DetractorRespondent
@@ -63,7 +65,7 @@ class UserFilter(django_filters.rest_framework.FilterSet):
         fields = ['groups', ]
 
 
-class UserViewSet(viewsets.ModelViewSet):
+class UserViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     serializer_class_get = UserSerializerGET
@@ -85,6 +87,35 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @list_route(methods=['get'])
+    def consultants(self, request):
+        group = Group.objects.get(name='Tenant Consultants')
+        response = self.filter_and_serialize(group)
+        return Response(response)
+
+    @list_route(methods=['get'])
+    def collectors(self, request):
+        group = Group.objects.get(name='collectors')
+        response = self.filter_and_serialize(group)
+        return Response(response)
+
+    @list_route(methods=['get'], url_path='tenant-project-managers')
+    def tenant_project_managers(self, request):
+        group = Group.objects.get(name='Tenant Project Managers')
+        response = self.filter_and_serialize(group)
+        return Response(response)
+
+    @list_route(methods=['get'], url_path='tenant-product-managers')
+    def tenant_product_managers(self, request):
+        group = Group.objects.get(name='Tenant Product Managers')
+        response = self.filter_and_serialize(group)
+        return Response(response)
+
+    def filter_and_serialize(self, group):
+        queryset = self.queryset.filter(groups__exact=group)
+        serializer = self.get_serializer_class()(queryset, many=True)
+        return serializer.data
 
 
 class UserPermissionsViewSet(viewsets.ReadOnlyModelViewSet):
