@@ -1,5 +1,6 @@
 import re
 
+from django.contrib.auth.models import Permission, Group
 from rest_framework import serializers
 
 from .models import User
@@ -17,14 +18,10 @@ from mystery_shopping.companies.models import Company
 from mystery_shopping.tenants.serializers import TenantSerializer
 
 
-# try:
-#     from mystery_shopping.companies.serializers import EntitySerializer
-# except ImportError:
-#     import sys
-#     EntitySerializer = sys.modules['mystery_shopping.companies.EntitySerializer']
-
 class SimpleCompanySerializer(serializers.ModelSerializer):
-    """A Company serializer that does not have any nested serializer fields."""
+    """
+    A Company serializer that does not have any nested serializer fields.
+    """
 
     class Meta:
         model = Company
@@ -32,10 +29,9 @@ class SimpleCompanySerializer(serializers.ModelSerializer):
 
 
 class UsersCreateMixin:
-    '''
+    """
     Mixin class used to create (almost) all types of users.
-
-    '''
+    """
 
     def create(self, validated_data):
         user = validated_data.pop('user', None)
@@ -52,10 +48,9 @@ class UsersCreateMixin:
 
 
 class UsersUpdateMixin:
-    '''
+    """
     Mixin class used to update (almost) all types of users.
-
-    '''
+    """
 
     def update(self, instance, validated_data):
         user = validated_data.pop('user', None)
@@ -74,23 +69,41 @@ class UsersUpdateMixin:
         return instance
 
 
+class PermissionSerializer(serializers.ModelSerializer):
+    """
+    Serializer class for Permission model
+    """
+
+    class Meta:
+        model = Permission
+        fields = '__all__'
+
+
+class GroupSerializer(serializers.ModelSerializer):
+    """
+    Serializer class for Group model
+    """
+
+    permissions = PermissionSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = Group
+        fields = '__all__'
+
+
 class UserSerializer(serializers.ModelSerializer):
-    """Serializer class for User model
+    """
+    Serializer class for User model
     """
     password = serializers.CharField(write_only=True, required=False)
     confirm_password = serializers.CharField(write_only=True, required=False)
-    tenant_repr = TenantSerializer(source='tenant', read_only=True)
-    roles = serializers.ListField(read_only=True, source='user_roles')
     change_username = serializers.BooleanField(write_only=True, required=False)
-    company = SimpleCompanySerializer(source='user_company', read_only=True)
-    managed_entities = serializers.ListField(source='list_of_poses', read_only=True)
-    has_overview_access = serializers.BooleanField(source='has_client_manager_overview_access', read_only=True)
 
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'change_username',
-                  'roles', 'password', 'confirm_password', 'tenant_repr', 'shopper', 'company', 'managed_entities',
-                  'has_overview_access')
+                  'password', 'confirm_password', 'tenant', 'user_permissions', 'groups',
+                  'date_of_birth', 'gender', 'has_drivers_license', 'job_title', 'address')
         extra_kwargs = {'username': {'validators': []},
                         'shopper': {'read_only': True},
                         'company': {'read_only': True},
@@ -99,23 +112,24 @@ class UserSerializer(serializers.ModelSerializer):
     @staticmethod
     def check_username(username):
         # Todo: add regex checking for 'username' characters
-        if User.objects.filter(username=username).count():
+        if User.objects.filter(username=username).exists():
             raise serializers.ValidationError({
-                'username': ['Username: \'{}\' is already taken, please choose another one.'.format(username)]
+                'key': 'VALIDATION_MESSAGE.USER.USERNAME_EXISTS'
             })
         if not re.match("^[a-zA-Z0-9@.+-_]+$", username):
             raise serializers.ValidationError({
-                'username': ['Username: \'{}\' contains illegal characters.'
-                             ' Allowed characters: letters, digits and @/./+/-/_ only.'.format(username)]
+                'key': 'VALIDATION_MESSAGE.USER.ILLEGAL_CHARS'
             })
         # No need to check len(username) > 30, as it does it by itself.
         return True
 
     def create(self, validated_data):
         password = validated_data.get('password', None)
+        groups = validated_data.pop('groups', [])
+        user_permissions = validated_data.pop('user_permissions', [])
         confirm_password = validated_data.pop('confirm_password', None)
         validated_data.pop('change_username', None)
-
+        self.check_username(validated_data['username'])
         user = User(**validated_data)
         self.check_username(validated_data['username'])
 
@@ -125,11 +139,15 @@ class UserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({'password': ['Provided passwords do not match.']})
 
         user.save()
+        user.groups.add(*groups)
+        user.user_permissions.add(*user_permissions)
         return user
 
     def update(self, instance, validated_data):
         # TODO improve password validation on update
         password = validated_data.pop('password', None)
+        groups = validated_data.pop('groups', None)
+        user_permissions = validated_data.pop('user_permissions', None)
         confirm_password = validated_data.pop('confirm_password', None)
 
         if password and confirm_password:
@@ -153,8 +171,18 @@ class UserSerializer(serializers.ModelSerializer):
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
-
+        instance.groups.add(*groups)
+        instance.user_permissions.add(*user_permissions)
         return instance
+
+
+class UserSerializerGET(UserSerializer):
+    """
+    Serializer class that is used only for GET method
+    """
+    user_permissions = PermissionSerializer(many=True, read_only=False)
+    groups = GroupSerializer(many=True, read_only=False)
+    tenant = TenantSerializer(read_only=True)
 
 
 class TenantProductManagerSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):

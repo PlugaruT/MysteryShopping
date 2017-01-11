@@ -180,6 +180,9 @@ class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
     def get_department(self):
         return self.get_entity().department
 
+    def get_company_element(self):
+        return self.evaluation.company_element
+
 
 class QuestionnaireBlockAbstract(models.Model):
     """
@@ -355,14 +358,8 @@ class QuestionnaireQuestion(QuestionAbstract):
         self.save()
         return (self.score * self.weight) / 100
 
-    def get_entity(self):
-        return self.questionnaire.evaluation.entity
-
-    def get_section(self):
-        return self.questionnaire.evaluation.section
-
-    def get_department(self):
-        return self.get_entity().department
+    def get_company_element(self):
+        return self.questionnaire.get_company_element()
 
     def create_why_causes(self, why_causes):
         from mystery_shopping.cxi.serializers import WhyCauseSerializer
