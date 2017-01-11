@@ -49,7 +49,6 @@ class FilterQuerysetOnTenantMixIn:
     """
     Mixin class that adds 'get_queryset' that filters the queryset agains the request.user.tenant
     """
-
     def get_queryset(self):
         queryset = self.queryset.all()
         queryset = queryset.filter(tenant=self.request.user.tenant)

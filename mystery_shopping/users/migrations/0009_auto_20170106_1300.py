@@ -7,8 +7,6 @@ from django.db import migrations
 from django.contrib.auth.models import Permission, Group
 from django.contrib.contenttypes.models import ContentType
 
-from mystery_shopping.users.models import User
-
 
 def create_groups(apps, schema_editor, with_create_permissions=True):
     Group = apps.get_model('auth', 'Group')

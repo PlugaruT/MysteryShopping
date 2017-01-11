@@ -33,10 +33,9 @@ class SimpleCompanySerializer(serializers.ModelSerializer):
 
 
 class UsersCreateMixin:
-    '''
+    """
     Mixin class used to create (almost) all types of users.
-
-    '''
+    """
 
     def create(self, validated_data):
         user = validated_data.pop('user', None)
@@ -53,10 +52,9 @@ class UsersCreateMixin:
 
 
 class UsersUpdateMixin:
-    '''
+    """
     Mixin class used to update (almost) all types of users.
-
-    '''
+    """
 
     def update(self, instance, validated_data):
         user = validated_data.pop('user', None)
@@ -98,7 +96,8 @@ class GroupSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    """Serializer class for User model
+    """
+    Serializer class for User model
     """
     password = serializers.CharField(write_only=True, required=False)
     confirm_password = serializers.CharField(write_only=True, required=False)
@@ -112,8 +111,8 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'change_username',
-                  'roles', 'password', 'confirm_password', 'tenant_repr', 'shopper', 'company', 'managed_entities',
-                  'has_overview_access')
+                  'password', 'confirm_password', 'tenant', 'user_permissions', 'groups',
+                  'date_of_birth', 'gender', 'has_drivers_license', 'job_title', 'address')
         extra_kwargs = {'username': {'validators': []},
                         'shopper': {'read_only': True},
                         'company': {'read_only': True},
@@ -122,14 +121,13 @@ class UserSerializer(serializers.ModelSerializer):
     @staticmethod
     def check_username(username):
         # Todo: add regex checking for 'username' characters
-        if User.objects.filter(username=username).count():
+        if User.objects.filter(username=username).exists():
             raise serializers.ValidationError({
-                'username': ['Username: \'{}\' is already taken, please choose another one.'.format(username)]
+                'key': 'VALIDATION_MESSAGE.USER.USERNAME_EXISTS'
             })
         if not re.match("^[a-zA-Z0-9@.+-_]+$", username):
             raise serializers.ValidationError({
-                'username': ['Username: \'{}\' contains illegal characters.'
-                             ' Allowed characters: letters, digits and @/./+/-/_ only.'.format(username)]
+                'key': 'VALIDATION_MESSAGE.USER.ILLEGAL_CHARS'
             })
         # No need to check len(username) > 30, as it does it by itself.
         return True
@@ -158,8 +156,8 @@ class UserSerializer(serializers.ModelSerializer):
         # TODO improve password validation on update
         password = validated_data.pop('password', None)
         groups = validated_data.pop('groups', None)
-        user_permissions = validated_data.pop('user_permissions', None)
-        confirm_password = validated_data.pop('confirm_password', None)
+        user_permissions = validated_data.pop('user_permissions', [])
+        confirm_password = validated_data.pop('confirm_password', [])
 
         if password and confirm_password:
             if password == confirm_password:
