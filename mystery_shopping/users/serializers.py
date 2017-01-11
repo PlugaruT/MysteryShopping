@@ -125,8 +125,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         password = validated_data.get('password', None)
-        groups = validated_data.pop('groups', None)
-        user_permissions = validated_data.pop('user_permissions', None)
+        groups = validated_data.pop('groups', [])
+        user_permissions = validated_data.pop('user_permissions', [])
         confirm_password = validated_data.pop('confirm_password', None)
         validated_data.pop('change_username', None)
         self.check_username(validated_data['username'])
