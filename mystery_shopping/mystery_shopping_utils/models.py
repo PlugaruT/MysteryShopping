@@ -33,5 +33,6 @@ class TenantFilter(BaseFilterBackend):
     Generic Filter to use on all views whose models have a tenant
      reference.
     """
+
     def filter_queryset(self, request, queryset, view):
         return queryset.filter(tenant=request.user.tenant)
