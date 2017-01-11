@@ -196,7 +196,6 @@ class IndicatorDashboard(views.APIView):
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager,
                              IsCompanyManager),)
 
-
     def get(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
         company_id = request.query_params.get('company', None)
@@ -431,7 +430,6 @@ class WhyCauseViewSet(ClearCodedCauseMixin, viewsets.ModelViewSet):
         why_causes = WhyCause.objects.filter(id__in=request.data)
         self.clear_coded_cause(why_causes)
         return Response(status=status.HTTP_202_ACCEPTED)
-
 
     @detail_route(['post'])
     def split(self, request, pk=None):

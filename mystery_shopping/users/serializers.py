@@ -1,5 +1,6 @@
 import re
 
+from django.contrib.auth.models import Permission, Group
 from rest_framework import serializers
 
 from .models import User
@@ -16,6 +17,12 @@ from .models import Collector
 from mystery_shopping.companies.models import Company
 from mystery_shopping.tenants.serializers import TenantSerializer
 
+
+# try:
+#     from mystery_shopping.companies.serializers import EntitySerializer
+# except ImportError:
+#     import sys
+#     EntitySerializer = sys.modules['mystery_shopping.companies.EntitySerializer']
 
 class SimpleCompanySerializer(serializers.ModelSerializer):
     """A Company serializer that does not have any nested serializer fields."""
@@ -68,16 +75,45 @@ class UsersUpdateMixin:
         return instance
 
 
+class PermissionSerializer(serializers.ModelSerializer):
+    """
+    Serializer class for Permission model
+    """
+
+    class Meta:
+        model = Permission
+        fields = '__all__'
+
+
+class GroupSerializer(serializers.ModelSerializer):
+    """
+    Serializer class for Group model
+    """
+
+    permissions = PermissionSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = Group
+        fields = '__all__'
+
+
 class UserSerializer(serializers.ModelSerializer):
     """Serializer class for User model
     """
     password = serializers.CharField(write_only=True, required=False)
     confirm_password = serializers.CharField(write_only=True, required=False)
+    tenant_repr = TenantSerializer(source='tenant', read_only=True)
+    roles = serializers.ListField(read_only=True, source='user_roles')
     change_username = serializers.BooleanField(write_only=True, required=False)
+    company = SimpleCompanySerializer(source='user_company', read_only=True)
+    managed_entities = serializers.ListField(source='list_of_poses', read_only=True)
+    has_overview_access = serializers.BooleanField(source='has_client_manager_overview_access', read_only=True)
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'change_username', 'password', 'confirm_password')
+        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'change_username',
+                  'roles', 'password', 'confirm_password', 'tenant_repr', 'shopper', 'company', 'managed_entities',
+                  'has_overview_access')
         extra_kwargs = {'username': {'validators': []},
                         'shopper': {'read_only': True},
                         'company': {'read_only': True},
@@ -100,9 +136,11 @@ class UserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         password = validated_data.get('password', None)
+        groups = validated_data.pop('groups', [])
+        user_permissions = validated_data.pop('user_permissions', [])
         confirm_password = validated_data.pop('confirm_password', None)
         validated_data.pop('change_username', None)
-
+        self.check_username(validated_data['username'])
         user = User(**validated_data)
         self.check_username(validated_data['username'])
 
@@ -112,11 +150,15 @@ class UserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({'password': ['Provided passwords do not match.']})
 
         user.save()
+        user.groups.add(*groups)
+        user.user_permissions.add(*user_permissions)
         return user
 
     def update(self, instance, validated_data):
         # TODO improve password validation on update
         password = validated_data.pop('password', None)
+        groups = validated_data.pop('groups', None)
+        user_permissions = validated_data.pop('user_permissions', None)
         confirm_password = validated_data.pop('confirm_password', None)
 
         if password and confirm_password:
@@ -140,7 +182,8 @@ class UserSerializer(serializers.ModelSerializer):
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
-
+        instance.groups.add(*groups)
+        instance.user_permissions.add(*user_permissions)
         return instance
 
 
@@ -150,6 +193,8 @@ class UserSerializerGET(UserSerializer):
     """
     tenant = TenantSerializer(read_only=True)
     roles = serializers.ListField(read_only=True, source='user_roles')
+    user_permissions = PermissionSerializer(many=True, read_only=False)
+    groups = GroupSerializer(many=True, read_only=False)
     # Update for new structure
     company = SimpleCompanySerializer(source='user_company', read_only=True)
     managed_entities = serializers.ListField(source='list_of_poses', read_only=True)
@@ -157,9 +202,9 @@ class UserSerializerGET(UserSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'change_username',
-                  'roles', 'password', 'confirm_password', 'company', 'managed_entities', 'tenant')
-#
+        fields = ('id', 'username', 'email', 'first_name', 'last_name',
+                  'roles', 'user_permissions', 'groups', 'password', 'company', 'managed_entities', 'tenant')
+
 
 class TenantProductManagerSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):
     """Serializer class for TenantProductManager user model.

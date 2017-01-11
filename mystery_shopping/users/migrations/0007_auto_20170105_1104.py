@@ -38,9 +38,34 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='user',
+            name='date_of_birth',
+            field=models.DateField(blank=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='user',
+            name='gender',
+            field=models.CharField(blank=True, max_length=1, null=True),
+        ),
+        migrations.AddField(
+            model_name='user',
+            name='has_drivers_license',
+            field=models.BooleanField(default=False),
+        ),
+        migrations.AddField(
+            model_name='user',
+            name='address',
+            field=models.CharField(blank=True, max_length=100),
+        ),
+        migrations.AddField(
+            model_name='user',
+            name='job_title',
+            field=models.CharField(blank=True, max_length=60),
+        ),
+        migrations.AddField(
+            model_name='user',
             name='tenant',
             field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='tenants.Tenant'),
             preserve_default=False,
         ),
-        migrations.RunPython(migrate_tenant_for_current_users)
+        # migrations.RunPython(migrate_tenant_for_current_users)
     ]

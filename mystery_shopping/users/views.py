@@ -2,11 +2,13 @@
 from __future__ import absolute_import, unicode_literals
 
 import django_filters
+from django.contrib.auth.models import Permission, Group
 from django.db.models import Q
 
 from rest_framework import viewsets
 from rest_framework import status
 from rest_condition import Or
+from rest_framework.decorators import list_route
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
@@ -17,7 +19,7 @@ from mystery_shopping.mystery_shopping_utils.views import GetSerializerClassMixi
 from mystery_shopping.questionnaires.serializers import DetractorRespondentForTenantSerializer, \
     DetractorRespondentForClientSerializer
 from mystery_shopping.users.models import DetractorRespondent
-from mystery_shopping.users.serializers import UserSerializerGET
+from mystery_shopping.users.serializers import PermissionSerializer, GroupSerializer, UserSerializerGET
 from .models import ClientEmployee
 from .models import ClientManager
 from .models import Shopper
@@ -41,22 +43,108 @@ from mystery_shopping.users.permissions import IsTenantProductManager, HasReadOn
 from mystery_shopping.users.permissions import IsTenantProjectManager
 from mystery_shopping.users.permissions import IsTenantConsultant
 
+
 # Todo: remove this
 class FilterQuerysetOnTenantMixIn:
     """
     Mixin class that adds 'get_queryset' that filters the queryset agains the request.user.tenant
     """
+
     def get_queryset(self):
         queryset = self.queryset.all()
         queryset = queryset.filter(tenant=self.request.user.tenant)
         return queryset
 
 
+class UserFilter(django_filters.rest_framework.FilterSet):
+    groups = django_filters.AllValuesMultipleFilter(name="groups")
+
+    class Meta:
+        model = User
+        fields = ['groups', ]
+
+
 class UserViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     serializer_class_get = UserSerializerGET
-    filter_backends = (TenantFilter,)
+    filter_backends = (TenantFilter, DjangoFilterBackend,)
+    filter_class = UserFilter
+
+    def create(self, request, *args, **kwargs):
+        request.data['tenant'] = request.user.tenant_id
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.tenant = request.user.tenant
+        serializer = self.get_serializer(instance, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @list_route(methods=['get'])
+    def consultants(self, request):
+        group = Group.objects.get(name='Tenant Consultants')
+        response = self.filter_and_serialize(group)
+        return Response(response)
+
+    @list_route(methods=['get'])
+    def collectors(self, request):
+        group = Group.objects.get(name='collectors')
+        response = self.filter_and_serialize(group)
+        return Response(response)
+
+    @list_route(methods=['get'], url_path='tenant-project-managers')
+    def tenant_project_managers(self, request):
+        group = Group.objects.get(name='Tenant Project Managers')
+        response = self.filter_and_serialize(group)
+        return Response(response)
+
+    @list_route(methods=['get'], url_path='tenant-product-managers')
+    def tenant_product_managers(self, request):
+        group = Group.objects.get(name='Tenant Product Managers')
+        response = self.filter_and_serialize(group)
+        return Response(response)
+
+    def filter_and_serialize(self, group):
+        queryset = self.filter_queryset(self.queryset.filter(groups__exact=group))
+        serializer = self.get_serializer_class()(queryset, many=True)
+        return serializer.data
+
+
+class UserPermissionsViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    A simple ViewSet for viewing all user permissions. Provides 'read-only' actions.
+    """
+    permission_classes = (IsAuthenticated,)
+    queryset = Permission.objects.all()
+    serializer_class = PermissionSerializer
+
+
+class UserGroupsViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    A simple ViewSet for viewing all user groups. Provides 'read-only' actions.
+    """
+    permission_classes = (IsAuthenticated,)
+    queryset = Group.objects.all()
+    serializer_class = GroupSerializer
+
+
+class PermissionsPerUserViewSet(viewsets.ViewSet):
+    """
+    View for viewing all permissions for a specific user
+    """
+    permission_classes = (IsAuthenticated,)
+
+    def list(self, request, user_pk=None):
+        queryset = Permission.objects.filter(user=user_pk)
+        serializer = PermissionSerializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 class TenantProductManagerViewSet(FilterQuerysetOnTenantMixIn, viewsets.ModelViewSet):
