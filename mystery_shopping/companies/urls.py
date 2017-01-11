@@ -17,6 +17,7 @@ router.register(r'subindustries', SubIndustryViewSet)
 router.register(r'departments', DepartmentViewSet)
 router.register(r'entities', EntityViewSet)
 router.register(r'sections', SectionViewSet)
+router.register(r'companies', CompanyViewSet)
 router.register(r'company-elements', CompanyElementViewSet)
 router.register(r'info-type', AdditionalInfoTypeViewSet)
 

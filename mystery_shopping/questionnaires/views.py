@@ -121,7 +121,6 @@ class QuestionnaireTemplateViewSet(GetSerializerClassMixin, viewsets.ModelViewSe
         questionnaire_template_serialized = QuestionnaireTemplateSerializer(questionnaire_template)
         questionnaire_template_serialized = dict(questionnaire_template_serialized.data)
         questionnaire_template_serialized.pop('id')
-        questionnaire_template_serialized.pop('status_repr')
         questionnaire_template_serialized['status'] = questionnaire_status.id
         return questionnaire_template_serialized
 

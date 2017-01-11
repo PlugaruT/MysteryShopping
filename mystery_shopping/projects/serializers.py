@@ -13,7 +13,7 @@ from mystery_shopping.companies.serializers import CompanyElementSerializer
 from mystery_shopping.cxi.serializers import WhyCauseSerializer
 from mystery_shopping.projects.constants import EvaluationStatus
 from mystery_shopping.questionnaires.serializers import QuestionnaireScriptSerializer, \
-    DetractorRespondentForTenantSerializer
+    DetractorRespondentForTenantSerializer, QuestionnaireTemplateSerializerGET
 from mystery_shopping.questionnaires.serializers import QuestionnaireSerializer
 from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializer
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion
@@ -142,7 +142,7 @@ class ResearchMethodologySerializerGET(ResearchMethodologySerializer):
     GET Research Methodology serializer that uses nested serializers.
     """
     scripts = QuestionnaireScriptSerializer(many=True, read_only=True)
-    questionnaires = QuestionnaireTemplateSerializer(many=True, read_only=True)
+    questionnaires = QuestionnaireTemplateSerializerGET(many=True, read_only=True)
     company_elements = CompanyElementSerializer(many=True, required=False)
 
     class Meta:
