@@ -198,15 +198,27 @@ class EvaluationPerShopperViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
 
+class EvaluationsFilter(django_filters.rest_framework.FilterSet):
+    date = django_filters.DateFromToRangeFilter(name="time_accomplished", lookup_expr='date')
+    collector = django_filters.AllValuesMultipleFilter(name='shopper')
+
+    class Meta:
+        model = Evaluation
+        fields = ['date', 'company_element', 'collector']
+
+
 class EvaluationPerProjectViewSet(ListModelMixin, EvaluationViewMixIn, viewsets.GenericViewSet):
     serializer_class = EvaluationSerializer
     permission_classes = (IsAuthenticated, HasAccessToProjectsOrEvaluations,)
     pagination_class = EvaluationPagination
+    filter_backends = (DjangoFilterBackend,)
+    filter_class = EvaluationsFilter
     queryset = Evaluation.objects.all()
 
     # ToDo: trebuie să definim cum folosim filtrele per tenant aici
     def list(self, request, company_pk=None, project_pk=None):
         queryset = Evaluation.objects.get_project_evaluations(project=project_pk, company=company_pk)
+        queryset = self.filter_queryset(queryset)
         queryset = self.serializer_class.setup_eager_loading(queryset)
         page = self.paginate_queryset(queryset)
         if page is not None:
