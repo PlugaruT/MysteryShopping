@@ -87,16 +87,17 @@ class ProjectViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_200_OK)
 
 
-class ProjectPerCompanyViewSet(viewsets.ViewSet):
+class ProjectPerCompanyViewSet(viewsets.GenericViewSet):
     queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
     permission_classes = [ConditionalPermission, IsAuthenticated]
     permission_condition = (C(HasAccessToProjectsOrEvaluations) | HasReadOnlyAccessToProjectsOrEvaluations)
+    filter_backends = (TenantFilter, )
 
-    # ToDo: trebuie să definim cum folosim filtrele per tenant aici
     def list(self, request, company_pk=None):
         project_type = self.request.query_params.get('type', 'm')
-        queryset = self.queryset.filter(company=company_pk, type=project_type,
-                                        tenant=self.request.user.tenant)
+        queryset = self.filter_queryset(self.queryset)
+        queryset = queryset.filter(company=company_pk, type=project_type)
         if self.request.user.user_type == 'tenantconsultant':
             queryset = self.queryset.filter(consultants__user=self.request.user)
         serializer = ProjectSerializer(queryset, many=True)
@@ -177,12 +178,14 @@ class EvaluationViewSet(UpdateSerializerMixin, EvaluationViewMixIn, viewsets.Mod
                                    count=evaluations_to_collect.count())
 
 
-class EvaluationPerShopperViewSet(viewsets.ViewSet):
+class EvaluationPerShopperViewSet(viewsets.GenericViewSet):
     permission_classes = (IsAuthenticated, HasAccessToProjectsOrEvaluations,)
+    serializer_class = EvaluationSerializer
+    filter_backends = (TenantFilter,)
 
-    # ToDo: trebuie să definim cum folosim filtrele per tenant aici
     def list(self, request, shopper_pk=None):
         queryset = Evaluation.objects.filter(shopper=shopper_pk)
+        queryset = self.filter_queryset(queryset)
         serializer = EvaluationSerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -197,11 +200,12 @@ class EvaluationPerProjectViewSet(ListModelMixin, EvaluationViewMixIn, viewsets.
     serializer_class = EvaluationSerializer
     permission_classes = (IsAuthenticated, HasAccessToProjectsOrEvaluations,)
     pagination_class = EvaluationPagination
+    filter_backends = (TenantFilter,)
     queryset = Evaluation.objects.all()
 
-    # ToDo: trebuie să definim cum folosim filtrele per tenant aici
     def list(self, request, company_pk=None, project_pk=None):
         queryset = Evaluation.objects.get_project_evaluations(project=project_pk, company=company_pk)
+        queryset = self.filter_queryset(queryset)
         queryset = self.serializer_class.setup_eager_loading(queryset)
         page = self.paginate_queryset(queryset)
         if page is not None:
