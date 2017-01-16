@@ -75,6 +75,7 @@ class Project(TenantModel):
     shoppers = models.ManyToManyField('users.User', blank=True, related_name='shopper_projects')
 
     # Attributes
+    name = models.CharField(max_length=150)
     type_questionnaire = Choices(('m', 'Mystery Questionnaire'),
                                  ('c', 'Customer Experience Index Questionnaire'))
     type = models.CharField(max_length=1, choices=type_questionnaire, default=type_questionnaire.m)
