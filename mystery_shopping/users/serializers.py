@@ -182,7 +182,13 @@ class UserSerializerGET(UserSerializer):
     """
     user_permissions = PermissionSerializer(many=True, read_only=False)
     groups = GroupSerializer(many=True, read_only=False)
+    roles = serializers.ListField(read_only=True, source='user_roles')
     tenant = TenantSerializer(read_only=True)
+
+    class Meta(UserSerializer.Meta):
+        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'change_username',
+                  'password', 'confirm_password', 'tenant', 'user_permissions', 'groups',
+                  'date_of_birth', 'gender', 'has_drivers_license', 'job_title', 'address', 'roles')
 
 
 class TenantProductManagerSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):

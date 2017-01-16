@@ -90,30 +90,44 @@ class UserViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
 
     @list_route(methods=['get'])
     def consultants(self, request):
-        group = Group.objects.get(name='Tenant Consultants')
+        group = Group.objects.filter(name='Tenant Consultants')
         response = self.filter_and_serialize(group)
         return Response(response)
 
     @list_route(methods=['get'])
     def collectors(self, request):
-        group = Group.objects.get(name='collectors')
+        group = Group.objects.filter(name='collectors')
         response = self.filter_and_serialize(group)
         return Response(response)
 
     @list_route(methods=['get'], url_path='tenant-project-managers')
     def tenant_project_managers(self, request):
-        group = Group.objects.get(name='Tenant Project Managers')
+        group = Group.objects.filter(name='Tenant Project Managers')
         response = self.filter_and_serialize(group)
         return Response(response)
 
     @list_route(methods=['get'], url_path='tenant-product-managers')
     def tenant_product_managers(self, request):
-        group = Group.objects.get(name='Tenant Product Managers')
+        group = Group.objects.filter(name='Tenant Product Managers')
         response = self.filter_and_serialize(group)
         return Response(response)
 
+    @list_route(methods=['get'], url_path='tenant-users')
+    def tenant_users(self, request):
+        group_names = ['Tenant Product Managers', 'Tenant Project Managers', 'Tenant Consultants']
+        groups = Group.objects.filter(name__in=group_names)
+        response = self.filter_and_serialize(groups)
+        return Response(response)
+
+    @list_route(methods=['get'], url_path='client-users')
+    def client_users(self, request):
+        group_names = ['Client Managers', 'Client Project Managers', 'Client Employees']
+        groups = Group.objects.filter(name__in=group_names)
+        response = self.filter_and_serialize(groups)
+        return Response(response)
+
     def filter_and_serialize(self, group):
-        queryset = self.queryset.filter(groups__exact=group)
+        queryset = self.queryset.filter(groups__id__in=group)
         serializer = self.get_serializer_class()(queryset, many=True)
         return serializer.data
 
