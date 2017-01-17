@@ -398,6 +398,7 @@ class EvaluationSerializer(serializers.ModelSerializer):
     def set_evaluation_to_detractor(detractor_instance, evaluation):
         if detractor_instance:
             detractor_instance.evaluation = evaluation
+            detractor_instance.number_of_questions = evaluation.get_indicator_questions().filter(score__lte=6).count()
             detractor_instance.save()
 
     @staticmethod
