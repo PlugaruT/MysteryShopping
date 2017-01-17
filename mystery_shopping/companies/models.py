@@ -52,6 +52,9 @@ class CompanyElement(TenantModel, MPTTModel):
         default_related_name = 'company_elements'
         permissions = (
             ('view_companyelement', 'View company element'),
+            ('view_detractors_for_companyelement', 'View detractors for company element'),
+            ('view_statistics_for_companyelement', 'View statistics for company element'),
+            ('view_coded_causes_for_companyelement', 'View detractors for company element'),
         )
 
     def __str__(self):

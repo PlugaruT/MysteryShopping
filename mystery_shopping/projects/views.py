@@ -15,6 +15,7 @@ from rest_condition import Or
 
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from mystery_shopping.mystery_shopping_utils.paginators import EvaluationPagination, ProjectStatisticsPaginator
+from mystery_shopping.mystery_shopping_utils.permissions import ProjectStatisticsFilterPerCompanyElement
 from mystery_shopping.mystery_shopping_utils.views import GetSerializerClassMixin
 from mystery_shopping.projects.constants import EvaluationStatus
 from mystery_shopping.projects.mixins import EvaluationViewMixIn, UpdateSerializerMixin
@@ -273,11 +274,20 @@ class ProjectStatisticsFilter(django_filters.rest_framework.FilterSet):
 
 
 class ProjectStatisticsForCompanyViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
+    """
+        View that returns statistics per project for clients. It supports filters usign query params
+
+        Query params:
+
+         * `date_0`: starting date to filter evaluations
+         * `date_1`: ending date to filter evaluations
+         * `company_element`: company element id to filter evaluations
+        """
     serializer_class = ProjectStatisticsForCompanySerializer
     serializer_class_get = ProjectStatisticsForCompanySerializerGET
     permission_classes = (IsAuthenticated, HasReadOnlyAccessToProjectsOrEvaluations,)
     pagination_class = ProjectStatisticsPaginator
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = (ProjectStatisticsFilterPerCompanyElement, DjangoFilterBackend,)
     filter_class = ProjectStatisticsFilter
     queryset = Evaluation.objects.all()
 
@@ -288,11 +298,21 @@ class ProjectStatisticsForCompanyViewSet(GetSerializerClassMixin, viewsets.Model
 
 
 class ProjectStatisticsForTenantViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
+    """
+        View that returns statistics per project for tenant. It supports filters usign query params
+
+        Query params:
+
+         * `date_0`: starting date to filter evaluations
+         * `date_1`: ending date to filter evaluations
+         * `company_element`: company element id to filter evaluations
+         * `collector`: collector id to filter evaluations
+        """
     serializer_class = ProjectStatisticsForTenantSerializer
     serializer_class_get = ProjectStatisticsForTenantSerializerGET
     permission_classes = (IsAuthenticated, HasAccessToProjectsOrEvaluations,)
     pagination_class = ProjectStatisticsPaginator
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = (ProjectStatisticsFilterPerCompanyElement, DjangoFilterBackend,)
     filter_class = ProjectStatisticsFilter
     queryset = Evaluation.objects.all()
 

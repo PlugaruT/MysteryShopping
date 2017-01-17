@@ -3,9 +3,7 @@ from __future__ import absolute_import, unicode_literals
 
 import django_filters
 from django.contrib.auth.models import Permission, Group
-from django.core.exceptions import ValidationError
 from django.db.models import Q
-import re
 from rest_framework import viewsets
 from rest_framework import status
 from rest_condition import Or
@@ -16,6 +14,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from mystery_shopping.mystery_shopping_utils.paginators import DetractorRespondentPaginator
+from mystery_shopping.mystery_shopping_utils.permissions import DetractorFilterPerCompanyElement
 from mystery_shopping.mystery_shopping_utils.views import GetSerializerClassMixin
 from mystery_shopping.questionnaires.serializers import DetractorRespondentForTenantSerializer, \
     DetractorRespondentForClientSerializer
@@ -249,7 +248,7 @@ class DetractorFilter(django_filters.rest_framework.FilterSet):
 
 class DetractorRespondentForTenantViewSet(viewsets.ModelViewSet):
     queryset = DetractorRespondent.objects.all()
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = (DetractorFilterPerCompanyElement, DjangoFilterBackend,)
     filter_class = DetractorFilter
     pagination_class = DetractorRespondentPaginator
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
@@ -266,11 +265,10 @@ class DetractorRespondentForClientViewSet(viewsets.ModelViewSet):
     queryset = DetractorRespondent.objects.all()
     permission_classes = (IsAuthenticated, HasReadOnlyAccessToProjectsOrEvaluations)
     pagination_class = DetractorRespondentPaginator
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = (DetractorFilterPerCompanyElement, DjangoFilterBackend,)
     filter_class = DetractorFilter
 
     def get_queryset(self):
         queryset = self.serializer_class.setup_eager_loading(self.queryset)
         project = self.request.query_params.get('project')
-        list_of_places = self.request.user.list_of_poses.values_list('id', flat=True)
-        return queryset.filter(evaluation__project=project, evaluation__company_element__in=list_of_places)
+        return queryset.filter(evaluation__project=project)
