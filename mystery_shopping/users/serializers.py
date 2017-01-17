@@ -138,7 +138,8 @@ class UserSerializer(serializers.ModelSerializer):
         user.save()
         user.groups.add(*groups)
         user.user_permissions.add(*user_permissions)
-        self.assign_object_permissions(user, object_permissions)
+        if object_permissions:
+            self.assign_object_permissions(user, object_permissions)
         return user
 
     def update(self, instance, validated_data):
@@ -172,7 +173,8 @@ class UserSerializer(serializers.ModelSerializer):
         instance.save()
         instance.groups.add(*groups)
         instance.user_permissions.add(*user_permissions)
-        self.assign_object_permissions(instance, object_permissions)
+        if object_permissions:
+            self.assign_object_permissions(instance, object_permissions)
         return instance
 
     @staticmethod

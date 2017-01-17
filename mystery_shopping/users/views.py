@@ -203,16 +203,44 @@ class ClientManagerViewSet(FilterQuerysetOnTenantMixIn, viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+class ShopperFilter(django_filters.rest_framework.FilterSet):
+    groups = django_filters.AllValuesMultipleFilter(name="user__groups")
+    license = django_filters.BooleanFilter(name='has_drivers_license')
+    sex = django_filters.CharFilter(name='user__gender')
+
+    class Meta:
+        model = Shopper
+        fields = ['groups', 'license', 'sex']
+
+
 class ShopperViewSet(viewsets.ModelViewSet):
     queryset = Shopper.objects.all()
     serializer_class = ShopperSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filter_class = ShopperFilter
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
+
+    def get_queryset(self):
+        return self.queryset.filter(user__tenant=self.request.user.tenant)
+
+
+class ClientFilter(django_filters.rest_framework.FilterSet):
+    groups = django_filters.AllValuesMultipleFilter(name="user__groups")
+
+    class Meta:
+        model = ClientUser
+        fields = ['groups', 'company']
 
 
 class ClientUserViewSet(viewsets.ModelViewSet):
     queryset = ClientUser.objects.all()
     serializer_class = ClientUserSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filter_class = ClientFilter
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
+
+    def get_queryset(self):
+        return self.queryset.filter(user__tenant=self.request.user.tenant)
 
 
 class CollectorViewSet(viewsets.ModelViewSet):
