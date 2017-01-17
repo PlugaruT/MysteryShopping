@@ -30,7 +30,25 @@ class SimpleCompanySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class UsersCreateMixin:
+class AssignCustomObjectPermissions:
+    """
+    Mixin class for assigning custom permissions to user for viewing detractors, statistics
+    and coded causes for different company elements
+    """
+    @staticmethod
+    def assign_object_permissions(user_instance, object_permissions):
+        detractors_id = object_permissions.get('detractor_permissions', None)
+        statistics_id = object_permissions.get('statistics_permissions', None)
+        coded_causes_objects = object_permissions.get('coded_causes_permissions', None)
+        company_elements_detractors = CompanyElement.objects.filter(id__in=detractors_id)
+        company_elements_statistics = CompanyElement.objects.filter(id__in=statistics_id)
+        company_elements_coded_causes = CompanyElement.objects.filter(id__in=coded_causes_objects)
+        assign_perm('view_detractors_for_companyelement', user_instance, company_elements_detractors)
+        assign_perm('view_statistics_for_companyelement', user_instance, company_elements_statistics)
+        assign_perm('view_coded_causes_for_companyelement', user_instance, company_elements_coded_causes)
+
+
+class UsersCreateMixin(AssignCustomObjectPermissions):
     """
     Mixin class used to create (almost) all types of users.
     """
@@ -39,6 +57,7 @@ class UsersCreateMixin:
         user = validated_data.pop('user', None)
         groups = user.pop('groups', [])
         user_permissions = user.pop('user_permissions', [])
+        object_permissions = validated_data.pop('object_permissions', None)
         if user:
             user['tenant'] = user['tenant'].id
             user_ser = UserSerializer(data=user)
@@ -47,13 +66,15 @@ class UsersCreateMixin:
             user = user_ser.instance
             user.groups.add(*groups)
             user.user_permissions.add(*user_permissions)
+            if object_permissions:
+                self.assign_object_permissions(user, object_permissions)
 
         user_type = self.Meta.model.objects.create(user=user, **validated_data)
 
         return user_type
 
 
-class UsersUpdateMixin:
+class UsersUpdateMixin(AssignCustomObjectPermissions):
     """
     Mixin class used to update (almost) all types of users.
     """
@@ -62,6 +83,7 @@ class UsersUpdateMixin:
         user = validated_data.pop('user', None)
         groups = user.pop('groups', [])
         user_permissions = user.pop('user_permissions', [])
+        object_permissions = validated_data.pop('object_permissions', None)
         if user:
             if user.get('username', None) != instance.user.username:
                 user['change_username'] = True
@@ -71,6 +93,8 @@ class UsersUpdateMixin:
             user_ser.save()
             user_ser.instance.groups.add(*groups)
             user_ser.instance.user_permissions.add(*user_permissions)
+            if object_permissions:
+                self.assign_object_permissions(user_ser.instance, object_permissions)
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
