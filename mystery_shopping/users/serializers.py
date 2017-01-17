@@ -1,6 +1,7 @@
 import re
 
 from django.contrib.auth.models import Permission, Group
+from guardian.shortcuts import assign_perm
 from rest_framework import serializers
 
 from mystery_shopping.users.models import ClientUser
@@ -15,7 +16,7 @@ from .models import PersonToAssess
 from .models import Shopper
 from .models import Collector
 
-from mystery_shopping.companies.models import Company
+from mystery_shopping.companies.models import Company, CompanyElement
 from mystery_shopping.tenants.serializers import TenantSerializer
 
 
@@ -118,24 +119,11 @@ class UserSerializer(serializers.ModelSerializer):
                         'company': {'read_only': True},
                         'help_text': 'Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.'}
 
-    @staticmethod
-    def check_username(username):
-        # Todo: add regex checking for 'username' characters
-        if User.objects.filter(username=username).exists():
-            raise serializers.ValidationError({
-                'key': 'VALIDATION_MESSAGE.USER.USERNAME_EXISTS'
-            })
-        if not re.match("^[a-zA-Z0-9@.+-_]+$", username):
-            raise serializers.ValidationError({
-                'key': 'VALIDATION_MESSAGE.USER.ILLEGAL_CHARS'
-            })
-        # No need to check len(username) > 30, as it does it by itself.
-        return True
-
     def create(self, validated_data):
         password = validated_data.get('password', None)
         groups = validated_data.pop('groups', [])
         user_permissions = validated_data.pop('user_permissions', [])
+        object_permissions = validated_data.pop('object_permissions', None)
         confirm_password = validated_data.pop('confirm_password', None)
         validated_data.pop('change_username', None)
         self.check_username(validated_data['username'])
@@ -150,6 +138,7 @@ class UserSerializer(serializers.ModelSerializer):
         user.save()
         user.groups.add(*groups)
         user.user_permissions.add(*user_permissions)
+        self.assign_object_permissions(user, object_permissions)
         return user
 
     def update(self, instance, validated_data):
@@ -157,6 +146,7 @@ class UserSerializer(serializers.ModelSerializer):
         password = validated_data.pop('password', None)
         groups = validated_data.pop('groups', [])
         user_permissions = validated_data.pop('user_permissions', [])
+        object_permissions = validated_data.pop('object_permissions', None)
         confirm_password = validated_data.pop('confirm_password', None)
 
         if password and confirm_password:
@@ -182,7 +172,34 @@ class UserSerializer(serializers.ModelSerializer):
         instance.save()
         instance.groups.add(*groups)
         instance.user_permissions.add(*user_permissions)
+        self.assign_object_permissions(instance, object_permissions)
         return instance
+
+    @staticmethod
+    def assign_object_permissions(user_instance, object_permissions):
+        detractors_id = object_permissions.get('detractor_permissions', None)
+        statistics_id = object_permissions.get('statistics_permissions', None)
+        coded_causes_objects = object_permissions.get('coded_causes_permissions', None)
+        company_elements_detractors = CompanyElement.objects.filter(id__in=detractors_id)
+        company_elements_statistics = CompanyElement.objects.filter(id__in=statistics_id)
+        company_elements_coded_causes = CompanyElement.objects.filter(id__in=coded_causes_objects)
+        assign_perm('view_detractors_for_companyelement', user_instance, company_elements_detractors)
+        assign_perm('view_statistics_for_companyelement', user_instance, company_elements_statistics)
+        assign_perm('view_coded_causes_for_companyelement', user_instance, company_elements_coded_causes)
+
+    @staticmethod
+    def check_username(username):
+        # Todo: add regex checking for 'username' characters
+        if User.objects.filter(username=username).exists():
+            raise serializers.ValidationError({
+                'key': 'VALIDATION_MESSAGE.USER.USERNAME_EXISTS'
+            })
+        if not re.match("^[a-zA-Z0-9@.+-_]+$", username):
+            raise serializers.ValidationError({
+                'key': 'VALIDATION_MESSAGE.USER.ILLEGAL_CHARS'
+            })
+        # No need to check len(username) > 30, as it does it by itself.
+        return True
 
 
 class UserSerializerGET(UserSerializer):
