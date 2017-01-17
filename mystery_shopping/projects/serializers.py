@@ -398,6 +398,7 @@ class EvaluationSerializer(serializers.ModelSerializer):
     def set_evaluation_to_detractor(detractor_instance, evaluation):
         if detractor_instance:
             detractor_instance.evaluation = evaluation
+            detractor_instance.number_of_questions = evaluation.get_indicator_questions().filter(score__lte=6).count()
             detractor_instance.save()
 
     @staticmethod
@@ -452,11 +453,17 @@ class ProjectStatisticsForCompanySerializer(serializers.ModelSerializer):
         Serializer for company view that will contain only time,
         date and places/people to asses
     """
-    company_element_repr = CompanyElementSerializer(source='company_element', read_only=True)
 
     class Meta:
         model = Evaluation
-        fields = ('id', 'time_accomplished', 'company_element', 'company_element_repr')
+        fields = ('id', 'time_accomplished', 'company_element')
+
+
+class ProjectStatisticsForCompanySerializerGET(ProjectStatisticsForCompanySerializer):
+    """
+        Serializer class for client view for GET requests
+    """
+    company_element = CompanyElementSerializer(read_only=True)
 
 
 class ProjectStatisticsForTenantSerializer(serializers.ModelSerializer):
@@ -464,9 +471,15 @@ class ProjectStatisticsForTenantSerializer(serializers.ModelSerializer):
         Serializer for tenant view that will contain only time,
         date and places/people to asses and collector information
     """
-    company_element_repr = CompanyElementSerializer(source='company_element', read_only=True)
-    shopper_repr = ShopperSerializer(source='shopper', read_only=True)
 
     class Meta:
         model = Evaluation
-        fields = ('id', 'time_accomplished', 'section', 'entity', 'entity_repr', 'company_element', 'company_element_repr', 'section_repr', 'shopper_repr')
+        fields = ('id', 'time_accomplished', 'section', 'company_element', 'shopper')
+
+
+class ProjectStatisticsForTenantSerializerGET(ProjectStatisticsForTenantSerializer):
+    """
+        Serializer class for tenant view for GET requests
+    """
+    company_element = CompanyElementSerializer(read_only=True)
+    shopper = ShopperSerializer(read_only=True)
