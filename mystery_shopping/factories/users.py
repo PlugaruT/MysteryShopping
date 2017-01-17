@@ -13,6 +13,8 @@ class UserFactory(DjangoModelFactory):
         exclude = ('r_password',)
 
     tenant = TenantFactory()
+    date_of_birth = fuzzy.FuzzyDate(date(1990, 1, 12))
+    gender = 'f'
     username = fuzzy.FuzzyText(length=10)
     r_password = '1234'
     password = PostGenerationMethodCall('set_password', r_password)
@@ -40,8 +42,6 @@ class ShopperFactory(DjangoModelFactory):
         model = Shopper
 
     user = SubFactory(UserFactory)
-    date_of_birth = fuzzy.FuzzyDate(date(1990, 1, 12))
-    gender = 'f'
     has_drivers_license = True
 
 
