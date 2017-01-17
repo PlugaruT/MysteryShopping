@@ -25,8 +25,8 @@ class PlaceToAssess(models.Model):
 
     A person to assess can either be an Entity or a Section
     """
-    limit = models.Q(app_label='companies', model='department') |\
-            models.Q(app_label='companies', model='entity') |\
+    limit = models.Q(app_label='companies', model='department') | \
+            models.Q(app_label='companies', model='entity') | \
             models.Q(app_label='companies', model='section')
     place_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='content_type_place_to_assess')
     place_id = models.PositiveIntegerField()
@@ -99,8 +99,10 @@ class Project(TenantModel):
 
     def __str__(self):
         return 'Project for {}, start: {}/{}/{}, end: {}/{}/{}'.format(self.company.name,
-                                                                       self.period_start.day, self.period_start.month, self.period_start.year%2000,
-                                                                       self.period_end.day, self.period_end.month, self.period_start.year%2000)
+                                                                       self.period_start.day, self.period_start.month,
+                                                                       self.period_start.year % 2000,
+                                                                       self.period_end.day, self.period_end.month,
+                                                                       self.period_start.year % 2000)
 
     def get_indicators_list(self):
         from mystery_shopping.cxi.algorithms import get_project_indicator_questions_list
@@ -115,7 +117,8 @@ class Project(TenantModel):
         """
         editable_places = []
         if self.research_methodology:
-            places_to_asses = self.research_methodology.places_to_assess.filter(~Q(place_type=ContentType.objects.get_for_model(Department)))
+            places_to_asses = self.research_methodology.places_to_assess.filter(
+                ~Q(place_type=ContentType.objects.get_for_model(Department)))
 
             for place_to_asses in places_to_asses:
                 if not place_to_asses.evaluations().filter(project=self).exists():
@@ -166,7 +169,8 @@ class Evaluation(TimeStampedModel, models.Model):
 
     limit = models.Q(app_label='users', model='clientmanager') | \
             models.Q(app_label='users', model='clientemployee')
-    employee_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='employee_type', null=True, blank=True)
+    employee_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='employee_type', null=True,
+                                      blank=True)
     employee_id = models.PositiveIntegerField(null=True, blank=True)
     employee = GenericForeignKey('employee_type', 'employee_id')
     # till here
@@ -232,6 +236,9 @@ class Evaluation(TimeStampedModel, models.Model):
 
         super(Evaluation, self).save(*args, **kwargs)
 
+    def get_indicator_questions(self):
+        return self.questionnaire.get_indicator_questions()
+
 
 class EvaluationAssessmentLevel(models.Model):
     """
@@ -244,7 +251,7 @@ class EvaluationAssessmentLevel(models.Model):
     consultants = models.ManyToManyField('users.TenantConsultant')
 
     # Attributes
-    level = models.PositiveIntegerField(null=True, default=0,  blank=True)
+    level = models.PositiveIntegerField(null=True, default=0, blank=True)
 
     class Meta:
         ordering = ('level',)
