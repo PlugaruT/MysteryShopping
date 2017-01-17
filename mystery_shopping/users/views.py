@@ -18,8 +18,9 @@ from mystery_shopping.mystery_shopping_utils.permissions import DetractorFilterP
 from mystery_shopping.mystery_shopping_utils.views import GetSerializerClassMixin
 from mystery_shopping.questionnaires.serializers import DetractorRespondentForTenantSerializer, \
     DetractorRespondentForClientSerializer
-from mystery_shopping.users.models import DetractorRespondent
-from mystery_shopping.users.serializers import PermissionSerializer, GroupSerializer, UserSerializerGET
+from mystery_shopping.users.models import DetractorRespondent, ClientUser
+from mystery_shopping.users.serializers import PermissionSerializer, GroupSerializer, UserSerializerGET, \
+    ClientUserSerializer
 from .models import ClientEmployee
 from .models import ClientManager
 from .models import Shopper
@@ -207,22 +208,11 @@ class ShopperViewSet(viewsets.ModelViewSet):
     serializer_class = ShopperSerializer
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
 
-    def get_queryset(self):
-        """Filter the Shoppers by tenant (if they belong to the request.tenant or have no tenant)
-        """
-        queryset = self.queryset.all()
-        queryset = queryset.filter(Q(tenant__isnull=True) | Q(tenant=self.request.user.tenant))
-        return queryset
 
-    def list(self, request, *args, **kwargs):
-        project_type = self.request.query_params.get('type', 'm')
-        if project_type == 'm':
-            queryset = self.get_queryset().filter(is_collector=False)
-        elif project_type == 'c':
-            queryset = self.get_queryset().filter(is_collector=True)
-
-        serializer = ShopperSerializer(queryset, many=True)
-        return Response(serializer.data)
+class ClientUserViewSet(viewsets.ModelViewSet):
+    queryset = ClientUser.objects.all()
+    serializer_class = ClientUserSerializer
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
 
 
 class CollectorViewSet(viewsets.ModelViewSet):

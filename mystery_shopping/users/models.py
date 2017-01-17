@@ -28,9 +28,6 @@ class User(OptionalTenantModel, AbstractUser):
     phone_number = models.CharField(max_length=20, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
     gender = models.CharField(max_length=1, null=True, blank=True)
-    has_drivers_license = models.BooleanField(default=False)
-    job_title = models.CharField(max_length=60, blank=True)
-    address = models.CharField(max_length=100, blank=True)
 
     def __str__(self):
         return u"{}".format(self.username)
@@ -96,7 +93,8 @@ class User(OptionalTenantModel, AbstractUser):
 
     @property
     def list_of_poses(self):
-        return get_objects_for_user(self, klass=CompanyElement, perms=[]).filter(tenant=self.tenant)
+        return get_objects_for_user(self, klass=CompanyElement, perms=['view_companyelement']).filter(
+            tenant=self.tenant)
 
     @property
     def has_client_manager_overview_access(self):
@@ -198,6 +196,22 @@ class TenantConsultant(TenantUserAbstract):
         return 'tenantconsultant'
 
 
+class ClientUser(models.Model):
+    """Class for Client User model.
+
+    This class define the common relations and attributes for all Client Users.
+
+    """
+    # Relations
+    user = models.OneToOneField(User, related_name='client_user')
+    company = models.ForeignKey(CompanyElement, related_name='client_users')
+
+    job_title = models.CharField(max_length=60, blank=True)
+
+    def __str__(self):
+        return self.user
+
+
 class ClientUserAbstract(models.Model):
     """The abstract class for Client User model.
 
@@ -208,9 +222,6 @@ class ClientUserAbstract(models.Model):
     """
     # Relations
     user = models.OneToOneField(User, null=True)
-    tenant = models.ForeignKey(Tenant, related_name='%(class)ss')
-
-    # Attributes
     first_name = models.CharField(max_length=30, blank=True)
     last_name = models.CharField(max_length=30, blank=True)
     job_title = models.CharField(max_length=60, blank=True)
@@ -285,13 +296,10 @@ class Shopper(models.Model):
     """
     # Relations
     user = models.OneToOneField(User, related_name='shopper')
-    tenant = models.ForeignKey(Tenant, related_name='shoppers', null=True, blank=True)
 
     # Attributes
-    is_collector = models.BooleanField(default=False)
-    date_of_birth = models.DateField()
-    gender = models.CharField(max_length=1)
     has_drivers_license = models.BooleanField(default=False)
+    address = models.CharField(max_length=100, blank=True)
 
     def __str__(self):
         return u'{}'.format(self.user.username)

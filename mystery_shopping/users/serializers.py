@@ -3,6 +3,7 @@ import re
 from django.contrib.auth.models import Permission, Group
 from rest_framework import serializers
 
+from mystery_shopping.users.models import ClientUser
 from .models import User
 from .models import TenantProductManager
 from .models import TenantProjectManager
@@ -35,12 +36,16 @@ class UsersCreateMixin:
 
     def create(self, validated_data):
         user = validated_data.pop('user', None)
-
+        groups = user.pop('groups', [])
+        user_permissions = user.pop('user_permissions', [])
         if user:
+            user['tenant'] = user['tenant'].id
             user_ser = UserSerializer(data=user)
             user_ser.is_valid(raise_exception=True)
             user_ser.save()
             user = user_ser.instance
+            user.groups.add(*groups)
+            user.user_permissions.add(*user_permissions)
 
         user_type = self.Meta.model.objects.create(user=user, **validated_data)
 
@@ -54,13 +59,17 @@ class UsersUpdateMixin:
 
     def update(self, instance, validated_data):
         user = validated_data.pop('user', None)
-
+        groups = user.pop('groups', [])
+        user_permissions = user.pop('user_permissions', [])
         if user:
             if user.get('username', None) != instance.user.username:
                 user['change_username'] = True
+            user['tenant'] = user['tenant'].id
             user_ser = UserSerializer(instance.user, data=user)
             user_ser.is_valid(raise_exception=True)
             user_ser.save()
+            user_ser.instance.groups.add(*groups)
+            user_ser.instance.user_permissions.add(*user_permissions)
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
@@ -103,7 +112,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'change_username',
                   'password', 'confirm_password', 'tenant', 'user_permissions', 'groups',
-                  'date_of_birth', 'gender', 'has_drivers_license', 'job_title', 'address')
+                  'date_of_birth', 'gender')
         extra_kwargs = {'username': {'validators': []},
                         'shopper': {'read_only': True},
                         'company': {'read_only': True},
@@ -146,8 +155,8 @@ class UserSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         # TODO improve password validation on update
         password = validated_data.pop('password', None)
-        groups = validated_data.pop('groups', None)
-        user_permissions = validated_data.pop('user_permissions', None)
+        groups = validated_data.pop('groups', [])
+        user_permissions = validated_data.pop('user_permissions', [])
         confirm_password = validated_data.pop('confirm_password', None)
 
         if password and confirm_password:
@@ -188,7 +197,7 @@ class UserSerializerGET(UserSerializer):
     class Meta(UserSerializer.Meta):
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'change_username',
                   'password', 'confirm_password', 'tenant', 'user_permissions', 'groups',
-                  'date_of_birth', 'gender', 'has_drivers_license', 'job_title', 'address', 'roles')
+                  'date_of_birth', 'gender', 'roles')
 
 
 class TenantProductManagerSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):
@@ -258,12 +267,24 @@ class ClientEmployeeSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.M
 
 
 class ShopperSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):
-    """Serializer class for Shopper user model.
+    """
+    Serializer class for Shopper user model.
     """
     user = UserSerializer()
 
     class Meta:
         model = Shopper
+        fields = '__all__'
+
+
+class ClientUserSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):
+    """
+    Serializer class for client users
+    """
+    user = UserSerializer()
+
+    class Meta:
+        model = ClientUser
         fields = '__all__'
 
 
