@@ -111,8 +111,9 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'change_username',
-                  'password', 'confirm_password', 'tenant', 'user_permissions', 'groups',
-                  'date_of_birth', 'gender', 'has_drivers_license', 'job_title', 'address')
+                  'roles', 'password', 'confirm_password', 'tenant_repr', 'user_permissions', 'groups',
+                  'date_of_birth', 'gender', 'has_drivers_license', 'job_title', 'address', 'shopper',
+                  'company', 'managed_entities', 'has_overview_access')
         extra_kwargs = {'username': {'validators': []},
                         'shopper': {'read_only': True},
                         'company': {'read_only': True},

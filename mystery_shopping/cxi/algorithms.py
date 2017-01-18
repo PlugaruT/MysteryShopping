@@ -3,7 +3,7 @@ from collections import defaultdict
 from django.db.models import Count
 from django.db.models.query import Prefetch
 
-from mystery_shopping.companies.models import Department, Entity, Section
+from mystery_shopping.companies.models import CompanyElement
 from mystery_shopping.questionnaires.constants import QuestionType
 from mystery_shopping.questionnaires.models import Questionnaire, QuestionnaireQuestion
 from mystery_shopping.cxi.models import CodedCause, WhyCause
@@ -202,15 +202,13 @@ def get_indicator_details(questionnaire_list, indicator_type):
     return return_dict
 
 
-def get_overview_project_comment(project, department_id, entity_id, section_id):
-    project_comment = ProjectComment.objects.filter(project=project, department=department_id, entity=entity_id,
-                                                    section=section_id, indicator="").first()
+def get_overview_project_comment(project, company_element_id):
+    project_comment = ProjectComment.objects.filter(project=project, company_element=company_element_id, indicator="").first()
     return None if project_comment is None else ProjectCommentSerializer(project_comment).data
 
 
-def get_indicator_project_comment(project, department_id, entity_id, section_id, indicator_type):
-    project_comment = ProjectComment.objects.filter(project=project, department=department_id, entity=entity_id,
-                                                    section=section_id, indicator=indicator_type).first()
+def get_indicator_project_comment(project, company_element_id, indicator_type):
+    project_comment = ProjectComment.objects.filter(project=project, company_element=company_element_id, indicator=indicator_type).first()
     return None if project_comment is None else ProjectCommentSerializer(project_comment).data
 
 def calculate_cxi_score(return_dict, questionnaire_template):
@@ -256,13 +254,13 @@ def get_indicator_questions(questionnaire_list):
     return indicator_types_set, indicator_order
 
 
-def calculate_overview_score(questionnaire_list, project, department_id, entity_id, section_id):
+def calculate_overview_score(questionnaire_list, project, company_element_id):
     overview_list = dict()
     overview_list['indicators'] = dict()
     overview_list['indicator_order'] = list()
     indicator_types_set, overview_list['indicator_order'] = get_indicator_questions(questionnaire_list)
     overview_list['indicators'] = get_indicator_types(indicator_types_set, questionnaire_list)
-    overview_list['project_comment'] = get_overview_project_comment(project, department_id, entity_id, section_id)
+    overview_list['project_comment'] = get_overview_project_comment(project, company_element_id)
     return overview_list
 
 
@@ -381,14 +379,10 @@ def sort_question_by_coded_cause(coded_causes_dict):
 
 
 class CollectDataForIndicatorDashboard:
-    def __init__(self, project, department_id, entity_id, section_id, indicator_type):
+    def __init__(self, project, company_element_id, indicator_type):
         self.project = project
-        self.department_id = department_id
-        self.entity_id = entity_id
-        self.section_id = section_id
-        self.entity = Entity.objects.filter(pk=self.entity_id).first()
-        self.department = Department.objects.filter(pk=self.department_id).first()
-        self.section = Section.objects.filter(pk=self.section_id).first()
+        self.company_element_id = company_element_id
+        self.company_element = CompanyElement.objects.filter(pk=self.company_element_id).first()
         self.indicator_type = indicator_type
         self.questionnaire_list = self._get_questionnaire_list()
 
@@ -424,7 +418,7 @@ class CollectDataForIndicatorDashboard:
     def _get_gauge(self):
         indicator_list = get_indicator_scores(self.questionnaire_list, self.indicator_type)
         gauge = calculate_indicator_score(indicator_list)
-        if self.entity or self.department or self.section:
+        if self.company_element:
             gauge['general_indicator'] = self._get_general_indicator()
         return gauge
 
@@ -434,8 +428,7 @@ class CollectDataForIndicatorDashboard:
         return calculate_indicator_score(indicator_list)['indicator']
 
     def _get_project_comment(self):
-        return get_indicator_project_comment(self.project, self.department, self.entity_id, self.section_id,
-                                             self.indicator_type)
+        return get_indicator_project_comment(self.project, self.company_element_id, self.indicator_type)
 
     def _get_indicator_details(self):
         return get_indicator_details(self.questionnaire_list, self.indicator_type)
@@ -455,9 +448,7 @@ class CollectDataForIndicatorDashboard:
                              .prefetch_related(why_causes), to_attr='questions_list')
         return (Questionnaire.objects
                 .get_project_questionnaires_for_subdivision(project=self.project,
-                                                            department=self.department_id,
-                                                            entity=self.entity,
-                                                            section=self.section)
+                                                            company_element=self.company_element)
                 .select_related('template', 'evaluation', 'evaluation__entity')
                 .prefetch_related(questions))
 
@@ -480,17 +471,15 @@ class CollectDataForIndicatorDashboard:
                 .prefetch_related(questions))
 
 
-def collect_data_for_overview_dashboard(project, department_id, entity_id, section_id):
+def collect_data_for_overview_dashboard(project, company_element_id):
     questions = Prefetch('questions',
                          queryset=QuestionnaireQuestion.objects.all(), to_attr='questions_list')
     questionnaire_list = (Questionnaire.objects
                           .select_related('template', 'evaluation')
                           .prefetch_related(questions))
 
-    questionnaire_list = questionnaire_list.get_project_questionnaires_for_subdivision(project=project,
-                                                                                       entity=entity_id,
-                                                                                       section=section_id).all()
-    return calculate_overview_score(questionnaire_list, project, department_id, entity_id, section_id)
+    questionnaire_list = questionnaire_list.get_project_questionnaires_for_subdivision(company_element=company_element_id).all()
+    return calculate_overview_score(questionnaire_list, project, company_element_id)
 
 
 def get_project_indicator_questions_list(project):
