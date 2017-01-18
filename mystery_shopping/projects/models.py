@@ -197,6 +197,9 @@ class Evaluation(TimeStampedModel, models.Model):
 
         super(Evaluation, self).save(*args, **kwargs)
 
+    def get_indicator_questions(self):
+        return self.questionnaire.get_indicator_questions()
+
 
 class EvaluationAssessmentLevel(models.Model):
     """

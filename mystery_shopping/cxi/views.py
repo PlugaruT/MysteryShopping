@@ -309,12 +309,10 @@ class CodedCausePercentage(views.APIView):
     def get(self, request, *args, **kwargs):
         indicator = request.query_params.get('indicator')
         project_id = request.query_params.get('project')
-        list_of_places = []
+        list_of_places = request.user.list_of_poses.values_list('id', flat=True)
         pre_response = self._pre_process_request(project_id, request.user)
         if pre_response:
             return Response(**pre_response)
-        if isinstance(request.user.user_type_attr, ClientManager):
-            list_of_places = [place['place_id'] for place in request.user.list_of_poses]
         indicator_questions = QuestionnaireQuestion.objects.get_indicator_questions_for_entities(project_id,
                                                                                                  indicator,
                                                                                                  list_of_places)
