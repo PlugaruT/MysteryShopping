@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 from django.contrib.contenttypes.models import ContentType
-from django.db import migrations
+from django.db import migrations, connection
 
 from mystery_shopping.companies.models import CompanyElement
 from mystery_shopping.projects.models import ResearchMethodology, Project, Evaluation
@@ -61,21 +61,25 @@ class EvaluationReassignCompanyElement:
         self.evaluation = evaluation
         self.reassign()
 
-    def set_section(self):
-        company_element = CompanyElement.objects.get(additional_info__old_section_id=self.evaluation.section.id)
+    def set_section(self, section_id):
+        company_element = CompanyElement.objects.get(additional_info__old_section_id=section_id)
         self.evaluation.company_element = company_element
         self.evaluation.save()
 
-    def set_entity(self):
-        company_element = CompanyElement.objects.get(additional_info__old_entity_id=self.evaluation.entity.id)
+    def set_entity(self, entity_id):
+        company_element = CompanyElement.objects.get(additional_info__old_entity_id=entity_id)
         self.evaluation.company_element = company_element
         self.evaluation.save()
 
     def reassign(self):
-        if self.evaluation.section is not None:
-            self.set_section()
-        elif self.evaluation.entity is not None:
-            self.set_entity()
+        with connection.cursor() as cursor:
+            cursor.execute("select section_id, entity_id from projects_evaluation where id = %s", [self.evaluation.pk])
+            row = cursor.fetchone()
+
+        if row[0] is not None:
+            self.set_section(row[0])
+        elif row[1] is not None:
+            self.set_entity(row[1])
 
 
 def migrate_research_methodologies():
