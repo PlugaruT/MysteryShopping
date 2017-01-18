@@ -45,17 +45,6 @@ class ResearchMethodologyReassign:
                 self.add_department_to_research_methodology(place_to_assess)
 
 
-class ProjectReassignCompany:
-    def __init__(self, project):
-        self.project = project
-        self.reassign()
-
-    def reassign(self):
-        company_element = CompanyElement.objects.get(additional_info__old_company_id=self.project.company.id)
-        self.project.company_new = company_element
-        self.project.save()
-
-
 class EvaluationReassignCompanyElement:
     def __init__(self, evaluation):
         self.evaluation = evaluation
@@ -89,9 +78,12 @@ def migrate_research_methodologies():
 
 
 def migrate_projects():
-    projects = Project.objects.all()
-    for project in projects:
-        ProjectReassignCompany(project)
+    with connection.cursor() as cursor:
+        cursor.execute('''
+                UPDATE projects_project AS p SET company_new_id =
+                  (SELECT c.id FROM companies_companyelement AS c
+                  WHERE c.additional_info -> 'old_company_id' = p.company_id::TEXT);
+                ''')
 
 
 def migrate_evaluations():

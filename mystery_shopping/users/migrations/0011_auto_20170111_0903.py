@@ -40,7 +40,7 @@ def add_groups_to_existing_users(*args):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0009_auto_20170106_1300'),
+        ('users', '0010_detractorrespondent_number_of_questions'),
     ]
 
     operations = [

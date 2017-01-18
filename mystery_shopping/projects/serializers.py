@@ -20,7 +20,7 @@ from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from mystery_shopping.questionnaires.models import Questionnaire
 from mystery_shopping.questionnaires.constants import QuestionType
 from mystery_shopping.questionnaires.utils import update_attributes
-from mystery_shopping.users.serializers import UserSerializer
+from mystery_shopping.users.serializers import UserSerializer, ShopperSerializer
 
 
 class EvaluationAssessmentCommentSerializer(serializers.ModelSerializer):
@@ -406,11 +406,16 @@ class ProjectStatisticsForCompanySerializer(serializers.ModelSerializer):
         Serializer for company view that will contain only time,
         date and places/people to asses
     """
-    company_element = CompanyElementSerializer(read_only=True)
 
     class Meta:
         model = Evaluation
         fields = ('id', 'time_accomplished', 'company_element')
+
+class ProjectStatisticsForCompanySerializerGET(ProjectStatisticsForCompanySerializer):
+    """
+        Serializer class for client view for GET requests
+    """
+    company_element = CompanyElementSerializer(read_only=True)
 
 
 class ProjectStatisticsForTenantSerializer(serializers.ModelSerializer):
@@ -418,9 +423,14 @@ class ProjectStatisticsForTenantSerializer(serializers.ModelSerializer):
         Serializer for tenant view that will contain only time,
         date and places/people to asses and collector information
     """
-    company_element = CompanyElementSerializer(read_only=True)
-    shopper = UserSerializer(read_only=True)
 
     class Meta:
         model = Evaluation
         fields = ('id', 'time_accomplished', 'company_element', 'shopper')
+
+class ProjectStatisticsForTenantSerializerGET(ProjectStatisticsForTenantSerializer):
+    """
+        Serializer class for tenant view for GET requests
+    """
+    company_element = CompanyElementSerializer(read_only=True)
+    shopper = ShopperSerializer(read_only=True)

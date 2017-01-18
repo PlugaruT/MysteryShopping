@@ -19,7 +19,8 @@ from mystery_shopping.mystery_shopping_utils.views import GetSerializerClassMixi
 from mystery_shopping.projects.constants import EvaluationStatus
 from mystery_shopping.projects.mixins import EvaluationViewMixIn, UpdateSerializerMixin
 from mystery_shopping.projects.serializers import ProjectSerializerGET, ResearchMethodologySerializerGET, \
-    EvaluationSerializerGET, EvaluationAssessmentLevelSerializerGET, EvaluationAssessmentCommentSerializerGET
+    EvaluationSerializerGET, EvaluationAssessmentLevelSerializerGET, EvaluationAssessmentCommentSerializerGET, \
+    ProjectStatisticsForTenantSerializerGET, ProjectStatisticsForCompanySerializerGET
 from mystery_shopping.users.services import ShopperService
 from .models import Project
 from .models import ResearchMethodology
