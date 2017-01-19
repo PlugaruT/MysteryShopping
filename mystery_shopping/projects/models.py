@@ -100,7 +100,7 @@ class Project(TenantModel):
         return get_project_indicator_questions_list(self)
 
     # Todo: rewrite or delete
-    def get_editable_places(self):
+    def get_company_elements_with_evaluations(self):
         """
         Function for getting all company elements that aren't included into any project and
         don't have a questionnaire and can be removed from the project's research methodology
@@ -108,7 +108,7 @@ class Project(TenantModel):
         """
         editable_places = []
         if self.research_methodology:
-            editable_places = CompanyElement.objects.get_list_of_editable_places(project=self)
+            editable_places = CompanyElement.objects.get_list_of_non_editable_places(project=self)
         return editable_places
 
     def is_questionnaire_editable(self):

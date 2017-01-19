@@ -16,11 +16,10 @@ class CompanyElementQuerySet(QuerySet):
         except:
             return False
 
-    def get_list_of_editable_places(self, project):
+    def get_list_of_non_editable_places(self, project):
         places = project.research_methodology.company_elements.all()
         id_list = list()
         for place in places:
-            if not self.has_evaluations_for_project(pk=place.pk, project=project):
+            if self.has_evaluations_for_project(pk=place.pk, project=project):
                 id_list.append(place.pk)
-
         return id_list

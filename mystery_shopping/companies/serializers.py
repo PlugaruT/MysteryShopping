@@ -65,7 +65,7 @@ class CompanyElementSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CompanyElement
-        fields = ('id', 'element_name', 'element_type', 'children', 'additional_info', 'parent')
+        fields = ('id', 'element_name', 'element_type', 'children', 'additional_info', 'parent', 'tenant')
 
     @staticmethod
     def setup_eager_loading(queryset):
@@ -81,7 +81,7 @@ class SimpleCompanyElementSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CompanyElement
-        fields = ('id', 'element_name', 'element_type', 'additional_info')
+        fields = ('id', 'element_name', 'element_type', 'additional_info', 'tenant')
 
 
 class AdditionalInfoTypeSerializer(serializers.ModelSerializer):

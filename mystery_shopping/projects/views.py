@@ -101,7 +101,7 @@ class ProjectPerCompanyViewSet(viewsets.ModelViewSet):
         serializer = ProjectSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(ProjectSerializerGET(serializer.instance).data, status=status.HTTP_201_CREATED)
 
     def retrieve(self, request, pk=None, company_element_pk=None):
         queryset = self.queryset.filter(pk=pk, company=company_element_pk)
@@ -113,17 +113,11 @@ class ProjectPerCompanyViewSet(viewsets.ModelViewSet):
     def update(self, request, pk=None, company_element_pk=None):
         request.data['research_methodology']['tenant'] = request.user.tenant.pk
         queryset = self.queryset.filter(pk=pk, company=company_element_pk)
-        evaluation = get_object_or_404(queryset, pk=pk)
-        serializer = ProjectSerializerGET(evaluation, data=request.data)
+        project = get_object_or_404(queryset, pk=pk)
+        serializer = ProjectSerializer(project, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data)
-
-    @detail_route(methods=['post'])
-    def graph(self, request, pk=None, company_element_pk=None):
-        project = get_object_or_404(Project, pk=pk)
-        project.save_graph_config(request.data)
-        return Response(status=status.HTTP_200_OK)
+        return Response(ProjectSerializerGET(serializer.instance).data)
 
 
 class ResearchMethodologyViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):

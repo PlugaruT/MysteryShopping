@@ -20,8 +20,7 @@ from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from mystery_shopping.questionnaires.models import Questionnaire
 from mystery_shopping.questionnaires.constants import QuestionType
 from mystery_shopping.questionnaires.utils import update_attributes
-from mystery_shopping.users.serializers import UserSerializer, ShopperSerializer
-
+from mystery_shopping.users.serializers import UserSerializer, UserSerializerGET
 
 class EvaluationAssessmentCommentSerializer(serializers.ModelSerializer):
     """
@@ -89,6 +88,10 @@ class ResearchMethodologySerializer(serializers.ModelSerializer):
         fields = '__all__'
         extra_kwargs = {
             'scripts': {
+                'allow_empty': True,
+                'required': False
+            },
+            'tenant': {
                 'required': False
             }
         }
@@ -161,10 +164,15 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = '__all__'
         extra_kwargs = {
             'shoppers': {
-                'allow_null': True,
+                'allow_empty': True,
                 'required': False
             }
         }
+
+    def validate(self, attrs):
+        for value, key in attrs.items():
+            print(value, key)
+        return attrs
 
     def _set_research_methodology(self, project, research_methodology_instance, data):
         data['project_id'] = project.id
@@ -181,6 +189,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         research_methodology = validated_data.pop('research_methodology', None)
+        research_methodology['tenant'] = validated_data['tenant']
         consultants = validated_data.pop('consultants', [])
         shoppers = validated_data.pop('shoppers', [])
 
@@ -224,12 +233,12 @@ class ProjectSerializerGET(ProjectSerializer):
     """
     research_methodology = ResearchMethodologySerializerGET(required=False)
     company = CompanyElementSerializer(read_only=True)
-    shoppers = UserSerializer(many=True, read_only=True)
-    project_manager = UserSerializer(read_only=True)
-    consultants = UserSerializer(read_only=True, many=True)
+    shoppers = UserSerializerGET(many=True, read_only=True)
+    project_manager = UserSerializerGET(read_only=True)
+    consultants = UserSerializerGET(read_only=True, many=True)
     evaluation_assessment_levels = EvaluationAssessmentLevelSerializer(read_only=True, many=True)
     cxi_indicators = serializers.DictField(source='get_indicators_list', read_only=True)
-    editable_places = serializers.ListField(source='get_editable_places', read_only=True)
+    disabled_elements = serializers.ListField(source='get_company_elements_with_evaluations', read_only=True)
     is_questionnaire_editable = serializers.BooleanField(read_only=True)
 
     class Meta:
