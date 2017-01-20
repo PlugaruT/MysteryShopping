@@ -26,7 +26,7 @@ class TestProjectEditablePlaces(TestCase):
                           questionnaire_template=self.template_questionnaire)
 
         # The list should contain information about self.company_element_2
-        self.assertEqual(self.project.get_editable_places(), [self.company_element_2.id])
+        self.assertEqual(self.project.get_company_elements_with_evaluations(), [self.company_element_1.id])
 
     def test_create_evaluation_for_two_entities(self):
         EvaluationFactory(company_element=self.company_element_1, project=self.project,
@@ -35,11 +35,10 @@ class TestProjectEditablePlaces(TestCase):
                           questionnaire_template=self.template_questionnaire)
 
         # The list should be empty because there are evaluations for each all entities
-        self.assertListEqual(self.project.get_editable_places(), [])
+        self.assertListEqual(self.project.get_company_elements_with_evaluations(),
+                             [self.company_element_1.id, self.company_element_2.id])
 
     def test_when_there_are_no_evaluations_for_any_entity(self):
-        # Check if the list contains information about 2 entities
-        self.assertEqual(len(self.project.get_editable_places()), 2)
         # The list should contain information about all entities because there are no evaluation for them
-        self.assertCountEqual(self.project.get_editable_places(),
-                              [self.company_element_1.id, self.company_element_2.id])
+        self.assertCountEqual(self.project.get_company_elements_with_evaluations(),
+                              [])

@@ -107,9 +107,8 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'change_username',
-                  'roles', 'password', 'confirm_password', 'tenant_repr', 'user_permissions', 'groups',
-                  'date_of_birth', 'gender', 'has_drivers_license', 'job_title', 'address', 'shopper',
-                  'company', 'managed_entities', 'has_overview_access')
+                  'roles', 'password', 'confirm_password', 'user_permissions', 'groups',
+                  'date_of_birth', 'gender', 'has_drivers_license', 'job_title', 'address', 'shopper', 'managed_entities', 'has_overview_access')
         extra_kwargs = {'username': {'validators': []},
                         'help_text': 'Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.'}
 

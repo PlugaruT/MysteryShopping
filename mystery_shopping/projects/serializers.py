@@ -20,7 +20,8 @@ from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from mystery_shopping.questionnaires.models import Questionnaire
 from mystery_shopping.questionnaires.constants import QuestionType
 from mystery_shopping.questionnaires.utils import update_attributes
-from mystery_shopping.users.serializers import UserSerializer, UserSerializerGET
+from mystery_shopping.users.serializers import UserSerializer, UserSerializerGET, ShopperSerializer
+
 
 class EvaluationAssessmentCommentSerializer(serializers.ModelSerializer):
     """
@@ -399,7 +400,7 @@ class EvaluationSerializerGET(EvaluationSerializer):
     """
     GET Evaluation serializer that uses nested serializers.
     """
-    shopper = UserSerializer(read_only=True)
+    shopper = UserSerializerGET(read_only=True)
     questionnaire_script = QuestionnaireScriptSerializer(read_only=True)
     questionnaire = QuestionnaireSerializer(read_only=True)
     company_element = CompanyElementSerializer(read_only=True)
