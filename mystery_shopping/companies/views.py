@@ -63,6 +63,14 @@ class CompanyElementViewSet(viewsets.ModelViewSet):
     queryset = serializer_class.setup_eager_loading(queryset)
     filter_backends = (TenantFilter,)
 
+    def create(self, request, *args, **kwargs):
+        request.data['tenant'] = request.user.tenant.id
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(CompanyElement.tree.root_nodes())
         serializer = self.get_serializer(queryset, many=True)

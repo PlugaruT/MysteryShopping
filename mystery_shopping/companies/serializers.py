@@ -66,6 +66,15 @@ class CompanyElementSerializer(serializers.ModelSerializer):
     class Meta:
         model = CompanyElement
         fields = ('id', 'element_name', 'element_type', 'children', 'additional_info', 'parent', 'tenant')
+        extra_kwargs = {
+            'tenant': {
+                'required': False
+            },
+            'additional_info': {
+                'allow_blank': True
+            }
+        }
+
 
     @staticmethod
     def setup_eager_loading(queryset):

@@ -443,4 +443,4 @@ class ProjectStatisticsForTenantSerializerGET(ProjectStatisticsForTenantSerializ
         Serializer class for tenant view for GET requests
     """
     company_element = CompanyElementSerializer(read_only=True)
-    shopper = ShopperSerializer(read_only=True)
+    shopper = UserSerializerGET(read_only=True)
