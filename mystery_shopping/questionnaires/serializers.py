@@ -545,7 +545,7 @@ class DetractorRespondentForTenantSerializer(serializers.ModelSerializer):
     Serializer for Detractors for tenant (that included all the fields)
     """
     saved_by = UserSerializerGET(source='evaluation.saved_by_user', read_only=True)
-    shopper = ShopperSerializer(source='evaluation.shopper', read_only=True)
+    shopper = UserSerializerGET(source='evaluation.shopper', read_only=True)
     questionnaire_title = serializers.CharField(source='evaluation.questionnaire.title', read_only=True)
     time_accomplished = serializers.DateTimeField(source='evaluation.time_accomplished', read_only=True)
     questions = QuestionnaireQuestionSerializer(source='get_detractor_questions', many=True, read_only=True)
@@ -568,10 +568,6 @@ class DetractorRespondentForTenantSerializer(serializers.ModelSerializer):
         queryset = queryset.select_related('evaluation', 'evaluation__questionnaire')
         queryset = queryset.prefetch_related('evaluation__saved_by_user',
                                              'evaluation__shopper',
-                                             'evaluation__shopper__user',
-                                             'evaluation__saved_by_user__tenantprojectmanager',
-                                             'evaluation__saved_by_user__tenantproductmanager',
-                                             'evaluation__saved_by_user__tenantconsultant',
                                              'evaluation__questionnaire__blocks__questions__question_choices')
         return queryset
 

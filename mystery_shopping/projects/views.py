@@ -88,10 +88,10 @@ class ProjectPerCompanyViewSet(viewsets.ModelViewSet):
     permission_condition = (C(HasAccessToProjectsOrEvaluations) | HasReadOnlyAccessToProjectsOrEvaluations)
     filter_backends = (TenantFilter, )
 
-    def list(self, request, company_pk=None):
+    def list(self, request, company_element_pk=None):
         project_type = self.request.query_params.get('type', 'm')
         queryset = self.filter_queryset(self.queryset)
-        queryset = queryset.filter(company=company_pk, type=project_type)
+        queryset = queryset.filter(company=company_element_pk, type=project_type)
         if self.request.user.user_type == 'tenantconsultant':
             queryset = self.queryset.filter(consultants__user=self.request.user)
         serializer = ProjectSerializerGET(queryset, many=True)
@@ -197,15 +197,15 @@ class EvaluationsFilter(django_filters.rest_framework.FilterSet):
 
 
 class EvaluationPerProjectViewSet(ListModelMixin, EvaluationViewMixIn, viewsets.GenericViewSet):
-    serializer_class = EvaluationSerializer
+    serializer_class = EvaluationSerializerGET
     permission_classes = (IsAuthenticated, HasAccessToProjectsOrEvaluations,)
     pagination_class = EvaluationPagination
-    filter_backends = (TenantFilter, DjangoFilterBackend)
+    filter_backends = (DjangoFilterBackend,)
     filter_class = EvaluationsFilter
     queryset = Evaluation.objects.all()
 
-    def list(self, request, company_pk=None, project_pk=None):
-        queryset = Evaluation.objects.get_project_evaluations(project=project_pk, company=company_pk)
+    def list(self, request, company_element_pk=None, project_pk=None):
+        queryset = Evaluation.objects.get_project_evaluations(project=project_pk, company=company_element_pk)
         queryset = self.filter_queryset(queryset)
         queryset = self.serializer_class.setup_eager_loading(queryset)
         page = self.paginate_queryset(queryset)
