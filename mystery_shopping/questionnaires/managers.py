@@ -56,6 +56,6 @@ class QuestionnaireQuestionQuerySet(QuerySet):
 class QuestionnaireTemplateQuestionQuerySet(QuerySet):
     def is_question_editable(self, pk):
         try:
-            return self.get(questionnaire_template__type=ProjectType.CUSTOMER_XP_INDEX, pk=pk)
+            return self.get(questionnaire_template__type=ProjectType.CUSTOMER_EXPERIENCE_INDEX, pk=pk)
         except:
             return None

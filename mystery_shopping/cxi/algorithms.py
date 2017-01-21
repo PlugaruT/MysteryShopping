@@ -118,12 +118,10 @@ def group_questions_by_pos(questionnaire_list, indicator_type):
                                                        if q.type == QuestionType.INDICATOR_QUESTION
                                                        and q.additional_info == indicator_type])
         if questionnaire_indicator_score:
-            indicator_pos_details['entities'][questionnaire.evaluation.entity.name].append(
+            indicator_pos_details['entities'][questionnaire.evaluation.company_element.element_name].append(
                 questionnaire_indicator_score.score)
-            indicator_pos_details['ids'][questionnaire.evaluation.entity.name] = questionnaire.evaluation.entity.id
-            if questionnaire.evaluation.section is not None:
-                indicator_pos_details['sections'][questionnaire.evaluation.section.name].append(
-                    questionnaire_indicator_score.score)
+            indicator_pos_details['ids'][
+                questionnaire.evaluation.company_element.element_name] = questionnaire.evaluation.company_element.id
     return indicator_pos_details
 
 
@@ -203,13 +201,16 @@ def get_indicator_details(questionnaire_list, indicator_type):
 
 
 def get_overview_project_comment(project, company_element_id):
-    project_comment = ProjectComment.objects.filter(project=project, company_element=company_element_id, indicator="").first()
+    project_comment = ProjectComment.objects.filter(project=project, company_element=company_element_id,
+                                                    indicator="").first()
     return None if project_comment is None else ProjectCommentSerializer(project_comment).data
 
 
 def get_indicator_project_comment(project, company_element_id, indicator_type):
-    project_comment = ProjectComment.objects.filter(project=project, company_element=company_element_id, indicator=indicator_type).first()
+    project_comment = ProjectComment.objects.filter(project=project, company_element=company_element_id,
+                                                    indicator=indicator_type).first()
     return None if project_comment is None else ProjectCommentSerializer(project_comment).data
+
 
 def calculate_cxi_score(return_dict, questionnaire_template):
     cxi_score = 0
@@ -449,7 +450,7 @@ class CollectDataForIndicatorDashboard:
         return (Questionnaire.objects
                 .get_project_questionnaires_for_subdivision(project=self.project,
                                                             company_element=self.company_element)
-                .select_related('template', 'evaluation', 'evaluation__entity')
+                .select_related('template', 'evaluation', 'evaluation__company_element')
                 .prefetch_related(questions))
 
     def _get_all_project_questionnaires(self):
@@ -467,7 +468,7 @@ class CollectDataForIndicatorDashboard:
 
         return (Questionnaire.objects
                 .get_project_submitted_or_approved_questionnaires(self.project)
-                .select_related('template', 'evaluation', 'evaluation__entity')
+                .select_related('template', 'evaluation', 'evaluation__company_element')
                 .prefetch_related(questions))
 
 
@@ -478,7 +479,8 @@ def collect_data_for_overview_dashboard(project, company_element_id):
                           .select_related('template', 'evaluation')
                           .prefetch_related(questions))
 
-    questionnaire_list = questionnaire_list.get_project_questionnaires_for_subdivision(company_element=company_element_id).all()
+    questionnaire_list = questionnaire_list.get_project_questionnaires_for_subdivision(project=project,
+                                                                                       company_element=company_element_id).all()
     return calculate_overview_score(questionnaire_list, project, company_element_id)
 
 

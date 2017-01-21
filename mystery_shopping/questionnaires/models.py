@@ -172,7 +172,7 @@ class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
         return self.questions.filter(type=QuestionType.INDICATOR_QUESTION)
 
     def get_entity(self):
-        return self.evaluation.entity
+        return self.evaluation.company_element
 
     def get_section(self):
         return self.evaluation.section

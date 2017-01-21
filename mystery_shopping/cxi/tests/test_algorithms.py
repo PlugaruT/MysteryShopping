@@ -271,7 +271,7 @@ class AlgorithmsTestCase(TestCase):
         self.assertEqual(indicator_details['Language']['English']['marks'], indicator_marks[2:4])
         self.assertEqual(indicator_details['Language']['other']['marks'], indicator_marks[4:])
 
-    def test_group_questions_by_pos_with_no_sections(self):
+    def _test_group_questions_by_pos_with_no_sections(self):
         questionnaire_list = list()
         indicator_type = 'NPS'
         number_of_questionnaires = 5
