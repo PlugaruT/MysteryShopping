@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_condition import Or
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -9,7 +9,7 @@ from rest_framework import status
 
 from mystery_shopping.companies.models import SubIndustry, CompanyElement, AdditionalInfoType
 from mystery_shopping.companies.serializers import SubIndustrySerializer, CompanyElementSerializer, \
-    AdditionalInfoTypeSerializer
+    AdditionalInfoTypeSerializer, SimpleCompanyElementSerializer
 from mystery_shopping.companies.uploads import handle_csv_with_uploaded_sub_industries
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from .models import Industry
@@ -58,13 +58,20 @@ class SubIndustryViewSet(viewsets.ModelViewSet):
 
 class CompanyElementViewSet(viewsets.ModelViewSet):
     serializer_class = CompanyElementSerializer
+    serializer_class_companies = SimpleCompanyElementSerializer
     queryset = CompanyElement.objects.all()
     queryset = serializer_class.setup_eager_loading(queryset)
     filter_backends = (TenantFilter,)
 
     def list(self, request, *args, **kwargs):
-        queryset = CompanyElement.objects.root_nodes()
+        queryset = self.filter_queryset(CompanyElement.tree.root_nodes())
         serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @list_route(methods=['get'])
+    def companies(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(CompanyElement.tree.root_nodes())
+        serializer = self.serializer_class_companies(queryset, many=True)
         return Response(serializer.data)
 
     @detail_route(methods=['post'])

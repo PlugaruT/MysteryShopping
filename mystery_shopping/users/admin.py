@@ -8,6 +8,7 @@ from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 from guardian.admin import GuardedModelAdmin
 
 from mystery_shopping.tenants.models import Tenant
+from mystery_shopping.users.models import ClientUser
 from .models import User
 from .models import TenantProductManager
 from .models import TenantProjectManager
@@ -56,7 +57,8 @@ class UserAdmin(AuthUserAdmin, GuardedModelAdmin):
     )
 
 
-@admin.register(TenantProductManager, TenantProjectManager, TenantConsultant, ClientProjectManager, ClientManager, ClientEmployee, PersonToAssess)
+@admin.register(TenantProductManager, TenantProjectManager, TenantConsultant, ClientProjectManager, ClientManager,
+                ClientEmployee, PersonToAssess, ClientUser)
 class Tenants(admin.ModelAdmin):
     pass
 

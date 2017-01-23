@@ -30,7 +30,7 @@ class User(OptionalTenantModel, AbstractUser):
     gender = models.CharField(max_length=1, null=True, blank=True)
 
     def __str__(self):
-        return u"{}".format(self.username)
+        return u"{} {}".format(self.first_name, self.last_name)
 
     def get_absolute_url(self):
         return reverse('users:detail', kwargs={'username': self.username})
@@ -209,7 +209,7 @@ class ClientUser(models.Model):
     job_title = models.CharField(max_length=60, blank=True)
 
     def __str__(self):
-        return self.user
+        return u'pk: {}, username: {}'.format(self.id, self.user.username)
 
 
 class ClientUserAbstract(models.Model):
@@ -302,7 +302,7 @@ class Shopper(models.Model):
     address = models.CharField(max_length=100, blank=True)
 
     def __str__(self):
-        return u'{}'.format(self.user.username)
+        return u'pk: {}, name: {},  username: {}'.format(self.id, self.user, self.user.username)
 
 
 class Collector(models.Model):

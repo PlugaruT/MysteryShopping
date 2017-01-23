@@ -35,17 +35,21 @@ class AssignCustomObjectPermissions:
     Mixin class for assigning custom permissions to user for viewing detractors, statistics
     and coded causes for different company elements
     """
+
     @staticmethod
     def assign_object_permissions(user_instance, object_permissions):
-        detractors_id = object_permissions.get('detractor_permissions', None)
-        statistics_id = object_permissions.get('statistics_permissions', None)
-        coded_causes_objects = object_permissions.get('coded_causes_permissions', None)
+        detractors_id = object_permissions.get('detractor_permissions', [])
+        statistics_id = object_permissions.get('statistics_permissions', [])
+        coded_causes_objects = object_permissions.get('coded_causes_permissions', [])
+        manager_objects = object_permissions.get('manager_permissions', [])
         company_elements_detractors = CompanyElement.objects.filter(id__in=detractors_id)
         company_elements_statistics = CompanyElement.objects.filter(id__in=statistics_id)
         company_elements_coded_causes = CompanyElement.objects.filter(id__in=coded_causes_objects)
+        company_elements_manager = CompanyElement.objects.filter(id__in=manager_objects)
         assign_perm('view_detractors_for_companyelement', user_instance, company_elements_detractors)
         assign_perm('view_statistics_for_companyelement', user_instance, company_elements_statistics)
         assign_perm('view_coded_causes_for_companyelement', user_instance, company_elements_coded_causes)
+        assign_perm('manager_companyelement', user_instance, company_elements_manager)
 
 
 class UsersCreateMixin(AssignCustomObjectPermissions):
@@ -125,19 +129,20 @@ class GroupSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(AssignCustomObjectPermissions, serializers.ModelSerializer):
     """
     Serializer class for User model
     """
     password = serializers.CharField(write_only=True, required=False)
     confirm_password = serializers.CharField(write_only=True, required=False)
     change_username = serializers.BooleanField(write_only=True, required=False)
+    object_permissions = serializers.JSONField(required=False, write_only=True)
 
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'change_username',
                   'password', 'confirm_password', 'tenant', 'user_permissions', 'groups',
-                  'date_of_birth', 'gender')
+                  'date_of_birth', 'gender', 'object_permissions')
         extra_kwargs = {'username': {'validators': []},
                         'shopper': {'read_only': True},
                         'company': {'read_only': True},
@@ -200,18 +205,6 @@ class UserSerializer(serializers.ModelSerializer):
         if object_permissions:
             self.assign_object_permissions(instance, object_permissions)
         return instance
-
-    @staticmethod
-    def assign_object_permissions(user_instance, object_permissions):
-        detractors_id = object_permissions.get('detractor_permissions', None)
-        statistics_id = object_permissions.get('statistics_permissions', None)
-        coded_causes_objects = object_permissions.get('coded_causes_permissions', None)
-        company_elements_detractors = CompanyElement.objects.filter(id__in=detractors_id)
-        company_elements_statistics = CompanyElement.objects.filter(id__in=statistics_id)
-        company_elements_coded_causes = CompanyElement.objects.filter(id__in=coded_causes_objects)
-        assign_perm('view_detractors_for_companyelement', user_instance, company_elements_detractors)
-        assign_perm('view_statistics_for_companyelement', user_instance, company_elements_statistics)
-        assign_perm('view_coded_causes_for_companyelement', user_instance, company_elements_coded_causes)
 
     @staticmethod
     def check_username(username):
@@ -320,11 +313,33 @@ class ShopperSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSer
         fields = '__all__'
 
 
+class ShopperSerializerGET(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):
+    """
+    Serializer class for Shopper user model.
+    """
+    user = UserSerializerGET()
+
+    class Meta:
+        model = Shopper
+        fields = '__all__'
+
+
 class ClientUserSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):
     """
     Serializer class for client users
     """
     user = UserSerializer()
+
+    class Meta:
+        model = ClientUser
+        fields = '__all__'
+
+
+class ClientUserSerializerGET(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):
+    """
+    Serializer class for client users
+    """
+    user = UserSerializerGET()
 
     class Meta:
         model = ClientUser

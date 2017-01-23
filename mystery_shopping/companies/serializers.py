@@ -73,6 +73,22 @@ class CompanyElementSerializer(serializers.ModelSerializer):
         return queryset
 
 
+class SimpleCompanyElementSerializer(serializers.ModelSerializer):
+    """
+    Serializer class used for serializing CompanyElement model
+    """
+    additional_info = serializers.JSONField(required=False)
+
+    class Meta:
+        model = CompanyElement
+        fields = ('id', 'element_name', 'element_type', 'additional_info', 'parent')
+
+    @staticmethod
+    def setup_eager_loading(queryset):
+        queryset = queryset.select_related('parent')
+        return queryset
+
+
 class AdditionalInfoTypeSerializer(serializers.ModelSerializer):
     """
     Serialize class for AdditionalInfoType model

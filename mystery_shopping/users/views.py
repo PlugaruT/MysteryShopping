@@ -8,6 +8,7 @@ from rest_framework import viewsets
 from rest_framework import status
 from rest_condition import Or
 from rest_framework.decorators import list_route
+from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
@@ -20,7 +21,7 @@ from mystery_shopping.questionnaires.serializers import DetractorRespondentForTe
     DetractorRespondentForClientSerializer
 from mystery_shopping.users.models import DetractorRespondent, ClientUser
 from mystery_shopping.users.serializers import PermissionSerializer, GroupSerializer, UserSerializerGET, \
-    ClientUserSerializer
+    ClientUserSerializer, ShopperSerializerGET, ClientUserSerializerGET
 from .models import ClientEmployee
 from .models import ClientManager
 from .models import Shopper
@@ -127,7 +128,7 @@ class UserViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
         return Response(response)
 
     def filter_and_serialize(self, group):
-        queryset = self.queryset.filter(groups__id__in=group)
+        queryset = self.filter_queryset(self.queryset).filter(groups__id__in=group)
         serializer = self.get_serializer_class()(queryset, many=True)
         return serializer.data
 
@@ -148,6 +149,30 @@ class UserGroupsViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (IsAuthenticated,)
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
+
+    @list_route(methods=['get'], url_path='group-types')
+    def groups_types(self, request):
+        tenant = ['Tenant Product Managers', 'Tenant Project Managers', 'Tenant Consultants']
+        client = ['Client Managers', 'Client Project Managers', 'Client Employees']
+        shopper = ['collectors', 'shoppers']
+        tenant_groups = Group.objects.filter(name__in=tenant)
+        client_groups = Group.objects.filter(name__in=client)
+        shopper_groups = Group.objects.filter(name__in=shopper)
+        result = [
+            {
+                'type': 'tenant',
+                'groups': GroupSerializer(tenant_groups, many=True).data
+            },
+            {
+                'type': 'client',
+                'groups': GroupSerializer(client_groups, many=True).data
+            },
+            {
+                'type': 'shopper',
+                'groups': GroupSerializer(shopper_groups, many=True).data
+            }
+        ]
+        return Response(result)
 
 
 class PermissionsPerUserViewSet(viewsets.ViewSet):
@@ -204,24 +229,34 @@ class ClientManagerViewSet(FilterQuerysetOnTenantMixIn, viewsets.ModelViewSet):
 
 
 class ShopperFilter(django_filters.rest_framework.FilterSet):
-    groups = django_filters.AllValuesMultipleFilter(name="user__groups")
     license = django_filters.BooleanFilter(name='has_drivers_license')
     sex = django_filters.CharFilter(name='user__gender')
+    age = django_filters.DateFromToRangeFilter(name='user__date_of_birth')
 
     class Meta:
         model = Shopper
-        fields = ['groups', 'license', 'sex']
+        fields = ['license', 'sex', 'age']
 
 
-class ShopperViewSet(viewsets.ModelViewSet):
+class ShopperViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
     queryset = Shopper.objects.all()
     serializer_class = ShopperSerializer
-    filter_backends = (DjangoFilterBackend,)
+    serializer_class_get = ShopperSerializerGET
+    filter_backends = (DjangoFilterBackend, SearchFilter)
     filter_class = ShopperFilter
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
+    search_fields = ('address',)
 
     def get_queryset(self):
         return self.queryset.filter(user__tenant=self.request.user.tenant)
+
+    def create(self, request, *args, **kwargs):
+        request.data['user']['tenant'] = request.user.tenant.id
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class ClientFilter(django_filters.rest_framework.FilterSet):
@@ -232,15 +267,24 @@ class ClientFilter(django_filters.rest_framework.FilterSet):
         fields = ['groups', 'company']
 
 
-class ClientUserViewSet(viewsets.ModelViewSet):
+class ClientUserViewSet( GetSerializerClassMixin, viewsets.ModelViewSet):
     queryset = ClientUser.objects.all()
     serializer_class = ClientUserSerializer
+    serializer_class_get = ClientUserSerializerGET
     filter_backends = (DjangoFilterBackend,)
     filter_class = ClientFilter
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
 
     def get_queryset(self):
         return self.queryset.filter(user__tenant=self.request.user.tenant)
+
+    def create(self, request, *args, **kwargs):
+        request.data['user']['tenant'] = request.user.tenant.id
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class CollectorViewSet(viewsets.ModelViewSet):
