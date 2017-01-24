@@ -137,6 +137,30 @@ class User(OptionalTenantModel, AbstractUser):
             company = getattr(self, UserRole.CLIENT_EMPLOYEE, None).company
         return company
 
+    def management_permissions(self):
+        return get_objects_for_user(self, klass=CompanyElement,
+                                    perms=['manager_companyelement']).values_list('id', flat=True)
+
+    def detractors_permissions(self):
+        return get_objects_for_user(self, klass=CompanyElement,
+                                    perms=['view_detractors_for_companyelement']).values_list('id', flat=True)
+
+    def statistics_permissions(self):
+        return get_objects_for_user(self, klass=CompanyElement,
+                                    perms=['view_statistics_for_companyelement']).values_list('id', flat=True)
+
+    def coded_causes_permissions(self):
+        return get_objects_for_user(self, klass=CompanyElement,
+                                    perms=['view_coded_causes_for_companyelement']).values_list('id', flat=True)
+
+    def get_company_elements_permissions(self):
+        return {
+            'detractor_permissions': self.detractors_permissions(),
+            'statistics_permissions': self.statistics_permissions(),
+            'coded_causes_permissions': self.coded_causes_permissions(),
+            'manager_permissions': self.management_permissions()
+        }
+
 
 class TenantUserAbstract(models.Model):
     """The abstract class for Tenant User model.
