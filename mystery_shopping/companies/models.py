@@ -46,6 +46,7 @@ class CompanyElement(TenantModel, MPTTModel):
     additional_info = JSONField(null=True, blank=True)
     element_name = models.CharField(max_length=100)
     element_type = models.CharField(max_length=100)
+    order = models.SmallIntegerField(null=True, blank=True)
     logo = models.ImageField(null=True, blank=True)
 
     tree = TreeManager()

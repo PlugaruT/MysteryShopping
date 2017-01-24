@@ -11,18 +11,18 @@ import mptt.fields
 from mystery_shopping.companies.models import CompanyElement, Company
 
 
-def save_section(section, parent):
+def save_section(section, parent, index):
     element = CompanyElement(element_name=section.name, element_type='Secțiune',
-                             tenant=section.tenant, parent=parent)
+                             tenant=section.tenant, parent=parent, order=index)
 
     element.additional_info = {'old_section_id': section.pk}
 
     element.save()
 
 
-def save_entity(entity, parent):
+def save_entity(entity, parent, index):
     element = CompanyElement(element_name=entity.name, element_type='Entitate',
-                             tenant=entity.tenant, parent=parent)
+                             tenant=entity.tenant, parent=parent, order=index)
 
     element.additional_info = {'old_entity_id': entity.pk,
                                'address': entity.address,
@@ -35,20 +35,20 @@ def save_entity(entity, parent):
 
     element.save()
 
-    for section in entity.sections.all():
-        save_section(section, element)
+    for index, section in enumerate(entity.sections.all()):
+        save_section(section, element, index)
 
 
-def save_department(department, parent):
+def save_department(department, parent, index):
     element = CompanyElement(element_name=department.name, element_type='Departament',
-                             tenant=department.tenant, parent=parent)
+                             tenant=department.tenant, parent=parent, order=index)
 
     element.additional_info = {'old_department_id': department.pk}
 
     element.save()
 
-    for entity in department.entities.all():
-        save_entity(entity, element)
+    for index, entity in enumerate(department.entities.all()):
+        save_entity(entity, element, index)
 
 
 def save_company(company):
@@ -71,8 +71,8 @@ def save_company(company):
 
     element.save()
 
-    for department in company.departments.all():
-        save_department(department, element)
+    for index, department in enumerate(company.departments.all()):
+        save_department(department, element, index)
 
 
 def migrate_companies(*args):
@@ -104,6 +104,7 @@ class Migration(migrations.Migration):
                  mptt.fields.TreeForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
                                             related_name='children', to='companies.CompanyElement')),
                 ('tenant', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='company_elements', to='tenants.Tenant')),
+                ('order', models.SmallIntegerField(blank=True, null=True)),
             ],
             options={
                 'abstract': False,
