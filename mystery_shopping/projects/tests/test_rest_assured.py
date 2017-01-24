@@ -101,8 +101,6 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
         eval_data['status'] = EvaluationStatus.SUBMITTED
         eval_data['project'] = self.object.project.id
 
-        print(eval_data)
-
         evaluation_ser = EvaluationSerializer(evaluation_ser.instance, data=eval_data)
         evaluation_ser.is_valid(raise_exception=True)
         evaluation_ser.save()

@@ -118,10 +118,10 @@ def group_questions_by_pos(questionnaire_list, indicator_type):
                                                        if q.type == QuestionType.INDICATOR_QUESTION
                                                        and q.additional_info == indicator_type])
         if questionnaire_indicator_score:
-            indicator_pos_details['entities'][questionnaire.evaluation.company_element.element_name].append(
+            company_element = questionnaire.get_company_element()
+            indicator_pos_details['entities'][company_element.element_name].append(
                 questionnaire_indicator_score.score)
-            indicator_pos_details['ids'][
-                questionnaire.evaluation.company_element.element_name] = questionnaire.evaluation.company_element.id
+            indicator_pos_details['ids'][company_element.element_name] = company_element.id
     return indicator_pos_details
 
 

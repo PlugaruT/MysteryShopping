@@ -89,11 +89,7 @@ class Project(TenantModel):
         ordering = ('tenant',)
 
     def __str__(self):
-        return 'Project for {}, start: {}/{}/{}, end: {}/{}/{}'.format(self.company,
-                                                                       self.period_start.day, self.period_start.month,
-                                                                       self.period_start.year % 2000,
-                                                                       self.period_end.day, self.period_end.month,
-                                                                       self.period_start.year % 2000)
+        return '{}, id:{}'.format(self.name, self.pk)
 
     def get_indicators_list(self):
         from mystery_shopping.cxi.algorithms import get_project_indicator_questions_list
