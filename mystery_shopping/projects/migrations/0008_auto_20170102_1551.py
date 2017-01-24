@@ -82,7 +82,7 @@ def migrate_projects():
         cursor.execute('''
                 UPDATE projects_project AS p SET company_new_id =
                   (SELECT c.id FROM companies_companyelement AS c
-                  WHERE c.additional_info -> 'old_company_id' = p.company_id::TEXT);
+                  WHERE c.additional_info ->> 'old_company_id' = p.company_id::TEXT);
                 ''')
 
 

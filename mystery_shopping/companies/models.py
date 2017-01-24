@@ -1,4 +1,5 @@
 from django.contrib.postgres.fields.hstore import HStoreField
+from django.contrib.postgres.fields.jsonb import JSONField
 from django.db import models
 from django.contrib.contenttypes.fields import GenericRelation
 from mptt.fields import TreeForeignKey
@@ -42,7 +43,7 @@ class CompanyElement(TenantModel, MPTTModel):
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
 
     # Attributes
-    additional_info = HStoreField(null=True, blank=True)
+    additional_info = JSONField(null=True, blank=True)
     element_name = models.CharField(max_length=100)
     element_type = models.CharField(max_length=100)
     logo = models.ImageField(null=True, blank=True)
