@@ -7,7 +7,7 @@ from django.contrib.auth.admin import UserAdmin as AuthUserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 from guardian.admin import GuardedModelAdmin
 
-from mystery_shopping.tenants.models import Tenant
+from django.utils.translation import ugettext, ugettext_lazy as _
 from mystery_shopping.users.models import ClientUser
 from .models import User
 from .models import TenantProductManager
@@ -48,6 +48,10 @@ class UserAdmin(AuthUserAdmin, GuardedModelAdmin):
     list_display = ('username', 'email', 'first_name', 'last_name', 'tenant',)
     form = MyUserChangeForm
     add_form = MyUserCreationForm
+
+    fieldsets = AuthUserAdmin.fieldsets + (
+        (_('Additional info'), {'fields': ('date_of_birth', 'gender', 'tenant', 'phone_number')}),
+    )
 
     add_fieldsets = (
         (None, {
