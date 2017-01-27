@@ -142,7 +142,7 @@ class UserSerializer(AssignCustomObjectPermissions, serializers.ModelSerializer)
         model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'change_username',
                   'password', 'confirm_password', 'tenant', 'user_permissions', 'groups',
-                  'date_of_birth', 'gender', 'object_permissions')
+                  'date_of_birth', 'gender', 'object_permissions', 'phone_number')
         extra_kwargs = {'username': {'validators': []},
                         'shopper': {'read_only': True},
                         'company': {'read_only': True},
@@ -234,7 +234,7 @@ class UserSerializerGET(UserSerializer):
     class Meta(UserSerializer.Meta):
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'change_username',
                   'password', 'confirm_password', 'tenant', 'user_permissions', 'groups',
-                  'date_of_birth', 'gender', 'roles', 'object_permissions')
+                  'date_of_birth', 'gender', 'roles', 'object_permissions', 'phone_number')
 
 
 class TenantProductManagerSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):
