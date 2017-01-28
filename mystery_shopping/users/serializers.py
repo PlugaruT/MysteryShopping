@@ -36,19 +36,34 @@ class AssignCustomObjectPermissions:
     and coded causes for different company elements
     """
 
+    def assign_object_permissions(self, user_instance, object_permissions):
+        companies_for_detractors = object_permissions.get('detractor_permissions', [])
+        companies_for_statistics = object_permissions.get('statistics_permissions', [])
+        companies_for_coded_causes = object_permissions.get('coded_causes_permissions', [])
+        companies_for_management = object_permissions.get('manager_permissions', [])
+        self.assign_detractors_permissions(user_instance, companies_for_detractors)
+        self.assign_statistics_permissions(user_instance, companies_for_statistics)
+        self.assign_coded_cause_permissions(user_instance, companies_for_coded_causes)
+        self.assign_manager_permissions(user_instance, companies_for_management)
+
     @staticmethod
-    def assign_object_permissions(user_instance, object_permissions):
-        detractors_id = object_permissions.get('detractor_permissions', [])
-        statistics_id = object_permissions.get('statistics_permissions', [])
-        coded_causes_objects = object_permissions.get('coded_causes_permissions', [])
-        manager_objects = object_permissions.get('manager_permissions', [])
-        company_elements_detractors = CompanyElement.objects.filter(id__in=detractors_id)
-        company_elements_statistics = CompanyElement.objects.filter(id__in=statistics_id)
-        company_elements_coded_causes = CompanyElement.objects.filter(id__in=coded_causes_objects)
-        company_elements_manager = CompanyElement.objects.filter(id__in=manager_objects)
+    def assign_detractors_permissions(user_instance, company_elements):
+        company_elements_detractors = CompanyElement.objects.filter(id__in=company_elements)
         assign_perm('view_detractors_for_companyelement', user_instance, company_elements_detractors)
+
+    @staticmethod
+    def assign_statistics_permissions(user_instance, company_elements):
+        company_elements_statistics = CompanyElement.objects.filter(id__in=company_elements)
         assign_perm('view_statistics_for_companyelement', user_instance, company_elements_statistics)
+
+    @staticmethod
+    def assign_coded_cause_permissions(user_instance, company_elements):
+        company_elements_coded_causes = CompanyElement.objects.filter(id__in=company_elements)
         assign_perm('view_coded_causes_for_companyelement', user_instance, company_elements_coded_causes)
+
+    @staticmethod
+    def assign_manager_permissions(user_instance, company_elements):
+        company_elements_manager = CompanyElement.objects.filter(id__in=company_elements)
         assign_perm('manager_companyelement', user_instance, company_elements_manager)
 
 
@@ -314,7 +329,7 @@ class ShopperSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSer
         fields = '__all__'
 
 
-class ShopperSerializerGET(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):
+class ShopperSerializerGET(serializers.ModelSerializer):
     """
     Serializer class for Shopper user model.
     """
@@ -336,7 +351,7 @@ class ClientUserSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.Model
         fields = '__all__'
 
 
-class ClientUserSerializerGET(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):
+class ClientUserSerializerGET(serializers.ModelSerializer):
     """
     Serializer class for client users
     """

@@ -3,7 +3,6 @@ from __future__ import absolute_import, unicode_literals
 
 import django_filters
 from django.contrib.auth.models import Permission, Group
-from django.db.models import Q
 from rest_framework import viewsets
 from rest_framework import status
 from rest_condition import Or
@@ -128,7 +127,7 @@ class UserViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
         return Response(response)
 
     def filter_and_serialize(self, group):
-        queryset = self.filter_queryset(self.queryset).filter(groups__id__in=group)
+        queryset = self.filter_queryset(self.queryset).filter(groups__id__in=group).distinct()
         serializer = self.get_serializer_class()(queryset, many=True)
         return serializer.data
 
@@ -267,7 +266,7 @@ class ClientFilter(django_filters.rest_framework.FilterSet):
         fields = ['groups', 'company']
 
 
-class ClientUserViewSet( GetSerializerClassMixin, viewsets.ModelViewSet):
+class ClientUserViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
     queryset = ClientUser.objects.all()
     serializer_class = ClientUserSerializer
     serializer_class_get = ClientUserSerializerGET
