@@ -13,6 +13,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_condition import Or
 
+from mystery_shopping.companies.models import CompanyElement
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from mystery_shopping.mystery_shopping_utils.paginators import EvaluationPagination, ProjectStatisticsPaginator
 from mystery_shopping.mystery_shopping_utils.views import GetSerializerClassMixin
@@ -254,12 +255,13 @@ class EvaluationAssessmentCommentViewSet(GetSerializerClassMixin, viewsets.Model
 
 
 class ProjectStatisticsFilter(django_filters.rest_framework.FilterSet):
+    places = django_filters.ModelMultipleChoiceFilter(queryset=CompanyElement.objects.all(), name="company_element")
     date = django_filters.DateFromToRangeFilter(name="time_accomplished", lookup_expr='date')
     collector = django_filters.AllValuesMultipleFilter(name='shopper')
 
     class Meta:
         model = Evaluation
-        fields = ['date', 'company_element', 'collector']
+        fields = ['date', 'places', 'collector']
 
 
 class ProjectStatisticsForCompanyViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):

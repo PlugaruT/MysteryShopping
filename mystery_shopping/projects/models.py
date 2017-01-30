@@ -98,8 +98,8 @@ class Project(TenantModel):
     # Todo: rewrite or delete
     def get_company_elements_with_evaluations(self):
         """
-        Function for getting all company elements that aren't included into any project and
-        don't have a questionnaire and can be removed from the project's research methodology
+        Method for getting all company elements that are included into the current project
+        and have at least an evaluation in the project and cannot be removed from the research methodology
         :return: A list of company elements' ids
         """
         editable_places = []
@@ -107,9 +107,20 @@ class Project(TenantModel):
             editable_places = CompanyElement.objects.get_list_of_non_editable_places(project=self)
         return editable_places
 
+    def get_company_elements_not_in_project(self):
+        """
+        Method for getting all company elements in the company that aren't part of the project's
+        research methodology
+        :return: A list of company elements' ids
+        """
+        not_in_project_company_elements = []
+        if self.research_methodology:
+            not_in_project_company_elements = CompanyElement.objects.get_company_elements_not_in_project(project=self)
+        return not_in_project_company_elements
+
     def is_questionnaire_editable(self):
         """
-        Function for checking if a questionnaire is editable and
+        Method for checking if a questionnaire is editable and
         there exists evaluations that include this questionnaire
         :return: Boolean
         """

@@ -240,6 +240,7 @@ class ProjectSerializerGET(ProjectSerializer):
     evaluation_assessment_levels = EvaluationAssessmentLevelSerializer(read_only=True, many=True)
     cxi_indicators = serializers.DictField(source='get_indicators_list', read_only=True)
     disabled_elements = serializers.ListField(source='get_company_elements_with_evaluations', read_only=True)
+    elements_not_in_project = serializers.ListField(source='get_company_elements_not_in_project', read_only=True)
     is_questionnaire_editable = serializers.BooleanField(read_only=True)
 
     class Meta:

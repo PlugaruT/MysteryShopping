@@ -11,8 +11,9 @@ from rest_condition import Or
 from rest_framework.decorators import list_route
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django_filters.rest_framework import DjangoFilterBackend
+from django_filters.rest_framework import DjangoFilterBackend, ModelMultipleChoiceFilter
 
+from mystery_shopping.companies.models import CompanyElement
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from mystery_shopping.mystery_shopping_utils.paginators import DetractorRespondentPaginator
 from mystery_shopping.mystery_shopping_utils.views import GetSerializerClassMixin
@@ -222,13 +223,13 @@ class PersonToAssessViewSet(viewsets.ModelViewSet):
 
 
 class DetractorFilter(django_filters.rest_framework.FilterSet):
-    place = django_filters.AllValuesMultipleFilter(name="evaluation__company_element")
-    date = django_filters.DateFilter(name="evaluation__time_accomplished", lookup_expr='date')
-    questions = django_filters.NumberFilter(name='number_of_questions')
+    places = django_filters.ModelMultipleChoiceFilter(queryset=CompanyElement.objects.all(), name="evaluation__company_element")
+    date = django_filters.DateFromToRangeFilter(name="evaluation__time_accomplished", lookup_expr='date')
+    questions = django_filters.AllValuesMultipleFilter(name='number_of_questions')
 
     class Meta:
         model = DetractorRespondent
-        fields = ['date', 'place', 'status', 'questions']
+        fields = ['date', 'places', 'status', 'questions']
 
 
 class DetractorRespondentForTenantViewSet(viewsets.ModelViewSet):
@@ -240,9 +241,9 @@ class DetractorRespondentForTenantViewSet(viewsets.ModelViewSet):
     serializer_class = DetractorRespondentForTenantSerializer
 
     def get_queryset(self):
-        queryset = self.serializer_class.setup_eager_loading(self.queryset)
         project = self.request.query_params.get('project')
-        return queryset.filter(evaluation__project=project)
+        queryset = DetractorRespondent.objects.filter(evaluation__project=project)
+        return self.serializer_class.setup_eager_loading(queryset)
 
 
 class DetractorRespondentForClientViewSet(viewsets.ModelViewSet):

@@ -65,7 +65,7 @@ class CompanyElementSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CompanyElement
-        fields = ('id', 'element_name', 'element_type', 'children', 'additional_info', 'parent', 'tenant')
+        fields = ('id', 'element_name', 'element_type', 'children', 'additional_info', 'parent', 'tenant', 'order')
         extra_kwargs = {
             'tenant': {
                 'required': False
