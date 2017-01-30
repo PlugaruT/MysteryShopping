@@ -110,6 +110,7 @@ class UsersUpdateMixin(AssignCustomObjectPermissions):
             user_ser = UserSerializer(instance.user, data=user)
             user_ser.is_valid(raise_exception=True)
             user_ser.save()
+            user_ser.instance.groups.clear()
             user_ser.instance.groups.add(*groups)
             user_ser.instance.user_permissions.add(*user_permissions)
             if object_permissions:
@@ -158,10 +159,21 @@ class UserSerializer(AssignCustomObjectPermissions, serializers.ModelSerializer)
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'change_username',
                   'password', 'confirm_password', 'tenant', 'user_permissions', 'groups',
                   'date_of_birth', 'gender', 'object_permissions', 'phone_number')
-        extra_kwargs = {'username': {'validators': []},
-                        'shopper': {'read_only': True},
-                        'company': {'read_only': True},
-                        'help_text': 'Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.'}
+        extra_kwargs = {
+            'username': {
+                'validators': []
+            },
+            'tenant': {
+                'required': False
+            },
+            'shopper': {
+                'read_only': True
+            },
+            'company': {
+                'read_only': True
+            },
+            'help_text': 'Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.'
+        }
 
     def create(self, validated_data):
         password = validated_data.get('password', None)
@@ -215,6 +227,7 @@ class UserSerializer(AssignCustomObjectPermissions, serializers.ModelSerializer)
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
+        instance.groups.clear()
         instance.groups.add(*groups)
         instance.user_permissions.add(*user_permissions)
         if object_permissions:

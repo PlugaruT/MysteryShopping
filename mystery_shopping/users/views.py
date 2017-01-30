@@ -285,6 +285,14 @@ class ClientUserViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        request.data['user']['tenant'] = self.request.user.tenant.id
+        serializer = ClientUserSerializer(instance, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
+
 
 class CollectorViewSet(viewsets.ModelViewSet):
     queryset = Collector.objects.all()
