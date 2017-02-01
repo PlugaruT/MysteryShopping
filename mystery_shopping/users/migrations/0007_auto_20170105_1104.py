@@ -21,7 +21,8 @@ class ReassignTenantToUser:
 
 def migrate_tenant_for_current_users(*args):
     for user in User.objects.all():
-        ReassignTenantToUser(user)
+        if user.is_tenant_user():
+            ReassignTenantToUser(user)
 
 
 class Migration(migrations.Migration):
