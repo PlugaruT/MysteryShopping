@@ -255,7 +255,7 @@ class ProjectShortSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ('period_start', 'period_end')
+        fields = ('period_start', 'period_end', 'id')
 
 
 class EvaluationSerializer(serializers.ModelSerializer):
@@ -263,6 +263,7 @@ class EvaluationSerializer(serializers.ModelSerializer):
     Default Evaluation serializer that can update questionnaire answers and such.
     """
     detractor_info = DetractorRespondentForTenantSerializer(write_only=True, required=False)
+    questionnaire = QuestionnaireSerializer(required=False)
 
     class Meta:
         model = Evaluation
@@ -396,7 +397,6 @@ class EvaluationSerializerGET(EvaluationSerializer):
     """
     shopper = UserSerializerGET(read_only=True)
     questionnaire_script = QuestionnaireScriptSerializer(read_only=True)
-    questionnaire = QuestionnaireSerializer(read_only=True)
     company_element = CompanyElementSerializer(read_only=True)
     project = ProjectShortSerializer(read_only=True)
 

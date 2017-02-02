@@ -236,7 +236,7 @@ class EvaluationPerProjectViewSet(ListModelMixin, EvaluationViewMixIn, viewsets.
 
     @staticmethod
     def _get_evaluation(pk, company, project):
-        queryset = Evaluation.objects.get_project_evaluations(project=project, project__company=company)
+        queryset = Evaluation.objects.get_project_evaluations(project=project, company=company)
         return get_object_or_404(queryset, pk=pk)
 
 
@@ -257,11 +257,11 @@ class EvaluationAssessmentCommentViewSet(GetSerializerClassMixin, viewsets.Model
 class ProjectStatisticsFilter(django_filters.rest_framework.FilterSet):
     places = django_filters.ModelMultipleChoiceFilter(queryset=CompanyElement.objects.all(), name="company_element")
     date = django_filters.DateFromToRangeFilter(name="time_accomplished", lookup_expr='date')
-    collector = django_filters.AllValuesMultipleFilter(name='shopper')
+    collectors = django_filters.AllValuesMultipleFilter(name='shopper')
 
     class Meta:
         model = Evaluation
-        fields = ['date', 'places', 'collector']
+        fields = ['date', 'places', 'collectors']
 
 
 class ProjectStatisticsForCompanyViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
@@ -276,7 +276,7 @@ class ProjectStatisticsForCompanyViewSet(GetSerializerClassMixin, viewsets.Model
     def get_queryset(self):
         project = self.kwargs.get('project_pk', None)
         company_element = self.kwargs.get('company_element_pk', None)
-        return Evaluation.objects.get_completed_project_evaluations(project=project, company_element=company_element)
+        return Evaluation.objects.get_completed_project_evaluations(project=project, company=company_element)
 
 
 class ProjectStatisticsForTenantViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
@@ -291,4 +291,4 @@ class ProjectStatisticsForTenantViewSet(GetSerializerClassMixin, viewsets.ModelV
     def get_queryset(self):
         project = self.kwargs.get('project_pk', None)
         company_element = self.kwargs.get('company_element_pk', None)
-        return Evaluation.objects.get_completed_project_evaluations(project=project, company_element=company_element)
+        return Evaluation.objects.get_completed_project_evaluations(project=project, company=company_element)

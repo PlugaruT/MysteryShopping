@@ -9,6 +9,7 @@ from rest_framework import viewsets
 from rest_framework import status
 from rest_condition import Or
 from rest_framework.decorators import list_route
+from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend, ModelMultipleChoiceFilter
@@ -58,17 +59,19 @@ class FilterQuerysetOnTenantMixIn:
 
 class UserFilter(django_filters.rest_framework.FilterSet):
     groups = django_filters.AllValuesMultipleFilter(name="groups")
+    name = django_filters.CharFilter(name="first_name", lookup_expr='icontains')
 
     class Meta:
         model = User
-        fields = ['groups', ]
+        fields = ['groups', 'name']
 
 
 class UserViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     serializer_class_get = UserSerializerGET
-    filter_backends = (TenantFilter, DjangoFilterBackend,)
+    filter_backends = (TenantFilter, DjangoFilterBackend, SearchFilter)
+    search_fields = ('^first_name', '^last_name')
     filter_class = UserFilter
 
     def create(self, request, *args, **kwargs):
@@ -188,8 +191,18 @@ class ClientManagerViewSet(FilterQuerysetOnTenantMixIn, viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+class ShopperFilter(django_filters.rest_framework.FilterSet):
+    name = django_filters.CharFilter(name="user__first_name")
+
+    class Meta:
+        model = DetractorRespondent
+        fields = ['name']
+
+
 class ShopperViewSet(viewsets.ModelViewSet):
     queryset = Shopper.objects.all()
+    filter_backends = (DjangoFilterBackend,)
+    filter_class = ShopperFilter
     serializer_class = ShopperSerializer
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
 
