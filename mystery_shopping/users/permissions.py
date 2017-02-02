@@ -160,6 +160,6 @@ class HasAccessToDashboard(permissions.BasePermission):
 
     def has_permission(self, request, view):
         if request.user:
-            possible_groups = UserRole.TENANT_USERS + UserRole.CLIENT_USERS
+            possible_groups = UserRole.TENANT_GROUPS + UserRole.CLIENT_GROUPS
             return request.user.is_in_groups(possible_groups)
         return False
