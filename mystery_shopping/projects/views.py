@@ -21,6 +21,7 @@ from mystery_shopping.projects.constants import EvaluationStatus
 from mystery_shopping.projects.mixins import EvaluationViewMixIn, UpdateSerializerMixin
 from mystery_shopping.projects.serializers import ProjectStatisticsForTenantSerializerGET, \
     ProjectStatisticsForCompanySerializerGET
+from mystery_shopping.users.roles import UserRole
 from mystery_shopping.users.services import ShopperService
 from .models import PlaceToAssess
 from .models import Project
@@ -104,7 +105,7 @@ class ProjectPerCompanyViewSet(viewsets.GenericViewSet):
         project_type = self.request.query_params.get('type', 'm')
         queryset = self.filter_queryset(self.queryset)
         queryset = queryset.filter(company=company_pk, type=project_type)
-        if self.request.user.user_type == 'tenantconsultant':
+        if self.request.user.is_in_group(UserRole.TENANT_CONSULTANT_GROUP):
             queryset = self.queryset.filter(consultants__user=self.request.user)
         serializer = ProjectSerializer(queryset, many=True)
         return Response(serializer.data)
@@ -152,9 +153,9 @@ class EvaluationViewSet(UpdateSerializerMixin, EvaluationViewMixIn, viewsets.Mod
 
     def get_queryset(self):
         queryset = self.serializer_class.setup_eager_loading(self.queryset)
-        if self.request.user.user_type in ['tenantproductmanager', 'tenantprojectmanager', 'tenantconsultant']:
+        if self.request.user.is_in_groups(UserRole.TENANT_GROUPS):
             queryset = queryset.filter(project__tenant=self.request.user.tenant)
-        elif self.request.user.user_type is 'shopper':
+        elif self.request.user.is_shopper():
             queryset = queryset.filter(shopper__user=self.request.user)
         return queryset
 

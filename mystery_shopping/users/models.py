@@ -37,105 +37,50 @@ class User(OptionalTenantModel, AbstractUser):
 
     @property
     def user_type(self):
-        if hasattr(self, 'tenantproductmanager'):
-            return 'tenantproductmanager'
-        elif hasattr(self, 'tenantprojectmanager'):
-            return 'tenantprojectmanager'
-        elif hasattr(self, 'tenantconsultant'):
-            return 'tenantconsultant'
-        elif hasattr(self, 'shopper'):
-            return 'shopper'
-        else:
-            return []
-
-    @property
-    def user_type_attr(self):
-        if hasattr(self, 'tenantproductmanager'):
-            return getattr(self, 'tenantproductmanager')
-        elif hasattr(self, 'tenantprojectmanager'):
-            return getattr(self, 'tenantprojectmanager')
-        elif hasattr(self, 'tenantconsultant'):
-            return getattr(self, 'tenantconsultant')
-        elif hasattr(self, UserRole.CLIENT_PROJECT_MANAGER):
-            return getattr(self, UserRole.CLIENT_PROJECT_MANAGER)
-        elif hasattr(self, UserRole.CLIENT_MANAGER):
-            return getattr(self, UserRole.CLIENT_MANAGER)
-        elif hasattr(self, UserRole.CLIENT_EMPLOYEE):
-            return getattr(self, UserRole.CLIENT_EMPLOYEE)
-        elif hasattr(self, UserRole.SHOPPER):
-            return getattr(self, UserRole.SHOPPER)
-        else:
-            return None
+        list_of_groups = self.groups.values_list('name', flat=True)
+        return [UserRole.GROUPS_TO_ROLES[group_name] for group_name in list_of_groups]
 
     @property
     def user_roles(self):
-        roles = []
-        if hasattr(self, 'tenantproductmanager'):
-            roles.append('tenantproductmanager')
-        if hasattr(self, 'tenantprojectmanager'):
-            roles.append('tenantprojectmanager')
-        if hasattr(self, 'tenantconsultant'):
-            roles.append('tenantconsultant')
-        if hasattr(self, 'shopper'):
-            if self.shopper.is_collector:
-                roles.append('collector')
-            else:
-                roles.append('shopper')
-        if hasattr(self, 'clientprojectmanager'):
-            roles.append('clientprojectmanager')
-        if hasattr(self, 'clientmanager'):
-            roles.append('clientmanager')
-        if hasattr(self, 'clientemployee'):
-            roles.append('clientemployee')
+        list_of_groups = self.get_group_names()
+        roles = [UserRole.GROUPS_TO_ROLES[group_name] for group_name in list_of_groups]
         if getattr(self, 'is_staff', False) is True:
             roles.append('admin')
         return roles
 
-    @property
-    def list_of_poses(self):
-        return get_objects_for_user(self, klass=CompanyElement, perms=['view_companyelement']).filter(
-            tenant=self.tenant)
+    def is_in_group(self, group_name):
+        return self.groups.filter(name=group_name).exists()
 
-    @property
-    def has_client_manager_overview_access(self):
-        if hasattr(self, 'clientmanager'):
-            return self.clientmanager.has_overview_access
-        return False
+    def is_in_groups(self, group_names):
+        return self.groups.filter(name__in=group_names).exists()
+
+    def get_group_names(self):
+        return self.groups.values_list('name', flat=True)
 
     def is_tenant_product_manager(self):
-        return hasattr(self, 'tenantproductmanager')
+        return self.is_in_group(UserRole.TENANT_PRODUCT_MANAGER_GROUP)
 
     def is_tenant_project_manager(self):
-        return hasattr(self, 'tenantprojectmanager')
+        return self.is_in_group(UserRole.TENANT_PROJECT_MANAGER_GROUP)
 
     def is_tenant_manager(self):
         return self.is_tenant_product_manager() or self.is_tenant_project_manager()
 
     def is_client_user(self):
-        return hasattr(self, UserRole.CLIENT_PROJECT_MANAGER) \
-               or hasattr(self, UserRole.CLIENT_MANAGER) \
-               or hasattr(self, UserRole.CLIENT_EMPLOYEE)
+        return self.is_in_groups(UserRole.CLIENT_GROUPS)
 
     def is_tenant_user(self):
-        return hasattr(self, UserRole.TENANT_PRODUCT_MANAGER) \
-               or hasattr(self, UserRole.TENANT_PROJECT_MANAGER) \
-               or hasattr(self, UserRole.TENANT_CONSULTANT)
+        return self.is_in_groups(UserRole.TENANT_GROUPS)
 
     def is_shopper(self):
-        return hasattr(self, UserRole.SHOPPER)
+        return self.is_in_group(UserRole.SHOPPER_GROUP)
 
     def is_collector(self):
-        return self.is_shopper() and self.shopper.is_collector
+        return self.is_in_group(UserRole.COLLECTOR_GROUP)
 
     def user_company(self):
-        company = None
-        if hasattr(self, UserRole.CLIENT_PROJECT_MANAGER):
-            company = getattr(self, UserRole.CLIENT_PROJECT_MANAGER, None).company
-        if hasattr(self, UserRole.CLIENT_MANAGER):
-            company = getattr(self, UserRole.CLIENT_MANAGER, None).company
-        if hasattr(self, UserRole.CLIENT_EMPLOYEE):
-            company = getattr(self, UserRole.CLIENT_EMPLOYEE, None).company
-        return company
+        if self.is_in_groups(UserRole.CLIENT_GROUPS):
+            return self.client_user.company
 
     def management_permissions(self):
         return get_objects_for_user(self, klass=CompanyElement,

@@ -101,25 +101,25 @@ class UserViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
 
     @list_route(methods=['get'])
     def consultants(self, request):
-        group = Group.objects.filter(name='Tenant Consultants')
+        group = Group.objects.filter(name=UserRole.TENANT_CONSULTANT_GROUP)
         response = self.filter_and_serialize(group)
         return Response(response)
 
     @list_route(methods=['get'])
     def collectors(self, request):
-        group = Group.objects.filter(name='collectors')
+        group = Group.objects.filter(name=UserRole.COLLECTOR_GROUP)
         response = self.filter_and_serialize(group)
         return Response(response)
 
     @list_route(methods=['get'], url_path='tenant-project-managers')
     def tenant_project_managers(self, request):
-        group = Group.objects.filter(name='Tenant Project Managers')
+        group = Group.objects.filter(name=UserRole.TENANT_PROJECT_MANAGER_GROUP)
         response = self.filter_and_serialize(group)
         return Response(response)
 
     @list_route(methods=['get'], url_path='tenant-product-managers')
     def tenant_product_managers(self, request):
-        group = Group.objects.filter(name='Tenant Product Managers')
+        group = Group.objects.filter(name=UserRole.TENANT_PRODUCT_MANAGER_GROUP)
         response = self.filter_and_serialize(group)
         return Response(response)
 
@@ -162,7 +162,7 @@ class UserGroupsViewSet(viewsets.ReadOnlyModelViewSet):
     def groups_types(self, request):
         tenant_groups = Group.objects.filter(name__in=UserRole.TENANT_GROUPS)
         client_groups = Group.objects.filter(name__in=UserRole.CLIENT_GROUPS)
-        shopper_groups = Group.objects.filter(name__in=UserRole.SHOPPERS)
+        shopper_groups = Group.objects.filter(name__in=UserRole.SHOPPERS_COLLECTORS)
         result = [
             {
                 'type': 'tenant',

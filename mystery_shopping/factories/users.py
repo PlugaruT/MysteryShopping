@@ -1,10 +1,22 @@
 from datetime import date
 
+import factory
+from django.contrib.auth.models import Group
 from factory.django import DjangoModelFactory
 from factory import fuzzy, SubFactory, PostGenerationMethodCall, RelatedFactory
 
+from mystery_shopping.factories.companies import CompanyElementFactory
+from mystery_shopping.users.roles import UserRole
 from .tenants import TenantFactory
-from mystery_shopping.users.models import User, TenantProductManager, TenantProjectManager, Shopper, DetractorRespondent
+from mystery_shopping.users.models import User, TenantProjectManager, Shopper, ClientUser
+
+
+class TenantProductManagerGroupFactory(DjangoModelFactory):
+    class Meta:
+        model = Group
+        django_get_or_create = ('name',)
+
+    name = UserRole.TENANT_PRODUCT_MANAGER_GROUP
 
 
 class UserFactory(DjangoModelFactory):
@@ -12,7 +24,7 @@ class UserFactory(DjangoModelFactory):
         model = User
         exclude = ('r_password',)
 
-    tenant = TenantFactory()
+    tenant = SubFactory(TenantFactory)
     date_of_birth = fuzzy.FuzzyDate(date(1990, 1, 12))
     gender = 'f'
     username = fuzzy.FuzzyText(length=10)
@@ -21,11 +33,21 @@ class UserFactory(DjangoModelFactory):
     is_active = True
 
 
-class TenantProductManagerFactory(DjangoModelFactory):
+class ClientUserFactory(DjangoModelFactory):
     class Meta:
-        model = TenantProductManager
+        model = ClientUser
 
     user = SubFactory(UserFactory)
+    company = SubFactory(CompanyElementFactory)
+
+    job_title = fuzzy.FuzzyText(length=10)
+
+
+class TenantProductManagerFactory(DjangoModelFactory):
+    class Meta:
+        model = User
+        exclude = ('r_password',)
+
     tenant = SubFactory(TenantFactory)
 
 
@@ -50,12 +72,22 @@ class UserThatIsTenantProductManagerFactory(DjangoModelFactory):
         model = User
         exclude = ('r_password',)
 
-    tenant = TenantFactory()
+    tenant = SubFactory(TenantFactory)
+    date_of_birth = fuzzy.FuzzyDate(date(1990, 1, 12))
+    gender = 'f'
     username = fuzzy.FuzzyText(length=10)
     r_password = '1234'
     password = PostGenerationMethodCall('set_password', r_password)
     is_active = True
-    tenantproductmanager = RelatedFactory(TenantProductManagerFactory, factory_related_name='user')
+
+    @factory.post_generation
+    def groups(self, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if extracted:
+            for group in extracted:
+                self.groups.add(group)
 
 
 class UserThatIsTenantProjectManagerFactory(DjangoModelFactory):
@@ -68,5 +100,3 @@ class UserThatIsTenantProjectManagerFactory(DjangoModelFactory):
     password = PostGenerationMethodCall('set_password', r_password)
     is_active = True
     shopper = RelatedFactory(TenantProjectManager, factory_related_name='user')
-
-

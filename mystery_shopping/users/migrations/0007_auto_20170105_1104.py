@@ -26,7 +26,6 @@ def migrate_tenant_for_current_users(*args):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('tenants', '0001_initial'),
         ('users', '0006_auto_20161222_1351'),
@@ -67,6 +66,5 @@ class Migration(migrations.Migration):
             name='tenant',
             field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='tenants.Tenant'),
             preserve_default=False,
-        ),
-        migrations.RunPython(migrate_tenant_for_current_users)
+        )
     ]

@@ -7,6 +7,7 @@ class IsAccountOwner(permissions.BasePermission):
     """
         Permission for own user account.
     """
+
     def has_object_permission(self, request, view, account):
         if request.user:
             return account == request.user
@@ -17,9 +18,10 @@ class IsTenantProductManager(permissions.BasePermission):
     """
         Permission for TenantProductManager user.
     """
+
     def has_permission(self, request, view):
         if request.user:
-            if hasattr(request.user, UserRole.TENANT_PRODUCT_MANAGER):
+            if request.user.is_in_group(UserRole.TENANT_PRODUCT_MANAGER_GROUP):
                 return True
             return False
         return False
@@ -29,9 +31,10 @@ class IsTenantProjectManager(permissions.BasePermission):
     """
         Permission for TenantProjectManager user.
     """
+
     def has_permission(self, request, view):
         if request.user:
-            if hasattr(request.user, UserRole.TENANT_PROJECT_MANAGER):
+            if request.user.is_in_group(UserRole.TENANT_PROJECT_MANAGER_GROUP):
                 return True
             return False
         return False
@@ -41,9 +44,11 @@ class IsTenantConsultantViewOnly(permissions.BasePermission):
     """
         Permission for TenantConsultant user.
     """
+
     def has_permission(self, request, view):
         if request.user:
-            if hasattr(request.user, UserRole.TENANT_CONSULTANT) and request.method in permissions.SAFE_METHODS:
+            if request.user.is_in_group(
+                UserRole.TENANT_CONSULTANT_GROUP) and request.method in permissions.SAFE_METHODS:
                 return True
             return False
         return False
@@ -53,9 +58,10 @@ class IsTenantConsultant(permissions.BasePermission):
     """
         Permission for TenantConsultant user.
     """
+
     def has_permission(self, request, view):
         if request.user:
-            if hasattr(request.user, UserRole.TENANT_CONSULTANT):
+            if request.user.is_in_group(UserRole.TENANT_CONSULTANT_GROUP):
                 return True
             return False
         return False
@@ -65,9 +71,10 @@ class IsShopper(permissions.BasePermission):
     """
         Permission for Shopper user.
     """
+
     def has_permission(self, request, view):
         if request.user:
-            if hasattr(request.user, UserRole.SHOPPER):
+            if request.user.is_in_group(UserRole.SHOPPER_GROUP):
                 return True
             return False
         return False
@@ -78,11 +85,12 @@ class HasAccessToProjectsOrEvaluations(permissions.BasePermission):
         Check if tenant project manager, tenant product manager, tenant consultant or shopper
         has access to either it's Planned or Accomplished evaluations.
     """
+
     def has_permission(self, request, view):
         if request.user:
             is_tenant_user = False
-            for role in request.user.user_roles:
-                if role in UserRole.TENANT_USERS:
+            for group in request.user.get_group_names():
+                if group in UserRole.TENANT_GROUPS:
                     is_tenant_user = True
             if is_tenant_user:
                 return True
@@ -95,11 +103,12 @@ class HasReadOnlyAccessToProjectsOrEvaluations(permissions.BasePermission):
         Check if tenant project manager, tenant product manager, tenant consultant or shopper
         has access to either it's Planned or Accomplished evaluations.
     """
+
     def has_permission(self, request, view):
         if request.user:
             is_client_user = False
-            for role in request.user.user_roles:
-                if role in UserRole.CLIENT_USERS:
+            for group in request.user.get_group_names():
+                if group in UserRole.CLIENT_GROUPS:
                     is_client_user = True
             if is_client_user and request.method in permissions.SAFE_METHODS:
                 return True
@@ -111,6 +120,7 @@ class IsShopperAccountOwner(permissions.BasePermission):
     """
         Permission for own Shopper user account.
     """
+
     def has_object_permission(self, request, view, shopper):
         if request.user:
             return shopper == request.user.shopper
@@ -121,9 +131,10 @@ class IsCompanyProjectManager(permissions.BasePermission):
     """
         Permission for TenantProjectManager user.
     """
+
     def has_permission(self, request, view):
         if request.user:
-            if hasattr(request.user, UserRole.CLIENT_PROJECT_MANAGER):
+            if request.user.is_in_group(UserRole.CLIENT_PROJECT_MANAGER_GROUP):
                 return True
             return False
         return False
@@ -133,9 +144,10 @@ class IsCompanyManager(permissions.BasePermission):
     """
         Permission for TenantProjectManager user.
     """
+
     def has_permission(self, request, view):
         if request.user:
-            if hasattr(request.user, UserRole.CLIENT_MANAGER):
+            if request.user.is_in_group(UserRole.CLIENT_MANAGER_GROUP):
                 return True
             return False
         return False
@@ -145,10 +157,9 @@ class HasAccessToDashboard(permissions.BasePermission):
     """
         Permission for users that should have access to dashboard
     """
+
     def has_permission(self, request, view):
         if request.user:
-            possible_roles = UserRole.TENANT_USERS + UserRole.CLIENT_USERS
-            return any((hasattr(request.user, role) for role in possible_roles))
+            possible_groups = UserRole.TENANT_USERS + UserRole.CLIENT_USERS
+            return request.user.is_in_groups(possible_groups)
         return False
-
-
