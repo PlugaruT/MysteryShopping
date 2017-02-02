@@ -1,3 +1,4 @@
+from django.db.models.expressions import F
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -41,13 +42,13 @@ from mystery_shopping.users.permissions import IsTenantConsultant
 class QuestionnaireScriptViewSet(viewsets.ModelViewSet):
     queryset = QuestionnaireScript.objects.all()
     serializer_class = QuestionnaireScriptSerializer
-    permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
 
 
 class QuestionnaireTemplateViewSet(viewsets.ModelViewSet):
     queryset = QuestionnaireTemplate.objects.all()
     serializer_class = QuestionnaireTemplateSerializer
-    permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
     filter_backends = (TenantFilter,)
 
     def get_queryset(self):
@@ -126,7 +127,7 @@ class QuestionnaireTemplateViewSet(viewsets.ModelViewSet):
 class QuestionnaireViewSet(viewsets.ModelViewSet):
     queryset = Questionnaire.objects.all()
     serializer_class = QuestionnaireSerializer
-    permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
 
     def get_queryset(self):
         queryset = Questionnaire.objects.all()
@@ -155,18 +156,19 @@ class QuestionnaireTemplateBlockViewSet(viewsets.ModelViewSet):
 class QuestionnaireBlockViewSet(viewsets.ModelViewSet):
     queryset = QuestionnaireBlock.objects.all()
     serializer_class = QuestionnaireBlockSerializer
-    permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
 
 
 class QuestionnaireTemplateQuestionViewSet(viewsets.ModelViewSet):
     queryset = QuestionnaireTemplateQuestion.objects.all()
     serializer_class = QuestionnaireTemplateQuestionSerializer
-    permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
 
     def destroy(self, request, pk=None):
         queryset = QuestionnaireTemplateQuestion.objects.filter(pk=pk)
         template_question = get_object_or_404(queryset, pk=pk)
-        questions_to_update = QuestionnaireTemplateQuestion.objects.filter(template_block=template_question.template_block, order__gt=template_question.order)
+        questions_to_update = QuestionnaireTemplateQuestion.objects.filter(
+            template_block=template_question.template_block, order__gt=template_question.order)
         for question in questions_to_update:
             question.order -= 1
             question.save()
@@ -203,18 +205,19 @@ class QuestionnaireTemplateQuestionViewSet(viewsets.ModelViewSet):
 class QuestionnaireQuestionViewSet(viewsets.ModelViewSet):
     queryset = QuestionnaireQuestion.objects.all()
     serializer_class = QuestionnaireQuestionSerializer
-    permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
 
 
 class QuestionnaireTemplateQuestionChoiceViewSet(viewsets.ModelViewSet):
     queryset = QuestionnaireTemplateQuestionChoice.objects.all()
     serializer_class = QuestionnaireTemplateQuestionChoiceSerializer
-    permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
 
     def destroy(self, request, pk=None):
         queryset = QuestionnaireTemplateQuestionChoice.objects.filter(pk=pk)
         template_question_choice = get_object_or_404(queryset, pk=pk)
-        choice_to_update = QuestionnaireTemplateQuestionChoice.objects.filter(template_question=template_question_choice.template_question, order__gt=template_question_choice.order)
+        choice_to_update = QuestionnaireTemplateQuestionChoice.objects.filter(
+            template_question=template_question_choice.template_question, order__gt=template_question_choice.order)
         for choice in choice_to_update:
             choice.order -= 1
             choice.save()
@@ -226,25 +229,25 @@ class QuestionnaireTemplateQuestionChoiceViewSet(viewsets.ModelViewSet):
 class QuestionnaireQuestionChoiceViewSet(viewsets.ModelViewSet):
     queryset = QuestionnaireQuestionChoice.objects.all()
     serializer_class = QuestionnaireQuestionChoiceSerializer
-    permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
 
 
 class CrossIndexTemplateViewSet(viewsets.ModelViewSet):
     queryset = CrossIndexTemplate.objects.all()
     serializer_class = CrossIndexTemplateSerializer
-    permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
 
 
 class CrossIndexViewSet(viewsets.ModelViewSet):
     queryset = CrossIndex.objects.all()
     serializer_class = CrossIndexSerializer
-    permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
 
 
 class QuestionnaireSimpleViewSet(viewsets.ModelViewSet):
     queryset = Questionnaire.objects.all()
     serializer_class = QuestionnaireSimpleSerializer
-    permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
 
     def get_queryset(self):
         queryset = Questionnaire.objects.all()
@@ -255,10 +258,10 @@ class QuestionnaireSimpleViewSet(viewsets.ModelViewSet):
 class QuestionSimpleViewSet(viewsets.ModelViewSet):
     queryset = QuestionnaireQuestion.objects.all()
     serializer_class = QuestionSimpleSerializer
-    permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
 
 
 class BlockSimpleViewSet(viewsets.ModelViewSet):
     queryset = QuestionnaireBlock.objects.all()
     serializer_class = BlockSimpleSerializer
-    permission_classes = (Or(IsTenantProductManager,  IsTenantProjectManager, IsTenantConsultant),)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
