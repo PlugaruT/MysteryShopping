@@ -8,5 +8,8 @@ class UserRole:
     CLIENT_MANAGER = 'clientmanager'
     CLIENT_EMPLOYEE = 'clientemployee'
 
+    TENANT_GROUPS = ['Tenant Product Managers', 'Tenant Project Managers', 'Tenant Consultants']
+    CLIENT_GROUPS = ['Client Managers', 'Client Project Managers', 'Client Employees']
+    SHOPPERS = ['collectors', 'shoppers']
     TENANT_USERS = (TENANT_PRODUCT_MANAGER, TENANT_PROJECT_MANAGER, TENANT_CONSULTANT)
     CLIENT_USERS = (CLIENT_PROJECT_MANAGER, CLIENT_MANAGER, CLIENT_EMPLOYEE)

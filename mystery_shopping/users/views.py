@@ -19,6 +19,7 @@ from mystery_shopping.mystery_shopping_utils.views import GetSerializerClassMixi
 from mystery_shopping.questionnaires.serializers import DetractorRespondentForTenantSerializer, \
     DetractorRespondentForClientSerializer
 from mystery_shopping.users.models import DetractorRespondent, ClientUser
+from mystery_shopping.users.roles import UserRole
 from mystery_shopping.users.serializers import PermissionSerializer, GroupSerializer, UserSerializerGET, \
     ClientUserSerializer, ShopperSerializerGET, ClientUserSerializerGET
 from .models import ClientEmployee
@@ -55,6 +56,16 @@ class FilterQuerysetOnTenantMixIn:
         queryset = self.queryset.all()
         queryset = queryset.filter(tenant=self.request.user.tenant)
         return queryset
+
+
+class CreateUserMixin:
+    def create(self, request, *args, **kwargs):
+        request.data['user']['tenant'] = request.user.tenant.id
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class UserFilter(django_filters.rest_framework.FilterSet):
@@ -114,15 +125,13 @@ class UserViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
 
     @list_route(methods=['get'], url_path='tenant-users')
     def tenant_users(self, request):
-        group_names = ['Tenant Product Managers', 'Tenant Project Managers', 'Tenant Consultants']
-        groups = Group.objects.filter(name__in=group_names)
+        groups = Group.objects.filter(name__in=UserRole.TENANT_GROUPS)
         response = self.filter_and_serialize(groups)
         return Response(response)
 
     @list_route(methods=['get'], url_path='client-users')
     def client_users(self, request):
-        group_names = ['Client Managers', 'Client Project Managers', 'Client Employees']
-        groups = Group.objects.filter(name__in=group_names)
+        groups = Group.objects.filter(name__in=UserRole.CLIENT_GROUPS)
         response = self.filter_and_serialize(groups)
         return Response(response)
 
@@ -151,12 +160,9 @@ class UserGroupsViewSet(viewsets.ReadOnlyModelViewSet):
 
     @list_route(methods=['get'], url_path='group-types')
     def groups_types(self, request):
-        tenant = ['Tenant Product Managers', 'Tenant Project Managers', 'Tenant Consultants']
-        client = ['Client Managers', 'Client Project Managers', 'Client Employees']
-        shopper = ['collectors', 'shoppers']
-        tenant_groups = Group.objects.filter(name__in=tenant)
-        client_groups = Group.objects.filter(name__in=client)
-        shopper_groups = Group.objects.filter(name__in=shopper)
+        tenant_groups = Group.objects.filter(name__in=UserRole.TENANT_GROUPS)
+        client_groups = Group.objects.filter(name__in=UserRole.CLIENT_GROUPS)
+        shopper_groups = Group.objects.filter(name__in=UserRole.SHOPPERS)
         result = [
             {
                 'type': 'tenant',
@@ -237,7 +243,7 @@ class ShopperFilter(django_filters.rest_framework.FilterSet):
         fields = ['license', 'sex', 'age']
 
 
-class ShopperViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
+class ShopperViewSet(GetSerializerClassMixin, CreateUserMixin, viewsets.ModelViewSet):
     queryset = Shopper.objects.all()
     serializer_class = ShopperSerializer
     serializer_class_get = ShopperSerializerGET
@@ -249,14 +255,6 @@ class ShopperViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
     def get_queryset(self):
         return self.queryset.filter(user__tenant=self.request.user.tenant)
 
-    def create(self, request, *args, **kwargs):
-        request.data['user']['tenant'] = request.user.tenant.id
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
 
 class ClientFilter(django_filters.rest_framework.FilterSet):
     groups = django_filters.AllValuesMultipleFilter(name="user__groups")
@@ -266,7 +264,7 @@ class ClientFilter(django_filters.rest_framework.FilterSet):
         fields = ['groups', 'company']
 
 
-class ClientUserViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
+class ClientUserViewSet(GetSerializerClassMixin, CreateUserMixin, viewsets.ModelViewSet):
     queryset = ClientUser.objects.all()
     serializer_class = ClientUserSerializer
     serializer_class_get = ClientUserSerializerGET
@@ -276,14 +274,6 @@ class ClientUserViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
 
     def get_queryset(self):
         return self.queryset.filter(user__tenant=self.request.user.tenant)
-
-    def create(self, request, *args, **kwargs):
-        request.data['user']['tenant'] = request.user.tenant.id
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
