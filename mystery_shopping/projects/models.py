@@ -47,7 +47,7 @@ class ResearchMethodology(TenantModel):
 
     # Attributes
     description = models.TextField(blank=True)
-    number_of_evaluations = models.PositiveSmallIntegerField()  # or number_of_calls
+    number_of_evaluations = models.PositiveIntegerField()  # or number_of_calls
 
     class Meta:
         verbose_name_plural = 'research methodologies'

@@ -89,16 +89,10 @@ class CodedCauseSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         coded_cause_label = validated_data.get('coded_label', None)
         coded_cause_label['tenant'] = coded_cause_label['tenant'].pk
-        try:
-            existent_coded_cause_label = CodedCauseLabel.objects.get(
-                name=coded_cause_label.get('name', None),
-                tenant=validated_data.get('tenant', None))
-            validated_data['coded_label'] = existent_coded_cause_label
-        except CodedCauseLabel.DoesNotExist:
-            coded_cause_label_ser = CodedCauseLabelSerializer(data=coded_cause_label)
-            coded_cause_label_ser.is_valid(raise_exception=True)
-            coded_cause_label_ser.save()
-            validated_data['coded_label'] = coded_cause_label_ser.instance
+        coded_cause_label_ser = CodedCauseLabelSerializer(data=coded_cause_label)
+        coded_cause_label_ser.is_valid(raise_exception=True)
+        coded_cause_label_ser.save()
+        validated_data['coded_label'] = coded_cause_label_ser.instance
 
         coded_cause = CodedCause.objects.create(**validated_data)
 
