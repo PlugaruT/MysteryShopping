@@ -37,13 +37,12 @@ class User(OptionalTenantModel, AbstractUser):
 
     @property
     def user_type(self):
-        list_of_groups = self.groups.values_list('name', flat=True)
+        list_of_groups = self.get_group_names()
         return [UserRole.GROUPS_TO_ROLES[group_name] for group_name in list_of_groups]
 
     @property
     def user_roles(self):
-        list_of_groups = self.get_group_names()
-        roles = [UserRole.GROUPS_TO_ROLES[group_name] for group_name in list_of_groups]
+        roles = self.user_type
         if getattr(self, 'is_staff', False) is True:
             roles.append('admin')
         return roles
