@@ -189,12 +189,16 @@ class EvaluationPerShopperViewSet(viewsets.GenericViewSet):
 
 
 class EvaluationsFilter(django_filters.rest_framework.FilterSet):
+    places = django_filters.ModelMultipleChoiceFilter(queryset=CompanyElement.objects.all(), name="company_element")
     date = django_filters.DateFromToRangeFilter(name="time_accomplished", lookup_expr='date')
-    collector = django_filters.AllValuesMultipleFilter(name='shopper')
+    start_date = django_filters.DateTimeFilter(name="suggested_start_date", lookup_expr='date')
+    end_date = django_filters.DateTimeFilter(name="suggested_end_date", lookup_expr='date')
+    collectors = django_filters.AllValuesMultipleFilter(name='shopper')
+    status = django_filters.ChoiceFilter(choices=Evaluation.STATUS)
 
     class Meta:
         model = Evaluation
-        fields = ['date', 'company_element', 'collector']
+        fields = ['date', 'start_date', 'end_date', 'places', 'collectors', 'status']
 
 
 class EvaluationPerProjectViewSet(ListModelMixin, EvaluationViewMixIn, viewsets.GenericViewSet):
@@ -254,23 +258,13 @@ class EvaluationAssessmentCommentViewSet(GetSerializerClassMixin, viewsets.Model
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant, IsShopper),)
 
 
-class ProjectStatisticsFilter(django_filters.rest_framework.FilterSet):
-    places = django_filters.ModelMultipleChoiceFilter(queryset=CompanyElement.objects.all(), name="company_element")
-    date = django_filters.DateFromToRangeFilter(name="time_accomplished", lookup_expr='date')
-    collectors = django_filters.AllValuesMultipleFilter(name='shopper')
-
-    class Meta:
-        model = Evaluation
-        fields = ['date', 'places', 'collectors']
-
-
 class ProjectStatisticsForCompanyViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
     serializer_class = ProjectStatisticsForCompanySerializer
     serializer_class_get = ProjectStatisticsForCompanySerializerGET
     permission_classes = (IsAuthenticated, HasReadOnlyAccessToProjectsOrEvaluations,)
     pagination_class = ProjectStatisticsPaginator
     filter_backends = (DjangoFilterBackend,)
-    filter_class = ProjectStatisticsFilter
+    filter_class = EvaluationsFilter
     queryset = Evaluation.objects.all()
 
     def get_queryset(self):
@@ -285,7 +279,7 @@ class ProjectStatisticsForTenantViewSet(GetSerializerClassMixin, viewsets.ModelV
     permission_classes = (IsAuthenticated, HasAccessToProjectsOrEvaluations,)
     pagination_class = ProjectStatisticsPaginator
     filter_backends = (DjangoFilterBackend,)
-    filter_class = ProjectStatisticsFilter
+    filter_class = EvaluationsFilter
     queryset = Evaluation.objects.all()
 
     def get_queryset(self):
