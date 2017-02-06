@@ -16,9 +16,13 @@ from rest_condition import Or
 from mystery_shopping.companies.models import CompanyElement
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from mystery_shopping.mystery_shopping_utils.paginators import EvaluationPagination, ProjectStatisticsPaginator
+from mystery_shopping.mystery_shopping_utils.permissions import ProjectStatisticsFilterPerCompanyElement
 from mystery_shopping.mystery_shopping_utils.views import GetSerializerClassMixin
 from mystery_shopping.projects.constants import EvaluationStatus
 from mystery_shopping.projects.mixins import EvaluationViewMixIn, UpdateSerializerMixin
+from mystery_shopping.projects.serializers import ProjectStatisticsForTenantSerializerGET, \
+    ProjectStatisticsForCompanySerializerGET
+from mystery_shopping.users.roles import UserRole
 from mystery_shopping.projects.serializers import ProjectSerializerGET, ResearchMethodologySerializerGET, \
     EvaluationSerializerGET, EvaluationAssessmentLevelSerializerGET, EvaluationAssessmentCommentSerializerGET, \
     ProjectStatisticsForTenantSerializerGET, ProjectStatisticsForCompanySerializerGET
@@ -138,9 +142,9 @@ class EvaluationViewSet(UpdateSerializerMixin, EvaluationViewMixIn, viewsets.Mod
 
     def get_queryset(self):
         queryset = self.serializer_class.setup_eager_loading(self.queryset)
-        if self.request.user.user_type in ['tenantproductmanager', 'tenantprojectmanager', 'tenantconsultant']:
+        if self.request.user.is_in_groups(UserRole.TENANT_GROUPS):
             queryset = queryset.filter(project__tenant=self.request.user.tenant)
-        elif self.request.user.user_type is 'shopper':
+        elif self.request.user.is_shopper():
             queryset = queryset.filter(shopper__user=self.request.user)
         return queryset
 
@@ -259,11 +263,20 @@ class EvaluationAssessmentCommentViewSet(GetSerializerClassMixin, viewsets.Model
 
 
 class ProjectStatisticsForCompanyViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
+    """
+        View that returns statistics per project for clients. It supports filters usign query params
+
+        Query params:
+
+         * `date_0`: starting date to filter evaluations
+         * `date_1`: ending date to filter evaluations
+         * `company_element`: company element id to filter evaluations
+        """
     serializer_class = ProjectStatisticsForCompanySerializer
     serializer_class_get = ProjectStatisticsForCompanySerializerGET
     permission_classes = (IsAuthenticated, HasReadOnlyAccessToProjectsOrEvaluations,)
     pagination_class = ProjectStatisticsPaginator
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = (ProjectStatisticsFilterPerCompanyElement, DjangoFilterBackend,)
     filter_class = EvaluationsFilter
     queryset = Evaluation.objects.all()
 
@@ -274,11 +287,21 @@ class ProjectStatisticsForCompanyViewSet(GetSerializerClassMixin, viewsets.Model
 
 
 class ProjectStatisticsForTenantViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
+    """
+        View that returns statistics per project for tenant. It supports filters usign query params
+
+        Query params:
+
+         * `date_0`: starting date to filter evaluations
+         * `date_1`: ending date to filter evaluations
+         * `company_element`: company element id to filter evaluations
+         * `collector`: collector id to filter evaluations
+        """
     serializer_class = ProjectStatisticsForTenantSerializer
     serializer_class_get = ProjectStatisticsForTenantSerializerGET
     permission_classes = (IsAuthenticated, HasAccessToProjectsOrEvaluations,)
     pagination_class = ProjectStatisticsPaginator
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = (ProjectStatisticsFilterPerCompanyElement, DjangoFilterBackend,)
     filter_class = EvaluationsFilter
     queryset = Evaluation.objects.all()
 

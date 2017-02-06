@@ -15,11 +15,11 @@ from mystery_shopping.factories.questionnaires import QuestionnaireTemplateStatu
 from mystery_shopping.factories.projects import EvaluationFactory
 from mystery_shopping.factories.projects import EvaluationAssessmentLevelFactory
 from mystery_shopping.factories.tenants import TenantFactory
-from mystery_shopping.factories.users import UserThatIsTenantProductManagerFactory, UserFactory
+from mystery_shopping.factories.users import UserThatIsTenantProductManagerFactory, UserFactory, \
+    TenantProductManagerGroupFactory
 
 
 # ToDo: make dates 'aware'
-
 
 class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
     base_name = 'evaluation'
@@ -46,6 +46,8 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
 
     def test_create(self, data=None, **kwargs):
         kwargs['format'] = 'json'
+        group = TenantProductManagerGroupFactory.create()
+        self.user.groups.add(group)
         super(EvaluationAPITestCase, self).test_create(data, **kwargs)
 
     # TODO: this test shall be reviewed

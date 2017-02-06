@@ -6,8 +6,6 @@ from .models import Industry, Company, Department, Entity, Section
 
 from mystery_shopping.common.serializer import CitySerializer
 from mystery_shopping.common.serializer import CountrySerializer
-from mystery_shopping.users.serializers import ClientManagerSerializer
-from mystery_shopping.users.serializers import ClientEmployeeSerializer
 
 
 class IndustrySerializer(serializers.ModelSerializer):
@@ -84,13 +82,18 @@ class CompanyElementSerializer(serializers.ModelSerializer):
 
 class SimpleCompanyElementSerializer(serializers.ModelSerializer):
     """
-    Serializer class used for serializing only top level CompanyElement model (companies)
+    Serializer class used for serializing CompanyElement model
     """
-    additional_info = serializers.JSONField(read_only=True)
+    additional_info = serializers.JSONField(required=False)
 
     class Meta:
         model = CompanyElement
-        fields = ('id', 'element_name', 'element_type', 'additional_info', 'tenant')
+        fields = ('id', 'element_name', 'element_type', 'additional_info', 'parent')
+
+    @staticmethod
+    def setup_eager_loading(queryset):
+        queryset = queryset.select_related('parent')
+        return queryset
 
 
 class AdditionalInfoTypeSerializer(serializers.ModelSerializer):
@@ -107,8 +110,6 @@ class SectionSerializer(serializers.ModelSerializer):
     """
 
     """
-    managers = ClientManagerSerializer(read_only=True, many=True)
-    employees = ClientEmployeeSerializer(read_only=True, many=True)
 
     # todo: remove redefinitions, add extra_args
 
@@ -137,9 +138,6 @@ class EntitySerializer(serializers.ModelSerializer):
 
     """
     city_repr = CitySerializer(source='city', read_only=True)
-    managers = ClientManagerSerializer(read_only=True, many=True)
-    employees = ClientEmployeeSerializer(read_only=True, many=True)
-    sections = SectionSerializer(many=True, required=False)
 
     # todo: remove redefinitions, add extra_args
 
@@ -189,7 +187,6 @@ class DepartmentSerializer(serializers.ModelSerializer):
     """
 
     """
-    managers = ClientManagerSerializer(read_only=True, many=True)
     entities = EntitySerializer(many=True, required=False)
 
     class Meta:

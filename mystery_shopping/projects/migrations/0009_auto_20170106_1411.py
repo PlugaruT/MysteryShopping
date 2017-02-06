@@ -52,4 +52,9 @@ class Migration(migrations.Migration):
             name='saved_by_user',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='saved_evaluations', to=settings.AUTH_USER_MODEL),
         ),
+        migrations.AlterField(
+            model_name='researchmethodology',
+            name='number_of_evaluations',
+            field=models.PositiveIntegerField(),
+        ),
     ]

@@ -28,116 +28,83 @@ class User(OptionalTenantModel, AbstractUser):
     phone_number = models.CharField(max_length=20, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
     gender = models.CharField(max_length=1, null=True, blank=True)
-    has_drivers_license = models.BooleanField(default=False)
-    job_title = models.CharField(max_length=60, blank=True)
-    address = models.CharField(max_length=100, blank=True)
 
     def __str__(self):
-        return u"{}".format(self.username)
+        return u"{} {}".format(self.first_name, self.last_name)
 
     def get_absolute_url(self):
         return reverse('users:detail', kwargs={'username': self.username})
 
     @property
     def user_type(self):
-        if hasattr(self, 'tenantproductmanager'):
-            return 'tenantproductmanager'
-        elif hasattr(self, 'tenantprojectmanager'):
-            return 'tenantprojectmanager'
-        elif hasattr(self, 'tenantconsultant'):
-            return 'tenantconsultant'
-        elif hasattr(self, 'shopper'):
-            return 'shopper'
-        else:
-            return []
-
-    @property
-    def user_type_attr(self):
-        if hasattr(self, 'tenantproductmanager'):
-            return getattr(self, 'tenantproductmanager')
-        elif hasattr(self, 'tenantprojectmanager'):
-            return getattr(self, 'tenantprojectmanager')
-        elif hasattr(self, 'tenantconsultant'):
-            return getattr(self, 'tenantconsultant')
-        elif hasattr(self, UserRole.CLIENT_PROJECT_MANAGER):
-            return getattr(self, UserRole.CLIENT_PROJECT_MANAGER)
-        elif hasattr(self, UserRole.CLIENT_MANAGER):
-            return getattr(self, UserRole.CLIENT_MANAGER)
-        elif hasattr(self, UserRole.CLIENT_EMPLOYEE):
-            return getattr(self, UserRole.CLIENT_EMPLOYEE)
-        elif hasattr(self, UserRole.SHOPPER):
-            return getattr(self, UserRole.SHOPPER)
-        else:
-            return None
+        list_of_groups = self.get_group_names()
+        return [UserRole.GROUPS_TO_ROLES[group_name] for group_name in list_of_groups]
 
     @property
     def user_roles(self):
-        roles = []
-        if hasattr(self, 'tenantproductmanager'):
-            roles.append('tenantproductmanager')
-        if hasattr(self, 'tenantprojectmanager'):
-            roles.append('tenantprojectmanager')
-        if hasattr(self, 'tenantconsultant'):
-            roles.append('tenantconsultant')
-        if hasattr(self, 'shopper'):
-            if self.shopper.is_collector:
-                roles.append('collector')
-            else:
-                roles.append('shopper')
-        if hasattr(self, 'clientprojectmanager'):
-            roles.append('clientprojectmanager')
-        if hasattr(self, 'clientmanager'):
-            roles.append('clientmanager')
-        if hasattr(self, 'clientemployee'):
-            roles.append('clientemployee')
+        roles = self.user_type
         if getattr(self, 'is_staff', False) is True:
             roles.append('admin')
         return roles
 
-    @property
-    def list_of_poses(self):
-        return get_objects_for_user(self, klass=CompanyElement, perms=[]).filter(tenant=self.tenant)
+    def is_in_group(self, group_name):
+        return self.groups.filter(name=group_name).exists()
 
-    @property
-    def has_client_manager_overview_access(self):
-        if hasattr(self, 'clientmanager'):
-            return self.clientmanager.has_overview_access
-        return False
+    def is_in_groups(self, group_names):
+        return self.groups.filter(name__in=group_names).exists()
+
+    def get_group_names(self):
+        return self.groups.values_list('name', flat=True)
 
     def is_tenant_product_manager(self):
-        return hasattr(self, 'tenantproductmanager')
+        return self.is_in_group(UserRole.TENANT_PRODUCT_MANAGER_GROUP)
 
     def is_tenant_project_manager(self):
-        return hasattr(self, 'tenantprojectmanager')
+        return self.is_in_group(UserRole.TENANT_PROJECT_MANAGER_GROUP)
 
     def is_tenant_manager(self):
         return self.is_tenant_product_manager() or self.is_tenant_project_manager()
 
     def is_client_user(self):
-        return hasattr(self, UserRole.CLIENT_PROJECT_MANAGER) \
-               or hasattr(self, UserRole.CLIENT_MANAGER) \
-               or hasattr(self, UserRole.CLIENT_EMPLOYEE)
+        return self.is_in_groups(UserRole.CLIENT_GROUPS)
 
     def is_tenant_user(self):
-        return hasattr(self, UserRole.TENANT_PRODUCT_MANAGER) \
-               or hasattr(self, UserRole.TENANT_PROJECT_MANAGER) \
-               or hasattr(self, UserRole.TENANT_CONSULTANT)
+        return self.is_in_groups(UserRole.TENANT_GROUPS)
 
     def is_shopper(self):
-        return hasattr(self, UserRole.SHOPPER)
+        return self.is_in_group(UserRole.SHOPPER_GROUP)
 
     def is_collector(self):
-        return self.is_shopper() and self.shopper.is_collector
+        return self.is_in_group(UserRole.COLLECTOR_GROUP)
 
     def user_company(self):
-        company = None
-        # if hasattr(self, UserRole.CLIENT_PROJECT_MANAGER):
-        #     company = getattr(self, UserRole.CLIENT_PROJECT_MANAGER, None).company
-        # if hasattr(self, UserRole.CLIENT_MANAGER):
-        #     company = getattr(self, UserRole.CLIENT_MANAGER, None).company
-        # if hasattr(self, UserRole.CLIENT_EMPLOYEE):
-        #     company = getattr(self, UserRole.CLIENT_EMPLOYEE, None).company
-        return company
+        if self.is_in_groups(UserRole.CLIENT_GROUPS):
+            return self.client_user.company
+        return None
+
+    def management_permissions(self):
+        return get_objects_for_user(self, klass=CompanyElement,
+                                    perms=['manager_companyelement']).values_list('id', flat=True)
+
+    def detractors_permissions(self):
+        return get_objects_for_user(self, klass=CompanyElement,
+                                    perms=['view_detractors_for_companyelement']).values_list('id', flat=True)
+
+    def statistics_permissions(self):
+        return get_objects_for_user(self, klass=CompanyElement,
+                                    perms=['view_statistics_for_companyelement']).values_list('id', flat=True)
+
+    def coded_causes_permissions(self):
+        return get_objects_for_user(self, klass=CompanyElement,
+                                    perms=['view_coded_causes_for_companyelement']).values_list('id', flat=True)
+
+    def get_company_elements_permissions(self):
+        return {
+            'detractor_permissions': self.detractors_permissions(),
+            'statistics_permissions': self.statistics_permissions(),
+            'coded_causes_permissions': self.coded_causes_permissions(),
+            'manager_permissions': self.management_permissions()
+        }
 
 
 class TenantUserAbstract(models.Model):
@@ -198,6 +165,22 @@ class TenantConsultant(TenantUserAbstract):
         return 'tenantconsultant'
 
 
+class ClientUser(models.Model):
+    """Class for Client User model.
+
+    This class define the common relations and attributes for all Client Users.
+
+    """
+    # Relations
+    user = models.OneToOneField(User, related_name='client_user')
+    company = models.ForeignKey(CompanyElement, related_name='client_users')
+
+    job_title = models.CharField(max_length=60, blank=True)
+
+    def __str__(self):
+        return u'pk: {}, username: {}'.format(self.id, self.user.username)
+
+
 class ClientUserAbstract(models.Model):
     """The abstract class for Client User model.
 
@@ -208,9 +191,6 @@ class ClientUserAbstract(models.Model):
     """
     # Relations
     user = models.OneToOneField(User, null=True)
-    tenant = models.ForeignKey(Tenant, related_name='%(class)ss')
-
-    # Attributes
     first_name = models.CharField(max_length=30, blank=True)
     last_name = models.CharField(max_length=30, blank=True)
     job_title = models.CharField(max_length=60, blank=True)
@@ -285,16 +265,13 @@ class Shopper(models.Model):
     """
     # Relations
     user = models.OneToOneField(User, related_name='shopper')
-    tenant = models.ForeignKey(Tenant, related_name='shoppers', null=True, blank=True)
 
     # Attributes
-    is_collector = models.BooleanField(default=False)
-    date_of_birth = models.DateField()
-    gender = models.CharField(max_length=1)
     has_drivers_license = models.BooleanField(default=False)
+    address = models.CharField(max_length=100, blank=True)
 
     def __str__(self):
-        return u'{}'.format(self.user.username)
+        return u'pk: {}, name: {},  username: {}'.format(self.id, self.user, self.user.username)
 
 
 class Collector(models.Model):

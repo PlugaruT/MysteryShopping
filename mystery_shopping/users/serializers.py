@@ -1,8 +1,11 @@
 import re
 
 from django.contrib.auth.models import Permission, Group
+from guardian.shortcuts import assign_perm
 from rest_framework import serializers
 
+from mystery_shopping.companies.serializers import SimpleCompanyElementSerializer
+from mystery_shopping.users.models import ClientUser
 from .models import User
 from .models import TenantProductManager
 from .models import TenantProjectManager
@@ -14,57 +17,106 @@ from .models import PersonToAssess
 from .models import Shopper
 from .models import Collector
 
-from mystery_shopping.companies.models import Company
+from mystery_shopping.companies.models import Company, CompanyElement
 from mystery_shopping.tenants.serializers import TenantSerializer
 
 
-# try:
-#     from mystery_shopping.companies.serializers import EntitySerializer
-# except ImportError:
-#     import sys
-#     EntitySerializer = sys.modules['mystery_shopping.companies.EntitySerializer']
-
 class SimpleCompanySerializer(serializers.ModelSerializer):
-    """A Company serializer that does not have any nested serializer fields."""
+    """
+    A Company serializer that does not have any nested serializer fields.
+    """
 
     class Meta:
         model = Company
         fields = '__all__'
 
 
-class UsersCreateMixin:
+class AssignCustomObjectPermissions:
+    """
+    Mixin class for assigning custom permissions to user for viewing detractors, statistics
+    and coded causes for different company elements
+    """
+
+    def assign_object_permissions(self, user_instance, object_permissions):
+        companies_for_detractors = object_permissions.get('detractor_permissions', [])
+        companies_for_statistics = object_permissions.get('statistics_permissions', [])
+        companies_for_coded_causes = object_permissions.get('coded_causes_permissions', [])
+        companies_for_management = object_permissions.get('manager_permissions', [])
+        self.assign_detractors_permissions(user_instance, companies_for_detractors)
+        self.assign_statistics_permissions(user_instance, companies_for_statistics)
+        self.assign_coded_cause_permissions(user_instance, companies_for_coded_causes)
+        self.assign_manager_permissions(user_instance, companies_for_management)
+
+    @staticmethod
+    def assign_detractors_permissions(user_instance, company_elements):
+        company_elements_detractors = CompanyElement.objects.filter(id__in=company_elements)
+        assign_perm('view_detractors_for_companyelement', user_instance, company_elements_detractors)
+
+    @staticmethod
+    def assign_statistics_permissions(user_instance, company_elements):
+        company_elements_statistics = CompanyElement.objects.filter(id__in=company_elements)
+        assign_perm('view_statistics_for_companyelement', user_instance, company_elements_statistics)
+
+    @staticmethod
+    def assign_coded_cause_permissions(user_instance, company_elements):
+        company_elements_coded_causes = CompanyElement.objects.filter(id__in=company_elements)
+        assign_perm('view_coded_causes_for_companyelement', user_instance, company_elements_coded_causes)
+
+    @staticmethod
+    def assign_manager_permissions(user_instance, company_elements):
+        company_elements_manager = CompanyElement.objects.filter(id__in=company_elements)
+        assign_perm('manager_companyelement', user_instance, company_elements_manager)
+
+    @staticmethod
+    def create_or_update_user(data, user_instance=None):
+        data['tenant'] = data['tenant'].id
+        user_ser = UserSerializer(user_instance, data=data)
+        user_ser.is_valid(raise_exception=True)
+        user_ser.save()
+        return user_ser.instance
+
+
+class UsersCreateMixin(AssignCustomObjectPermissions):
     """
     Mixin class used to create (almost) all types of users.
     """
 
     def create(self, validated_data):
         user = validated_data.pop('user', None)
-
+        groups = user.pop('groups', [])
+        user_permissions = user.pop('user_permissions', [])
+        object_permissions = validated_data.pop('object_permissions', None)
         if user:
-            user_ser = UserSerializer(data=user)
-            user_ser.is_valid(raise_exception=True)
-            user_ser.save()
-            user = user_ser.instance
+            user_instance = self.create_or_update_user(user)
+            user_instance.groups.add(*groups)
+            user_instance.user_permissions.add(*user_permissions)
+            if object_permissions:
+                self.assign_object_permissions(user_instance, object_permissions)
 
-        user_type = self.Meta.model.objects.create(user=user, **validated_data)
+        user_type = self.Meta.model.objects.create(user=user_instance, **validated_data)
 
         return user_type
 
 
-class UsersUpdateMixin:
+class UsersUpdateMixin(AssignCustomObjectPermissions):
     """
     Mixin class used to update (almost) all types of users.
     """
 
     def update(self, instance, validated_data):
         user = validated_data.pop('user', None)
-
+        groups = user.pop('groups', [])
+        user_permissions = user.pop('user_permissions', [])
+        object_permissions = validated_data.pop('object_permissions', None)
         if user:
             if user.get('username', None) != instance.user.username:
                 user['change_username'] = True
-            user_ser = UserSerializer(instance.user, data=user)
-            user_ser.is_valid(raise_exception=True)
-            user_ser.save()
+            user_ser = self.create_or_update_user(user, instance.user)
+            user_ser.groups.clear()
+            user_ser.groups.add(*groups)
+            user_ser.user_permissions.add(*user_permissions)
+            if object_permissions:
+                self.assign_object_permissions(user_ser, object_permissions)
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
@@ -95,41 +147,41 @@ class GroupSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(AssignCustomObjectPermissions, serializers.ModelSerializer):
     """
     Serializer class for User model
     """
     password = serializers.CharField(write_only=True, required=False)
     confirm_password = serializers.CharField(write_only=True, required=False)
-    roles = serializers.ListField(read_only=True, source='user_roles')
     change_username = serializers.BooleanField(write_only=True, required=False)
+    object_permissions = serializers.JSONField(required=False, write_only=True)
 
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'change_username',
-                  'roles', 'password', 'confirm_password', 'user_permissions', 'groups',
-                  'date_of_birth', 'gender', 'has_drivers_license', 'job_title', 'address', 'shopper', 'managed_entities', 'has_overview_access')
-        extra_kwargs = {'username': {'validators': []},
-                        'help_text': 'Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.'}
-
-    @staticmethod
-    def check_username(username):
-        # Todo: add regex checking for 'username' characters
-        if User.objects.filter(username=username).exists():
-            raise serializers.ValidationError({
-                'key': 'VALIDATION_MESSAGE.USER.USERNAME_EXISTS'
-            })
-        if not re.match("^[a-zA-Z0-9@.+-_]+$", username):
-            raise serializers.ValidationError({
-                'key': 'VALIDATION_MESSAGE.USER.ILLEGAL_CHARS'
-            })
-        # No need to check len(username) > 30, as it does it by itself.
-        return True
+                  'password', 'confirm_password', 'tenant', 'user_permissions', 'groups',
+                  'date_of_birth', 'gender', 'object_permissions', 'phone_number')
+        extra_kwargs = {
+            'username': {
+                'validators': []
+            },
+            'tenant': {
+                'required': False
+            },
+            'shopper': {
+                'read_only': True
+            },
+            'company': {
+                'read_only': True
+            },
+            'help_text': 'Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.'
+        }
 
     def create(self, validated_data):
         password = validated_data.get('password', None)
         groups = validated_data.pop('groups', [])
         user_permissions = validated_data.pop('user_permissions', [])
+        object_permissions = validated_data.pop('object_permissions', None)
         confirm_password = validated_data.pop('confirm_password', None)
         validated_data.pop('change_username', None)
         self.check_username(validated_data['username'])
@@ -144,14 +196,17 @@ class UserSerializer(serializers.ModelSerializer):
         user.save()
         user.groups.add(*groups)
         user.user_permissions.add(*user_permissions)
+        if object_permissions:
+            self.assign_object_permissions(user, object_permissions)
         return user
 
     def update(self, instance, validated_data):
         # TODO improve password validation on update
         password = validated_data.pop('password', None)
-        groups = validated_data.pop('groups', None)
+        groups = validated_data.pop('groups', [])
         user_permissions = validated_data.pop('user_permissions', [])
-        confirm_password = validated_data.pop('confirm_password', [])
+        object_permissions = validated_data.pop('object_permissions', None)
+        confirm_password = validated_data.pop('confirm_password', None)
 
         if password and confirm_password:
             if password == confirm_password:
@@ -174,28 +229,43 @@ class UserSerializer(serializers.ModelSerializer):
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
+        instance.groups.clear()
         instance.groups.add(*groups)
         instance.user_permissions.add(*user_permissions)
+        if object_permissions:
+            self.assign_object_permissions(instance, object_permissions)
         return instance
+
+    @staticmethod
+    def check_username(username):
+        # Todo: add regex checking for 'username' characters
+        if User.objects.filter(username=username).exists():
+            raise serializers.ValidationError({
+                'key': 'VALIDATION_MESSAGE.USER.USERNAME_EXISTS'
+            })
+        if not re.match("^[a-zA-Z0-9@.+-_]+$", username):
+            raise serializers.ValidationError({
+                'key': 'VALIDATION_MESSAGE.USER.ILLEGAL_CHARS'
+            })
+        # No need to check len(username) > 30, as it does it by itself.
+        return True
 
 
 class UserSerializerGET(UserSerializer):
     """
-    Nested serializer class for User model
+    Serializer class that is used only for GET method
     """
-    tenant = TenantSerializer(read_only=True)
-    roles = serializers.ListField(read_only=True, source='user_roles')
     user_permissions = PermissionSerializer(many=True, read_only=False)
     groups = GroupSerializer(many=True, read_only=False)
-    # Update for new structure
-    company = SimpleCompanySerializer(source='user_company', read_only=True)
-    managed_entities = serializers.ListField(source='list_of_poses', read_only=True)
-    # till here.
+    roles = serializers.ListField(read_only=True, source='user_roles')
+    tenant = TenantSerializer(read_only=True)
+    object_permissions = serializers.JSONField(source='get_company_elements_permissions', read_only=True)
+    company = SimpleCompanyElementSerializer(source='user_company', read_only=True)
 
-    class Meta:
-        model = User
-        fields = ('id', 'username', 'email', 'first_name', 'last_name',
-                  'roles', 'user_permissions', 'groups', 'password', 'company', 'managed_entities', 'tenant')
+    class Meta(UserSerializer.Meta):
+        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'change_username',
+                  'password', 'confirm_password', 'tenant', 'user_permissions', 'groups',
+                  'date_of_birth', 'gender', 'roles', 'object_permissions', 'phone_number', 'company')
 
 
 class TenantProductManagerSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):
@@ -265,12 +335,46 @@ class ClientEmployeeSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.M
 
 
 class ShopperSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):
-    """Serializer class for Shopper user model.
+    """
+    Serializer class for Shopper user model.
     """
     user = UserSerializer()
 
     class Meta:
         model = Shopper
+        fields = '__all__'
+
+
+class ShopperSerializerGET(serializers.ModelSerializer):
+    """
+    Serializer class for Shopper user model.
+    """
+    user = UserSerializerGET()
+
+    class Meta:
+        model = Shopper
+        fields = '__all__'
+
+
+class ClientUserSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):
+    """
+    Serializer class for client users
+    """
+    user = UserSerializer()
+
+    class Meta:
+        model = ClientUser
+        fields = '__all__'
+
+
+class ClientUserSerializerGET(serializers.ModelSerializer):
+    """
+    Serializer class for client users
+    """
+    user = UserSerializerGET()
+
+    class Meta:
+        model = ClientUser
         fields = '__all__'
 
 
@@ -284,30 +388,10 @@ class CollectorSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelS
         fields = '__all__'
 
 
-class PersonToAssessRelatedField(serializers.RelatedField):
-    """
-    A custom field to use to serialize the instance of a person to assess according to it's type: ClientManager or ClientEmployee.
-    """
-
-    def to_representation(self, value):
-        """
-        Serialize tagged objects to a simple textual representation.
-        """
-        if isinstance(value, ClientManager):
-            serializer = ClientManagerSerializer(value)
-        elif isinstance(value, ClientEmployee):
-            serializer = ClientEmployeeSerializer(value)
-        else:
-            raise Exception('Unexpected type of tagged object')
-
-        return serializer.data
-
-
 class PersonToAssessSerializer(serializers.ModelSerializer):
     """
 
     """
-    person_repr = PersonToAssessRelatedField(source='person', read_only=True)
 
     class Meta:
         model = PersonToAssess
