@@ -67,6 +67,14 @@ class AssignCustomObjectPermissions:
         company_elements_manager = CompanyElement.objects.filter(id__in=company_elements)
         assign_perm('manager_companyelement', user_instance, company_elements_manager)
 
+    @staticmethod
+    def create_or_update_user(data, user_instance=None):
+        data['tenant'] = data['tenant'].id
+        user_ser = UserSerializer(user_instance, data=data)
+        user_ser.is_valid(raise_exception=True)
+        user_ser.save()
+        return user_ser.instance
+
 
 class UsersCreateMixin(AssignCustomObjectPermissions):
     """
@@ -79,17 +87,13 @@ class UsersCreateMixin(AssignCustomObjectPermissions):
         user_permissions = user.pop('user_permissions', [])
         object_permissions = validated_data.pop('object_permissions', None)
         if user:
-            user['tenant'] = user['tenant'].id
-            user_ser = UserSerializer(data=user)
-            user_ser.is_valid(raise_exception=True)
-            user_ser.save()
-            user = user_ser.instance
-            user.groups.add(*groups)
-            user.user_permissions.add(*user_permissions)
+            user_instance = self.create_or_update_user(user)
+            user_instance.groups.add(*groups)
+            user_instance.user_permissions.add(*user_permissions)
             if object_permissions:
-                self.assign_object_permissions(user, object_permissions)
+                self.assign_object_permissions(user_instance, object_permissions)
 
-        user_type = self.Meta.model.objects.create(user=user, **validated_data)
+        user_type = self.Meta.model.objects.create(user=user_instance, **validated_data)
 
         return user_type
 
@@ -107,15 +111,12 @@ class UsersUpdateMixin(AssignCustomObjectPermissions):
         if user:
             if user.get('username', None) != instance.user.username:
                 user['change_username'] = True
-            user['tenant'] = user['tenant'].id
-            user_ser = UserSerializer(instance.user, data=user)
-            user_ser.is_valid(raise_exception=True)
-            user_ser.save()
-            user_ser.instance.groups.clear()
-            user_ser.instance.groups.add(*groups)
-            user_ser.instance.user_permissions.add(*user_permissions)
+            user_ser = self.create_or_update_user(user, instance.user)
+            user_ser.groups.clear()
+            user_ser.groups.add(*groups)
+            user_ser.user_permissions.add(*user_permissions)
             if object_permissions:
-                self.assign_object_permissions(user_ser.instance, object_permissions)
+                self.assign_object_permissions(user_ser, object_permissions)
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
