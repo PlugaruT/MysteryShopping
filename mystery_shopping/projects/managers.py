@@ -28,6 +28,7 @@ class ProjectQuerySet(QuerySet):
         """
         return self.filter(tenant=tenant, company=company).latest('period_start')
 
+
 class EvaluationQuerySet(QuerySet):
     def get_project_evaluations(self, project, company):
         """Return list of evaluations that belong to a project

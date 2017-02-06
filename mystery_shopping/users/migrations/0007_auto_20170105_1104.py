@@ -21,11 +21,11 @@ class ReassignTenantToUser:
 
 def migrate_tenant_for_current_users(*args):
     for user in User.objects.all():
-        ReassignTenantToUser(user)
+        if user.is_tenant_user():
+            ReassignTenantToUser(user)
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('tenants', '0001_initial'),
         ('users', '0006_auto_20161222_1351'),
@@ -66,6 +66,5 @@ class Migration(migrations.Migration):
             name='tenant',
             field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='tenants.Tenant'),
             preserve_default=False,
-        ),
-        migrations.RunPython(migrate_tenant_for_current_users)
+        )
     ]

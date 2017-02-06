@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from guardian.shortcuts import get_objects_for_user
 from rest_condition import Or
 from rest_framework import status
 from rest_framework import views
@@ -8,7 +9,7 @@ from rest_framework.filters import SearchFilter
 from rest_framework.mixins import ListModelMixin
 from rest_framework.response import Response
 
-from mystery_shopping.companies.models import Company
+from mystery_shopping.companies.models import Company, CompanyElement
 from mystery_shopping.cxi.algorithms import GetPerDayQuestionnaireData
 from mystery_shopping.cxi.serializers import SimpleWhyCauseSerializer
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
@@ -309,13 +310,15 @@ class CodedCausePercentage(views.APIView):
     def get(self, request, *args, **kwargs):
         indicator = request.query_params.get('indicator')
         project_id = request.query_params.get('project')
-        list_of_places = request.user.list_of_poses.values_list('id', flat=True)
+        list_of_places = get_objects_for_user(request.user, klass=CompanyElement,
+                                              perms=['view_coded_causes_for_companyelement']).values_list('id',
+                                                                                                          flat=True)
         pre_response = self._pre_process_request(project_id, request.user)
         if pre_response:
             return Response(**pre_response)
-        indicator_questions = QuestionnaireQuestion.objects.get_indicator_questions_for_entities(project_id,
-                                                                                                 indicator,
-                                                                                                 list_of_places)
+        indicator_questions = QuestionnaireQuestion.objects.get_indicator_questions_for_company_elements(project_id,
+                                                                                                         indicator,
+                                                                                                         list_of_places)
 
         coded_cause_percentage = CodedCausesPercentageTable(indicator_questions)
         response = coded_cause_percentage.build_response()
