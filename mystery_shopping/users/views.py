@@ -3,15 +3,18 @@ from __future__ import absolute_import, unicode_literals
 
 import django_filters
 from django.contrib.auth.models import Permission, Group
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework import status
 from rest_condition import Or
-from rest_framework.decorators import list_route
+from rest_framework.decorators import list_route, detail_route
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 
+from mystery_shopping.companies.models import CompanyElement
+from mystery_shopping.companies.serializers import CompanyElementSerializer
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from mystery_shopping.mystery_shopping_utils.paginators import DetractorRespondentPaginator
 from mystery_shopping.mystery_shopping_utils.permissions import DetractorFilterPerCompanyElement
@@ -282,6 +285,40 @@ class ClientUserViewSet(GetSerializerClassMixin, CreateUserMixin, viewsets.Model
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(serializer.data)
+
+    @detail_route(methods=['get'], url_path='detractor-permissions')
+    def detractor_permissions(self, request, pk=None):
+        client_user = get_object_or_404(ClientUser, pk=pk)
+        company_elements = client_user.user.detractors_permissions()
+        response = self.filter_and_serialize(company_elements)
+        return Response(response)
+
+    @detail_route(methods=['get'], url_path='statistics-permissions')
+    def statistics_permissions(self, request, pk=None):
+        client_user = get_object_or_404(ClientUser, pk=pk)
+        company_elements = client_user.user.statistics_permissions()
+        response = self.filter_and_serialize(company_elements)
+        return Response(response)
+
+    @detail_route(methods=['get'], url_path='coded-causes-permissions')
+    def coded_causes_permissions(self, request, pk=None):
+        client_user = get_object_or_404(ClientUser, pk=pk)
+        company_elements = client_user.user.coded_causes_permissions()
+        response = self.filter_and_serialize(company_elements)
+        return Response(response)
+
+    @detail_route(methods=['get'], url_path='management-permissions')
+    def management_permissions(self, request, pk=None):
+        client_user = get_object_or_404(ClientUser, pk=pk)
+        company_elements = client_user.user.management_permissions()
+        response = self.filter_and_serialize(company_elements)
+        return Response(response)
+
+    @staticmethod
+    def filter_and_serialize(company_elements_ids):
+        company_elements = CompanyElement.objects.filter(id__in=company_elements_ids)
+        serializer = CompanyElementSerializer(company_elements, many=True)
+        return serializer.data
 
 
 class CollectorViewSet(viewsets.ModelViewSet):
