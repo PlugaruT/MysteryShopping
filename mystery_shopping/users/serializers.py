@@ -4,6 +4,7 @@ from django.contrib.auth.models import Permission, Group
 from guardian.shortcuts import assign_perm
 from rest_framework import serializers
 
+from mystery_shopping.companies.serializers import SimpleCompanyElementSerializer
 from mystery_shopping.users.models import ClientUser
 from .models import User
 from .models import TenantProductManager
@@ -258,11 +259,12 @@ class UserSerializerGET(UserSerializer):
     roles = serializers.ListField(read_only=True, source='user_roles')
     tenant = TenantSerializer(read_only=True)
     object_permissions = serializers.JSONField(source='get_company_elements_permissions', read_only=True)
+    company = SimpleCompanyElementSerializer(source='user_company', read_only=True)
 
     class Meta(UserSerializer.Meta):
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'change_username',
                   'password', 'confirm_password', 'tenant', 'user_permissions', 'groups',
-                  'date_of_birth', 'gender', 'roles', 'object_permissions', 'phone_number')
+                  'date_of_birth', 'gender', 'roles', 'object_permissions', 'phone_number', 'company')
 
 
 class TenantProductManagerSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):
@@ -385,30 +387,10 @@ class CollectorSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelS
         fields = '__all__'
 
 
-class PersonToAssessRelatedField(serializers.RelatedField):
-    """
-    A custom field to use to serialize the instance of a person to assess according to it's type: ClientManager or ClientEmployee.
-    """
-
-    def to_representation(self, value):
-        """
-        Serialize tagged objects to a simple textual representation.
-        """
-        if isinstance(value, ClientManager):
-            serializer = ClientManagerSerializer(value)
-        elif isinstance(value, ClientEmployee):
-            serializer = ClientEmployeeSerializer(value)
-        else:
-            raise Exception('Unexpected type of tagged object')
-
-        return serializer.data
-
-
 class PersonToAssessSerializer(serializers.ModelSerializer):
     """
 
     """
-    person_repr = PersonToAssessRelatedField(source='person', read_only=True)
 
     class Meta:
         model = PersonToAssess

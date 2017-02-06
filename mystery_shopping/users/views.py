@@ -25,25 +25,13 @@ from mystery_shopping.users.models import DetractorRespondent, ClientUser
 from mystery_shopping.users.roles import UserRole
 from mystery_shopping.users.serializers import PermissionSerializer, GroupSerializer, UserSerializerGET, \
     ClientUserSerializer, ShopperSerializerGET, ClientUserSerializerGET
-from .models import ClientEmployee
-from .models import ClientManager
 from .models import Shopper
 from .models import Collector
-from .models import TenantProjectManager
-from .models import TenantProductManager
-from .models import TenantConsultant
 from .models import User
-from .models import PersonToAssess
 
 from .serializers import UserSerializer
-from .serializers import ClientEmployeeSerializer
-from .serializers import ClientManagerSerializer
 from .serializers import ShopperSerializer
 from .serializers import CollectorSerializer
-from .serializers import TenantProductManagerSerializer
-from .serializers import TenantProjectManagerSerializer
-from .serializers import TenantConsultantSerializer
-from .serializers import PersonToAssessSerializer
 from mystery_shopping.users.permissions import IsTenantProductManager, HasReadOnlyAccessToProjectsOrEvaluations
 from mystery_shopping.users.permissions import IsTenantProjectManager
 from mystery_shopping.users.permissions import IsTenantConsultant
@@ -195,47 +183,6 @@ class PermissionsPerUserViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
 
-class TenantProductManagerViewSet(FilterQuerysetOnTenantMixIn, viewsets.ModelViewSet):
-    queryset = TenantProductManager.objects.all()
-    serializer_class = TenantProductManagerSerializer
-
-
-class TenantProjectManagerViewSet(FilterQuerysetOnTenantMixIn, viewsets.ModelViewSet):
-    queryset = TenantProjectManager.objects.all()
-    serializer_class = TenantProjectManagerSerializer
-
-
-class TenantConsultantViewSet(FilterQuerysetOnTenantMixIn, viewsets.ModelViewSet):
-    queryset = TenantConsultant.objects.all()
-    serializer_class = TenantConsultantSerializer
-
-
-class ClientEmployeeViewSet(FilterQuerysetOnTenantMixIn, viewsets.ModelViewSet):
-    queryset = ClientEmployee.objects.all()
-    serializer_class = ClientEmployeeSerializer
-
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        if instance.has_evaluations():
-            return Response({"You can not delete this object because there are evaluations applied"},
-                            status.HTTP_400_BAD_REQUEST)
-        self.perform_destroy(instance)
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class ClientManagerViewSet(FilterQuerysetOnTenantMixIn, viewsets.ModelViewSet):
-    queryset = ClientManager.objects.all()
-    serializer_class = ClientManagerSerializer
-
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        if instance.has_evaluations():
-            return Response({"You can not delete this object because there are evaluations applied"},
-                            status.HTTP_400_BAD_REQUEST)
-        self.perform_destroy(instance)
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
 class ShopperFilter(django_filters.rest_framework.FilterSet):
     license = django_filters.BooleanFilter(name='has_drivers_license')
     sex = django_filters.CharFilter(name='user__gender')
@@ -325,11 +272,6 @@ class CollectorViewSet(viewsets.ModelViewSet):
     queryset = Collector.objects.all()
     serializer_class = CollectorSerializer
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
-
-
-class PersonToAssessViewSet(viewsets.ModelViewSet):
-    queryset = PersonToAssess.objects.all()
-    serializer_class = PersonToAssessSerializer
 
 
 class DetractorFilter(django_filters.rest_framework.FilterSet):
