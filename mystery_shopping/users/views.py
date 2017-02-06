@@ -93,42 +93,70 @@ class UserViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
     @list_route(methods=['get'])
     def consultants(self, request):
         group = Group.objects.filter(name=UserRole.TENANT_CONSULTANT_GROUP)
-        response = self.filter_and_serialize(group)
+        response = self.filter_groups_and_serialize(group)
         return Response(response)
 
     @list_route(methods=['get'])
     def collectors(self, request):
         group = Group.objects.filter(name=UserRole.COLLECTOR_GROUP)
-        response = self.filter_and_serialize(group)
+        response = self.filter_groups_and_serialize(group)
         return Response(response)
 
     @list_route(methods=['get'], url_path='tenant-project-managers')
     def tenant_project_managers(self, request):
         group = Group.objects.filter(name=UserRole.TENANT_PROJECT_MANAGER_GROUP)
-        response = self.filter_and_serialize(group)
+        response = self.filter_groups_and_serialize(group)
         return Response(response)
 
     @list_route(methods=['get'], url_path='tenant-product-managers')
     def tenant_product_managers(self, request):
         group = Group.objects.filter(name=UserRole.TENANT_PRODUCT_MANAGER_GROUP)
-        response = self.filter_and_serialize(group)
+        response = self.filter_groups_and_serialize(group)
         return Response(response)
 
     @list_route(methods=['get'], url_path='tenant-users')
     def tenant_users(self, request):
         groups = Group.objects.filter(name__in=UserRole.TENANT_GROUPS)
-        response = self.filter_and_serialize(groups)
+        response = self.filter_groups_and_serialize(groups)
         return Response(response)
 
-    @list_route(methods=['get'], url_path='client-users')
-    def client_users(self, request):
-        groups = Group.objects.filter(name__in=UserRole.CLIENT_GROUPS)
-        response = self.filter_and_serialize(groups)
-        return Response(response)
-
-    def filter_and_serialize(self, group):
+    def filter_groups_and_serialize(self, group):
         queryset = self.filter_queryset(self.queryset).filter(groups__id__in=group).distinct()
         serializer = self.get_serializer_class()(queryset, many=True)
+        return serializer.data
+
+    @detail_route(methods=['get'], url_path='detractor-permissions')
+    def detractor_permissions(self, request, pk=None):
+        user = get_object_or_404(User, pk=pk)
+        company_elements = user.detractors_permissions()
+        response = self.filter_company_and_serialize(company_elements)
+        return Response(response)
+
+    @detail_route(methods=['get'], url_path='statistics-permissions')
+    def statistics_permissions(self, request, pk=None):
+        user = get_object_or_404(User, pk=pk)
+        company_elements = user.statistics_permissions()
+        response = self.filter_company_and_serialize(company_elements)
+        return Response(response)
+
+    @detail_route(methods=['get'], url_path='coded-causes-permissions')
+    def coded_causes_permissions(self, request, pk=None):
+        user = get_object_or_404(User, pk=pk)
+        company_elements = user.coded_causes_permissions()
+        response = self.filter_company_and_serialize(company_elements)
+        return Response(response)
+
+    @detail_route(methods=['get'], url_path='management-permissions')
+    def management_permissions(self, request, pk=None):
+        user = get_object_or_404(User, pk=pk)
+        company_elements = user.management_permissions()
+        response = self.filter_company_and_serialize(company_elements)
+        return Response(response)
+
+    @staticmethod
+    def filter_company_and_serialize(company_elements_ids):
+        company_elements = CompanyElement.objects.filter(id__in=company_elements_ids)
+        serializer = CompanyElementSerializer(company_elements, many=True)
         return serializer.data
 
 
@@ -232,40 +260,6 @@ class ClientUserViewSet(GetSerializerClassMixin, CreateUserMixin, viewsets.Model
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(serializer.data)
-
-    @detail_route(methods=['get'], url_path='detractor-permissions')
-    def detractor_permissions(self, request, pk=None):
-        client_user = get_object_or_404(ClientUser, pk=pk)
-        company_elements = client_user.user.detractors_permissions()
-        response = self.filter_and_serialize(company_elements)
-        return Response(response)
-
-    @detail_route(methods=['get'], url_path='statistics-permissions')
-    def statistics_permissions(self, request, pk=None):
-        client_user = get_object_or_404(ClientUser, pk=pk)
-        company_elements = client_user.user.statistics_permissions()
-        response = self.filter_and_serialize(company_elements)
-        return Response(response)
-
-    @detail_route(methods=['get'], url_path='coded-causes-permissions')
-    def coded_causes_permissions(self, request, pk=None):
-        client_user = get_object_or_404(ClientUser, pk=pk)
-        company_elements = client_user.user.coded_causes_permissions()
-        response = self.filter_and_serialize(company_elements)
-        return Response(response)
-
-    @detail_route(methods=['get'], url_path='management-permissions')
-    def management_permissions(self, request, pk=None):
-        client_user = get_object_or_404(ClientUser, pk=pk)
-        company_elements = client_user.user.management_permissions()
-        response = self.filter_and_serialize(company_elements)
-        return Response(response)
-
-    @staticmethod
-    def filter_and_serialize(company_elements_ids):
-        company_elements = CompanyElement.objects.filter(id__in=company_elements_ids)
-        serializer = CompanyElementSerializer(company_elements, many=True)
-        return serializer.data
 
 
 class CollectorViewSet(viewsets.ModelViewSet):
