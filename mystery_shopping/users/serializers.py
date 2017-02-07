@@ -1,7 +1,7 @@
 import re
 
 from django.contrib.auth.models import Permission, Group
-from guardian.shortcuts import assign_perm
+from guardian.shortcuts import assign_perm, remove_perm
 from rest_framework import serializers
 
 from mystery_shopping.companies.serializers import SimpleCompanyElementSerializer
@@ -42,30 +42,41 @@ class AssignCustomObjectPermissions:
         companies_for_statistics = object_permissions.get('statistics_permissions', [])
         companies_for_coded_causes = object_permissions.get('coded_causes_permissions', [])
         companies_for_management = object_permissions.get('manager_permissions', [])
+        self.clear_all_permissions(user_instance)
         self.assign_detractors_permissions(user_instance, companies_for_detractors)
         self.assign_statistics_permissions(user_instance, companies_for_statistics)
         self.assign_coded_cause_permissions(user_instance, companies_for_coded_causes)
         self.assign_manager_permissions(user_instance, companies_for_management)
 
-    @staticmethod
-    def assign_detractors_permissions(user_instance, company_elements):
-        company_elements_detractors = CompanyElement.objects.filter(id__in=company_elements)
-        assign_perm('view_detractors_for_companyelement', user_instance, company_elements_detractors)
+    def assign_detractors_permissions(self, user_instance, company_elements):
+        to_add_company_elements_detractors = self.filter_company_elements(company_elements)
+        assign_perm('view_detractors_for_companyelement', user_instance, to_add_company_elements_detractors)
+
+    def assign_statistics_permissions(self, user_instance, company_elements):
+        to_add_company_elements_statistics = self.filter_company_elements(company_elements)
+        assign_perm('view_statistics_for_companyelement', user_instance, to_add_company_elements_statistics)
+
+    def assign_coded_cause_permissions(self, user_instance, company_elements):
+        to_add_company_elements_coded_causes = self.filter_company_elements(company_elements)
+        assign_perm('view_coded_causes_for_companyelement', user_instance, to_add_company_elements_coded_causes)
+
+    def assign_manager_permissions(self, user_instance, company_elements):
+        to_add_company_elements_manager = self.filter_company_elements(company_elements)
+        assign_perm('manager_companyelement', user_instance, to_add_company_elements_manager)
 
     @staticmethod
-    def assign_statistics_permissions(user_instance, company_elements):
-        company_elements_statistics = CompanyElement.objects.filter(id__in=company_elements)
-        assign_perm('view_statistics_for_companyelement', user_instance, company_elements_statistics)
+    def filter_company_elements(company_elements_ids):
+        return CompanyElement.objects.filter(id__in=company_elements_ids)
 
-    @staticmethod
-    def assign_coded_cause_permissions(user_instance, company_elements):
-        company_elements_coded_causes = CompanyElement.objects.filter(id__in=company_elements)
-        assign_perm('view_coded_causes_for_companyelement', user_instance, company_elements_coded_causes)
-
-    @staticmethod
-    def assign_manager_permissions(user_instance, company_elements):
-        company_elements_manager = CompanyElement.objects.filter(id__in=company_elements)
-        assign_perm('manager_companyelement', user_instance, company_elements_manager)
+    def clear_all_permissions(self, user_instance):
+        to_remove_company_elements_manager = self.filter_company_elements(user_instance.management_permissions())
+        to_remove_company_elements_coded_causes = self.filter_company_elements(user_instance.coded_causes_permissions())
+        to_remove_company_elements_statistics = self.filter_company_elements(user_instance.statistics_permissions())
+        to_remove_company_elements_detractors = self.filter_company_elements(user_instance.detractors_permissions())
+        remove_perm('view_detractors_for_companyelement', user_instance, to_remove_company_elements_detractors)
+        remove_perm('view_statistics_for_companyelement', user_instance, to_remove_company_elements_statistics)
+        remove_perm('view_coded_causes_for_companyelement', user_instance, to_remove_company_elements_coded_causes)
+        remove_perm('manager_companyelement', user_instance, to_remove_company_elements_manager)
 
     @staticmethod
     def create_or_update_user(data, user_instance=None):
