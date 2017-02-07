@@ -26,3 +26,5 @@ raven
 # Newrelic agent for performance monitoring
 # -----------------------------------------
 newrelic
+
+django-debug-toolbar==1.6
