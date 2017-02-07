@@ -26,7 +26,7 @@ SECRET_KEY = env('DJANGO_SECRET_KEY')
 
 # DEBUG
 # ------------------------------------------------------------------------------
-DEBUG = env.bool('DJANGO_DEBUG', default=True)
+DEBUG = env.bool('DJANGO_DEBUG', default=False)
 TEMPLATES[0]['OPTIONS']['debug'] = DEBUG
 
 # SITE CONFIGURATION

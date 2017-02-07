@@ -73,7 +73,6 @@ class CompanyElementSerializer(serializers.ModelSerializer):
             }
         }
 
-
     @staticmethod
     def setup_eager_loading(queryset):
         queryset = queryset.select_related('parent')
