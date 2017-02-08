@@ -210,20 +210,11 @@ class UserGroupsViewSet(viewsets.ReadOnlyModelViewSet):
         tenant_groups = Group.objects.filter(name__in=UserRole.TENANT_GROUPS)
         client_groups = Group.objects.filter(name__in=UserRole.CLIENT_GROUPS)
         shopper_groups = Group.objects.filter(name__in=UserRole.SHOPPERS_COLLECTORS)
-        result = [
-            {
-                'type': 'tenant',
-                'groups': GroupSerializer(tenant_groups, many=True).data
-            },
-            {
-                'type': 'client',
-                'groups': GroupSerializer(client_groups, many=True).data
-            },
-            {
-                'type': 'shopper',
-                'groups': GroupSerializer(shopper_groups, many=True).data
-            }
-        ]
+        result = {
+            'tenant': GroupSerializer(tenant_groups, many=True).data,
+            'client': GroupSerializer(client_groups, many=True).data,
+            'shopper': GroupSerializer(shopper_groups, many=True).data
+        }
         return Response(result)
 
 
