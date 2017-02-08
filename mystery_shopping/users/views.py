@@ -47,6 +47,7 @@ class FilterQuerysetOnTenantMixIn:
     """
     Mixin class that adds 'get_queryset' that filters the queryset agains the request.user.tenant
     """
+
     def get_queryset(self):
         queryset = self.queryset.all()
         queryset = queryset.filter(tenant=self.request.user.tenant)
@@ -134,15 +135,19 @@ class UserViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
     def detractor_permissions(self, request, pk=None):
         user = get_object_or_404(User, pk=pk)
         company_elements = user.detractors_permissions()
-        response = self.filter_company_and_serialize(company_elements)
-        return Response(response)
+        company_structure = CompanyElementSerializer(user.user_company()).data
+        allowed_company_elements = self.filter_company_and_serialize(company_elements)
+        self.filter_objects(company_structure['children'], allowed_company_elements)
+        return Response(company_structure)
 
     @detail_route(methods=['get'], url_path='statistics-permissions')
     def statistics_permissions(self, request, pk=None):
         user = get_object_or_404(User, pk=pk)
         company_elements = user.statistics_permissions()
-        response = self.filter_company_and_serialize(company_elements)
-        return Response(response)
+        company_structure = CompanyElementSerializer(user.user_company()).data
+        allowed_company_elements = self.filter_company_and_serialize(company_elements)
+        self.filter_objects(company_structure['children'], allowed_company_elements)
+        return Response(company_structure)
 
     @detail_route(methods=['get'], url_path='coded-causes-permissions')
     def coded_causes_permissions(self, request, pk=None):
@@ -163,6 +168,24 @@ class UserViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
         company_elements = CompanyElement.objects.filter(id__in=company_elements_ids)
         serializer = CompanyElementSerializer(company_elements, many=True)
         return serializer.data
+
+    def filter_objects(self, childrens, company_elements):
+        """
+        Function for filtering the company structure according to the allowed company elements.
+        The function iterates through children and if the child is not in allowed list, all its
+        children are moved one level out.
+        :param childrens: list of children of the company
+        :param company_elements: allowed company elements serialized
+        :return: modified company structure with filtered children
+        """
+        for child in childrens:
+            if child not in company_elements:
+                childrens.extend(child.pop('children', []))
+                childrens.remove(child)
+                continue
+            else:
+                child['children'] = [obj for obj in child['children'] if obj in company_elements]
+            self.filter_objects(child['children'], company_elements)
 
 
 class UserPermissionsViewSet(viewsets.ReadOnlyModelViewSet):
@@ -274,7 +297,8 @@ class CollectorViewSet(viewsets.ModelViewSet):
 
 
 class DetractorFilter(django_filters.rest_framework.FilterSet):
-    places = django_filters.ModelMultipleChoiceFilter(queryset=CompanyElement.objects.all(), name="evaluation__company_element")
+    places = django_filters.ModelMultipleChoiceFilter(queryset=CompanyElement.objects.all(),
+                                                      name="evaluation__company_element")
     date = django_filters.DateFromToRangeFilter(name="evaluation__time_accomplished", lookup_expr='date')
     questions = django_filters.AllValuesMultipleFilter(name='number_of_questions')
 
