@@ -285,7 +285,7 @@ class DetractorFilter(django_filters.rest_framework.FilterSet):
 
 class DetractorRespondentForTenantViewSet(viewsets.ModelViewSet):
     queryset = DetractorRespondent.objects.all()
-    filter_backends = (DetractorFilterPerCompanyElement, DjangoFilterBackend,)
+    filter_backends = (DjangoFilterBackend,)
     filter_class = DetractorFilter
     pagination_class = DetractorRespondentPaginator
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)

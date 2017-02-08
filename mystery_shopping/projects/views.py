@@ -301,7 +301,7 @@ class ProjectStatisticsForTenantViewSet(GetSerializerClassMixin, viewsets.ModelV
     serializer_class_get = ProjectStatisticsForTenantSerializerGET
     permission_classes = (IsAuthenticated, HasAccessToProjectsOrEvaluations,)
     pagination_class = ProjectStatisticsPaginator
-    filter_backends = (ProjectStatisticsFilterPerCompanyElement, DjangoFilterBackend,)
+    filter_backends = (DjangoFilterBackend,)
     filter_class = EvaluationsFilter
     queryset = Evaluation.objects.all()
 
