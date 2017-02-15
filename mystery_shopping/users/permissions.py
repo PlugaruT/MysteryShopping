@@ -153,6 +153,19 @@ class IsCompanyManager(permissions.BasePermission):
         return False
 
 
+class IsCompanyEmployee(permissions.BasePermission):
+    """
+        Permission for Company Employee user.
+    """
+
+    def has_permission(self, request, view):
+        if request.user:
+            if request.user.is_in_group(UserRole.CLIENT_EMPLOYEE_GROUP):
+                return True
+            return False
+        return False
+
+
 class HasAccessToDashboard(permissions.BasePermission):
     """
         Permission for users that should have access to dashboard

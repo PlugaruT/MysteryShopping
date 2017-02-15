@@ -19,7 +19,7 @@ from mystery_shopping.projects.models import Project
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from mystery_shopping.questionnaires.utils import check_interval_date
 from mystery_shopping.users.models import ClientManager
-from mystery_shopping.users.permissions import IsCompanyManager
+from mystery_shopping.users.permissions import IsCompanyManager, IsCompanyEmployee
 from mystery_shopping.users.permissions import IsCompanyProjectManager
 from mystery_shopping.users.permissions import IsTenantConsultant
 from mystery_shopping.users.permissions import IsTenantProductManager
@@ -145,7 +145,7 @@ class OverviewDashboard(views.APIView):
     """
 
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager,
-                             IsCompanyManager),)
+                             IsCompanyManager, IsCompanyEmployee),)
 
     def get(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
@@ -191,7 +191,7 @@ class IndicatorDashboard(views.APIView):
     """
 
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager,
-                             IsCompanyManager),)
+                             IsCompanyManager, IsCompanyEmployee),)
 
     def get(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
