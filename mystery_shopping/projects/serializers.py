@@ -255,7 +255,7 @@ class ProjectShortSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ('period_start', 'period_end', 'id')
+        fields = ('id', 'name')
 
 
 class EvaluationSerializer(serializers.ModelSerializer):

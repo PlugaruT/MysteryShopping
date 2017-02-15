@@ -21,7 +21,7 @@ from mystery_shopping.mystery_shopping_utils.views import GetSerializerClassMixi
 from mystery_shopping.projects.constants import EvaluationStatus
 from mystery_shopping.projects.mixins import EvaluationViewMixIn, UpdateSerializerMixin
 from mystery_shopping.projects.serializers import ProjectStatisticsForTenantSerializerGET, \
-    ProjectStatisticsForCompanySerializerGET
+    ProjectStatisticsForCompanySerializerGET, ProjectShortSerializer
 from mystery_shopping.users.roles import UserRole
 from mystery_shopping.projects.serializers import ProjectSerializerGET, ResearchMethodologySerializerGET, \
     EvaluationSerializerGET, EvaluationAssessmentLevelSerializerGET, EvaluationAssessmentCommentSerializerGET, \
@@ -85,7 +85,6 @@ class ProjectViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
         return Response(available_list_of_places, status=status.HTTP_200_OK)
 
 
-# Todo: try ModelViewSet
 class ProjectPerCompanyViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
@@ -97,9 +96,12 @@ class ProjectPerCompanyViewSet(viewsets.ModelViewSet):
         project_type = self.request.query_params.get('type', 'm')
         queryset = self.filter_queryset(self.queryset)
         queryset = queryset.filter(company=company_element_pk, type=project_type)
-        if self.request.user.user_type == 'tenantconsultant':
-            queryset = self.queryset.filter(consultants__user=self.request.user)
-        serializer = ProjectSerializerGET(queryset, many=True)
+        if self.request.user.is_in_group(UserRole.TENANT_CONSULTANT_GROUP):
+            queryset = self.queryset.filter(consultants=self.request.user)
+        if self.request.user.is_client_user():
+            company_elements = self.request.user.management_permissions()
+            queryset = self.queryset.filter(research_methodology__company_elements__in=company_elements).distinct()
+        serializer = ProjectShortSerializer(queryset, many=True)
         return Response(serializer.data)
 
     def create(self, request, pk=None, company_element_pk=None):
