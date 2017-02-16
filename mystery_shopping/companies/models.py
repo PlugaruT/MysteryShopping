@@ -51,7 +51,6 @@ class CompanyElement(TenantModel, MPTTModel):
 
     tree = TreeManager()
     objects = models.Manager.from_queryset(CompanyElementQuerySet)()
-    tree = TreeManager()
 
     class Meta:
         default_related_name = 'company_elements'
@@ -64,6 +63,14 @@ class CompanyElement(TenantModel, MPTTModel):
 
     def __str__(self):
         return 'company_element: {id: %s, name: %s, type: %s}' % (self.pk, self.element_name, self.element_type)
+
+    def update_order(self, new_order):
+        self.order = new_order
+        self.save(update_fields=['order'])
+
+    def update_parent(self, new_parent):
+        self.parent = new_parent
+        self.save(update_fields=['parent'])
 
 
 class AdditionalInfoType(TenantModel):
