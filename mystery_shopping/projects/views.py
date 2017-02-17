@@ -77,7 +77,7 @@ class ProjectViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
         :rtype: list
         """
         if request.user.is_collector():
-            shopper_service = ShopperService(request.user.shopper)
+            shopper_service = ShopperService(request.user)
             available_list_of_places = shopper_service.get_available_list_of_places_with_questionnaires()
         else:
             available_list_of_places = list()
@@ -159,7 +159,7 @@ class EvaluationViewSet(UpdateSerializerMixin, EvaluationViewMixIn, viewsets.Mod
 
         response = dict()
         if available_evaluation.evaluation is not None:
-            response['evaluation'] = self.serializer_class(available_evaluation.evaluation).data
+            response['evaluation'] = self.serializer_class_get(available_evaluation.evaluation).data
             response['count'] = available_evaluation.count
 
         return Response(response)
@@ -170,7 +170,9 @@ class EvaluationViewSet(UpdateSerializerMixin, EvaluationViewMixIn, viewsets.Mod
 
         evaluations_to_collect = Evaluation.objects.filter(project=evaluation.project, shopper=evaluation.shopper,
                                                            status=EvaluationStatus.PLANNED,
-                                                           entity=evaluation.entity, section=evaluation.section)
+                                                           company_element=evaluation.company_element,
+                                                           suggested_start_date=evaluation.suggested_start_date,
+                                                           suggested_end_date=evaluation.suggested_end_date)
 
         return AvailableEvaluation(evaluation=evaluations_to_collect.first(),
                                    count=evaluations_to_collect.count())
