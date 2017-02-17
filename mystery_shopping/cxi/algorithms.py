@@ -494,10 +494,14 @@ def get_project_indicator_questions_list(project):
         indicators['indicator_list'] = list()
         indicators['detail'] = 'No Research Methodology or template questionnaire defined for this project'
         return indicators
-    for question in template_questionnaire.template_questions.all().order_by('-order'):
-        if question.type == QuestionType.INDICATOR_QUESTION:
-            indicators['indicator_list'].add(question.additional_info)
+    indicators['indicator_list'] = get_indicator_order(template_questionnaire)
     return indicators
+
+
+def get_indicator_order(template_questionnaire):
+    questions = template_questionnaire.template_questions.filter(type=QuestionType.INDICATOR_QUESTION).order_by(
+        'order').values_list('additional_info', flat=True)
+    return questions
 
 
 def get_company_indicator_questions_list(company):
