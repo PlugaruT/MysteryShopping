@@ -40,7 +40,7 @@ from .serializers import EvaluationAssessmentCommentSerializer
 from .serializers import ProjectStatisticsForCompanySerializer
 from .serializers import ProjectStatisticsForTenantSerializer
 
-from mystery_shopping.users.permissions import IsTenantProductManager, IsShopperAccountOwner
+from mystery_shopping.users.permissions import IsTenantProductManager, IsShopperAccountOwner, IsCollector
 from mystery_shopping.users.permissions import HasReadOnlyAccessToProjectsOrEvaluations
 from mystery_shopping.users.permissions import IsTenantProjectManager
 from mystery_shopping.users.permissions import IsTenantConsultant
@@ -139,7 +139,7 @@ class EvaluationViewSet(UpdateSerializerMixin, EvaluationViewMixIn, viewsets.Mod
     queryset = Evaluation.objects.all()
     serializer_class = EvaluationSerializer
     serializer_class_get = EvaluationSerializerGET
-    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant, IsShopper),)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant, IsShopper, IsCollector),)
     pagination_class = EvaluationPagination
 
     def get_queryset(self):
