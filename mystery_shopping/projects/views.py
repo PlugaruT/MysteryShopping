@@ -97,10 +97,10 @@ class ProjectPerCompanyViewSet(viewsets.ModelViewSet):
         queryset = self.filter_queryset(self.queryset)
         queryset = queryset.filter(company=company_element_pk, type=project_type)
         if self.request.user.is_in_group(UserRole.TENANT_CONSULTANT_GROUP):
-            queryset = self.queryset.filter(consultants=self.request.user)
+            queryset = queryset.filter(consultants=self.request.user)
         if self.request.user.is_client_user():
             company_elements = self.request.user.management_permissions()
-            queryset = self.queryset.filter(research_methodology__company_elements__in=company_elements).distinct()
+            queryset = queryset.filter(research_methodology__company_elements__in=company_elements).distinct()
         serializer = ProjectShortSerializer(queryset, many=True)
         return Response(serializer.data)
 
