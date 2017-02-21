@@ -557,6 +557,7 @@ class CodedCausesPercentageTable:
             result = {
                 "id": company_element.id,
                 "name": company_element.element_name,
+                "type": company_element.element_type,
                 "percentage": self.calculate_percentage(nr_of_why_causes, number_of_questions),
                 "company_elements": self.build_response_for_company_elements(questions, number_of_questions) if
                 company_element.children.exists() else []
