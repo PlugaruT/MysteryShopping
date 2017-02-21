@@ -74,6 +74,22 @@ class QuestionnaireTemplateViewSet(GetSerializerClassMixin, viewsets.ModelViewSe
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        serializer = self.serializer_class_get(instance)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # refresh the instance from the database.
+            instance = self.get_object()
+            serializer = self.serializer_class_get(instance)
+
+        return Response(serializer.data)
+
     @list_route(methods=['get'])
     def get_archived(self, request):
         queryset = self.queryset.filter(is_archived=True)
