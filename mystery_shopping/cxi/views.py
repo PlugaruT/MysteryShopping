@@ -132,6 +132,114 @@ class CxiIndicatorTimeLapse(views.APIView):
         return Response(response, status.HTTP_200_OK)
 
 
+class BarChartGraph(views.APIView):
+    """
+    View that will return data for barchart
+    """
+
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager,
+                             IsCompanyManager, IsCompanyEmployee),)
+
+    def get(self, request, *args, **kwargs):
+        grouped_by = request.query_params.get('grouped', 'project')
+        company = request.query_params.get('company', None)
+        project_list = Project.objects.filter(company=company)
+        response = [
+            {
+                "key": 'NPS',
+                "color": '#bcbd22',
+                "values": [
+                    {
+                        "x": 'Project 1',
+                        "y": 10
+                    },
+                    {
+                        "x": 'Project 2',
+                        "y": 11
+                    }
+                    , {
+                        "x": 'Project 3',
+                        "y": 12
+                    }
+                ]
+            },
+            {
+                "key": 'Placere',
+                "color": '#1f77b4',
+                "values": [
+                    {
+                        "x": 'Project 1',
+                        "y": 14
+                    },
+                    {
+                        "x": 'Project 2',
+                        "y": 15
+                    }
+                    , {
+                        "x": 'Project 3',
+                        "y": 16
+                    }
+                ]
+            },
+            {
+                "key": 'Utilitate',
+                "color": 'pink',
+                "values": [
+                    {
+                        "x": 'Project 1',
+                        "y": 17
+                    },
+                    {
+                        "x": 'Project 2',
+                        "y": 18
+                    }
+                    , {
+                        "x": 'Project 3',
+                        "y": 19
+                    }
+                ]
+            },
+            {
+                "key": 'Efort',
+                "color": 'green',
+                "values": [
+                    {
+                        "x": 'Project 1',
+                        "y": 17
+                    },
+                    {
+                        "x": 'Project 2',
+                        "y": 35.5
+                    }
+                    , {
+                        "x": 'Project 3',
+                        "y": 19
+                    }
+                ]
+            }]
+        return Response(response, status=status.HTTP_200_OK)
+
+
+
+
+    def build_indicator_data(self, indicator_name, indicator_data, color):
+        values = list()
+        for project_name, indicator_score in indicator_data.items():
+            values.append(self.build_data_point(project_name, indicator_score))
+        return {
+            "key": indicator_name,
+            "values": values,
+            "color": color
+        }
+
+    @staticmethod
+    def build_data_point(x, y):
+        return {
+            "x": x,
+            "y": y
+        }
+
+
 class OverviewDashboard(views.APIView):
     """
     View that returns overview information per each indicator for department, entity or section
