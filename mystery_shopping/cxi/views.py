@@ -134,14 +134,19 @@ class CxiIndicatorTimeLapse(views.APIView):
 
 class BarChartGraph(views.APIView):
     """
-    View that will return data for barchart
+     View that returns data for bar chart for indicators grouped by project or indicator
+
+    Query params:
+
+     * `project`: **required**, list of project ids to aggregate data for
+     * `grouped`: a string, can be True or False
     """
 
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager,
                              IsCompanyManager, IsCompanyEmployee),)
 
     def get(self, request, *args, **kwargs):
-        grouped_by = request.query_params.get('grouped', 'project')
+        grouped_by_indicator = request.query_params.get('grouped', False)
         project_ids = request.query_params.getlist('project', [])
         company_element = request.query_params.get('company_element', None)
         project_list = Project.objects.filter(id__in=project_ids)
@@ -149,33 +154,36 @@ class BarChartGraph(views.APIView):
         for project in project_list:
             data_per_project[project.name] = collect_data_for_overview_dashboard(project, None)
 
-        response = self.build_data_grouped_by_indicator(data_per_project)
-        self.build_data_grouped_by_project(data_per_project)
+        if grouped_by_indicator == 'True':
+            response = self.build_data_grouped_by_indicator(data_per_project)
+        else:
+            response = self.build_data_grouped_by_project(data_per_project)
         return Response(response, status=status.HTTP_200_OK)
 
     def build_data_grouped_by_project(self, projects_overview_data):
-        temp = self.extract_indicator_scores_for_project(projects_overview_data)
-        temp['demo'] = [{'Utilitate': 11.35}, {'Efort': 12.88}, {'Plăcere': 13.15}, {'cxi': 22.0},
-                        {'NPS': 25.73}, {'tudor': 25.73}]
-
-        indicator_names, project_names = self.extract_project_names_and_indicator_names(temp)
-        print(indicator_names)
-        print(project_names)
-
-    def extract_project_names_and_indicator_names(self, indicators_per_project):
-        indicator_names = list()
-        project_names = list()
-        for project_name, indicators in indicators_per_project.items():
-            project_names.append(project_name)
-            indicator_names.append(self.extract_indicator_names(indicators))
-        indicator_names = list(set.union(*indicator_names))
-        return indicator_names, project_names
+        """
+        Method for aggregating data to be displayed on the bar chart by project
+        :param projects_overview_data: raw data from method collect_data_for_overview_dashboard
+        :return: list of dicts
+        """
+        response = list()
+        data_grouped_by_project = self.extract_indicator_scores_for_project(projects_overview_data)
+        data_grouped_by_indicator = self.group_data_by_indicator(data_grouped_by_project)
+        for indicator_name, projects in data_grouped_by_indicator.items():
+            response.append({
+                "key": indicator_name,
+                "values": self.build_data_points_list(projects)
+            })
+        return response
 
     def build_data_grouped_by_indicator(self, projects_overview_data):
+        """
+        Method for aggregating data to be displayed on the bar chart grouped by indicator.
+        :param projects_overview_data: raw data from method collect_data_for_overview_dashboard
+        :return: list of dicts
+        """
         response = list()
         indicators_per_project = self.extract_indicator_scores_for_project(projects_overview_data)
-        indicators_per_project['demo'] = [{'Utilitate': 66.35}, {'Efort': 63.88}, {'Plăcere': 55.15}, {'cxi': 0.0},
-                                          {'NPS': 57.73}]
         for project_name, indicators in indicators_per_project.items():
             response.append({
                 "key": project_name,
@@ -183,19 +191,42 @@ class BarChartGraph(views.APIView):
             })
         return response
 
-    def build_data_points_list(self, list_of_objects):
+    def build_data_points_list(self, list_of_tuples):
+        """
+        Method for that will return a list of objects with keys x and y. Each object represents
+        a bar on the chart
+        :param list_of_tuples: list of tuples, each tuple is of the form (value_for_x_axis, value_for_y_axis)
+        :return: list of dicts
+        """
         response = list()
-        for obj in list_of_objects:
-            for key, value in obj.items():
-                response.append(self.build_data_point(key, value))
+        for obj in list_of_tuples:
+            response.append(self.build_data_point(obj[0], obj[1]))
         return response
 
     @staticmethod
-    def extract_indicator_names(list_of_indicators):
-        return set().union(*(d.keys() for d in list_of_indicators))
+    def group_data_by_indicator(data_grouped_by_project):
+        """
+        Method that will group overview data by indicator for a list of projects. Each key from returning dict
+        is the indicator name and for each indicator the value is a list of tuples. Tuples are of the form
+        (project_name, indicator_score)
+        :param data_grouped_by_project: dict that has each key the name of the project and the value is a list of dicts
+         of the form {"indicator_name" : indicator_score}
+        :return: dict
+        """
+        response = dict()
+        for project_name, indicators in data_grouped_by_project.items():
+            for indicator in indicators:
+                response.setdefault(indicator[0], []).append((project_name, indicator[1]))
+        return response
 
     @staticmethod
     def build_data_point(x, y):
+        """
+        Method for constructing a data point. Each point represents a dict with x and y value.
+        :param x: value for x axis
+        :param y: value for y axis
+        :return: dict
+        """
         return {
             "x": x,
             "y": y
@@ -203,13 +234,21 @@ class BarChartGraph(views.APIView):
 
     @staticmethod
     def extract_indicator_scores_for_project(raw_overview_data):
+        """
+        Method for extracting only indicator scores from overview data. The returning dict is of the form
+        {
+            "project_name": [{"indicator_name": indicator_score}, {"indicator_name": indicator_score}]
+        }
+        :param raw_overview_data: raw data from method collect_data_for_overview_dashboard
+        :return: dict
+        """
         response = dict()
         for project_name, overview_data in raw_overview_data.items():
             response[project_name] = list()
             for indicator_name, indicators_scores in overview_data['indicators'].items():
-                response[project_name].append({
-                    indicator_name: indicators_scores['indicator']
-                })
+                response[project_name].append(
+                    (indicator_name, indicators_scores['indicator'])
+                )
         return response
 
 
