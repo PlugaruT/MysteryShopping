@@ -142,95 +142,57 @@ class BarChartGraph(views.APIView):
 
     def get(self, request, *args, **kwargs):
         grouped_by = request.query_params.get('grouped', 'project')
-        company = request.query_params.get('company', None)
-        project_list = Project.objects.filter(company=company)
-        response = [
-            {
-                "key": 'NPS',
-                "color": '#bcbd22',
-                "values": [
-                    {
-                        "x": 'Project 1',
-                        "y": 10
-                    },
-                    {
-                        "x": 'Project 2',
-                        "y": 11
-                    }
-                    , {
-                        "x": 'Project 3',
-                        "y": 12
-                    }
-                ]
-            },
-            {
-                "key": 'Placere',
-                "color": '#1f77b4',
-                "values": [
-                    {
-                        "x": 'Project 1',
-                        "y": 14
-                    },
-                    {
-                        "x": 'Project 2',
-                        "y": 15
-                    }
-                    , {
-                        "x": 'Project 3',
-                        "y": 16
-                    }
-                ]
-            },
-            {
-                "key": 'Utilitate',
-                "color": 'pink',
-                "values": [
-                    {
-                        "x": 'Project 1',
-                        "y": 17
-                    },
-                    {
-                        "x": 'Project 2',
-                        "y": 18
-                    }
-                    , {
-                        "x": 'Project 3',
-                        "y": 19
-                    }
-                ]
-            },
-            {
-                "key": 'Efort',
-                "color": 'green',
-                "values": [
-                    {
-                        "x": 'Project 1',
-                        "y": 17
-                    },
-                    {
-                        "x": 'Project 2',
-                        "y": 35.5
-                    }
-                    , {
-                        "x": 'Project 3',
-                        "y": 19
-                    }
-                ]
-            }]
+        project_ids = request.query_params.getlist('project', [])
+        company_element = request.query_params.get('company_element', None)
+        project_list = Project.objects.filter(id__in=project_ids)
+        data_per_project = dict()
+        for project in project_list:
+            data_per_project[project.name] = collect_data_for_overview_dashboard(project, None)
+
+        response = self.build_data_grouped_by_indicator(data_per_project)
+        self.build_data_grouped_by_project(data_per_project)
         return Response(response, status=status.HTTP_200_OK)
 
+    def build_data_grouped_by_project(self, projects_overview_data):
+        temp = self.extract_indicator_scores_for_project(projects_overview_data)
+        temp['demo'] = [{'Utilitate': 11.35}, {'Efort': 12.88}, {'Plăcere': 13.15}, {'cxi': 22.0},
+                        {'NPS': 25.73}, {'tudor': 25.73}]
 
+        indicator_names, project_names = self.extract_project_names_and_indicator_names(temp)
+        print(indicator_names)
+        print(project_names)
 
+    def extract_project_names_and_indicator_names(self, indicators_per_project):
+        indicator_names = list()
+        project_names = list()
+        for project_name, indicators in indicators_per_project.items():
+            project_names.append(project_name)
+            indicator_names.append(self.extract_indicator_names(indicators))
+        indicator_names = list(set.union(*indicator_names))
+        return indicator_names, project_names
 
-    def build_indicator_data(self, indicator_name, indicator_data, color):
-        values = list()
-        for project_name, indicator_score in indicator_data.items():
-            values.append(self.build_data_point(project_name, indicator_score))
-        return {
-            "key": indicator_name,
-            "values": values,
-            "color": color
-        }
+    def build_data_grouped_by_indicator(self, projects_overview_data):
+        response = list()
+        indicators_per_project = self.extract_indicator_scores_for_project(projects_overview_data)
+        indicators_per_project['demo'] = [{'Utilitate': 66.35}, {'Efort': 63.88}, {'Plăcere': 55.15}, {'cxi': 0.0},
+                                          {'NPS': 57.73}]
+        for project_name, indicators in indicators_per_project.items():
+            response.append({
+                "key": project_name,
+                "values": self.build_data_points_list(indicators)
+            })
+        return response
+
+    def build_data_points_list(self, list_of_objects):
+        response = list()
+        for obj in list_of_objects:
+            for key, value in obj.items():
+                response.append(self.build_data_point(key, value))
+        return response
+
+    @staticmethod
+    def extract_indicator_names(list_of_indicators):
+        return set().union(*(d.keys() for d in list_of_indicators))
 
     @staticmethod
     def build_data_point(x, y):
@@ -238,6 +200,17 @@ class BarChartGraph(views.APIView):
             "x": x,
             "y": y
         }
+
+    @staticmethod
+    def extract_indicator_scores_for_project(raw_overview_data):
+        response = dict()
+        for project_name, overview_data in raw_overview_data.items():
+            response[project_name] = list()
+            for indicator_name, indicators_scores in overview_data['indicators'].items():
+                response[project_name].append({
+                    indicator_name: indicators_scores['indicator']
+                })
+        return response
 
 
 class OverviewDashboard(views.APIView):
