@@ -146,15 +146,15 @@ class BarChartGraph(views.APIView):
                              IsCompanyManager, IsCompanyEmployee),)
 
     def get(self, request, *args, **kwargs):
-        grouped_by_indicator = request.query_params.get('grouped', False)
+        grouped_by_indicator = request.query_params.get('grouped', None)
         project_ids = request.query_params.getlist('project', [])
-        company_element = request.query_params.get('company_element', None)
+        place = request.query_params.get('place', None)
         project_list = Project.objects.filter(id__in=project_ids)
         data_per_project = dict()
         for project in project_list:
-            data_per_project[project.name] = collect_data_for_overview_dashboard(project, None)
+            data_per_project[project.name] = collect_data_for_overview_dashboard(project, place)
 
-        if grouped_by_indicator == 'True':
+        if grouped_by_indicator:
             response = self.build_data_grouped_by_indicator(data_per_project)
         else:
             response = self.build_data_grouped_by_project(data_per_project)
