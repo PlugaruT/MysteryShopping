@@ -281,6 +281,8 @@ class QuestionnaireTemplateQuestion(QuestionAbstract):
 
     objects = models.Manager.from_queryset(QuestionnaireTemplateQuestionQuerySet)()
 
+    allow_why_causes = models.BooleanField(default=True)
+    has_other_choice = models.BooleanField(default=True)
 
     class Meta:
         default_related_name = 'template_questions'
@@ -302,6 +304,22 @@ class QuestionnaireTemplateQuestion(QuestionAbstract):
                 question_to_update.save()
             except QuestionnaireTemplateQuestion.DoesNotExist:
                 pass
+
+    def allow_why_cause_collecting(self):
+        self.allow_why_causes = True
+        self.save()
+
+    def deny_why_cause_collecting(self):
+        self.allow_why_causes = False
+        self.save()
+
+    def allow_other_choice_collecting(self):
+        self.has_other_choice = True
+        self.save()
+
+    def deny_other_choice_collecting(self):
+        self.has_other_choice = False
+        self.save()
 
 
 class QuestionnaireQuestion(QuestionAbstract):
