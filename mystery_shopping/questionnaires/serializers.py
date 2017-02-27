@@ -73,6 +73,8 @@ class QuestionnaireQuestionSerializer(serializers.ModelSerializer):
     question_choices = QuestionnaireQuestionChoiceSerializer(many=True, required=False)
     why_causes = WhyCauseSerializer(many=True, required=False)
     question_id = serializers.IntegerField(write_only=True, required=False)
+    allow_why_causes = serializers.BooleanField(source='template_question.allow_why_causes', read_only=True)
+    has_other_choice = serializers.BooleanField(source='template_question.has_other_choice', read_only=True)
 
     class Meta:
         model = QuestionnaireQuestion
