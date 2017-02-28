@@ -31,10 +31,4 @@ class Migration(migrations.Migration):
             name='has_other_choice',
             field=models.BooleanField(default=True),
         ),
-        migrations.AddField(
-            model_name='questionnairetemplatequestion',
-            name='new_algorithm',
-            field=models.BooleanField(default=True),
-        ),
-
     ]

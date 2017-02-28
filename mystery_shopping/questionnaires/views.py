@@ -151,7 +151,6 @@ class QuestionnaireTemplateViewSet(GetSerializerClassMixin, viewsets.ModelViewSe
             template_questionnaire.update_custom_weights(data)
         return Response(status=status.HTTP_201_CREATED)
 
-
     @staticmethod
     def assign_new_title_and_make_it_editable(questionnaire, new_title):
         questionnaire.title = new_title if new_title else questionnaire.title + ' (Copy)'
