@@ -14,9 +14,10 @@ from .models import CrossIndexTemplate
 from .models import CrossIndex
 from .models import CrossIndexQuestionTemplate
 from .models import CrossIndexQuestion
+from .models import CustomWeight
 
 
-@admin.register(QuestionnaireScript, QuestionnaireTemplateBlock, QuestionnaireBlock, QuestionnaireTemplateQuestion, QuestionnaireTemplateQuestionChoice, QuestionnaireQuestionChoice, CrossIndexTemplate, CrossIndex, CrossIndexQuestionTemplate, CrossIndexQuestion, QuestionnaireTemplateStatus)
+@admin.register(QuestionnaireScript, QuestionnaireTemplateBlock, QuestionnaireBlock, QuestionnaireTemplateQuestion, QuestionnaireTemplateQuestionChoice, QuestionnaireQuestionChoice, CrossIndexTemplate, CrossIndex, CrossIndexQuestionTemplate, CrossIndexQuestion, QuestionnaireTemplateStatus, CustomWeight)
 class QuestionnaireAdmin(admin.ModelAdmin):
     pass
 

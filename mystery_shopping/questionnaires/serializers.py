@@ -5,7 +5,7 @@ from mystery_shopping.cxi.serializers import WhyCauseSerializer
 from mystery_shopping.users.models import DetractorRespondent
 from mystery_shopping.users.serializers import ShopperSerializer, UserSerializerGET
 
-from mystery_shopping.questionnaires.models import CrossIndexQuestion, QuestionnaireTemplateStatus
+from mystery_shopping.questionnaires.models import CrossIndexQuestion, QuestionnaireTemplateStatus, CustomWeight
 from .models import QuestionnaireScript
 from .models import Questionnaire
 from .models import QuestionnaireTemplate
@@ -64,6 +64,15 @@ class QuestionnaireScriptSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionnaireScript
         fields = ('id', 'title', 'description',)
+
+
+class CustomWeightSerializer(serializers.ModelSerializer):
+    """
+    serializer for custom weight model
+    """
+    class Meta:
+        model = CustomWeight
+        fields = '__all__'
 
 
 class QuestionnaireQuestionSerializer(serializers.ModelSerializer):
@@ -127,6 +136,7 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
     """
 
     """
+    custom_weights = CustomWeightSerializer(many=True, read_only=True)
     template_question_choices = QuestionnaireTemplateQuestionChoiceSerializer(many=True, required=False)
     siblings = serializers.JSONField(write_only=True, required=False)
 

@@ -8,7 +8,7 @@ from rest_condition import Or
 
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from mystery_shopping.mystery_shopping_utils.views import GetSerializerClassMixin
-from mystery_shopping.questionnaires.models import QuestionnaireTemplateStatus
+from mystery_shopping.questionnaires.models import QuestionnaireTemplateStatus, CustomWeight
 from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializerGET
 from .models import QuestionnaireScript
 from .models import Questionnaire
@@ -126,6 +126,31 @@ class QuestionnaireTemplateViewSet(GetSerializerClassMixin, viewsets.ModelViewSe
         cloned_template_questionnaire_serialized.is_valid(raise_exception=True)
         cloned_template_questionnaire_serialized.save()
         return Response(data=cloned_template_questionnaire_serialized.data, status=status.HTTP_202_ACCEPTED)
+
+    @detail_route(methods=['post', 'put'], url_path='create-weights')
+    def create_custom_weights(self, request, pk=None):
+        template_questionnaire = get_object_or_404(QuestionnaireTemplate, pk=pk)
+        weight_name = request.data.get('name')
+        weight_exists = CustomWeight.objects.get_custom_weights_for_questionnaire(template_questionnaire.pk,
+                                                                                  weight_name).exists()
+
+        if weight_name is None or weight_exists:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            template_questionnaire.create_custom_weights(weight_name)
+        return Response(status=status.HTTP_201_CREATED)
+
+    @detail_route(methods=['post', 'put'], url_path='update-weights')
+    def update_custom_weights(self, request, pk=None):
+        template_questionnaire = get_object_or_404(QuestionnaireTemplate, pk=pk)
+        data = request.data
+
+        if data is None:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            template_questionnaire.update_custom_weights(data)
+        return Response(status=status.HTTP_201_CREATED)
+
 
     @staticmethod
     def assign_new_title_and_make_it_editable(questionnaire, new_title):
