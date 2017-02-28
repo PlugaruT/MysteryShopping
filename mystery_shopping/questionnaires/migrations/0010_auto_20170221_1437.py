@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('questionnaires', '0009_auto_20161222_1351'),
     ]
@@ -21,5 +20,15 @@ class Migration(migrations.Migration):
             model_name='questionnairetemplatequestion',
             name='additional_info',
             field=models.CharField(blank=True, max_length=100),
+        ),
+        migrations.AddField(
+            model_name='questionnairetemplatequestion',
+            name='allow_why_causes',
+            field=models.BooleanField(default=True),
+        ),
+        migrations.AddField(
+            model_name='questionnairetemplatequestion',
+            name='has_other_choice',
+            field=models.BooleanField(default=True),
         ),
     ]

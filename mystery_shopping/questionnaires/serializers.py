@@ -73,6 +73,8 @@ class QuestionnaireQuestionSerializer(serializers.ModelSerializer):
     question_choices = QuestionnaireQuestionChoiceSerializer(many=True, required=False)
     why_causes = WhyCauseSerializer(many=True, required=False)
     question_id = serializers.IntegerField(write_only=True, required=False)
+    allow_why_causes = serializers.BooleanField(source='template_question.allow_why_causes', read_only=True)
+    has_other_choice = serializers.BooleanField(source='template_question.has_other_choice', read_only=True)
 
     class Meta:
         model = QuestionnaireQuestion
@@ -140,9 +142,15 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
             }
         }
 
+    def pop_special_flags(self, data):
+        data.pop('allow_why_causes', None)
+        data.pop('has_other_choice', None)
+
     def create(self, validated_data):
         if not validated_data['questionnaire_template'].is_editable:
             raise serializers.ValidationError('The Questionnaire Template this Question belongs to is not editable')
+
+        self.pop_special_flags(validated_data)
         template_question_choices = validated_data.pop('template_question_choices', [])
         siblings_to_update = validated_data.pop('siblings', [])
 
@@ -155,7 +163,9 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         if not instance.questionnaire_template.is_editable:
             raise serializers.ValidationError('You are not allowed to do this action')
+
         instance.prepare_to_update()
+        self.pop_special_flags(validated_data)
         template_question_choices = validated_data.pop('template_question_choices', [])
         siblings_to_update = validated_data.pop('siblings', [])
 
@@ -175,6 +185,7 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
                 data=template_question_choice)
             template_question_choice_ser.is_valid(raise_exception=True)
             template_question_choice_ser.save()
+
 
 class QuestionnaireBlockSerializer(serializers.ModelSerializer):
     """

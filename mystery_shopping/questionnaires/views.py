@@ -161,7 +161,8 @@ class QuestionnaireTemplateBlockViewSet(viewsets.ModelViewSet):
     def destroy(self, request, pk=None):
         queryset = QuestionnaireTemplateBlock.objects.filter(pk=pk)
         template_block = get_object_or_404(queryset, pk=pk)
-        siblings_to_update = template_block.get_siblings().filter(questionnaire_template=template_block.questionnaire_template, order__gt=template_block.order)
+        siblings_to_update = template_block.get_siblings().filter(
+            questionnaire_template=template_block.questionnaire_template, order__gt=template_block.order)
         # update 'order' field of sibling blocks when a block gets deleted
         for sibling in siblings_to_update:
             sibling.order -= 1
@@ -217,6 +218,50 @@ class QuestionnaireTemplateQuestionViewSet(viewsets.ModelViewSet):
         template_question.update_siblings(siblings, template_question.template_block)
 
         template_question.save()
+        return Response(status=status.HTTP_200_OK)
+
+    @detail_route(methods=['put'], url_path='allow-why-causes')
+    def allow_why_causes(self, request, pk=None):
+        """
+        Endpoint for setting the allow_why_causes flag to True
+        :param pk: pk of the questions
+        :return: status code ok
+        """
+        template_question = get_object_or_404(QuestionnaireTemplateQuestion, pk=pk)
+        template_question.allow_why_cause_collecting()
+        return Response(status=status.HTTP_200_OK)
+
+    @detail_route(methods=['put'], url_path='deny-why-causes')
+    def deny_why_causes(self, request, pk=None):
+        """
+        Endpoint for setting the allow_why_causes flag to False
+        :param pk: pk of the questions
+        :return: status code ok
+        """
+        template_question = get_object_or_404(QuestionnaireTemplateQuestion, pk=pk)
+        template_question.deny_why_cause_collecting()
+        return Response(status=status.HTTP_200_OK)
+
+    @detail_route(methods=['put'], url_path='allow-other-choices')
+    def allow_other_choices(self, request, pk=None):
+        """
+        Endpoint for setting the has_other_choice flag to True
+        :param pk: pk of the questions
+        :return: status code ok
+        """
+        template_question = get_object_or_404(QuestionnaireTemplateQuestion, pk=pk)
+        template_question.allow_other_choice_collecting()
+        return Response(status=status.HTTP_200_OK)
+
+    @detail_route(methods=['put'], url_path='deny-other-choices')
+    def deny_other_choices(self, request, pk=None):
+        """
+        Endpoint for setting the has_other_choice flag to False
+        :param pk: pk of the questions
+        :return: status code ok
+        """
+        template_question = get_object_or_404(QuestionnaireTemplateQuestion, pk=pk)
+        template_question.deny_other_choice_collecting()
         return Response(status=status.HTTP_200_OK)
 
 
