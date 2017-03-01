@@ -80,6 +80,19 @@ class IsShopper(permissions.BasePermission):
         return False
 
 
+class IsCollector(permissions.BasePermission):
+    """
+        Permission for Collector user.
+    """
+
+    def has_permission(self, request, view):
+        if request.user:
+            if request.user.is_in_group(UserRole.COLLECTOR_GROUP):
+                return True
+            return False
+        return False
+
+
 class HasAccessToProjectsOrEvaluations(permissions.BasePermission):
     """
         Check if tenant project manager, tenant product manager, tenant consultant or shopper
@@ -148,6 +161,19 @@ class IsCompanyManager(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.user:
             if request.user.is_in_group(UserRole.CLIENT_MANAGER_GROUP):
+                return True
+            return False
+        return False
+
+
+class IsCompanyEmployee(permissions.BasePermission):
+    """
+        Permission for Company Employee user.
+    """
+
+    def has_permission(self, request, view):
+        if request.user:
+            if request.user.is_in_group(UserRole.CLIENT_EMPLOYEE_GROUP):
                 return True
             return False
         return False

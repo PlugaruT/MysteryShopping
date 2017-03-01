@@ -80,6 +80,7 @@ class User(OptionalTenantModel, AbstractUser):
     def user_company(self):
         if self.is_in_groups(UserRole.CLIENT_GROUPS):
             return self.client_user.company
+        return None
 
     def management_permissions(self):
         return get_objects_for_user(self, klass=CompanyElement,

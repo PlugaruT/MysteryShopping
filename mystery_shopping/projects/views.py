@@ -13,6 +13,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_condition import Or
 
+from mystery_shopping.companies.models import CompanyElement
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from mystery_shopping.mystery_shopping_utils.paginators import EvaluationPagination, ProjectStatisticsPaginator
 from mystery_shopping.mystery_shopping_utils.permissions import ProjectStatisticsFilterPerCompanyElement
@@ -20,16 +21,17 @@ from mystery_shopping.mystery_shopping_utils.views import GetSerializerClassMixi
 from mystery_shopping.projects.constants import EvaluationStatus
 from mystery_shopping.projects.mixins import EvaluationViewMixIn, UpdateSerializerMixin
 from mystery_shopping.projects.serializers import ProjectStatisticsForTenantSerializerGET, \
-    ProjectStatisticsForCompanySerializerGET
+    ProjectStatisticsForCompanySerializerGET, ProjectShortSerializer
 from mystery_shopping.users.roles import UserRole
+from mystery_shopping.projects.serializers import ProjectSerializerGET, ResearchMethodologySerializerGET, \
+    EvaluationSerializerGET, EvaluationAssessmentLevelSerializerGET, EvaluationAssessmentCommentSerializerGET, \
+    ProjectStatisticsForTenantSerializerGET, ProjectStatisticsForCompanySerializerGET
 from mystery_shopping.users.services import ShopperService
-from .models import PlaceToAssess
 from .models import Project
 from .models import ResearchMethodology
 from .models import Evaluation
 from .models import EvaluationAssessmentLevel
 from .models import EvaluationAssessmentComment
-from .serializers import PlaceToAssessSerializer
 from .serializers import ProjectSerializer
 from .serializers import ResearchMethodologySerializer
 from .serializers import EvaluationSerializer
@@ -38,7 +40,7 @@ from .serializers import EvaluationAssessmentCommentSerializer
 from .serializers import ProjectStatisticsForCompanySerializer
 from .serializers import ProjectStatisticsForTenantSerializer
 
-from mystery_shopping.users.permissions import IsTenantProductManager, IsShopperAccountOwner
+from mystery_shopping.users.permissions import IsTenantProductManager, IsShopperAccountOwner, IsCollector
 from mystery_shopping.users.permissions import HasReadOnlyAccessToProjectsOrEvaluations
 from mystery_shopping.users.permissions import IsTenantProjectManager
 from mystery_shopping.users.permissions import IsTenantConsultant
@@ -46,15 +48,10 @@ from mystery_shopping.users.permissions import IsShopper
 from mystery_shopping.users.permissions import HasAccessToProjectsOrEvaluations
 
 
-class PlaceToAssessViewSet(viewsets.ModelViewSet):
-    queryset = PlaceToAssess.objects.all()
-    serializer_class = PlaceToAssessSerializer
-    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager),)
-
-
-class ProjectViewSet(viewsets.ModelViewSet):
+class ProjectViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
+    serializer_class_get = ProjectSerializerGET
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager),)
     filter_backends = (TenantFilter,)
 
@@ -80,68 +77,60 @@ class ProjectViewSet(viewsets.ModelViewSet):
         :rtype: list
         """
         if request.user.is_collector():
-            shopper_service = ShopperService(request.user.shopper)
+            shopper_service = ShopperService(request.user)
             available_list_of_places = shopper_service.get_available_list_of_places_with_questionnaires()
         else:
             available_list_of_places = list()
 
         return Response(available_list_of_places, status=status.HTTP_200_OK)
 
-    @detail_route(methods=['post'])
-    def graph(self, request, pk=None):
-        project = get_object_or_404(Project, pk=pk)
-        project.save_graph_config(request.data)
-        return Response(status=status.HTTP_200_OK)
 
-
-class ProjectPerCompanyViewSet(viewsets.GenericViewSet):
+class ProjectPerCompanyViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     permission_classes = [ConditionalPermission, IsAuthenticated]
     permission_condition = (C(HasAccessToProjectsOrEvaluations) | HasReadOnlyAccessToProjectsOrEvaluations)
     filter_backends = (TenantFilter, )
 
-    def list(self, request, company_pk=None):
+    def list(self, request, company_element_pk=None):
         project_type = self.request.query_params.get('type', 'm')
         queryset = self.filter_queryset(self.queryset)
-        queryset = queryset.filter(company=company_pk, type=project_type)
+        queryset = queryset.filter(company=company_element_pk, type=project_type)
         if self.request.user.is_in_group(UserRole.TENANT_CONSULTANT_GROUP):
-            queryset = self.queryset.filter(consultants__user=self.request.user)
-        serializer = ProjectSerializer(queryset, many=True)
+            queryset = queryset.filter(consultants=self.request.user)
+        if self.request.user.is_client_user():
+            company_elements = self.request.user.management_permissions()
+            queryset = queryset.filter(research_methodology__company_elements__in=company_elements).distinct()
+        serializer = ProjectShortSerializer(queryset, many=True)
         return Response(serializer.data)
 
-    def create(self, request, pk=None, company_pk=None):
+    def create(self, request, pk=None, company_element_pk=None):
         serializer = ProjectSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(ProjectSerializerGET(serializer.instance).data, status=status.HTTP_201_CREATED)
 
-    def retrieve(self, request, pk=None, company_pk=None):
-        queryset = self.queryset.filter(pk=pk, company=company_pk)
+    def retrieve(self, request, pk=None, company_element_pk=None):
+        queryset = self.queryset.filter(pk=pk, company=company_element_pk)
         project = get_object_or_404(queryset, pk=pk)
         self.check_object_permissions(request, project)
-        serializer = ProjectSerializer(project)
+        serializer = ProjectSerializerGET(project)
         return Response(serializer.data)
 
-    def update(self, request, pk=None, company_pk=None):
+    def update(self, request, pk=None, company_element_pk=None):
         request.data['research_methodology']['tenant'] = request.user.tenant.pk
-        queryset = self.queryset.filter(pk=pk, company=company_pk)
-        evaluation = get_object_or_404(queryset, pk=pk)
-        serializer = ProjectSerializer(evaluation, data=request.data)
+        queryset = self.queryset.filter(pk=pk, company=company_element_pk)
+        project = get_object_or_404(queryset, pk=pk)
+        serializer = ProjectSerializer(project, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data)
-
-    @detail_route(methods=['post'])
-    def graph(self, request, pk=None, company_pk=None):
-        project = get_object_or_404(Project, pk=pk)
-        project.save_graph_config(request.data)
-        return Response(status=status.HTTP_200_OK)
+        return Response(ProjectSerializerGET(serializer.instance).data)
 
 
-class ResearchMethodologyViewSet(viewsets.ModelViewSet):
+class ResearchMethodologyViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
     queryset = ResearchMethodology.objects.all()
     serializer_class = ResearchMethodologySerializer
+    serializer_class_get = ResearchMethodologySerializerGET
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager),)
     filter_backends = (TenantFilter,)
 
@@ -149,7 +138,9 @@ class ResearchMethodologyViewSet(viewsets.ModelViewSet):
 class EvaluationViewSet(UpdateSerializerMixin, EvaluationViewMixIn, viewsets.ModelViewSet):
     queryset = Evaluation.objects.all()
     serializer_class = EvaluationSerializer
-    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant, IsShopper),)
+    serializer_class_get = EvaluationSerializerGET
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant, IsShopper, IsCollector),)
+    pagination_class = EvaluationPagination
 
     def get_queryset(self):
         queryset = self.serializer_class.setup_eager_loading(self.queryset)
@@ -168,7 +159,7 @@ class EvaluationViewSet(UpdateSerializerMixin, EvaluationViewMixIn, viewsets.Mod
 
         response = dict()
         if available_evaluation.evaluation is not None:
-            response['evaluation'] = self.serializer_class(available_evaluation.evaluation).data
+            response['evaluation'] = self.serializer_class_get(available_evaluation.evaluation).data
             response['count'] = available_evaluation.count
 
         return Response(response)
@@ -179,7 +170,9 @@ class EvaluationViewSet(UpdateSerializerMixin, EvaluationViewMixIn, viewsets.Mod
 
         evaluations_to_collect = Evaluation.objects.filter(project=evaluation.project, shopper=evaluation.shopper,
                                                            status=EvaluationStatus.PLANNED,
-                                                           entity=evaluation.entity, section=evaluation.section)
+                                                           company_element=evaluation.company_element,
+                                                           suggested_start_date=evaluation.suggested_start_date,
+                                                           suggested_end_date=evaluation.suggested_end_date)
 
         return AvailableEvaluation(evaluation=evaluations_to_collect.first(),
                                    count=evaluations_to_collect.count())
@@ -204,76 +197,73 @@ class EvaluationPerShopperViewSet(viewsets.GenericViewSet):
 
 
 class EvaluationsFilter(django_filters.rest_framework.FilterSet):
+    places = django_filters.ModelMultipleChoiceFilter(queryset=CompanyElement.objects.all(), name="company_element")
     date = django_filters.DateFromToRangeFilter(name="time_accomplished", lookup_expr='date')
-    collector = django_filters.AllValuesMultipleFilter(name='shopper')
+    start_date = django_filters.DateTimeFilter(name="suggested_start_date", lookup_expr='date')
+    end_date = django_filters.DateTimeFilter(name="suggested_end_date", lookup_expr='date')
+    collectors = django_filters.AllValuesMultipleFilter(name='shopper')
+    status = django_filters.ChoiceFilter(choices=Evaluation.STATUS)
 
     class Meta:
         model = Evaluation
-        fields = ['date', 'company_element', 'collector']
+        fields = ['date', 'start_date', 'end_date', 'places', 'collectors', 'status']
 
 
 class EvaluationPerProjectViewSet(ListModelMixin, EvaluationViewMixIn, viewsets.GenericViewSet):
-    serializer_class = EvaluationSerializer
+    serializer_class = EvaluationSerializerGET
     permission_classes = (IsAuthenticated, HasAccessToProjectsOrEvaluations,)
     pagination_class = EvaluationPagination
-    filter_backends = (TenantFilter, DjangoFilterBackend)
+    filter_backends = (DjangoFilterBackend,)
     filter_class = EvaluationsFilter
     queryset = Evaluation.objects.all()
 
-    def list(self, request, company_pk=None, project_pk=None):
-        queryset = Evaluation.objects.get_project_evaluations(project=project_pk, company=company_pk)
+    def list(self, request, company_element_pk=None, project_pk=None):
+        queryset = Evaluation.objects.get_project_evaluations(project=project_pk, company=company_element_pk)
         queryset = self.filter_queryset(queryset)
         queryset = self.serializer_class.setup_eager_loading(queryset)
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.serializer_class(page, many=True)
             return self.get_paginated_response(serializer.data)
-        serializer = EvaluationSerializer(queryset, many=True)
+        serializer = EvaluationSerializerGET(queryset, many=True)
         return Response(serializer.data)
 
-    def retrieve(self, request, pk=None, company_pk=None, project_pk=None):
-        evaluation = self._get_evaluation(pk, company_pk, project_pk)
+    def retrieve(self, request, pk=None, company_element_pk=None, project_pk=None):
+        evaluation = self._get_evaluation(pk, company_element_pk, project_pk)
         self.check_object_permissions(request, evaluation)
-        serializer = EvaluationSerializer(evaluation)
+        serializer = EvaluationSerializerGET(evaluation)
         return Response(serializer.data)
 
-    def update(self, request, pk=None, company_pk=None, project_pk=None):
-        evaluation = self._get_evaluation(pk, company_pk, project_pk)
+    def update(self, request, pk=None, company_element_pk=None, project_pk=None):
+        evaluation = self._get_evaluation(pk, company_element_pk, project_pk)
         serializer = EvaluationSerializer(evaluation, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
 
-    def destroy(self, request, pk=None, company_pk=None, project_pk=None):
-        evaluation = self._get_evaluation(pk, company_pk, project_pk)
+    def destroy(self, request, pk=None, company_element_pk=None, project_pk=None):
+        evaluation = self._get_evaluation(pk, company_element_pk, project_pk)
         evaluation.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @staticmethod
     def _get_evaluation(pk, company, project):
-        queryset = Evaluation.objects.get_project_evaluations(project=project, project__company=company)
+        queryset = Evaluation.objects.get_project_evaluations(project=project, company=company)
         return get_object_or_404(queryset, pk=pk)
 
 
-class EvaluationAssessmentLevelViewSet(viewsets.ModelViewSet):
+class EvaluationAssessmentLevelViewSet(GetSerializerClassMixin,viewsets.ModelViewSet):
     queryset = EvaluationAssessmentLevel.objects.all()
     serializer_class = EvaluationAssessmentLevelSerializer
+    serializer_class_get = EvaluationAssessmentLevelSerializerGET
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant, IsShopper),)
 
 
-class EvaluationAssessmentCommentViewSet(viewsets.ModelViewSet):
+class EvaluationAssessmentCommentViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
     queryset = EvaluationAssessmentComment.objects.all()
     serializer_class = EvaluationAssessmentCommentSerializer
+    serializer_class_get = EvaluationAssessmentCommentSerializerGET
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant, IsShopper),)
-
-
-class ProjectStatisticsFilter(django_filters.rest_framework.FilterSet):
-    date = django_filters.DateFromToRangeFilter(name="time_accomplished", lookup_expr='date')
-    collector = django_filters.AllValuesMultipleFilter(name='shopper')
-
-    class Meta:
-        model = Evaluation
-        fields = ['date', 'company_element', 'collector']
 
 
 class ProjectStatisticsForCompanyViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
@@ -291,13 +281,13 @@ class ProjectStatisticsForCompanyViewSet(GetSerializerClassMixin, viewsets.Model
     permission_classes = (IsAuthenticated, HasReadOnlyAccessToProjectsOrEvaluations,)
     pagination_class = ProjectStatisticsPaginator
     filter_backends = (ProjectStatisticsFilterPerCompanyElement, DjangoFilterBackend,)
-    filter_class = ProjectStatisticsFilter
+    filter_class = EvaluationsFilter
     queryset = Evaluation.objects.all()
 
     def get_queryset(self):
         project = self.kwargs.get('project_pk', None)
-        company = self.kwargs.get('company_pk', None)
-        return Evaluation.objects.get_completed_project_evaluations(project=project, company=company)
+        company_element = self.kwargs.get('company_element_pk', None)
+        return Evaluation.objects.get_completed_project_evaluations(project=project, company=company_element)
 
 
 class ProjectStatisticsForTenantViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
@@ -315,11 +305,11 @@ class ProjectStatisticsForTenantViewSet(GetSerializerClassMixin, viewsets.ModelV
     serializer_class_get = ProjectStatisticsForTenantSerializerGET
     permission_classes = (IsAuthenticated, HasAccessToProjectsOrEvaluations,)
     pagination_class = ProjectStatisticsPaginator
-    filter_backends = (ProjectStatisticsFilterPerCompanyElement, DjangoFilterBackend,)
-    filter_class = ProjectStatisticsFilter
+    filter_backends = (DjangoFilterBackend,)
+    filter_class = EvaluationsFilter
     queryset = Evaluation.objects.all()
 
     def get_queryset(self):
         project = self.kwargs.get('project_pk', None)
-        company = self.kwargs.get('company_pk', None)
-        return Evaluation.objects.get_completed_project_evaluations(project=project, company=company)
+        company_element = self.kwargs.get('company_element_pk', None)
+        return Evaluation.objects.get_completed_project_evaluations(project=project, company=company_element)

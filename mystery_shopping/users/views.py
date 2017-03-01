@@ -4,17 +4,22 @@ from __future__ import absolute_import, unicode_literals
 import django_filters
 from django.contrib.auth.models import Permission, Group
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
+
 from rest_framework import viewsets
 from rest_framework import status
 from rest_condition import Or
 from rest_framework.decorators import list_route, detail_route
 from rest_framework.filters import SearchFilter
+from rest_framework.decorators import list_route
+from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django_filters.rest_framework import DjangoFilterBackend
+from django_filters.rest_framework import DjangoFilterBackend, ModelMultipleChoiceFilter
 
 from mystery_shopping.companies.models import CompanyElement
 from mystery_shopping.companies.serializers import CompanyElementSerializer
+from mystery_shopping.companies.models import CompanyElement
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from mystery_shopping.mystery_shopping_utils.paginators import DetractorRespondentPaginator
 from mystery_shopping.mystery_shopping_utils.permissions import DetractorFilterPerCompanyElement
@@ -71,7 +76,8 @@ class UserViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     serializer_class_get = UserSerializerGET
-    filter_backends = (TenantFilter, DjangoFilterBackend,)
+    filter_backends = (TenantFilter, DjangoFilterBackend, SearchFilter)
+    search_fields = ('^first_name', '^last_name')
     filter_class = UserFilter
 
     def create(self, request, *args, **kwargs):
@@ -129,15 +135,19 @@ class UserViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
     def detractor_permissions(self, request, pk=None):
         user = get_object_or_404(User, pk=pk)
         company_elements = user.detractors_permissions()
-        response = self.filter_company_and_serialize(company_elements)
-        return Response(response)
+        company_structure = CompanyElementSerializer(user.user_company()).data
+        allowed_company_elements = self.filter_company_and_serialize(company_elements)
+        self.filter_objects(company_structure['children'], allowed_company_elements)
+        return Response(company_structure)
 
     @detail_route(methods=['get'], url_path='statistics-permissions')
     def statistics_permissions(self, request, pk=None):
         user = get_object_or_404(User, pk=pk)
         company_elements = user.statistics_permissions()
-        response = self.filter_company_and_serialize(company_elements)
-        return Response(response)
+        company_structure = CompanyElementSerializer(user.user_company()).data
+        allowed_company_elements = self.filter_company_and_serialize(company_elements)
+        self.filter_objects(company_structure['children'], allowed_company_elements)
+        return Response(company_structure)
 
     @detail_route(methods=['get'], url_path='coded-causes-permissions')
     def coded_causes_permissions(self, request, pk=None):
@@ -158,6 +168,24 @@ class UserViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
         company_elements = CompanyElement.objects.filter(id__in=company_elements_ids)
         serializer = CompanyElementSerializer(company_elements, many=True)
         return serializer.data
+
+    def filter_objects(self, childrens, company_elements):
+        """
+        Function for filtering the company structure according to the allowed company elements.
+        The function iterates through children and if the child is not in allowed list, all its
+        children are moved one level out.
+        :param childrens: list of children of the company
+        :param company_elements: allowed company elements serialized
+        :return: modified company structure with filtered children
+        """
+        for child in childrens:
+            if child not in company_elements:
+                childrens.extend(child.pop('children', []))
+                childrens.remove(child)
+                continue
+            else:
+                child['children'] = [obj for obj in child['children'] if obj in company_elements]
+            self.filter_objects(child['children'], company_elements)
 
 
 class UserPermissionsViewSet(viewsets.ReadOnlyModelViewSet):
@@ -182,20 +210,11 @@ class UserGroupsViewSet(viewsets.ReadOnlyModelViewSet):
         tenant_groups = Group.objects.filter(name__in=UserRole.TENANT_GROUPS)
         client_groups = Group.objects.filter(name__in=UserRole.CLIENT_GROUPS)
         shopper_groups = Group.objects.filter(name__in=UserRole.SHOPPERS_COLLECTORS)
-        result = [
-            {
-                'type': 'tenant',
-                'groups': GroupSerializer(tenant_groups, many=True).data
-            },
-            {
-                'type': 'client',
-                'groups': GroupSerializer(client_groups, many=True).data
-            },
-            {
-                'type': 'shopper',
-                'groups': GroupSerializer(shopper_groups, many=True).data
-            }
-        ]
+        result = {
+            'tenant': GroupSerializer(tenant_groups, many=True).data,
+            'client': GroupSerializer(client_groups, many=True).data,
+            'shopper': GroupSerializer(shopper_groups, many=True).data
+        }
         return Response(result)
 
 
@@ -269,27 +288,28 @@ class CollectorViewSet(viewsets.ModelViewSet):
 
 
 class DetractorFilter(django_filters.rest_framework.FilterSet):
-    place = django_filters.AllValuesMultipleFilter(name="evaluation__company_element")
-    date = django_filters.DateFilter(name="evaluation__time_accomplished", lookup_expr='date')
-    questions = django_filters.NumberFilter(name='number_of_questions')
+    places = django_filters.ModelMultipleChoiceFilter(queryset=CompanyElement.objects.all(),
+                                                      name="evaluation__company_element")
+    date = django_filters.DateFromToRangeFilter(name="evaluation__time_accomplished", lookup_expr='date')
+    questions = django_filters.AllValuesMultipleFilter(name='number_of_questions')
 
     class Meta:
         model = DetractorRespondent
-        fields = ['date', 'place', 'status', 'questions']
+        fields = ['date', 'places', 'status', 'questions']
 
 
 class DetractorRespondentForTenantViewSet(viewsets.ModelViewSet):
     queryset = DetractorRespondent.objects.all()
-    filter_backends = (DetractorFilterPerCompanyElement, DjangoFilterBackend,)
+    filter_backends = (DjangoFilterBackend,)
     filter_class = DetractorFilter
     pagination_class = DetractorRespondentPaginator
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
     serializer_class = DetractorRespondentForTenantSerializer
 
     def get_queryset(self):
-        queryset = self.serializer_class.setup_eager_loading(self.queryset)
         project = self.request.query_params.get('project')
-        return queryset.filter(evaluation__project=project)
+        queryset = DetractorRespondent.objects.filter(evaluation__project=project)
+        return self.serializer_class.setup_eager_loading(queryset)
 
 
 class DetractorRespondentForClientViewSet(viewsets.ModelViewSet):

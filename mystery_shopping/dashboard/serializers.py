@@ -7,11 +7,8 @@ from .models import DashboardComment
 
 class DashboardTemplateSerializer(serializers.ModelSerializer):
     """
-
+    Default Dashboard Template serializer.
     """
-
-    users_repr = UserSerializer(source='users', many=True, read_only=True)
-
     class Meta:
         model = DashboardTemplate
         fields = '__all__'
@@ -30,6 +27,16 @@ class DashboardTemplateSerializer(serializers.ModelSerializer):
         instance.users = users
         return instance
 
+
+class DashboardTemplateSerializerGET(DashboardTemplateSerializer):
+    """
+    Nested Dashboard Template serializer.
+    """
+    users = UserSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = DashboardTemplate
+        fields = '__all__'
 
 class DashboardCommentSerializer(serializers.ModelSerializer):
     """

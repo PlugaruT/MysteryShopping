@@ -7,7 +7,9 @@ from rest_framework.decorators import list_route, detail_route
 from rest_condition import Or
 
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
+from mystery_shopping.mystery_shopping_utils.views import GetSerializerClassMixin
 from mystery_shopping.questionnaires.models import QuestionnaireTemplateStatus
+from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializerGET
 from .models import QuestionnaireScript
 from .models import Questionnaire
 from .models import QuestionnaireTemplate
@@ -45,10 +47,11 @@ class QuestionnaireScriptViewSet(viewsets.ModelViewSet):
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
 
 
-class QuestionnaireTemplateViewSet(viewsets.ModelViewSet):
+class QuestionnaireTemplateViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
     queryset = QuestionnaireTemplate.objects.all()
     serializer_class = QuestionnaireTemplateSerializer
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
+    serializer_class_get = QuestionnaireTemplateSerializerGET
     filter_backends = (TenantFilter,)
 
     def get_queryset(self):
@@ -70,6 +73,22 @@ class QuestionnaireTemplateViewSet(viewsets.ModelViewSet):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        serializer = self.serializer_class_get(instance)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # refresh the instance from the database.
+            instance = self.get_object()
+            serializer = self.serializer_class_get(instance)
+
+        return Response(serializer.data)
 
     @list_route(methods=['get'])
     def get_archived(self, request):
@@ -119,7 +138,6 @@ class QuestionnaireTemplateViewSet(viewsets.ModelViewSet):
         questionnaire_template_serialized = QuestionnaireTemplateSerializer(questionnaire_template)
         questionnaire_template_serialized = dict(questionnaire_template_serialized.data)
         questionnaire_template_serialized.pop('id')
-        questionnaire_template_serialized.pop('status_repr')
         questionnaire_template_serialized['status'] = questionnaire_status.id
         return questionnaire_template_serialized
 
@@ -143,7 +161,8 @@ class QuestionnaireTemplateBlockViewSet(viewsets.ModelViewSet):
     def destroy(self, request, pk=None):
         queryset = QuestionnaireTemplateBlock.objects.filter(pk=pk)
         template_block = get_object_or_404(queryset, pk=pk)
-        siblings_to_update = template_block.get_siblings().filter(questionnaire_template=template_block.questionnaire_template, order__gt=template_block.order)
+        siblings_to_update = template_block.get_siblings().filter(
+            questionnaire_template=template_block.questionnaire_template, order__gt=template_block.order)
         # update 'order' field of sibling blocks when a block gets deleted
         for sibling in siblings_to_update:
             sibling.order -= 1
@@ -199,6 +218,50 @@ class QuestionnaireTemplateQuestionViewSet(viewsets.ModelViewSet):
         template_question.update_siblings(siblings, template_question.template_block)
 
         template_question.save()
+        return Response(status=status.HTTP_200_OK)
+
+    @detail_route(methods=['put'], url_path='allow-why-causes')
+    def allow_why_causes(self, request, pk=None):
+        """
+        Endpoint for setting the allow_why_causes flag to True
+        :param pk: pk of the questions
+        :return: status code ok
+        """
+        template_question = get_object_or_404(QuestionnaireTemplateQuestion, pk=pk)
+        template_question.allow_why_cause_collecting()
+        return Response(status=status.HTTP_200_OK)
+
+    @detail_route(methods=['put'], url_path='deny-why-causes')
+    def deny_why_causes(self, request, pk=None):
+        """
+        Endpoint for setting the allow_why_causes flag to False
+        :param pk: pk of the questions
+        :return: status code ok
+        """
+        template_question = get_object_or_404(QuestionnaireTemplateQuestion, pk=pk)
+        template_question.deny_why_cause_collecting()
+        return Response(status=status.HTTP_200_OK)
+
+    @detail_route(methods=['put'], url_path='allow-other-choices')
+    def allow_other_choices(self, request, pk=None):
+        """
+        Endpoint for setting the has_other_choice flag to True
+        :param pk: pk of the questions
+        :return: status code ok
+        """
+        template_question = get_object_or_404(QuestionnaireTemplateQuestion, pk=pk)
+        template_question.allow_other_choice_collecting()
+        return Response(status=status.HTTP_200_OK)
+
+    @detail_route(methods=['put'], url_path='deny-other-choices')
+    def deny_other_choices(self, request, pk=None):
+        """
+        Endpoint for setting the has_other_choice flag to False
+        :param pk: pk of the questions
+        :return: status code ok
+        """
+        template_question = get_object_or_404(QuestionnaireTemplateQuestion, pk=pk)
+        template_question.deny_other_choice_collecting()
         return Response(status=status.HTTP_200_OK)
 
 

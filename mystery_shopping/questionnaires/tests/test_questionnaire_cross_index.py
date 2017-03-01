@@ -7,18 +7,17 @@ from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFacto
     QuestionnaireTemplateBlockFactory
 from mystery_shopping.factories.tenants import TenantFactory
 from mystery_shopping.factories.users import ShopperFactory, UserFactory
-from mystery_shopping.projects.serializers import EvaluationSerializer
+from mystery_shopping.projects.serializers import EvaluationSerializer, EvaluationSerializerGET
 from mystery_shopping.questionnaires.models import CrossIndexTemplate, CrossIndexQuestionTemplate
 
 
 class TestSerializeCrossIndexForQuestionnaire(TestCase):
     def setUp(self):
         self.tenant = TenantFactory()
-        project = ProjectFactory()
-        shopper = ShopperFactory()
-        saved_by_user = UserFactory()
-        entity = EntityFactory()
-        company_element = CompanyElementFactory()
+        project = ProjectFactory(tenant=self.tenant)
+        shopper = UserFactory(tenant=self.tenant)
+        saved_by_user = UserFactory(tenant=self.tenant)
+        company_element = CompanyElementFactory(tenant=self.tenant)
         self.template_questionnaire = QuestionnaireTemplateFactory(tenant=self.tenant)
 
         self.template_block = QuestionnaireTemplateBlockFactory(questionnaire_template=self.template_questionnaire)
@@ -49,8 +48,7 @@ class TestSerializeCrossIndexForQuestionnaire(TestCase):
             'shopper': shopper.id,
             'saved_by_user': saved_by_user.id,
             'questionnaire_template': self.template_questionnaire.id,
-            'company_element': company_element.id,
-            'entity': entity.id,
+            'company_element': company_element.id
         }
 
         self.evaluation = EvaluationSerializer(data=data)
@@ -113,5 +111,6 @@ class TestSerializeCrossIndexForQuestionnaire(TestCase):
                 }
             ]
 
+        self.evaluation = EvaluationSerializerGET(self.evaluation.instance)
         result = loads(dumps(self.evaluation.data['questionnaire']['cross_indexes']))
         self.assertEqual(expected_result, result)

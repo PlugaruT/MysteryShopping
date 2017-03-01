@@ -3,7 +3,6 @@ from rest_framework_nested.routers import NestedSimpleRouter
 
 from .views import ProjectStatisticsForCompanyViewSet
 from .views import ProjectStatisticsForTenantViewSet
-from .views import PlaceToAssessViewSet
 from .views import ProjectViewSet
 from .views import ResearchMethodologyViewSet
 from .views import EvaluationViewSet
@@ -14,7 +13,6 @@ from mystery_shopping.companies.urls import company_project_router
 
 
 router = DefaultRouter()
-router.register(r'placestoassess', PlaceToAssessViewSet)
 router.register(r'projects', ProjectViewSet)
 router.register(r'researchmethodologies', ResearchMethodologyViewSet)
 router.register(r'evaluations', EvaluationViewSet)

@@ -1,4 +1,5 @@
 from django.contrib.postgres.fields.hstore import HStoreField
+from django.contrib.postgres.fields.jsonb import JSONField
 from django.db import models
 from django.contrib.contenttypes.fields import GenericRelation
 from mptt.fields import TreeForeignKey
@@ -42,13 +43,14 @@ class CompanyElement(TenantModel, MPTTModel):
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
 
     # Attributes
-    additional_info = HStoreField(null=True, blank=True)
+    additional_info = JSONField(null=True, blank=True)
     element_name = models.CharField(max_length=100)
     element_type = models.CharField(max_length=100)
+    order = models.SmallIntegerField(null=True, blank=True)
     logo = models.ImageField(null=True, blank=True)
 
-    objects = models.Manager.from_queryset(CompanyElementQuerySet)()
     tree = TreeManager()
+    objects = models.Manager.from_queryset(CompanyElementQuerySet)()
 
     class Meta:
         default_related_name = 'company_elements'
@@ -61,6 +63,14 @@ class CompanyElement(TenantModel, MPTTModel):
 
     def __str__(self):
         return 'company_element: {id: %s, name: %s, type: %s}' % (self.pk, self.element_name, self.element_type)
+
+    def update_order(self, new_order):
+        self.order = new_order
+        self.save(update_fields=['order'])
+
+    def update_parent(self, new_parent):
+        self.parent = new_parent
+        self.save(update_fields=['parent'])
 
 
 class AdditionalInfoType(TenantModel):

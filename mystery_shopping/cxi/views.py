@@ -19,7 +19,7 @@ from mystery_shopping.projects.models import Project
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from mystery_shopping.questionnaires.utils import check_interval_date
 from mystery_shopping.users.models import ClientManager
-from mystery_shopping.users.permissions import IsCompanyManager
+from mystery_shopping.users.permissions import IsCompanyManager, IsCompanyEmployee
 from mystery_shopping.users.permissions import IsCompanyProjectManager
 from mystery_shopping.users.permissions import IsTenantConsultant
 from mystery_shopping.users.permissions import IsTenantProductManager
@@ -145,17 +145,13 @@ class OverviewDashboard(views.APIView):
     """
 
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager,
-                             IsCompanyManager),)
+                             IsCompanyManager, IsCompanyEmployee),)
 
     def get(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
-        department_id = request.query_params.get('department', None)
-        entity_id = request.query_params.get('entity', None)
-        section_id = request.query_params.get('section', None)
+        company_element_id = request.query_params.get('company_element', None)
 
-        parameters_are_valid = self.parameter_is_valid(entity_id) or \
-                               self.parameter_is_valid(department_id) or \
-                               self.parameter_is_valid(section_id)
+        parameters_are_valid = self.parameter_is_valid(company_element_id)
 
         if project_id:
             if parameters_are_valid:
@@ -168,7 +164,7 @@ class OverviewDashboard(views.APIView):
                     return Response({'detail': 'You do not have permission to access to this project.'},
                                     status.HTTP_403_FORBIDDEN)
 
-                response = collect_data_for_overview_dashboard(project, department_id, entity_id, section_id)
+                response = collect_data_for_overview_dashboard(project, company_element_id)
 
                 return Response(response, status.HTTP_200_OK)
 
@@ -195,20 +191,16 @@ class IndicatorDashboard(views.APIView):
     """
 
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager,
-                             IsCompanyManager),)
+                             IsCompanyManager, IsCompanyEmployee),)
 
     def get(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
         company_id = request.query_params.get('company', None)
-        department_id = request.query_params.get('department', None)
-        entity_id = request.query_params.get('entity', None)
-        section_id = request.query_params.get('section', None)
+        company_element_id = request.query_params.get('company_element', None)
         indicator_type = request.query_params.get('indicator', None)
         project = None
 
-        parameters_are_valid = self.parameter_is_valid(entity_id) or \
-                               self.parameter_is_valid(department_id) or \
-                               self.parameter_is_valid(section_id)
+        parameters_are_valid = self.parameter_is_valid(company_element_id)
 
         if project_id is None:
             if request.user.is_client_user():
@@ -239,8 +231,7 @@ class IndicatorDashboard(views.APIView):
             }, status.HTTP_400_BAD_REQUEST)
 
         if project is not None:
-            response = self.collect_data_for_indicator_dashboard(project, department_id, entity_id, section_id,
-                                                                 indicator_type)
+            response = self.collect_data_for_indicator_dashboard(project, company_element_id, indicator_type)
 
             return Response(response, status.HTTP_200_OK)
 
@@ -249,8 +240,8 @@ class IndicatorDashboard(views.APIView):
         }, status.HTTP_400_BAD_REQUEST)
 
     # @CacheResult(age=60 * 60 * 24) # 24h
-    def collect_data_for_indicator_dashboard(self, project, department_id, entity_id, section_id, indicator_type):
-        return CollectDataForIndicatorDashboard(project, department_id, entity_id, section_id,
+    def collect_data_for_indicator_dashboard(self, project, company_element_id, indicator_type):
+        return CollectDataForIndicatorDashboard(project, company_element_id,
                                                 indicator_type).build_response()
 
     @staticmethod

@@ -172,7 +172,7 @@ class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
         return self.questions.filter(type=QuestionType.INDICATOR_QUESTION)
 
     def get_entity(self):
-        return self.evaluation.entity
+        return self.evaluation.company_element
 
     def get_section(self):
         return self.evaluation.section
@@ -264,7 +264,7 @@ class QuestionAbstract(models.Model):
     order = models.PositiveIntegerField()
     weight = models.DecimalField(max_digits=5, decimal_places=2)
     show_comment = models.BooleanField(default=True)
-    additional_info = models.CharField(max_length=30, blank=True)
+    additional_info = models.CharField(max_length=100, blank=True)
 
     class Meta:
         abstract = True
@@ -281,6 +281,8 @@ class QuestionnaireTemplateQuestion(QuestionAbstract):
 
     objects = models.Manager.from_queryset(QuestionnaireTemplateQuestionQuerySet)()
 
+    allow_why_causes = models.BooleanField(default=True)
+    has_other_choice = models.BooleanField(default=True)
 
     class Meta:
         default_related_name = 'template_questions'
@@ -302,6 +304,22 @@ class QuestionnaireTemplateQuestion(QuestionAbstract):
                 question_to_update.save()
             except QuestionnaireTemplateQuestion.DoesNotExist:
                 pass
+
+    def allow_why_cause_collecting(self):
+        self.allow_why_causes = True
+        self.save(update_fields=['allow_why_causes'])
+
+    def deny_why_cause_collecting(self):
+        self.allow_why_causes = False
+        self.save(update_fields=['allow_why_causes'])
+
+    def allow_other_choice_collecting(self):
+        self.has_other_choice = True
+        self.save(update_fields=['has_other_choice'])
+
+    def deny_other_choice_collecting(self):
+        self.has_other_choice = False
+        self.save(update_fields=['has_other_choice'])
 
 
 class QuestionnaireQuestion(QuestionAbstract):

@@ -24,14 +24,10 @@ class QuestionnaireQuerySet(QuerySet):
                            evaluation__project=project,
                            evaluation__status__in=[EvaluationStatus.SUBMITTED, EvaluationStatus.APPROVED])
 
-    def get_project_questionnaires_for_subdivision(self, project, department=None, entity=None, section=None):
+    def get_project_questionnaires_for_subdivision(self, project, company_element=None):
         questionnaires = self.get_project_submitted_or_approved_questionnaires(project)
-        if section is not None:
-            questionnaires = questionnaires.filter(evaluation__section=section)
-        elif entity is not None:
-            questionnaires = questionnaires.filter(evaluation__entity=entity)
-        elif department is not None:
-            questionnaires = questionnaires.filter(evaluation__entity__department=department)
+        if company_element is not None:
+            questionnaires = questionnaires.filter(evaluation__company_element=company_element)
         return questionnaires
 
     def get_questionnaires_for_company(self, company):
@@ -60,6 +56,6 @@ class QuestionnaireQuestionQuerySet(QuerySet):
 class QuestionnaireTemplateQuestionQuerySet(QuerySet):
     def is_question_editable(self, pk):
         try:
-            return self.get(questionnaire_template__type=ProjectType.CUSTOMER_XP_INDEX, pk=pk)
+            return self.get(questionnaire_template__type=ProjectType.CUSTOMER_EXPERIENCE_INDEX, pk=pk)
         except:
             return None

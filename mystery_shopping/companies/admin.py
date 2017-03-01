@@ -13,4 +13,4 @@ class CompanyAdmin(admin.ModelAdmin):
 
 @admin.register(CompanyElement)
 class CompanyElementAdmin(MPTTModelAdmin, GuardedModelAdmin):
-    list_display = ['element_name', 'element_type', 'tenant', 'additional_info']
+    list_display = ['element_name', 'element_type', 'tenant', 'additional_info', 'order']

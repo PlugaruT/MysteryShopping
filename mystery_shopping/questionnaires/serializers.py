@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 from mystery_shopping.cxi.serializers import WhyCauseSerializer
 from mystery_shopping.users.models import DetractorRespondent
-from mystery_shopping.users.serializers import UserSerializer, ShopperSerializer
+from mystery_shopping.users.serializers import ShopperSerializer, UserSerializerGET
 
 from mystery_shopping.questionnaires.models import CrossIndexQuestion, QuestionnaireTemplateStatus
 from .models import QuestionnaireScript
@@ -73,6 +73,8 @@ class QuestionnaireQuestionSerializer(serializers.ModelSerializer):
     question_choices = QuestionnaireQuestionChoiceSerializer(many=True, required=False)
     why_causes = WhyCauseSerializer(many=True, required=False)
     question_id = serializers.IntegerField(write_only=True, required=False)
+    allow_why_causes = serializers.BooleanField(source='template_question.allow_why_causes', read_only=True)
+    has_other_choice = serializers.BooleanField(source='template_question.has_other_choice', read_only=True)
 
     class Meta:
         model = QuestionnaireQuestion
@@ -140,9 +142,15 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
             }
         }
 
+    def pop_special_flags(self, data):
+        data.pop('allow_why_causes', None)
+        data.pop('has_other_choice', None)
+
     def create(self, validated_data):
         if not validated_data['questionnaire_template'].is_editable:
             raise serializers.ValidationError('The Questionnaire Template this Question belongs to is not editable')
+
+        self.pop_special_flags(validated_data)
         template_question_choices = validated_data.pop('template_question_choices', [])
         siblings_to_update = validated_data.pop('siblings', [])
 
@@ -155,7 +163,9 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         if not instance.questionnaire_template.is_editable:
             raise serializers.ValidationError('You are not allowed to do this action')
+
         instance.prepare_to_update()
+        self.pop_special_flags(validated_data)
         template_question_choices = validated_data.pop('template_question_choices', [])
         siblings_to_update = validated_data.pop('siblings', [])
 
@@ -175,6 +185,7 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
                 data=template_question_choice)
             template_question_choice_ser.is_valid(raise_exception=True)
             template_question_choice_ser.save()
+
 
 class QuestionnaireBlockSerializer(serializers.ModelSerializer):
     """
@@ -426,12 +437,10 @@ class QuestionnaireTemplateStatusSerializer(serializers.ModelSerializer):
 
 class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
     """
-
+    Default Questionnaire Template serializer.
     """
     template_blocks = QuestionnaireTemplateBlockSerializer(many=True, required=False)
     template_cross_indexes = CrossIndexTemplateSerializer(many=True, required=False, read_only=True)
-    status_repr = QuestionnaireTemplateStatusSerializer(source='status', read_only=True)
-    created_by_repr = UserSerializer(source='created_by', read_only=True)
 
     class Meta:
         model = QuestionnaireTemplate
@@ -493,6 +502,18 @@ class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
                 template_question_choice.pop('template_question', None)
 
 
+class QuestionnaireTemplateSerializerGET(QuestionnaireTemplateSerializer):
+    """
+    Nested Questionnaire Template serializer.
+    """
+    status = QuestionnaireTemplateStatusSerializer(read_only=True)
+    created_by = UserSerializerGET(read_only=True)
+
+    class Meta:
+        model = QuestionnaireTemplate
+        fields = '__all__'
+
+
 class QuestionSimpleSerializer(serializers.ModelSerializer):
     """
         Serializes questions simpler including needed fields
@@ -534,8 +555,8 @@ class DetractorRespondentForTenantSerializer(serializers.ModelSerializer):
     """
     Serializer for Detractors for tenant (that included all the fields)
     """
-    # saved_by = UserSerializer(source='evaluation.saved_by_user', read_only=True)
-    shopper = ShopperSerializer(source='evaluation.shopper', read_only=True)
+    saved_by = UserSerializerGET(source='evaluation.saved_by_user', read_only=True)
+    shopper = UserSerializerGET(source='evaluation.shopper', read_only=True)
     questionnaire_title = serializers.CharField(source='evaluation.questionnaire.title', read_only=True)
     time_accomplished = serializers.DateTimeField(source='evaluation.time_accomplished', read_only=True)
     questions = QuestionnaireQuestionSerializer(source='get_detractor_questions', many=True, read_only=True)
@@ -558,10 +579,6 @@ class DetractorRespondentForTenantSerializer(serializers.ModelSerializer):
         queryset = queryset.select_related('evaluation', 'evaluation__questionnaire')
         queryset = queryset.prefetch_related('evaluation__saved_by_user',
                                              'evaluation__shopper',
-                                             'evaluation__shopper__user',
-                                             'evaluation__saved_by_user__tenantprojectmanager',
-                                             'evaluation__saved_by_user__tenantproductmanager',
-                                             'evaluation__saved_by_user__tenantconsultant',
                                              'evaluation__questionnaire__blocks__questions__question_choices')
         return queryset
 
@@ -584,9 +601,5 @@ class DetractorRespondentForClientSerializer(serializers.ModelSerializer):
         queryset = queryset.select_related('evaluation', 'evaluation__questionnaire')
         queryset = queryset.prefetch_related('evaluation__saved_by_user',
                                              'evaluation__shopper',
-                                             'evaluation__shopper__user',
-                                             'evaluation__saved_by_user__tenantprojectmanager',
-                                             'evaluation__saved_by_user__tenantproductmanager',
-                                             'evaluation__saved_by_user__tenantconsultant',
                                              'evaluation__questionnaire__blocks__questions__question_choices')
         return queryset

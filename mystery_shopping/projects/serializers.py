@@ -1,44 +1,43 @@
+from collections import namedtuple
+
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
-from mystery_shopping.cxi.serializers import WhyCauseSerializer
 from .models import Project
 from .models import ResearchMethodology
 from .models import Evaluation
-from .models import PlaceToAssess
 from .models import EvaluationAssessmentLevel
 from .models import EvaluationAssessmentComment
 
-from mystery_shopping.companies.models import Entity, Department
-from mystery_shopping.companies.models import Section
-from mystery_shopping.companies.serializers import EntitySerializer, DepartmentSerializer, CompanyElementSerializer
-from mystery_shopping.companies.serializers import SectionSerializer
-
-from mystery_shopping.companies.serializers import CompanySerializer
-
+from mystery_shopping.companies.serializers import CompanyElementSerializer
+from mystery_shopping.cxi.serializers import WhyCauseSerializer
+from mystery_shopping.projects.constants import EvaluationStatus
 from mystery_shopping.questionnaires.serializers import QuestionnaireScriptSerializer, \
-    DetractorRespondentForTenantSerializer
+    DetractorRespondentForTenantSerializer, QuestionnaireTemplateSerializerGET
 from mystery_shopping.questionnaires.serializers import QuestionnaireSerializer
 from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializer
-from mystery_shopping.questionnaires.models import QuestionnaireQuestion, QuestionnaireScript
+from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from mystery_shopping.questionnaires.models import Questionnaire
 from mystery_shopping.questionnaires.constants import QuestionType
 from mystery_shopping.questionnaires.utils import update_attributes
-from mystery_shopping.users.serializers import ShopperSerializer
-from mystery_shopping.users.serializers import TenantProjectManagerSerializer
-from mystery_shopping.users.serializers import TenantConsultantSerializer
-from mystery_shopping.users.serializer_fields import TenantUserRelatedField
-from mystery_shopping.projects.constants import EvaluationStatus
-
-from mystery_shopping.users.models import PersonToAssess
-from mystery_shopping.users.models import Shopper
+from mystery_shopping.users.serializers import UserSerializer, UserSerializerGET, ShopperSerializer
 
 
 class EvaluationAssessmentCommentSerializer(serializers.ModelSerializer):
     """
+    Default Evaluation Assessment Comment serializer.
+    """
+    class Meta:
+        model = EvaluationAssessmentComment
+        fields = '__all__'
+
+
+class EvaluationAssessmentCommentSerializerGET(EvaluationAssessmentCommentSerializer):
+    """
+    Nested Evaluation Assessment Comment serializer, with .
 
     """
-    commenter_repr = TenantUserRelatedField(source='commenter', read_only=True)
+    commenter = UserSerializer(read_only=True)
 
     class Meta:
         model = EvaluationAssessmentComment
@@ -47,12 +46,8 @@ class EvaluationAssessmentCommentSerializer(serializers.ModelSerializer):
 
 class EvaluationAssessmentLevelSerializer(serializers.ModelSerializer):
     """
-
+    Default Evaluation Assessment Level serializer.
     """
-    next_level = serializers.PrimaryKeyRelatedField(read_only=True)
-    project_manager_repr = TenantProjectManagerSerializer(source='project_manager', read_only=True)
-    consultants_repr = TenantConsultantSerializer(source='consultants', read_only=True, many=True)
-    comments = EvaluationAssessmentCommentSerializer(source='evaluation_assessment_comments', read_only=True, many=True)
 
     class Meta:
         model = EvaluationAssessmentLevel
@@ -65,97 +60,72 @@ class EvaluationAssessmentLevelSerializer(serializers.ModelSerializer):
         }
 
 
-class PlaceToAssessSerializer(serializers.ModelSerializer):
+class EvaluationAssessmentLevelSerializerGET(EvaluationAssessmentLevelSerializer):
     """
+    Nested Evaluation Assessment Level serializer.
     """
+    project_manager = UserSerializer(read_only=True)
+    consultants = UserSerializer(read_only=True, many=True)
+    comments = EvaluationAssessmentCommentSerializer(source='evaluation_assessment_comments', read_only=True, many=True)
 
     class Meta:
-        model = PlaceToAssess
+        model = EvaluationAssessmentLevel
         fields = '__all__'
         extra_kwargs = {
-            'research_methodology': {
-                'required': False
+            'next_level': {
+                'read_only': True
             }
         }
-
-    def to_representation(self, instance):
-        """
-        Serialize tagged objects to a simple textual representation.
-        """
-        if instance.place_type.model == 'department':
-            to_serialize = Department.objects.get(pk=instance.place_id)
-            serializer = DepartmentSerializer(to_serialize)
-        elif instance.place_type.model == 'entity':
-            to_serialize = Entity.objects.get(pk=instance.place_id)
-            serializer = EntitySerializer(to_serialize)
-        elif instance.place_type.model == 'section':
-            to_serialize = Section.objects.get(pk=instance.place_id)
-            serializer = SectionSerializer(to_serialize)
-        else:
-            raise Exception('Unexpected type of tagged object')
-
-        place_to_assess_dict = {
-            'place_type': instance.place_type_id,
-            'place_id': instance.place_id
-        }
-
-        place_to_assess_dict.update(serializer.data)
-
-        return place_to_assess_dict
 
 
 class ResearchMethodologySerializer(serializers.ModelSerializer):
     """
-
+    Default serializer for Research Methodology
     """
-    scripts = serializers.PrimaryKeyRelatedField(queryset=QuestionnaireScript.objects.all(), required=False, many=True)
-    scripts_repr = QuestionnaireScriptSerializer(source='scripts', many=True, read_only=True)
-    questionnaires_repr = QuestionnaireTemplateSerializer(source='questionnaires', many=True, read_only=True)
-    # TODO: handle this new naw on frontend
-    company_elements_repr = CompanyElementSerializer(source='company_elements', many=True, required=False)
     project_id = serializers.IntegerField(required=False)
 
     class Meta:
         model = ResearchMethodology
         fields = '__all__'
+        extra_kwargs = {
+            'scripts': {
+                'allow_empty': True,
+                'required': False
+            },
+            'tenant': {
+                'required': False
+            }
+        }
+
+    def _extract_attributes(self, data):
+        Fields = namedtuple('Fields', ['project_id', 'scripts', 'questionnaires', 'company_elements'])
+        fields = Fields(project_id=data.pop('project_id', None),
+                        scripts=data.pop('scripts', []),
+                        questionnaires=data.pop('questionnaires', []),
+                        company_elements=data.pop('company_elements', []))
+        return fields
+
+    def _set_many_to_many(self, instance, fields):
+        instance.scripts.set(fields.scripts)
+        instance.questionnaires.set(fields.questionnaires)
+        instance.company_elements.set(fields.company_elements)
+
 
     def create(self, validated_data):
-        project_id = validated_data.pop('project_id', None)
-
-        scripts = validated_data.pop('scripts', [])
-        questionnaires = validated_data.pop('questionnaires', [])
-        places_to_assess = validated_data.pop('places_to_assess', [])
-        people_to_assess = validated_data.pop('people_to_assess', [])
+        popped_fields = self._extract_attributes(validated_data)
 
         research_methodology = ResearchMethodology.objects.create(**validated_data)
 
-        research_methodology.scripts.set(scripts)
-        research_methodology.questionnaires.set(questionnaires)
-
-        self.set_places_to_asses(research_methodology, places_to_assess)
-
-        self.set_people_to_asses(research_methodology, people_to_assess)
-        self.link_research_methodology_to_project(project_id, research_methodology)
+        self._set_many_to_many(research_methodology, popped_fields)
+        self.link_research_methodology_to_project(popped_fields.project_id, research_methodology)
 
         return research_methodology
 
     def update(self, instance, validated_data):
-        project_id = validated_data.pop('project_id', None)
+        popped_fields = self._extract_attributes(validated_data)
 
-        scripts = validated_data.pop('scripts', [])
-        questionnaires = validated_data.pop('questionnaires', [])
-        places_to_assess = validated_data.pop('places_to_assess', [])
-        people_to_assess = validated_data.pop('people_to_assess', [])
-
-        instance.prepare_for_update()
-
-        instance.scripts.set(scripts)
-        instance.questionnaires.set(questionnaires)
-
-        self.set_places_to_asses(instance, places_to_assess)
-        self.set_people_to_asses(instance, people_to_assess)
-
-        self.link_research_methodology_to_project(project_id, instance)
+        self._set_many_to_many(instance, popped_fields)
+        self.link_research_methodology_to_project(popped_fields.project_id, instance)
 
         update_attributes(validated_data, instance)
         instance.save()
@@ -170,120 +140,112 @@ class ResearchMethodologySerializer(serializers.ModelSerializer):
                 project_to_set.research_methodology = research_methodology
                 project_to_set.save()
 
-    @staticmethod
-    def set_places_to_asses(research_methodology, places_to_assess):
-        places_to_set = list()
-        for place_to_assess in places_to_assess:
-            place_to_assess['research_methodology'] = research_methodology
-            places_to_set.append(PlaceToAssess.objects.create(**place_to_assess))
-        research_methodology.places_to_assess.set(places_to_set)
 
-    @staticmethod
-    def set_people_to_asses(research_methodology, people_to_assess):
-        people_to_set = list()
-        for person_to_assess in people_to_assess:
-            person_to_assess['research_methodology'] = research_methodology
-            people_to_set.append(PersonToAssess.objects.create(**person_to_assess))
-        research_methodology.people_to_assess.set(people_to_set)
+class ResearchMethodologySerializerGET(ResearchMethodologySerializer):
+    """
+    GET Research Methodology serializer that uses nested serializers.
+    """
+    scripts = QuestionnaireScriptSerializer(many=True, read_only=True)
+    questionnaires = QuestionnaireTemplateSerializerGET(many=True, read_only=True)
+    company_elements = CompanyElementSerializer(many=True, required=False)
+
+    class Meta:
+        model = ResearchMethodology
+        fields = '__all__'
 
 
 class ProjectSerializer(serializers.ModelSerializer):
     """
-
+    Default serializer for project
     """
-    company_repr = CompanySerializer(source='company', read_only=True)
-    shoppers_repr = ShopperSerializer(source='shoppers', many=True, read_only=True)
-    project_manager_repr = TenantProjectManagerSerializer(source='project_manager', read_only=True)
     research_methodology = ResearchMethodologySerializer(required=False)
-    shoppers = serializers.PrimaryKeyRelatedField(queryset=Shopper.objects.all(), many=True, allow_null=True,
-                                                  required=False)
-    consultants_repr = TenantConsultantSerializer(source='consultants', read_only=True, many=True)
-    evaluation_assessment_levels_repr = EvaluationAssessmentLevelSerializer(source='evaluation_assessment_levels',
-                                                                            read_only=True, many=True)
-    cxi_indicators = serializers.DictField(source='get_indicators_list', read_only=True)
-    # TODO: change this for the new structure
-    editable_places = serializers.ListField(source='get_editable_places', read_only=True)
-    is_questionnaire_editable = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Project
         fields = '__all__'
         extra_kwargs = {
-            'graph_config': {
+            'shoppers': {
+                'allow_empty': True,
                 'required': False
             }
         }
 
+    def validate(self, attrs):
+        for value, key in attrs.items():
+            print(value, key)
+        return attrs
+
+    def _set_research_methodology(self, project, research_methodology_instance, data):
+        data['project_id'] = project.id
+        data['scripts'] = list(map(lambda x: x.id, data.get('scripts', [])))
+        data['company_elements'] = list(map(lambda x: x.id, data.get('company_elements', [])))
+        data['questionnaires'] = list(
+            map(lambda x: x.id, data.get('questionnaires', [])))
+        data['tenant'] = data['tenant'].id
+        research_methodology_ser = ResearchMethodologySerializer(instance=research_methodology_instance,
+                                                                 data=data)
+        research_methodology_ser.is_valid(raise_exception=True)
+        research_methodology_ser.save()
+        return research_methodology_ser.instance
+
     def create(self, validated_data):
         research_methodology = validated_data.pop('research_methodology', None)
+        research_methodology['tenant'] = validated_data['tenant']
         consultants = validated_data.pop('consultants', [])
-        validated_data.pop('shoppers', None)
+        shoppers = validated_data.pop('shoppers', [])
+
+        # user.set_perm(); from django. blablabla
 
         project = Project.objects.create(**validated_data)
 
         project.consultants.set(consultants)
+        project.shoppers.set(shoppers)
 
         if research_methodology is not None:
-            research_methodology['project_id'] = project.id
-            research_methodology['scripts'] = list(map(lambda x: x.id, research_methodology.get('scripts', [])))
-            research_methodology['questionnaires'] = list(
-                map(lambda x: x.id, research_methodology.get('questionnaires', [])))
-            research_methodology['tenant'] = research_methodology['tenant'].id
-            research_methodology_ser = ResearchMethodologySerializer(data=research_methodology)
-            research_methodology_ser.is_valid(raise_exception=True)
-            research_methodology_ser.save()
+            project.research_methodology = self._set_research_methodology(project=project,
+                                                                          research_methodology_instance=None,
+                                                                          data=research_methodology)
 
         return project
 
     def update(self, instance, validated_data):
         consultants = validated_data.pop('consultants', [])
+        shoppers = validated_data.pop('shoppers', [])
         research_methodology = validated_data.pop('research_methodology', None)
 
         instance.consultants.set(consultants)
+        instance.shoppers.set(shoppers)
 
         if research_methodology is not None:
             research_methodology_instance = instance.research_methodology
-            research_methodology['project_id'] = instance.id
-            research_methodology['tenant'] = research_methodology['tenant'].id
-
-            # Map list of instances to list of instance id's, so that when calling serializer.is_valid method, it won't
-            # throw the "expected id, got instance" error.
-            research_methodology['scripts'] = list(map(lambda x: x.id, research_methodology.get('scripts', [])))
-            research_methodology['questionnaires'] = list(
-                map(lambda x: x.id, research_methodology.get('questionnaires', [])))
-
-            # Append '_repr' suffix to places_to_assess and people_to_assess fields such that when calling
-            # ResearchMethodologySerializer's validation, it won't set these values to empty lists, because of not
-            # finding 'places_to_assess_repr' values in data dict
-            research_methodology['places_to_assess_repr'] = research_methodology['places_to_assess']
-            for place in research_methodology['places_to_assess_repr']:
-                place['place_type'] = place.get('place_type').id
-                try:
-                    del place['research_methodology']
-                except KeyError:
-                    pass
-
-            research_methodology['people_to_assess_repr'] = research_methodology['people_to_assess']
-            for person in research_methodology['people_to_assess_repr']:
-                person['person_type'] = person.get('person_type').id
-                try:
-                    del person['research_methodology']
-                except KeyError:
-                    pass
-
-            if research_methodology_instance is not None:
-                research_methodology_ser = ResearchMethodologySerializer(research_methodology_instance,
-                                                                         data=research_methodology)
-            else:
-                research_methodology_ser = ResearchMethodologySerializer(data=research_methodology)
-            research_methodology_ser.is_valid(raise_exception=True)
-            research_methodology_ser.save()
-            instance.research_methodology = research_methodology_ser.instance
+            instance.research_methodology = self._set_research_methodology(project=instance,
+                                                                           research_methodology_instance=research_methodology_instance,
+                                                                           data=research_methodology)
 
         update_attributes(validated_data, instance)
         instance.save()
 
         return instance
+
+
+class ProjectSerializerGET(ProjectSerializer):
+    """
+    Get serializer for Project
+    """
+    research_methodology = ResearchMethodologySerializerGET(required=False)
+    company = CompanyElementSerializer(read_only=True)
+    shoppers = UserSerializerGET(many=True, read_only=True)
+    project_manager = UserSerializerGET(read_only=True)
+    consultants = UserSerializerGET(read_only=True, many=True)
+    evaluation_assessment_levels = EvaluationAssessmentLevelSerializer(read_only=True, many=True)
+    cxi_indicators = serializers.DictField(source='get_indicators_list', read_only=True)
+    disabled_elements = serializers.ListField(source='get_company_elements_with_evaluations', read_only=True)
+    elements_not_in_project = serializers.ListField(source='get_company_elements_not_in_project', read_only=True)
+    is_questionnaire_editable = serializers.BooleanField(read_only=True)
+
+    class Meta:
+        model = Project
+        fields = '__all__'
 
 
 class ProjectShortSerializer(serializers.ModelSerializer):
@@ -293,18 +255,15 @@ class ProjectShortSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ('period_start', 'period_end')
+        fields = ('id', 'name')
 
 
 class EvaluationSerializer(serializers.ModelSerializer):
     """
+    Default Evaluation serializer that can update questionnaire answers and such.
     """
-    shopper_repr = ShopperSerializer(source='shopper', read_only=True)
-    questionnaire_script_repr = QuestionnaireScriptSerializer(source='questionnaire_script', read_only=True)
-    questionnaire = QuestionnaireSerializer(required=False)
-    company_element_repr = CompanyElementSerializer(source='company_element', read_only=True)
-    project_repr = ProjectShortSerializer(source='project', read_only=True)
     detractor_info = DetractorRespondentForTenantSerializer(write_only=True, required=False)
+    questionnaire = QuestionnaireSerializer(required=False)
 
     class Meta:
         model = Evaluation
@@ -317,15 +276,8 @@ class EvaluationSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def setup_eager_loading(queryset):
-        queryset = queryset.select_related('shopper__user', 'entity__city', 'questionnaire',
-                                           'questionnaire_template', 'section')
-        queryset = queryset.prefetch_related('questionnaire__blocks__questions__question_choices',
-                                             'entity__employees__company',
-                                             'entity__managers__user',
-                                             'entity__sections__managers',
-                                             'entity__sections__employees',
-                                             'section__managers',
-                                             'section__employees__company')
+        queryset = queryset.select_related('questionnaire', 'questionnaire_template')
+        queryset = queryset.prefetch_related('questionnaire__blocks__questions__question_choices')
         return queryset
 
     def create(self, validated_data):
@@ -416,16 +368,6 @@ class EvaluationSerializer(serializers.ModelSerializer):
         questionnaire_to_create['blocks'] = self.build_blocks(questionnaire_to_create.pop('template_blocks'))
         return questionnaire_to_create
 
-    def _copy_questionnaire_from_request(self, questionnaire_from_request, questionnaire_template):
-        questionnaire = questionnaire_from_request
-        questionnaire['template'] = questionnaire_template.id
-        for block in questionnaire['blocks']:
-            block['template_block'] = block['template_block'].id
-            for question in block['questions']:
-                self._check_if_indicator_question_has_null_score(question)
-                question['template_question'] = question['template_question'].id
-        return questionnaire
-
     def build_blocks(self, blocks):
         for block in blocks:
             block['template_block'] = block.get('id')
@@ -448,6 +390,21 @@ class EvaluationSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError('Indicator Question isn\'t allowed to have null score')
 
 
+
+class EvaluationSerializerGET(EvaluationSerializer):
+    """
+    GET Evaluation serializer that uses nested serializers.
+    """
+    shopper = UserSerializerGET(read_only=True)
+    questionnaire_script = QuestionnaireScriptSerializer(read_only=True)
+    company_element = CompanyElementSerializer(read_only=True)
+    project = ProjectShortSerializer(read_only=True)
+
+    class Meta:
+        model = Evaluation
+        fields = '__all__'
+
+
 class ProjectStatisticsForCompanySerializer(serializers.ModelSerializer):
     """
         Serializer for company view that will contain only time,
@@ -457,7 +414,6 @@ class ProjectStatisticsForCompanySerializer(serializers.ModelSerializer):
     class Meta:
         model = Evaluation
         fields = ('id', 'time_accomplished', 'company_element')
-
 
 class ProjectStatisticsForCompanySerializerGET(ProjectStatisticsForCompanySerializer):
     """
@@ -474,12 +430,11 @@ class ProjectStatisticsForTenantSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Evaluation
-        fields = ('id', 'time_accomplished', 'section', 'company_element', 'shopper')
-
+        fields = ('id', 'time_accomplished', 'company_element', 'shopper')
 
 class ProjectStatisticsForTenantSerializerGET(ProjectStatisticsForTenantSerializer):
     """
         Serializer class for tenant view for GET requests
     """
     company_element = CompanyElementSerializer(read_only=True)
-    shopper = ShopperSerializer(read_only=True)
+    shopper = UserSerializerGET(read_only=True)

@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from django.db.models import F
 from rest_framework import viewsets
 from rest_condition import Or
 from rest_framework.decorators import detail_route, list_route
@@ -63,6 +64,14 @@ class CompanyElementViewSet(viewsets.ModelViewSet):
     queryset = serializer_class.setup_eager_loading(queryset)
     filter_backends = (TenantFilter,)
 
+    def create(self, request, *args, **kwargs):
+        request.data['tenant'] = request.user.tenant.id
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(CompanyElement.tree.root_nodes())
         serializer = self.get_serializer(queryset, many=True)
@@ -85,21 +94,74 @@ class CompanyElementViewSet(viewsets.ModelViewSet):
         """
         element = get_object_or_404(CompanyElement, pk=pk)
         children = element.children.all()
-        self.create_new_company_element(element)
+        # sum 2 to the number of siblings because get_siblings() does not retrieve the element itself
+        order_of_clone = element.get_siblings().count() + 2
+        self.create_new_company_element(element, order_of_clone)
         self.clone_children(children)
         return Response(status=status.HTTP_201_CREATED)
+
+    @detail_route(methods=['put'], url_path='change-order')
+    def change_order(self, request, pk=None):
+        """
+        Detail view for changing the order of the element.
+        :param request: Request that contains the new order of the element and the parent of the element
+        :param pk: id of the element
+        :return: status code 200
+        """
+        element = get_object_or_404(CompanyElement, pk=pk)
+        new_order = request.data.get('order', element.order)
+        new_parent = request.data.get('parent', element.parent)
+        if element.parent_id == new_parent:
+            self.change_order_of_siblings(element, new_order)
+        else:
+            self.change_order_if_parent_has_changed(element, new_order, new_parent)
+        element.update_order(new_order)
+        return Response(status=status.HTTP_200_OK)
+
+    def change_order_if_parent_has_changed(self, element, new_order, new_parent):
+        parent = get_object_or_404(CompanyElement, pk=new_parent)
+        self.update_order_of_siblings_if_sibling_is_removed(element)
+        element.update_parent(parent)
+        self.change_order_of_siblings(element, new_order)
+
+    def change_order_of_siblings(self, element, new_order):
+        if element.order < new_order:
+            self.update_order_if_new_order_greater_that_old_order(element, new_order)
+        if element.order > new_order:
+            self.update_order_if_new_order_less_that_old_order(element, new_order)
+
+    def update_order_of_siblings_if_sibling_is_removed(self, element):
+        siblings = element.get_siblings().filter(order__gt=element.order)
+        self.decrease_order_by_one(siblings)
+
+    def update_order_if_new_order_greater_that_old_order(self, element, new_order):
+        siblings = element.get_siblings().filter(order__gt=element.order, order__lte=new_order)
+        self.decrease_order_by_one(siblings)
+
+    def update_order_if_new_order_less_that_old_order(self, element, new_order):
+        siblings = element.get_siblings().filter(order__lt=element.order, order__gte=new_order)
+        self.increase_order_by_one(siblings)
+
+    @staticmethod
+    def decrease_order_by_one(elements):
+        CompanyElement.objects.filter(id__in=elements).update(order=F('order') - 1)
+
+    @staticmethod
+    def increase_order_by_one(elements):
+        CompanyElement.objects.filter(id__in=elements).update(order=F('order') + 1)
 
     def clone_children(self, children):
         for child in children:
             new_children = child.children.all()
-            self.create_new_company_element(child)
+            self.create_new_company_element(child, child.order)
             if new_children.exists():
                 self.clone_children(new_children)
 
     @staticmethod
-    def create_new_company_element(element):
+    def create_new_company_element(element, order):
         element.id = None
         element.element_name = '{} {}'.format(element.element_name, '(copy)')
+        element.order = order
         element.save()
 
 
@@ -130,7 +192,6 @@ class IndustryCsvUploadView(APIView):
             return Response({
                 'details': 'File type is not .csv'
             }, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 # ToDo: remove this

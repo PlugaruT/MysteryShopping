@@ -59,6 +59,10 @@ def add_permissions_to_client_employees():
     pass
 
 
+def add_permissions_to_shoppers():
+    pass
+
+
 def migrate_all(*args):
     add_permissions_to_tenant_product_managers()
     add_permissions_to_tenant_project_managers()
