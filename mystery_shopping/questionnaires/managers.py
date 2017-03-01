@@ -64,3 +64,6 @@ class QuestionnaireTemplateQuestionQuerySet(QuerySet):
 class CustomWeightQuerySet(QuerySet):
     def get_custom_weights_for_questionnaire(self, questionnaire_pk, name):
         return self.filter(question__questionnaire_template=questionnaire_pk, name=name)
+
+    def extract_indicator_weights(self, questionnaire_pk):
+        return self.filter(question__questionnaire_template=questionnaire_pk).values('name', 'question__additional_info', 'weight')
