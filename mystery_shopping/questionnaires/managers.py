@@ -60,10 +60,18 @@ class QuestionnaireTemplateQuestionQuerySet(QuerySet):
         except:
             return None
 
+    def use_new_algorithm(self, project, indicator_type):
+        try:
+            return self.get(questionnaire_template__research_methodologies__projects=project,
+                            additional_info=indicator_type).new_algorithm
+        except:
+            return True
 
 class CustomWeightQuerySet(QuerySet):
     def get_custom_weights_for_questionnaire(self, questionnaire_pk, name):
         return self.filter(question__questionnaire_template=questionnaire_pk, name=name)
 
     def extract_indicator_weights(self, questionnaire_pk):
-        return self.filter(question__questionnaire_template=questionnaire_pk).values('name', 'question__additional_info', 'weight')
+        return self.filter(question__questionnaire_template=questionnaire_pk).values('name',
+                                                                                     'question__additional_info',
+                                                                                     'weight')

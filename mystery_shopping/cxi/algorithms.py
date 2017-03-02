@@ -5,7 +5,8 @@ from django.db.models.query import Prefetch
 
 from mystery_shopping.companies.models import CompanyElement
 from mystery_shopping.questionnaires.constants import QuestionType
-from mystery_shopping.questionnaires.models import Questionnaire, QuestionnaireQuestion, CustomWeight
+from mystery_shopping.questionnaires.models import Questionnaire, QuestionnaireQuestion, CustomWeight, \
+    QuestionnaireTemplateQuestion
 from mystery_shopping.cxi.models import CodedCause, WhyCause
 from mystery_shopping.cxi.models import ProjectComment
 from mystery_shopping.cxi.serializers import CodedCauseSerializer
@@ -30,13 +31,16 @@ def get_indicator_scores(questionnaire_list, indicator_type):
     return indicator_marks
 
 
-def calculate_indicator_score(indicator_marks):
+def mean(list):
     """
-    Calculates the detractors, promoters and passives scores for a given list of indicator scores
+    calculate the mean of a list
+    :param list: list of elements (numbers) to calculate the mean for
+    :return: the arithmetic average
+    """
+    return float(sum(list)) / max(len(list), 1)
 
-    :param indicator_marks: list of the indicator's scores
-    :return: a dict with the 'indicator', 'promoters', 'detractors' and 'passives' keys, and scores respectively
-    """
+
+def calculate_indicator_score_old_formula(indicator_marks):
     score = dict()
     if not indicator_marks:
         score['indicator'] = None
@@ -73,7 +77,45 @@ def calculate_indicator_score(indicator_marks):
     score['promoters'] = round(promoters_percentage, 2)
     score['passives'] = round(passives_percentage, 2)
     score['detractors'] = round(detractors_percentage, 2)
+
     return score
+
+
+def use_mean_formula(marks, divide_by):
+    average = mean(marks)
+    result = (average - 1) / divide_by
+    return round(result * 100, 2)
+
+
+def calculate_indicator_score_improved_formula(indicator_marks, divide_by):
+    """
+
+    :param indicator_marks: list of the indicator's scores
+    :param divide_by: number used in the formula for arithmetic average
+    :return:
+    """
+    score = {}
+
+    divide_by = divide_by if divide_by is not 0 else 1
+    if indicator_marks:
+        score['indicator'] = use_mean_formula(indicator_marks, divide_by)
+    else:
+        score['indicator'] = 'NO_DATA'
+
+    return score
+
+
+def calculate_indicator_score(indicator_marks, new_alg=False, divide_by=10):
+    """
+    Calculates the detractors, promoters and passives scores for a given list of indicator scores
+
+    :param indicator_marks: list of the indicator's scores
+    :return: a dict with the 'indicator', 'promoters', 'detractors' and 'passives' keys, and scores respectively
+    """
+    if new_alg:
+        return calculate_indicator_score_improved_formula(indicator_marks, divide_by)
+    else:
+        return calculate_indicator_score_old_formula(indicator_marks)
 
 
 def sort_indicator_question_marks(indicator_dict, indicator_question, question):
@@ -141,7 +183,7 @@ def create_details_skeleton(questionnaire_template):
     return indicator_skeleton
 
 
-def sort_indicator_categories(details, indicator_categories):
+def sort_indicator_categories(details, indicator_categories, new_algorithm):
     for item_label, responses in indicator_categories.items():
         detail_item = dict()
         detail_item['results'] = list()
@@ -149,7 +191,7 @@ def sort_indicator_categories(details, indicator_categories):
             answer_choice_result = dict()
             answer_choice_result['choice'] = answer_choice
             answer_choice_result['order'] = responses[answer_choice]['order']
-            answer_choice_result['score'] = calculate_indicator_score(responses[answer_choice]['marks'])
+            answer_choice_result['score'] = calculate_indicator_score(responses[answer_choice]['marks'], new_algorithm)
             answer_choice_result['number_of_respondents'] = len(responses[answer_choice]['marks'])
             answer_choice_result['other_answer_choices'] = responses[answer_choice]['other_choices']
             detail_item['results'].append(answer_choice_result)
@@ -177,7 +219,7 @@ def sort_indicators_per_pos(details, indicators):
     return details
 
 
-def get_indicator_details(questionnaire_list, indicator_type):
+def get_indicator_details(questionnaire_list, indicator_type, new_algorithm):
     """
     Collect detailed data about inticator_type
 
@@ -189,7 +231,7 @@ def get_indicator_details(questionnaire_list, indicator_type):
     indicator_skeleton = create_details_skeleton(questionnaire_list.first().template)
     indicator_categories, coded_causes_dict = group_questions_by_answer(questionnaire_list, indicator_type,
                                                                         indicator_skeleton)
-    sort_indicator_categories(details, indicator_categories)
+    sort_indicator_categories(details, indicator_categories, new_algorithm)
 
     indicators_per_pos = group_questions_by_pos(questionnaire_list, indicator_type)
     sort_indicators_per_pos(details, indicators_per_pos)
@@ -387,6 +429,7 @@ class CollectDataForIndicatorDashboard:
         self.company_element_id = company_element_id
         self.company_element = CompanyElement.objects.filter(pk=self.company_element_id).first()
         self.indicator_type = indicator_type
+        self.new_algorithm = QuestionnaireTemplateQuestion.objects.use_new_algorithm(project, indicator_type)
         self.questionnaire_list = self._get_questionnaire_list()
 
     def build_response(self):
@@ -420,7 +463,7 @@ class CollectDataForIndicatorDashboard:
 
     def _get_gauge(self):
         indicator_list = get_indicator_scores(self.questionnaire_list, self.indicator_type)
-        gauge = calculate_indicator_score(indicator_list)
+        gauge = calculate_indicator_score(indicator_list, self.new_algorithm)
         if self.company_element:
             gauge['general_indicator'] = self._get_general_indicator()
         return gauge
@@ -428,13 +471,13 @@ class CollectDataForIndicatorDashboard:
     def _get_general_indicator(self):
         all_project_questionnaires = self._get_all_project_questionnaires()
         indicator_list = get_indicator_scores(all_project_questionnaires, self.indicator_type)
-        return calculate_indicator_score(indicator_list)['indicator']
+        return calculate_indicator_score(indicator_list, self.new_algorithm)['indicator']
 
     def _get_project_comment(self):
         return get_indicator_project_comment(self.project, self.company_element_id, self.indicator_type)
 
     def _get_indicator_details(self):
-        return get_indicator_details(self.questionnaire_list, self.indicator_type)
+        return get_indicator_details(self.questionnaire_list, self.indicator_type, self.new_algorithm)
 
     def _get_questionnaire_list(self):
         coded_causes = Prefetch('coded_causes',
