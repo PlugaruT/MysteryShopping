@@ -273,7 +273,7 @@ class CustomWeight(models.Model):
 
     # Attributes
     name = models.CharField(max_length=200)
-    weight = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    weight = models.IntegerField(default=0)
 
     objects = models.Manager.from_queryset(CustomWeightQuerySet)()
 

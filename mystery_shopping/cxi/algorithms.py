@@ -40,6 +40,12 @@ def mean(list):
     return float(sum(list)) / max(len(list), 1)
 
 
+def use_mean_formula(marks, divide_by):
+    average = mean(marks)
+    result = (average - 1) / divide_by
+    return round(result * 100, 2)
+
+
 def calculate_indicator_score_old_formula(indicator_marks):
     score = dict()
     if not indicator_marks:
@@ -81,12 +87,6 @@ def calculate_indicator_score_old_formula(indicator_marks):
     return score
 
 
-def use_mean_formula(marks, divide_by):
-    average = mean(marks)
-    result = (average - 1) / divide_by
-    return round(result * 100, 2)
-
-
 def calculate_indicator_score_improved_formula(indicator_marks, divide_by):
     """
 
@@ -100,7 +100,7 @@ def calculate_indicator_score_improved_formula(indicator_marks, divide_by):
     if indicator_marks:
         score['indicator'] = use_mean_formula(indicator_marks, divide_by)
     else:
-        score['indicator'] = 'NO_DATA'
+        score['indicator'] = None
 
     return score
 
