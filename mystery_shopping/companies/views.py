@@ -111,7 +111,7 @@ class CompanyElementViewSet(viewsets.ModelViewSet):
         element = get_object_or_404(CompanyElement, pk=pk)
         new_order = request.data.get('order', element.order)
         new_parent = request.data.get('parent', element.parent)
-        if element.parent == new_parent:
+        if element.parent_id == new_parent:
             self.change_order_of_siblings(element, new_order)
         else:
             self.change_order_if_parent_has_changed(element, new_order, new_parent)

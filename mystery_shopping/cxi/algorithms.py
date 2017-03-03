@@ -292,7 +292,7 @@ def get_indicator_questions(questionnaire_list):
     indicator_order = list()
     for questionnaire in questionnaire_list:
         indicator_questions = [q for q in questionnaire.questions_list if q.type == QuestionType.INDICATOR_QUESTION]
-        for indicator_question in indicator_questions:
+        for indicator_question in sorted(indicator_questions, key=lambda question: question.order):
             indicator_types_set.add(indicator_question.additional_info)
             if indicator_question.additional_info not in indicator_order:
                 indicator_order.append(indicator_question.additional_info)
