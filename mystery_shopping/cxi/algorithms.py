@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 
 from django.db.models import Count
 from django.db.models.query import Prefetch
@@ -12,6 +12,8 @@ from mystery_shopping.cxi.models import ProjectComment
 from mystery_shopping.cxi.serializers import CodedCauseSerializer
 from mystery_shopping.cxi.serializers import ProjectCommentSerializer
 from mystery_shopping.questionnaires.utils import first_or_none
+
+IndicatorType = namedtuple('IndicatorType', ['type', 'new_algorithm'])
 
 
 def get_indicator_scores(questionnaire_list, indicator_type):
@@ -254,14 +256,23 @@ def get_indicator_project_comment(project, company_element_id, indicator_type):
     return None if project_comment is None else ProjectCommentSerializer(project_comment).data
 
 
-def calculate_cxi_scores(return_dict, questionnaire_template):
+def calculate_weighed_value(value, weight):
+    return value * weight / 100
+
+
+def calculate_cxi_scores(return_dict, old_algorithm_indicator_list, questionnaire_template):
     cxi_score = defaultdict(float)
     indicator_weights = CustomWeight.objects.extract_indicator_weights(questionnaire_template)
     for indicator_weight in indicator_weights:
         indicator = indicator_weight.get('question__additional_info')
         weight_name = indicator_weight.get('name')
+        old_algorithm_indicator = old_algorithm_indicator_list.get(indicator, [])
         weight = indicator_weight.get('weight')
-        cxi_score[weight_name] += return_dict[indicator]['indicator'] * float(weight) / 100
+        if old_algorithm_indicator:
+            indicator_value = calculate_indicator_score(old_algorithm_indicator, True).get('indicator')
+        else:
+            indicator_value = return_dict[indicator]['indicator']
+        cxi_score[weight_name] += calculate_weighed_value(indicator_value, weight)
 
     for weight in cxi_score:
         cxi_score[weight] = round(cxi_score[weight], 2)
@@ -270,20 +281,24 @@ def calculate_cxi_scores(return_dict, questionnaire_template):
 
 def get_indicator_types(indicator_set, questionnaire_list):
     return_dict = dict()
-    for indicator_type in indicator_set:
-        indicator_list = get_indicator_scores(questionnaire_list, indicator_type)
-        return_dict[indicator_type] = calculate_indicator_score(indicator_list)
+    old_algorithm_indicator_list = dict()
+    for indicator in indicator_set:
+        indicator_list = get_indicator_scores(questionnaire_list, indicator.type)
+        return_dict[indicator.type] = calculate_indicator_score(indicator_list, indicator.new_algorithm)
+        if not indicator.new_algorithm:
+            old_algorithm_indicator_list[indicator.type] = indicator_list
 
     questionnaire_template = questionnaire_list[0].template
-    return_dict['cxi'] = calculate_cxi_scores(return_dict, questionnaire_template)
+    return_dict['cxi'] = calculate_cxi_scores(return_dict, old_algorithm_indicator_list, questionnaire_template)
     return return_dict
 
 
 def get_only_indicator_score(indicator_set, questionnaire_list):
     return_dict = dict()
-    for indicator_type in indicator_set:
-        indicator_list = get_indicator_scores(questionnaire_list, indicator_type)
-        return_dict[indicator_type] = calculate_indicator_score(indicator_list).get('indicator')
+    for indicator in indicator_set:
+        indicator_list = get_indicator_scores(questionnaire_list, indicator.type)
+        return_dict[indicator.type] = calculate_indicator_score(indicator_list, indicator.new_algorithm).get(
+            'indicator')
     return return_dict
 
 
@@ -293,7 +308,8 @@ def get_indicator_questions(questionnaire_list):
     for questionnaire in questionnaire_list:
         indicator_questions = [q for q in questionnaire.questions_list if q.type == QuestionType.INDICATOR_QUESTION]
         for indicator_question in sorted(indicator_questions, key=lambda question: question.order):
-            indicator_types_set.add(indicator_question.additional_info)
+            indicator_types_set.add(
+                IndicatorType(indicator_question.additional_info, indicator_question.template_question.new_algorithm))
             if indicator_question.additional_info not in indicator_order:
                 indicator_order.append(indicator_question.additional_info)
     return indicator_types_set, indicator_order
@@ -491,6 +507,7 @@ class CollectDataForIndicatorDashboard:
         questions = Prefetch('questions',
                              queryset=QuestionnaireQuestion.objects.all()
                              .defer('comment')
+                             .select_related('template_question')
                              .prefetch_related(why_causes), to_attr='questions_list')
         return (Questionnaire.objects
                 .get_project_questionnaires_for_subdivision(project=self.project,
@@ -509,6 +526,7 @@ class CollectDataForIndicatorDashboard:
         questions = Prefetch('questions',
                              queryset=QuestionnaireQuestion.objects.all()
                              .defer('comment')
+                             .select_related('template_question')
                              .prefetch_related(why_causes), to_attr='questions_list')
 
         return (Questionnaire.objects
@@ -519,7 +537,8 @@ class CollectDataForIndicatorDashboard:
 
 def collect_data_for_overview_dashboard(project, company_element_id):
     questions = Prefetch('questions',
-                         queryset=QuestionnaireQuestion.objects.all(), to_attr='questions_list')
+                         queryset=QuestionnaireQuestion.objects.all()
+                         .select_related('template_question'), to_attr='questions_list')
     questionnaire_list = (Questionnaire.objects
                           .select_related('template', 'evaluation')
                           .prefetch_related(questions))
