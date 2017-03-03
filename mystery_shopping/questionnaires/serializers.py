@@ -37,7 +37,7 @@ class QuestionnaireTemplateQuestionChoiceSerializer(serializers.ModelSerializer)
     def update(self, instance, validated_data):
         if not instance.template_question.questionnaire_template.is_editable:
             raise serializers.ValidationError('You are not allowed to do this action')
-        update_attributes(validated_data, instance)
+        update_attributes(instance, validated_data)
         instance.save()
         return instance
 
@@ -111,7 +111,7 @@ class QuestionnaireQuestionSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         validated_data.pop('question_choices', [])
-        update_attributes(validated_data, instance)
+        update_attributes(instance, validated_data)
         instance.save()
         return instance
 
@@ -180,7 +180,7 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
         siblings_to_update = validated_data.pop('siblings', [])
 
         self.create_template_question_choices(template_question_choices, instance.id)
-        update_attributes(validated_data, instance)
+        update_attributes(instance, validated_data)
 
         instance.update_siblings(siblings_to_update, validated_data.get('template_block'))
 
@@ -233,7 +233,7 @@ class QuestionnaireBlockSerializer(serializers.ModelSerializer):
         return block
 
     def update(self, instance, validated_data):
-        update_attributes(validated_data, instance)
+        update_attributes(instance, validated_data)
         return instance
 
 
@@ -272,7 +272,7 @@ class QuestionnaireTemplateBlockSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('You are not allowed to do this action')
         siblings = validated_data.pop('siblings', [])
         self.update_block_siblings(siblings, validated_data)
-        update_attributes(validated_data, instance)
+        update_attributes(instance, validated_data)
         instance.save()
         return instance
 
@@ -293,7 +293,7 @@ class QuestionnaireTemplateBlockSerializer(serializers.ModelSerializer):
                                                 pk=block_id,
                                                 questionnaire_template=validated_data['questionnaire_template'])
             if block_to_update is not None:
-                update_attributes(sibling['block_changes'], block_to_update)
+                update_attributes(block_to_update, sibling['block_changes'])
                 block_to_update.save()
 
 
@@ -418,7 +418,7 @@ class CrossIndexTemplateSerializer(serializers.ModelSerializer):
         template_questions = validated_data.pop('cross_index_template_questions', [])
         instance.template_questions.clear()
         self.create_template_question(template_questions, instance)
-        update_attributes(validated_data, instance)
+        update_attributes(instance, validated_data)
         instance.save()
         return instance
 
@@ -491,7 +491,7 @@ class QuestionnaireTemplateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('You are not allowed to do this action')
 
         validated_data.pop('template_blocks', [])
-        update_attributes(validated_data, instance)
+        update_attributes(instance, validated_data)
         instance.save()
         return instance
 

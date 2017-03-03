@@ -342,6 +342,7 @@ class AlgorithmsTestCase(TestCase):
     # TODO: improve this test
     def test_sort_indicator_categories(self):
         initial_score_list = [Decimal('10.00'), Decimal('9.00'), Decimal('10.00'), Decimal('6.00'), Decimal('7.00')]
+        new_algorithm = False
 
         indicator_categories = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
         questions_dict = {'Age': ('10', '20', '30'), 'Gender': ('Male', 'Female')}
@@ -352,7 +353,7 @@ class AlgorithmsTestCase(TestCase):
 
         details = list()
 
-        sort_indicator_categories(details, indicator_categories)
+        sort_indicator_categories(details, indicator_categories, new_algorithm)
         for question in details:
             for result in question['results']:
                 self.assertEqual(result['number_of_respondents'], len(initial_score_list))

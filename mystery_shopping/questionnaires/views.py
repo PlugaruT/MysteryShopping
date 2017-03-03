@@ -10,6 +10,7 @@ from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from mystery_shopping.mystery_shopping_utils.views import GetSerializerClassMixin
 from mystery_shopping.questionnaires.models import QuestionnaireTemplateStatus, CustomWeight
 from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializerGET
+from mystery_shopping.questionnaires.utils import update_attributes
 from .models import QuestionnaireScript
 from .models import Questionnaire
 from .models import QuestionnaireTemplate
@@ -252,7 +253,8 @@ class QuestionnaireTemplateQuestionViewSet(viewsets.ModelViewSet):
         :return: status code ok
         """
         template_question = get_object_or_404(QuestionnaireTemplateQuestion, pk=pk)
-        template_question.allow_why_cause_collecting()
+        update_attributes(template_question, {'allow_why_causes': True})
+        template_question.save(update_fields=['allow_why_causes'])
         return Response(status=status.HTTP_200_OK)
 
     @detail_route(methods=['put'], url_path='deny-why-causes')
@@ -263,7 +265,8 @@ class QuestionnaireTemplateQuestionViewSet(viewsets.ModelViewSet):
         :return: status code ok
         """
         template_question = get_object_or_404(QuestionnaireTemplateQuestion, pk=pk)
-        template_question.deny_why_cause_collecting()
+        update_attributes(template_question, {'allow_why_causes': False})
+        template_question.save(update_fields=['allow_why_causes'])
         return Response(status=status.HTTP_200_OK)
 
     @detail_route(methods=['put'], url_path='allow-other-choices')
@@ -274,7 +277,8 @@ class QuestionnaireTemplateQuestionViewSet(viewsets.ModelViewSet):
         :return: status code ok
         """
         template_question = get_object_or_404(QuestionnaireTemplateQuestion, pk=pk)
-        template_question.allow_other_choice_collecting()
+        update_attributes(template_question, {'has_other_choice': True})
+        template_question.save(update_fields=['has_other_choice'])
         return Response(status=status.HTTP_200_OK)
 
     @detail_route(methods=['put'], url_path='deny-other-choices')
@@ -285,7 +289,32 @@ class QuestionnaireTemplateQuestionViewSet(viewsets.ModelViewSet):
         :return: status code ok
         """
         template_question = get_object_or_404(QuestionnaireTemplateQuestion, pk=pk)
-        template_question.deny_other_choice_collecting()
+        update_attributes(template_question, {'has_other_choice': False})
+        template_question.save(update_fields=['has_other_choice'])
+        return Response(status=status.HTTP_200_OK)
+
+    @detail_route(methods=['put'], url_path='set-new-algorithm')
+    def set_as_new_algorithm(self, request, pk=None):
+        """
+        Endpoint for setting the new_algorithm flag to True
+        :param pk: pk of the questions
+        :return: status code ok
+        """
+        template_question = get_object_or_404(QuestionnaireTemplateQuestion, pk=pk)
+        update_attributes(template_question, {'new_algorithm': True})
+        template_question.save(update_fields=['new_algorithm'])
+        return Response(status=status.HTTP_200_OK)
+
+    @detail_route(methods=['put'], url_path='unset-new-algorithm')
+    def unset_as_new_algorithm(self, request, pk=None):
+        """
+        Endpoint for setting the new_algorithm flag to False
+        :param pk: pk of the questions
+        :return: status code ok
+        """
+        template_question = get_object_or_404(QuestionnaireTemplateQuestion, pk=pk)
+        update_attributes(template_question, {'new_algorithm': False})
+        template_question.save(update_fields=['new_algorithm'])
         return Response(status=status.HTTP_200_OK)
 
 

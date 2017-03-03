@@ -266,12 +266,14 @@ def calculate_cxi_scores(return_dict, old_algorithm_indicator_list, questionnair
     for indicator_weight in indicator_weights:
         indicator = indicator_weight.get('question__additional_info')
         weight_name = indicator_weight.get('name')
-        old_algorithm_indicator = old_algorithm_indicator_list.get(indicator, [])
         weight = indicator_weight.get('weight')
+
+        old_algorithm_indicator = old_algorithm_indicator_list.get(indicator, [])
         if old_algorithm_indicator:
             indicator_value = calculate_indicator_score(old_algorithm_indicator, True).get('indicator')
         else:
             indicator_value = return_dict[indicator]['indicator']
+
         cxi_score[weight_name] += calculate_weighed_value(indicator_value, weight)
 
     for weight in cxi_score:

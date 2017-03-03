@@ -338,26 +338,14 @@ class QuestionnaireTemplateQuestion(QuestionAbstract):
             try:
                 question_to_update = QuestionnaireTemplateQuestion.objects.get(pk=question_id,
                                                                                template_block=template_block)
-                update_attributes(sibling['question_changes'], question_to_update)
+                update_attributes(question_to_update, sibling['question_changes'])
                 question_to_update.save()
             except QuestionnaireTemplateQuestion.DoesNotExist:
                 pass
 
-    def allow_why_cause_collecting(self):
-        self.allow_why_causes = True
-        self.save(update_fields=['allow_why_causes'])
-
-    def deny_why_cause_collecting(self):
-        self.allow_why_causes = False
-        self.save(update_fields=['allow_why_causes'])
-
-    def allow_other_choice_collecting(self):
-        self.has_other_choice = True
-        self.save(update_fields=['has_other_choice'])
-
-    def deny_other_choice_collecting(self):
-        self.has_other_choice = False
-        self.save(update_fields=['has_other_choice'])
+    def set_boolean_attribute(self, attribute, value):
+        setattr(self, attribute, value)
+        self.save(update_fields=[attribute])
 
     def create_custom_weight(self, name):
         CustomWeight.objects.create(question=self, name=name)

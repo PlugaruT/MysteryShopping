@@ -16,8 +16,8 @@ def check_interval_date(data):
     return start, end
 
 
-def update_attributes(validated_data, instance):
-    for attr, value in validated_data.items():
+def update_attributes(instance, data):
+    for attr, value in data.items():
         setattr(instance, attr, value)
 
 
