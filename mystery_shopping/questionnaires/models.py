@@ -343,10 +343,6 @@ class QuestionnaireTemplateQuestion(QuestionAbstract):
             except QuestionnaireTemplateQuestion.DoesNotExist:
                 pass
 
-    def set_boolean_attribute(self, attribute, value):
-        setattr(self, attribute, value)
-        self.save(update_fields=[attribute])
-
     def create_custom_weight(self, name):
         CustomWeight.objects.create(question=self, name=name)
 

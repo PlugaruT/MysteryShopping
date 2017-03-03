@@ -13,8 +13,6 @@ from mystery_shopping.cxi.serializers import CodedCauseSerializer
 from mystery_shopping.cxi.serializers import ProjectCommentSerializer
 from mystery_shopping.questionnaires.utils import first_or_none
 
-IndicatorType = namedtuple('IndicatorType', ['type', 'new_algorithm'])
-
 
 def get_indicator_scores(questionnaire_list, indicator_type):
     """
@@ -305,6 +303,8 @@ def get_only_indicator_score(indicator_set, questionnaire_list):
 
 
 def get_indicator_questions(questionnaire_list):
+    IndicatorType = namedtuple('IndicatorType', ['type', 'new_algorithm'])
+
     indicator_types_set = set()
     indicator_order = list()
     for questionnaire in questionnaire_list:
