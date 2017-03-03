@@ -319,14 +319,16 @@ class AlgorithmsTestCase(TestCase):
             indicator_question_1 = MagicMock()
             indicator_question_1.type = QuestionType.INDICATOR_QUESTION
             indicator_question_1.additional_info = first_indicator
+            indicator_question_1.order = 1
             indicator_question_1.score = initial_score_list[i]
 
             indicator_question_2 = MagicMock()
             indicator_question_2.type = QuestionType.INDICATOR_QUESTION
             indicator_question_2.additional_info = second_indicator
+            indicator_question_2.order = 2
             indicator_question_2.score = initial_score_list[i]
             # Assign questions to the questionnaire
-            questionnaire.get_indicator_questions.return_value.order_by.return_value = [indicator_question_1, indicator_question_2]
+            questionnaire.get_indicator_questions.return_value = [indicator_question_1, indicator_question_2]
             questionnaire.questions_list = [indicator_question_1, indicator_question_2]
 
             questionnaire_list.append(questionnaire)

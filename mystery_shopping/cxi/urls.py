@@ -2,7 +2,7 @@ from django.conf.urls import url
 
 from rest_framework.routers import DefaultRouter
 
-from mystery_shopping.cxi.views import FrustrationWhyCauseViewSet, AppreciationWhyCauseViewSet
+from mystery_shopping.cxi.views import FrustrationWhyCauseViewSet, AppreciationWhyCauseViewSet, BarChartGraph
 from .views import CxiIndicatorTimeLapse
 from .views import WhyCauseViewSet
 from .views import CodedCausePercentage
@@ -12,7 +12,6 @@ from .views import ProjectCommentViewSet
 from .views import OverviewDashboard
 from .views import IndicatorDashboard
 from .views import IndicatorDashboardList
-
 
 router = DefaultRouter()
 router.register(r'codedcauselabels', CodedCauseLabelViewSet)
@@ -26,6 +25,9 @@ urlpatterns = [
     url(r'^cxi/overview/$',
         OverviewDashboard.as_view(),
         name='overview-score'),
+    url(r'^cxi/bar-chart-data/$',
+        BarChartGraph.as_view(),
+        name='bar-chart-data'),
     url(r'^cxi/indicator/$',
         IndicatorDashboard.as_view(),
         name='indicator-score'),
