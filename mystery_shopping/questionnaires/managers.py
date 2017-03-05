@@ -67,6 +67,7 @@ class QuestionnaireTemplateQuestionQuerySet(QuerySet):
         except:
             return True
 
+
 class CustomWeightQuerySet(QuerySet):
     def get_custom_weights_for_questionnaire(self, questionnaire_pk, name):
         return self.filter(question__questionnaire_template=questionnaire_pk, name=name)
@@ -75,3 +76,7 @@ class CustomWeightQuerySet(QuerySet):
         return self.filter(question__questionnaire_template=questionnaire_pk).values('name',
                                                                                      'question__additional_info',
                                                                                      'weight')
+
+    def get_weights_names_for_questionnaire(self, questionnaire_pk):
+        return self.filter(question__questionnaire_template=questionnaire_pk).distinct('name').values_list('name',
+                                                                                                           flat=True)

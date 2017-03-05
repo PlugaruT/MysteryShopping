@@ -343,6 +343,10 @@ class QuestionnaireTemplateQuestion(QuestionAbstract):
             except QuestionnaireTemplateQuestion.DoesNotExist:
                 pass
 
+    def create_custom_weights(self, weights_name):
+        for weight_name in weights_name:
+            self.create_custom_weight(weight_name)
+
     def create_custom_weight(self, name):
         CustomWeight.objects.create(question=self, name=name)
 

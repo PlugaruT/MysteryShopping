@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from mystery_shopping.cxi.serializers import WhyCauseSerializer
+from mystery_shopping.questionnaires.constants import QuestionType
 from mystery_shopping.users.models import DetractorRespondent
 from mystery_shopping.users.serializers import ShopperSerializer, UserSerializerGET
 
@@ -70,6 +71,7 @@ class CustomWeightSerializer(serializers.ModelSerializer):
     """
     serializer for custom weight model
     """
+
     class Meta:
         model = CustomWeight
         fields = '__all__'
@@ -155,6 +157,7 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
     def pop_special_flags(self, data):
         data.pop('allow_why_causes', None)
         data.pop('has_other_choice', None)
+        data.pop('new_algorithm', None)
 
     def create(self, validated_data):
         if not validated_data['questionnaire_template'].is_editable:
@@ -165,8 +168,8 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
         siblings_to_update = validated_data.pop('siblings', [])
 
         template_question = QuestionnaireTemplateQuestion.objects.create(**validated_data)
-        self.create_template_question_choices(template_question_choices, template_question.id)
-
+        self._create_custom_weights(template_question)
+        self._create_template_question_choices(template_question_choices, template_question.id)
         template_question.update_siblings(siblings_to_update, template_question.template_block)
         return template_question
 
@@ -179,7 +182,7 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
         template_question_choices = validated_data.pop('template_question_choices', [])
         siblings_to_update = validated_data.pop('siblings', [])
 
-        self.create_template_question_choices(template_question_choices, instance.id)
+        self._create_template_question_choices(template_question_choices, instance.id)
         update_attributes(instance, validated_data)
 
         instance.update_siblings(siblings_to_update, validated_data.get('template_block'))
@@ -188,13 +191,20 @@ class QuestionnaireTemplateQuestionSerializer(serializers.ModelSerializer):
         return instance
 
     @staticmethod
-    def create_template_question_choices(template_question_choices, template_question_id):
+    def _create_template_question_choices(template_question_choices, template_question_id):
         for template_question_choice in template_question_choices:
             template_question_choice['template_question'] = template_question_id
             template_question_choice_ser = QuestionnaireTemplateQuestionChoiceSerializer(
                 data=template_question_choice)
             template_question_choice_ser.is_valid(raise_exception=True)
             template_question_choice_ser.save()
+
+    @staticmethod
+    def _create_custom_weights(template_question):
+        if template_question.type == QuestionType.INDICATOR_QUESTION:
+            custom_weights_name = CustomWeight.objects.get_weights_names_for_questionnaire(
+                template_question.questionnaire_template.pk)
+            template_question.create_custom_weights(custom_weights_name)
 
 
 class QuestionnaireBlockSerializer(serializers.ModelSerializer):
