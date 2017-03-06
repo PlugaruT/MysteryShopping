@@ -288,7 +288,11 @@ def get_indicator_types(indicator_set, questionnaire_list):
         if not indicator.new_algorithm:
             old_algorithm_indicator_list[indicator.type] = indicator_list
 
-    questionnaire_template = questionnaire_list[0].template
+    try:
+        questionnaire_template = questionnaire_list[0].template
+    except IndexError:
+        # if no questionnaires have been collected, just return the empty dict
+        return return_dict
     return_dict['cxi'] = calculate_cxi_scores(return_dict, old_algorithm_indicator_list, questionnaire_template)
     return return_dict
 
