@@ -105,14 +105,14 @@ def calculate_indicator_score_improved_formula(indicator_marks, divide_by):
     return score
 
 
-def calculate_indicator_score(indicator_marks, new_alg=False, divide_by=10):
+def calculate_indicator_score(indicator_marks, new_algorithm=False, divide_by=10):
     """
     Calculates the detractors, promoters and passives scores for a given list of indicator scores
 
     :param indicator_marks: list of the indicator's scores
     :return: a dict with the 'indicator', 'promoters', 'detractors' and 'passives' keys, and scores respectively
     """
-    if new_alg:
+    if new_algorithm:
         return calculate_indicator_score_improved_formula(indicator_marks, divide_by)
     else:
         return calculate_indicator_score_old_formula(indicator_marks)
@@ -191,7 +191,8 @@ def sort_indicator_categories(details, indicator_categories, new_algorithm):
             answer_choice_result = dict()
             answer_choice_result['choice'] = answer_choice
             answer_choice_result['order'] = responses[answer_choice]['order']
-            answer_choice_result['score'] = calculate_indicator_score(responses[answer_choice]['marks'], new_algorithm)
+            answer_choice_result['score'] = calculate_indicator_score(indicator_marks=responses[answer_choice]['marks'],
+                                                                      new_algorithm=new_algorithm)
             answer_choice_result['number_of_respondents'] = len(responses[answer_choice]['marks'])
             answer_choice_result['other_answer_choices'] = responses[answer_choice]['other_choices']
             detail_item['results'].append(answer_choice_result)
@@ -201,7 +202,7 @@ def sort_indicator_categories(details, indicator_categories, new_algorithm):
     return details
 
 
-def sort_indicators_per_pos(details, indicators):
+def sort_indicators_per_pos(details, indicators, new_algorithm):
     entity_key = 'entities'
     detail_item = defaultdict(list)
     detail_item['results'] = list()
@@ -210,7 +211,7 @@ def sort_indicators_per_pos(details, indicators):
         pos_detail = dict()
         pos_detail['choice'] = entity
         pos_detail['choice_id'] = indicators['ids'][entity]
-        pos_detail['score'] = calculate_indicator_score(marks)
+        pos_detail['score'] = calculate_indicator_score(indicator_marks=marks, new_algorithm=new_algorithm)
         pos_detail['number_of_respondents'] = len(marks)
         pos_detail['other_answer_choices'] = indicators['ids'][entity]
         detail_item['results'].append(pos_detail)
@@ -234,7 +235,7 @@ def get_indicator_details(questionnaire_list, indicator_type, new_algorithm):
     sort_indicator_categories(details, indicator_categories, new_algorithm)
 
     indicators_per_pos = group_questions_by_pos(questionnaire_list, indicator_type)
-    sort_indicators_per_pos(details, indicators_per_pos)
+    sort_indicators_per_pos(details, indicators_per_pos, new_algorithm)
 
     return_dict = dict()
     return_dict['details'] = details
