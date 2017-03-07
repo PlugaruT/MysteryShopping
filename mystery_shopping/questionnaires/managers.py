@@ -30,6 +30,13 @@ class QuestionnaireQuerySet(QuerySet):
             questionnaires = questionnaires.filter(evaluation__company_element=company_element)
         return questionnaires
 
+    def get_project_questionnaires_for_subdivision_and_its_children(self, project, company_element=None):
+        questionnaires = self.get_project_submitted_or_approved_questionnaires(project)
+        if company_element is not None:
+            company_and_descendants_ids = company_element.get_descendants(include_self=True).values_list('id', flat=True)
+            questionnaires = questionnaires.filter(evaluation__company_element__id__in=company_and_descendants_ids)
+        return questionnaires
+
     def get_questionnaires_for_company(self, company):
         return self.filter(evaluation__project__company=company)
 

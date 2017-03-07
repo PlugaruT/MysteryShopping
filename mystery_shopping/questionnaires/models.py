@@ -110,6 +110,9 @@ class QuestionnaireTemplate(TenantModel, TimeStampedModel, QuestionnaireAbstract
             for question_data in info:
                 self.update_question_custom_weight(weight_name, question_data.get('id'), question_data.get('weight'))
 
+    def delete_custom_weights(self, name):
+        CustomWeight.objects.get_custom_weights_for_questionnaire(self.pk, name).delete()
+
 
 class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
     """
