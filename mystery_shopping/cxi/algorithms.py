@@ -259,7 +259,7 @@ def calculate_weighed_value(value, weight):
     return value * weight / 100
 
 
-def calculate_cxi_scores(return_dict, old_algorithm_indicator_list, questionnaire_template):
+def calculate_cxi_scores(return_dict, old_algorithm_indicator_dict, questionnaire_template):
     cxi_score = defaultdict(float)
     indicator_weights = CustomWeight.objects.extract_indicator_weights(questionnaire_template)
     for indicator_weight in indicator_weights:
@@ -267,7 +267,7 @@ def calculate_cxi_scores(return_dict, old_algorithm_indicator_list, questionnair
         weight_name = indicator_weight.get('name')
         weight = indicator_weight.get('weight')
 
-        old_algorithm_indicator = old_algorithm_indicator_list.get(indicator, [])
+        old_algorithm_indicator = old_algorithm_indicator_dict.get(indicator, [])
         if old_algorithm_indicator:
             indicator_value = calculate_indicator_score(old_algorithm_indicator, True).get('indicator')
         else:
@@ -282,19 +282,25 @@ def calculate_cxi_scores(return_dict, old_algorithm_indicator_list, questionnair
 
 def get_indicator_types(indicator_set, questionnaire_list):
     return_dict = dict()
-    old_algorithm_indicator_list = dict()
+    indicators = dict()
+    old_algorithm_indicator_dict = dict()
+
     for indicator in indicator_set:
         indicator_list = get_indicator_scores(questionnaire_list, indicator.type)
-        return_dict[indicator.type] = calculate_indicator_score(indicator_list, indicator.new_algorithm)
+        indicators[indicator.type] = calculate_indicator_score(indicator_list, indicator.new_algorithm)
         if not indicator.new_algorithm:
-            old_algorithm_indicator_list[indicator.type] = indicator_list
+            old_algorithm_indicator_dict[indicator.type] = indicator_list
+
+    return_dict['indicators'] = indicators
 
     try:
         questionnaire_template = questionnaire_list[0].template
     except IndexError:
         # if no questionnaires have been collected, just return the empty dict
         return return_dict
-    return_dict['cxi'] = calculate_cxi_scores(return_dict, old_algorithm_indicator_list, questionnaire_template)
+    return_dict['cxi_indicators'] = calculate_cxi_scores(indicators,
+                                                         old_algorithm_indicator_dict,
+                                                         questionnaire_template)
     return return_dict
 
 
@@ -324,10 +330,9 @@ def get_indicator_questions(questionnaire_list):
 
 def calculate_overview_score(questionnaire_list, project, company_element_id):
     overview_list = dict()
-    overview_list['indicators'] = dict()
     overview_list['indicator_order'] = list()
     indicator_types_set, overview_list['indicator_order'] = get_indicator_questions(questionnaire_list)
-    overview_list['indicators'] = get_indicator_types(indicator_types_set, questionnaire_list)
+    overview_list['score'] = get_indicator_types(indicator_types_set, questionnaire_list)
     overview_list['project_comment'] = get_overview_project_comment(project, company_element_id)
     return overview_list
 
@@ -517,8 +522,8 @@ class CollectDataForIndicatorDashboard:
                              .select_related('template_question')
                              .prefetch_related(why_causes), to_attr='questions_list')
         return (Questionnaire.objects
-                .get_project_questionnaires_for_subdivision(project=self.project,
-                                                            company_element=self.company_element)
+                .get_project_questionnaires_for_subdivision_and_its_children(project=self.project,
+                                                                             company_element=self.company_element)
                 .select_related('template', 'evaluation', 'evaluation__company_element')
                 .prefetch_related(questions))
 
