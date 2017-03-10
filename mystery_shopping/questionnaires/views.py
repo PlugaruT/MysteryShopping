@@ -152,7 +152,7 @@ class QuestionnaireTemplateViewSet(GetSerializerClassMixin, viewsets.ModelViewSe
             template_questionnaire.update_custom_weights(data)
         return Response(status=status.HTTP_201_CREATED)
 
-    @detail_route(methods=['delete'], url_path='delete-weights')
+    @detail_route(methods=['post'], url_path='delete-weights')
     def delete_custom_weights(self, request, pk=None):
         template_questionnaire = get_object_or_404(QuestionnaireTemplate, pk=pk)
         weight_name = request.data.get('name')
