@@ -43,7 +43,7 @@ def mean(list):
 def use_mean_formula(marks, divide_by):
     average = mean(marks)
     result = (average - 1) / divide_by
-    return round(result * 100, 2)
+    return round(result * 100, 0)
 
 
 def calculate_indicator_score_old_formula(indicator_marks):
@@ -79,10 +79,10 @@ def calculate_indicator_score_old_formula(indicator_marks):
 
     indicator_score = promoters_percentage - detractors_percentage
 
-    score['indicator'] = round(indicator_score, 2)
-    score['promoters'] = round(promoters_percentage, 2)
-    score['passives'] = round(passives_percentage, 2)
-    score['detractors'] = round(detractors_percentage, 2)
+    score['indicator'] = round(indicator_score, 0)
+    score['promoters'] = round(promoters_percentage, 0)
+    score['passives'] = round(passives_percentage, 0)
+    score['detractors'] = round(detractors_percentage, 0)
 
     return score
 
@@ -277,7 +277,7 @@ def calculate_cxi_scores(return_dict, old_algorithm_indicator_dict, questionnair
         cxi_score[weight_name] += calculate_weighed_value(indicator_value, weight)
 
     for weight in cxi_score:
-        cxi_score[weight] = round(cxi_score[weight], 2)
+        cxi_score[weight] = round(cxi_score[weight], 0)
     return cxi_score
 
 
