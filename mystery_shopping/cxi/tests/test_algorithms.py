@@ -27,7 +27,7 @@ from mystery_shopping.factories.cxi import CodedCauseFactory, CodedCauseLabelFac
 
 
 class AlgorithmsTestCase(TestCase):
-    def test_calculate_indicator_score_with_values(self):
+    def test_calculate_indicator_score_with_values_old_algorithm(self):
         indicator_marks = [10, 9, 7, 6, 10, 9, 9, 8, 7, 7, 7, 10, 8, 3]
 
         calculated_score = calculate_indicator_score(indicator_marks)
@@ -37,7 +37,7 @@ class AlgorithmsTestCase(TestCase):
         self.assertEqual(calculated_score['passives'], Decimal(42.86))
         self.assertEqual(calculated_score['indicator'], Decimal(28.57))
 
-    def test_calculate_indicator_score_without_values(self):
+    def test_calculate_indicator_score_without_values_old_algorithm(self):
         indicator_marks = list()
 
         calculated_score = calculate_indicator_score(indicator_marks)
@@ -50,15 +50,16 @@ class AlgorithmsTestCase(TestCase):
     def test_get_indicator_scores_with_some_return_elements(self):
         initial_score_list = [Decimal('8.00'), Decimal('6.00'), Decimal('10.00'), Decimal('6.00'), Decimal('5.00')]
         questionnaire_list = list()
-        indicator_type = 'NPS'
+        indicator_type_1 = 'NPS'
+        indicator_type_2 = 'Enjoyability'
 
         # Create the mocks for the questionnaires
-        for i in range(len(initial_score_list) - 1):
+        for index in range(len(initial_score_list) - 1):
             questionnaire = MagicMock()
             mock_question = MagicMock()
             mock_question.type = QuestionType.INDICATOR_QUESTION
-            mock_question.additional_info = indicator_type
-            mock_question.score = initial_score_list[i]
+            mock_question.additional_info = indicator_type_1
+            mock_question.score = initial_score_list[index]
             # Assign questions to the questionnaire
             questionnaire.questions_list = [mock_question,]
             questionnaire_list.append(questionnaire)
@@ -67,29 +68,32 @@ class AlgorithmsTestCase(TestCase):
         questionnaire_list.append(MagicMock())
         mock_question = MagicMock()
         mock_question.type = QuestionType.INDICATOR_QUESTION
-        mock_question.additional_info = 'Enjoyability'
+        mock_question.additional_info = indicator_type_2
         mock_question.score = initial_score_list[-1]
         questionnaire_list[-1].questions.all.return_value = [mock_question,]
 
-        return_score_list = get_indicator_scores(questionnaire_list, indicator_type)
+        return_score_list = get_indicator_scores(questionnaire_list, indicator_type_1)
 
         self.assertEqual(initial_score_list[:-1], return_score_list)
 
-    def test_get_indicator_scores_with_some_no_elements(self):
+    def test_get_indicator_scores_with_no_elements(self):
         initial_score_list = [Decimal('8.00'), Decimal('6.00'), Decimal('10.00'), Decimal('6.00'), Decimal('5.00')]
         questionnaire_list = list()
-        indicator = 'n'
+        indicator_type_1 = 'NPS'
+        indicator_type_2 = 'Enjoyability'
 
         # Create the mocks for the questionnaires
-        for i in range(len(initial_score_list)):
-            questionnaire_list.append(MagicMock())
+        for index in range(len(initial_score_list) - 1):
+            questionnaire = MagicMock()
             mock_question = MagicMock()
-            mock_question.type = 'j'
-            mock_question.score = initial_score_list[i]
+            mock_question.type = QuestionType.INDICATOR_QUESTION
+            mock_question.additional_info = indicator_type_1
+            mock_question.score = initial_score_list[index]
             # Assign questions to the questionnaire
-            questionnaire_list[i].questions.all.return_value = [mock_question,]
+            questionnaire.questions_list = [mock_question,]
+            questionnaire_list.append(questionnaire)
 
-        return_score_list = get_indicator_scores(questionnaire_list, indicator)
+        return_score_list = get_indicator_scores(questionnaire_list, indicator_type_2)
 
         self.assertEqual(list(), return_score_list)
 
@@ -353,7 +357,8 @@ class AlgorithmsTestCase(TestCase):
                 self.assertEqual(result['score']['indicator'], 40.0)
 
     # TODO: improve this test
-    def test_sort_indicators_per_pos(self):
+    def test_sort_indicators_per_pos_old_algorithm(self):
+        new_algorithm = False
         initial_score_list = [Decimal('10.00'), Decimal('9.00'), Decimal('10.00'), Decimal('6.00'), Decimal('7.00')]
 
         indicator_pos_details = defaultdict(lambda: defaultdict(list))
@@ -363,7 +368,7 @@ class AlgorithmsTestCase(TestCase):
             indicator_pos_details['entities'][pos] = initial_score_list
 
         details = list()
-        sort_indicators_per_pos(details, indicator_pos_details)
+        sort_indicators_per_pos(details, indicator_pos_details, new_algorithm)
         for pos in details:
             for result in pos['results']:
                 self.assertEqual(result['number_of_respondents'], len(initial_score_list))

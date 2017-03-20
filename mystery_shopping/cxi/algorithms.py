@@ -1,6 +1,6 @@
 from collections import defaultdict, namedtuple
 
-from django.db.models import Count
+from django.db.models import Count, Min
 from django.db.models.query import Prefetch
 
 from mystery_shopping.companies.models import CompanyElement
@@ -220,7 +220,7 @@ def sort_indicators_per_pos(details, indicators, new_algorithm):
     return details
 
 
-def get_indicator_details(questionnaire_list, indicator_type, new_algorithm):
+def get_indicator_details(questionnaire_list, children_questionnaire_list, indicator_type, new_algorithm):
     """
     Collect detailed data about inticator_type
 
@@ -234,8 +234,9 @@ def get_indicator_details(questionnaire_list, indicator_type, new_algorithm):
                                                                         indicator_skeleton)
     sort_indicator_categories(details, indicator_categories, new_algorithm)
 
-    indicators_per_pos = group_questions_by_pos(questionnaire_list, indicator_type)
-    sort_indicators_per_pos(details, indicators_per_pos, new_algorithm)
+    if children_questionnaire_list.exists():
+        indicators_per_pos = group_questions_by_pos(children_questionnaire_list, indicator_type)
+        sort_indicators_per_pos(details, indicators_per_pos, new_algorithm)
 
     return_dict = dict()
     return_dict['details'] = details
@@ -452,13 +453,15 @@ def sort_question_by_coded_cause(coded_causes_dict):
 
 
 class CollectDataForIndicatorDashboard:
-    def __init__(self, project, company_element_id, indicator_type):
+    def __init__(self, project, company_element_id, indicator_type, company_element_permissions):
         self.project = project
         self.company_element_id = company_element_id
         self.company_element = CompanyElement.objects.filter(pk=self.company_element_id).first()
         self.indicator_type = indicator_type
         self.new_algorithm = QuestionnaireTemplateQuestion.objects.use_new_algorithm(project, indicator_type)
         self.questionnaire_list = self._get_questionnaire_list()
+        self.company_element_permissions = company_element_permissions
+        self.children_questionnaire_list = self._get_children_questionnaire_list()
 
     def build_response(self):
         if self._questionnaires_has_indicator_question():
@@ -505,9 +508,10 @@ class CollectDataForIndicatorDashboard:
         return get_indicator_project_comment(self.project, self.company_element_id, self.indicator_type)
 
     def _get_indicator_details(self):
-        return get_indicator_details(self.questionnaire_list, self.indicator_type, self.new_algorithm)
+        return get_indicator_details(self.questionnaire_list, self.children_questionnaire_list,
+                                     self.indicator_type, self.new_algorithm)
 
-    def _get_questionnaire_list(self):
+    def _prefetch_questions(self):
         coded_causes = Prefetch('coded_causes',
                                 queryset=CodedCause.objects.all()
                                 .only('coded_label__name', 'sentiment')
@@ -516,31 +520,42 @@ class CollectDataForIndicatorDashboard:
                               queryset=WhyCause.objects.all()
                               .defer('answer')
                               .prefetch_related(coded_causes), to_attr='why_causes_list')
-        questions = Prefetch('questions',
-                             queryset=QuestionnaireQuestion.objects.all()
-                             .defer('comment')
-                             .select_related('template_question')
-                             .prefetch_related(why_causes), to_attr='questions_list')
+        return Prefetch('questions',
+                        queryset=QuestionnaireQuestion.objects.all()
+                        .defer('comment')
+                        .select_related('template_question')
+                        .prefetch_related(why_causes), to_attr='questions_list')
+
+    def _get_questionnaire_list(self):
+        questions = self._prefetch_questions()
         return (Questionnaire.objects
-                .get_project_questionnaires_for_subdivision_and_its_children(project=self.project,
-                                                                             company_element=self.company_element)
+                .get_project_questionnaires_for_subdivision(project=self.project,
+                                                            company_element=self.company_element)
                 .select_related('template', 'evaluation', 'evaluation__company_element')
                 .prefetch_related(questions))
 
-    def _get_all_project_questionnaires(self):
-        coded_causes = Prefetch('coded_causes',
-                                queryset=CodedCause.objects.all()
-                                .only('coded_label__name', 'sentiment')
-                                .select_related('coded_label'), to_attr='coded_causes_list')
-        why_causes = Prefetch('why_causes',
-                              queryset=WhyCause.objects.all()
-                              .prefetch_related(coded_causes), to_attr='why_causes_list')
-        questions = Prefetch('questions',
-                             queryset=QuestionnaireQuestion.objects.all()
-                             .defer('comment')
-                             .select_related('template_question')
-                             .prefetch_related(why_causes), to_attr='questions_list')
+    def _get_children_questionnaire_list(self):
+        if self.company_element:
+            questions = self._prefetch_questions()
+            return (Questionnaire.objects
+                    .get_project_questionnaires_for_subdivision_children(project=self.project,
+                                                                         company_element=self.company_element)
+                    .filter(evaluation__company_element_id__in=self.company_element_permissions)
+                    .select_related('template', 'evaluation', 'evaluation__company_element')
+                    .prefetch_related(questions))
+        else:
+            return self._filter_questionnaires_for_top_level_company_elements().filter(
+                evaluation__company_element_id__in=self.company_element_permissions)
 
+    def _get_top_level_of_company_elements(self):
+        return self.questionnaire_list.aggregate(top_level=Min('evaluation__company_element__level')).get('top_level')
+
+    def _filter_questionnaires_for_top_level_company_elements(self):
+        top_level = self._get_top_level_of_company_elements()
+        return self.questionnaire_list.filter(evaluation__company_element__level=top_level)
+
+    def _get_all_project_questionnaires(self):
+        questions = self._prefetch_questions()
         return (Questionnaire.objects
                 .get_project_submitted_or_approved_questionnaires(self.project)
                 .select_related('template', 'evaluation', 'evaluation__company_element')

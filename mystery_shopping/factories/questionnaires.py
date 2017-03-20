@@ -2,7 +2,7 @@ from factory.django import DjangoModelFactory
 from factory import fuzzy
 
 from mystery_shopping.questionnaires.constants import QuestionType
-from mystery_shopping.questionnaires.models import Questionnaire
+from mystery_shopping.questionnaires.models import Questionnaire, CustomWeight
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from mystery_shopping.questionnaires.models import QuestionnaireBlock
 from mystery_shopping.questionnaires.models import QuestionnaireQuestionChoice
@@ -131,3 +131,11 @@ class ChoiceFactory(DjangoModelFactory):
 
     question = SubFactory(QuestionFactory)
     order = fuzzy.FuzzyInteger(low=1, high=42)
+
+
+class CustomWeightFactory(DjangoModelFactory):
+    class Meta:
+        model = CustomWeight
+
+    question = SubFactory(QuestionFactory)
+    name = fuzzy.FuzzyText(prefix='weight-', length=15)

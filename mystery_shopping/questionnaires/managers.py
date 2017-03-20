@@ -30,12 +30,39 @@ class QuestionnaireQuerySet(QuerySet):
             questionnaires = questionnaires.filter(evaluation__company_element=company_element)
         return questionnaires
 
-    def get_project_questionnaires_for_subdivision_and_its_children(self, project, company_element=None):
+    def get_project_questionnaires_for_subdivision_children(self, project, company_element=None):
+        """
+        filter the questionnaires for the company element and its immediate children if company element is provided, else
+        filter all completed questionnaires for the given project
+
+        :param project: project to get questionnaire for
+        :param company_element: project to get questionnaire for
+        :return: questionnaire queryset
+        """
         questionnaires = self.get_project_submitted_or_approved_questionnaires(project)
         if company_element is not None:
-            company_and_descendants_ids = company_element.get_descendants(include_self=True).values_list('id', flat=True)
+            children_ids = company_element.get_children().values_list('id', flat=True)
+            # company_and_children_ids = list(children_ids) + [company_element.id]
+            questionnaires = questionnaires.filter(evaluation__company_element__id__in=children_ids)
+        return questionnaires
+
+    def get_project_questionnaires_for_subdivision_and_its_descendants(self, project, company_element=None):
+        """
+        filter the questionnaires for the company element and its descendants if company element is provided, else
+        filter all completed questionnaires for the given project
+
+        :param project: project to get questionnaire for
+        :param company_element: project to get questionnaire for
+        :return: questionnaire queryset
+        """
+        questionnaires = self.get_project_submitted_or_approved_questionnaires(project)
+        if company_element is not None:
+            company_and_descendants_ids = company_element.get_descendants(include_self=True).values_list('id',
+                                                                                                         flat=True)
             questionnaires = questionnaires.filter(evaluation__company_element__id__in=company_and_descendants_ids)
         return questionnaires
+
+    # def get_questionnaires_for
 
     def get_questionnaires_for_company(self, company):
         return self.filter(evaluation__project__company=company)
