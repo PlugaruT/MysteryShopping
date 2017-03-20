@@ -2,12 +2,15 @@ from collections import defaultdict
 from decimal import Decimal
 from json import load
 from random import randint
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 from django.test import TestCase
 
-from mystery_shopping.factories.questionnaires import QuestionnaireTemplateStatusFactory
+from mystery_shopping.cxi.algorithms import calculate_cxi_scores
+from mystery_shopping.factories.questionnaires import QuestionnaireTemplateStatusFactory, QuestionnaireTemplateFactory, \
+    QuestionTemplateFactory, CustomWeightFactory
 from mystery_shopping.factories.users import UserFactory
+from mystery_shopping.questionnaires.models import CustomWeight
 from ..algorithms import calculate_indicator_score
 from ..algorithms import create_details_skeleton
 from ..algorithms import get_indicator_scores
@@ -32,10 +35,10 @@ class AlgorithmsTestCase(TestCase):
 
         calculated_score = calculate_indicator_score(indicator_marks)
 
-        self.assertEqual(calculated_score['promoters'], Decimal(42.86))
-        self.assertEqual(calculated_score['detractors'], Decimal(14.29))
-        self.assertEqual(calculated_score['passives'], Decimal(42.86))
-        self.assertEqual(calculated_score['indicator'], Decimal(28.57))
+        self.assertEqual(calculated_score['promoters'], Decimal(43))
+        self.assertEqual(calculated_score['detractors'], Decimal(14))
+        self.assertEqual(calculated_score['passives'], Decimal(43))
+        self.assertEqual(calculated_score['indicator'], Decimal(29))
 
     def test_calculate_indicator_score_without_values_old_algorithm(self):
         indicator_marks = list()
@@ -46,6 +49,91 @@ class AlgorithmsTestCase(TestCase):
         self.assertEqual(calculated_score['detractors'], None)
         self.assertEqual(calculated_score['passives'], None)
         self.assertEqual(calculated_score['indicator'], None)
+
+    def test_calculate_indicator_score_with_values_new_algorithm(self):
+        indicator_marks = [10, 9, 7, 6, 10, 9, 9, 8, 7, 7, 7, 10, 8, 3]
+        # calculated by hand
+        expected_result = 69  # non intentional :)
+
+        calculated_score = calculate_indicator_score(indicator_marks=indicator_marks, new_algorithm=True)
+
+        self.assertEqual(calculated_score['indicator'], Decimal(expected_result))
+
+    def test_calculate_indicator_score_without_values_new_algorithm(self):
+        indicator_marks = list()
+
+        calculated_score = calculate_indicator_score(indicator_marks=indicator_marks, new_algorithm=True)
+
+        self.assertEqual(calculated_score['indicator'], None)
+
+    def test_cxi_weights_with_all_new_algorithm_indicators(self):
+        indicator_name_1 = 'name1'
+        indicator_name_2 = 'name2'
+        template_questionnaire = QuestionnaireTemplateFactory()
+        question_1 = QuestionTemplateFactory(questionnaire_template=template_questionnaire,
+                                             type=QuestionType.INDICATOR_QUESTION, additional_info=indicator_name_1)
+        question_2 = QuestionTemplateFactory(questionnaire_template=template_questionnaire,
+                                             type=QuestionType.INDICATOR_QUESTION, additional_info=indicator_name_2)
+
+        custom_weight_name_1 = 'Weight-1'
+        custom_weight_name_2 = 'Weight-2'
+        CustomWeightFactory(question=question_1, name=custom_weight_name_1, weight=40)
+        CustomWeightFactory(question=question_1, name=custom_weight_name_2, weight=50)
+
+        CustomWeightFactory(question=question_2, name=custom_weight_name_1, weight=60)
+        CustomWeightFactory(question=question_2, name=custom_weight_name_2, weight=50)
+
+        indicator_scores = {
+            indicator_name_1: {
+                'indicator': Decimal(75)
+            },
+            indicator_name_2: {
+                'indicator': Decimal(60)
+            }
+        }
+        result = calculate_cxi_scores(indicator_scores, {}, template_questionnaire)
+
+        result_indicator_1 = Decimal(66)
+        result_indicator_2 = Decimal(68)
+        self.assertEqual(result[custom_weight_name_1], result_indicator_1)
+        self.assertEqual(result[custom_weight_name_2], result_indicator_2)
+
+    def test_cxi_weights_with_new_and_old_algorithm_indicators(self):
+        indicator_name_1 = 'name1'
+        indicator_name_2 = 'name2'
+        template_questionnaire = QuestionnaireTemplateFactory()
+        question_1 = QuestionTemplateFactory(questionnaire_template=template_questionnaire,
+                                             type=QuestionType.INDICATOR_QUESTION, additional_info=indicator_name_1,
+                                             new_algorithm=False)
+        question_2 = QuestionTemplateFactory(questionnaire_template=template_questionnaire,
+                                             type=QuestionType.INDICATOR_QUESTION, additional_info=indicator_name_2)
+
+        custom_weight_name_1 = 'Weight-1'
+        custom_weight_name_2 = 'Weight-2'
+        CustomWeightFactory(question=question_1, name=custom_weight_name_1, weight=40)
+        CustomWeightFactory(question=question_1, name=custom_weight_name_2, weight=50)
+
+        CustomWeightFactory(question=question_2, name=custom_weight_name_1, weight=60)
+        CustomWeightFactory(question=question_2, name=custom_weight_name_2, weight=50)
+
+        indicator_scores = {
+            indicator_name_1: {
+                'indicator': 75
+            },
+            indicator_name_2: {
+                'indicator': 60
+            }
+        }
+
+        old_algorithm_indicator_dict = {
+            indicator_name_1: [Decimal(10), Decimal(10), Decimal(2)]
+        }
+        result = calculate_cxi_scores(indicator_scores, old_algorithm_indicator_dict, template_questionnaire)
+
+        result_indicator_1 = Decimal(61)
+        result_indicator_2 = Decimal(62)
+        self.assertEqual(result[custom_weight_name_1], result_indicator_1)
+        self.assertEqual(result[custom_weight_name_2], result_indicator_2)
 
     def test_get_indicator_scores_with_some_return_elements(self):
         initial_score_list = [Decimal('8.00'), Decimal('6.00'), Decimal('10.00'), Decimal('6.00'), Decimal('5.00')]
@@ -61,7 +149,7 @@ class AlgorithmsTestCase(TestCase):
             mock_question.additional_info = indicator_type_1
             mock_question.score = initial_score_list[index]
             # Assign questions to the questionnaire
-            questionnaire.questions_list = [mock_question,]
+            questionnaire.questions_list = [mock_question, ]
             questionnaire_list.append(questionnaire)
 
         # Add another questionnaire with a different type of cxi question
@@ -70,7 +158,7 @@ class AlgorithmsTestCase(TestCase):
         mock_question.type = QuestionType.INDICATOR_QUESTION
         mock_question.additional_info = indicator_type_2
         mock_question.score = initial_score_list[-1]
-        questionnaire_list[-1].questions.all.return_value = [mock_question,]
+        questionnaire_list[-1].questions.all.return_value = [mock_question, ]
 
         return_score_list = get_indicator_scores(questionnaire_list, indicator_type_1)
 
@@ -90,7 +178,7 @@ class AlgorithmsTestCase(TestCase):
             mock_question.additional_info = indicator_type_1
             mock_question.score = initial_score_list[index]
             # Assign questions to the questionnaire
-            questionnaire.questions_list = [mock_question,]
+            questionnaire.questions_list = [mock_question, ]
             questionnaire_list.append(questionnaire)
 
         return_score_list = get_indicator_scores(questionnaire_list, indicator_type_2)
@@ -268,14 +356,19 @@ class AlgorithmsTestCase(TestCase):
         self.assertEqual(indicator_details['Language']['English']['marks'], indicator_marks[2:4])
         self.assertEqual(indicator_details['Language']['other']['marks'], indicator_marks[4:])
 
-    def _test_group_questions_by_pos_with_no_sections(self):
+    def test_group_questions_by_pos(self):
         questionnaire_list = list()
         indicator_type = 'NPS'
         number_of_questionnaires = 5
         indicator_marks = list()
 
+        company_element_1 = MagicMock()
+        company_element_1.element_name = 'Entity 1'
+        company_element_2 = MagicMock()
+        company_element_2.element_name = 'Entity 2'
+
         for q in range(number_of_questionnaires):
-            mark = randint(1, 10)
+            mark = randint(0, 10)
             indicator_marks.append(mark)
             questionnaire = MagicMock()
             indicator_question = MagicMock()
@@ -289,15 +382,15 @@ class AlgorithmsTestCase(TestCase):
             questionnaire.evaluation.section = None
 
             if q < 3:
-                questionnaire.evaluation.entity.name = 'Entity 1'
+                questionnaire.get_company_element.return_value = company_element_1
             else:
-                questionnaire.evaluation.entity.name = 'Entity 2'
+                questionnaire.get_company_element.return_value = company_element_2
 
             questionnaire_list.append(questionnaire)
 
         indicator_pos_details = group_questions_by_pos(questionnaire_list, indicator_type)
-        self.assertEqual(indicator_pos_details['entities']['Entity 1'], indicator_marks[:3])
-        self.assertEqual(indicator_pos_details['entities']['Entity 2'], indicator_marks[3:])
+        self.assertEqual(indicator_pos_details['entities'][company_element_1.element_name], indicator_marks[:3])
+        self.assertEqual(indicator_pos_details['entities'][company_element_2.element_name], indicator_marks[3:])
 
     def _test_calculate_overview_score(self):
         initial_score_list = [Decimal('10.00'), Decimal('9.00'), Decimal('10.00'), Decimal('6.00'), Decimal('7.00')]

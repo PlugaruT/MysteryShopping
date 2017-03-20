@@ -1,3 +1,4 @@
+from _decimal import Decimal
 from collections import defaultdict, namedtuple
 
 from django.db.models import Count, Min
@@ -222,7 +223,7 @@ def sort_indicators_per_pos(details, indicators, new_algorithm):
 
 def get_indicator_details(questionnaire_list, children_questionnaire_list, indicator_type, new_algorithm):
     """
-    Collect detailed data about inticator_type
+    Collect detailed data about indicator_type
 
     :param questionnaire_list:
     :param indicator_type:
@@ -257,7 +258,7 @@ def get_indicator_project_comment(project, company_element_id, indicator_type):
 
 
 def calculate_weighed_value(value, weight):
-    return value * weight / 100
+    return float(value) * float(weight) / 100
 
 
 def calculate_cxi_scores(return_dict, old_algorithm_indicator_dict, questionnaire_template):
