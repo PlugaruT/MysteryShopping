@@ -14,6 +14,7 @@ from mystery_shopping.cxi.serializers import CodedCauseSerializer
 from mystery_shopping.cxi.serializers import ProjectCommentSerializer
 from mystery_shopping.questionnaires.utils import first_or_none
 
+from mystery_shopping.mystery_shopping_utils.constants import ROUND_TO_DIGITS
 
 def get_indicator_scores(questionnaire_list, indicator_type):
     """
@@ -44,7 +45,7 @@ def mean(list):
 def use_mean_formula(marks, divide_by):
     average = mean(marks)
     result = (average - 1) / divide_by
-    return round(result * 100, 0)
+    return round(result * 100, ROUND_TO_DIGITS)
 
 
 def calculate_indicator_score_old_formula(indicator_marks):
@@ -80,10 +81,10 @@ def calculate_indicator_score_old_formula(indicator_marks):
 
     indicator_score = promoters_percentage - detractors_percentage
 
-    score['indicator'] = round(indicator_score, 0)
-    score['promoters'] = round(promoters_percentage, 0)
-    score['passives'] = round(passives_percentage, 0)
-    score['detractors'] = round(detractors_percentage, 0)
+    score['indicator'] = round(indicator_score, ROUND_TO_DIGITS)
+    score['promoters'] = round(promoters_percentage, ROUND_TO_DIGITS)
+    score['passives'] = round(passives_percentage, ROUND_TO_DIGITS)
+    score['detractors'] = round(detractors_percentage, ROUND_TO_DIGITS)
 
     return score
 
@@ -278,7 +279,7 @@ def calculate_cxi_scores(return_dict, old_algorithm_indicator_dict, questionnair
         cxi_score[weight_name] += calculate_weighed_value(indicator_value, weight)
 
     for weight in cxi_score:
-        cxi_score[weight] = round(cxi_score[weight], 0)
+        cxi_score[weight] = round(cxi_score[weight], ROUND_TO_DIGITS)
     return cxi_score
 
 
@@ -694,7 +695,7 @@ class CodedCausesPercentageTable:
     def calculate_percentage(number_of_why_causes, number_of_questions):
         if number_of_questions == 0:
             number_of_questions = 1
-        return round(number_of_why_causes / number_of_questions * 100, 2)
+        return round(number_of_why_causes / number_of_questions* 100, ROUND_TO_DIGITS)
 
     @staticmethod
     def extract_coded_cause(why_causes):
