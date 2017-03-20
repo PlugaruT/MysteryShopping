@@ -9,7 +9,7 @@ from model_utils.models import TimeStampedModel
 from mptt.models import MPTTModel, TreeForeignKey
 from datetime import datetime
 
-from mystery_shopping.questionnaires.managers import QuestionnaireTemplateQuestionQuerySet
+from mystery_shopping.questionnaires.managers import QuestionnaireTemplateQuestionQuerySet, CustomWeightQuerySet
 from mystery_shopping.questionnaires.utils import first_or_none, update_attributes
 from mystery_shopping.mystery_shopping_utils.models import TenantModel
 from .constants import QuestionType
@@ -78,6 +78,9 @@ class QuestionnaireTemplate(TenantModel, TimeStampedModel, QuestionnaireAbstract
     def __str__(self):
         return 'Title: {}'.format(self.title)
 
+    def get_indicator_questions(self):
+        return self.template_questions.filter(type=QuestionType.INDICATOR_QUESTION)
+
     def get_indicator_question(self, indicator_type):
         return self.template_questions.filter(type=indicator_type).first()
 
@@ -92,6 +95,20 @@ class QuestionnaireTemplate(TenantModel, TimeStampedModel, QuestionnaireAbstract
         self.status.archived_date = datetime.now()
         self.status.archived_by = user
         self.status.save()
+
+    def create_custom_weights(self, name):
+        indicators = self.get_indicator_questions()
+        for indicator in indicators:
+            indicator.create_custom_weight(name)
+
+    def update_question_custom_weight(self, name, question_id, weight):
+        question = get_object_or_404(QuestionnaireTemplateQuestion, pk=question_id)
+        question.update_custom_weight(name, weight)
+
+    def update_custom_weights(self, data):
+        for weight_name, info in data.items():
+            for question_data in info:
+                self.update_question_custom_weight(weight_name, question_data.get('id'), question_data.get('weight'))
 
 
 class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
@@ -247,6 +264,26 @@ class QuestionnaireBlock(QuestionnaireBlockAbstract, MPTTModel):
         return self.score
 
 
+class CustomWeight(models.Model):
+    """
+    model for defining a set of weights per question
+    """
+    # Relations
+    question = models.ForeignKey('questionnaires.QuestionnaireTemplateQuestion')
+
+    # Attributes
+    name = models.CharField(max_length=200)
+    weight = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+
+    objects = models.Manager.from_queryset(CustomWeightQuerySet)()
+
+    class Meta:
+        default_related_name = 'custom_weights'
+
+    def __str__(self):
+        return 'name: {}, weight: {}'.format(self.name, self.weight)
+
+
 class QuestionAbstract(models.Model):
     """
     Abstract class for QuestionTemplate and Question
@@ -281,6 +318,7 @@ class QuestionnaireTemplateQuestion(QuestionAbstract):
 
     objects = models.Manager.from_queryset(QuestionnaireTemplateQuestionQuerySet)()
 
+    new_algorithm = models.BooleanField(default=True)
     allow_why_causes = models.BooleanField(default=True)
     has_other_choice = models.BooleanField(default=True)
 
@@ -320,6 +358,17 @@ class QuestionnaireTemplateQuestion(QuestionAbstract):
     def deny_other_choice_collecting(self):
         self.has_other_choice = False
         self.save(update_fields=['has_other_choice'])
+
+    def create_custom_weight(self, name):
+        CustomWeight.objects.create(question=self, name=name)
+
+    def update_custom_weight(self, name, weight):
+        try:
+            custom_weight = self.custom_weights.get(name=name)
+            custom_weight.weight = weight
+            custom_weight.save(update_fields=['weight'])
+        except:
+            pass
 
 
 class QuestionnaireQuestion(QuestionAbstract):

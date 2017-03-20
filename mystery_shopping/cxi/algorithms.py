@@ -5,7 +5,7 @@ from django.db.models.query import Prefetch
 
 from mystery_shopping.companies.models import CompanyElement
 from mystery_shopping.questionnaires.constants import QuestionType
-from mystery_shopping.questionnaires.models import Questionnaire, QuestionnaireQuestion
+from mystery_shopping.questionnaires.models import Questionnaire, QuestionnaireQuestion, CustomWeight
 from mystery_shopping.cxi.models import CodedCause, WhyCause
 from mystery_shopping.cxi.models import ProjectComment
 from mystery_shopping.cxi.serializers import CodedCauseSerializer
@@ -212,16 +212,18 @@ def get_indicator_project_comment(project, company_element_id, indicator_type):
     return None if project_comment is None else ProjectCommentSerializer(project_comment).data
 
 
-def calculate_cxi_score(return_dict, questionnaire_template):
-    cxi_score = 0
-    for indicator, values in return_dict.items():
-        indicator_score = values['indicator']
-        weight = questionnaire_template.template_questions.get(additional_info=indicator).weight / 100
-        cxi_score += indicator_score * float(weight)
+def calculate_cxi_scores(return_dict, questionnaire_template):
+    cxi_score = defaultdict(float)
+    indicator_weights = CustomWeight.objects.extract_indicator_weights(questionnaire_template)
+    for indicator_weight in indicator_weights:
+        indicator = indicator_weight.get('question__additional_info')
+        weight_name = indicator_weight.get('name')
+        weight = indicator_weight.get('weight')
+        cxi_score[weight_name] += return_dict[indicator]['indicator'] * float(weight) / 100
 
-    cxi_score = round(cxi_score, 2)
-
-    return {'indicator': cxi_score}
+    for weight in cxi_score:
+        cxi_score[weight] = round(cxi_score[weight], 2)
+    return cxi_score
 
 
 def get_indicator_types(indicator_set, questionnaire_list):
@@ -231,7 +233,7 @@ def get_indicator_types(indicator_set, questionnaire_list):
         return_dict[indicator_type] = calculate_indicator_score(indicator_list)
 
     questionnaire_template = questionnaire_list[0].template
-    return_dict['cxi'] = calculate_cxi_score(return_dict, questionnaire_template)
+    return_dict['cxi'] = calculate_cxi_scores(return_dict, questionnaire_template)
     return return_dict
 
 
