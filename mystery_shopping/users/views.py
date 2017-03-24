@@ -142,16 +142,12 @@ class UserViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
     @detail_route(methods=['get'], url_path='coded-causes-permissions')
     def coded_causes_permissions(self, request, pk=None):
         user = get_object_or_404(User, pk=pk)
-        company_elements = user.coded_causes_permissions()
-        response = self.filter_company_and_serialize(company_elements)
-        return Response(response)
+        return Response(self._filter_company_entities(user.coded_causes_permissions, user.user_company()))
 
     @detail_route(methods=['get'], url_path='management-permissions')
     def management_permissions(self, request, pk=None):
         user = get_object_or_404(User, pk=pk)
-        company_elements = user.management_permissions()
-        response = self.filter_company_and_serialize(company_elements)
-        return Response(response)
+        return Response(self._filter_company_entities(user.management_permissions, user.user_company()))
 
     @staticmethod
     def filter_company_and_serialize(company_elements_ids):
