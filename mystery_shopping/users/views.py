@@ -4,22 +4,20 @@ from __future__ import absolute_import, unicode_literals
 import django_filters
 from django.contrib.auth.models import Permission, Group
 from django.shortcuts import get_object_or_404
-from django.db.models import Q
 
 from rest_framework import viewsets
 from rest_framework import status
 from rest_condition import Or
-from rest_framework.decorators import list_route, detail_route
-from rest_framework.filters import SearchFilter
+from rest_framework.decorators import detail_route
 from rest_framework.decorators import list_route
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django_filters.rest_framework import DjangoFilterBackend, ModelMultipleChoiceFilter
+from django_filters.rest_framework import DjangoFilterBackend
 
-from mystery_shopping.companies.models import CompanyElement
 from mystery_shopping.companies.serializers import CompanyElementSerializer
 from mystery_shopping.companies.models import CompanyElement
+from mystery_shopping.companies.utils import FilterCompanyStructure
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from mystery_shopping.mystery_shopping_utils.paginators import DetractorRespondentPaginator
 from mystery_shopping.mystery_shopping_utils.permissions import DetractorFilterPerCompanyElement
@@ -134,23 +132,12 @@ class UserViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
     @detail_route(methods=['get'], url_path='detractor-permissions')
     def detractor_permissions(self, request, pk=None):
         user = get_object_or_404(User, pk=pk)
-        company_elements_id = user.detractors_permissions()
-        company_structure = CompanyElementSerializer(user.user_company()).data
-        allowed_company_elements = self.filter_company_and_serialize(company_elements_id)
-        # self.filter_objects(company_structure['children'], allowed_company_elements)
-        allowed_company_copy = allowed_company_elements.copy()
-        self._exclude_not_allowed_entities(allowed_company_copy, company_elements_id)
-        return Response(company_structure)
+        return Response(self._filter_company_entities(user.detractors_permissions, user.user_company()))
 
     @detail_route(methods=['get'], url_path='statistics-permissions')
     def statistics_permissions(self, request, pk=None):
         user = get_object_or_404(User, pk=pk)
-        company_elements = user.statistics_permissions()
-        company_structure = CompanyElementSerializer(user.user_company()).data
-        allowed_company_elements = self.filter_company_and_serialize(company_elements)
-        allowed_company_copy = allowed_company_elements.copy()
-        self.filter_objects(allowed_company_copy, allowed_company_elements)
-        return Response(company_structure)
+        return Response(self._filter_company_entities(user.statistics_permissions, user.user_company()))
 
     @detail_route(methods=['get'], url_path='coded-causes-permissions')
     def coded_causes_permissions(self, request, pk=None):
@@ -192,48 +179,13 @@ class UserViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
             # print(child.get('children', []))
             self.filter_objects(child['children'], company_elements)
 
-    def filter_out_non_nested_entities(self, entity_list, allowed_entities):
-        for entity in entity_list:
-            list_without_entity = entity_list.copy()
-            list_without_entity.remove(entity)
-            if self._check_if_entity_is_found_in_other_level(entity, list_without_entity, allowed_entities):
-                entity_list = list_without_entity
-        pass
-
-    def _exclude_not_allowed_entities(self, entities_level, allowed_entities):
-        """
-        Exclude child entities if they are not allowed
-        :param parent: list of fully serialized allowed_entities
-        :param allowed_entities: list of allowed ids
-        :return: a list of all possible allowed entities with "allowed" children
-        """
-        for parent in entities_level:
-            children = parent.pop('children', [])
-            for child in children:
-                if self._check_if_to_exclude_entity(child, allowed_entities):
-                    children.remove(child)
-
-            self._exclude_not_allowed_entities(children, allowed_entities)
-            parent['children'] = children
-
-    def _check_if_to_exclude_entity(self, entity, allowed_entities):
-        """
-
-        :param entity:
-        :param allowed_entities:
-        :return:
-        """
-        return entity['id'] not in allowed_entities
-
-
-    def _check_if_entity_is_found_in_other_level(self, entity, entity_list, allowed_entities):
-        """
-        Method for checking whether the entity is found as a child of another entity in the entity_list
-        :param entity: entity to check the entity_list against
-        :param entity_list: serialized company_element list with children
-        :param allowed_entities:
-        :return:
-        """
+    def _filter_company_entities(self, permission_method, company):
+        company_elements_id = permission_method()
+        company_structure = CompanyElementSerializer(company).data
+        allowed_company_elements = self.filter_company_and_serialize(company_elements_id)
+        company_structure['children'] = FilterCompanyStructure(allowed_company_elements,
+                                                               company_elements_id).run_filter()
+        return company_structure
 
 
 class UserPermissionsViewSet(viewsets.ReadOnlyModelViewSet):

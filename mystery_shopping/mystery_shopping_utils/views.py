@@ -3,7 +3,7 @@ class GetSerializerClassMixin:
     Mixin that implements get_serializer_class for a view.
     It uses 2 serializers based on the type of request
 
-    needs to implement serializer_class_get
+    !needs to implement serializer_class_get!
     """
     def get_serializer_class(self):
         if self.request.method == 'GET':
