@@ -245,7 +245,7 @@ class BarChartGraph(views.APIView):
         response = dict()
         for project_name, overview_data in raw_overview_data.items():
             response[project_name] = list()
-            for indicator_name, indicators_scores in overview_data['indicators'].items():
+            for indicator_name, indicators_scores in overview_data['score']['indicators'].items():
                 response[project_name].append(
                     (indicator_name, indicators_scores['indicator'])
                 )
@@ -319,6 +319,7 @@ class IndicatorDashboard(views.APIView):
         company_element_id = request.query_params.get('company_element', None)
         indicator_type = request.query_params.get('indicator', None)
         project = None
+        company_element_permissions = request.user.management_permissions()
 
         parameters_are_valid = self.parameter_is_valid(company_element_id)
 
@@ -351,7 +352,8 @@ class IndicatorDashboard(views.APIView):
             }, status.HTTP_400_BAD_REQUEST)
 
         if project is not None:
-            response = self.collect_data_for_indicator_dashboard(project, company_element_id, indicator_type)
+            response = self.collect_data_for_indicator_dashboard(project, company_element_id, indicator_type,
+                                                                 company_element_permissions)
 
             return Response(response, status.HTTP_200_OK)
 
@@ -360,9 +362,9 @@ class IndicatorDashboard(views.APIView):
         }, status.HTTP_400_BAD_REQUEST)
 
     # @CacheResult(age=60 * 60 * 24) # 24h
-    def collect_data_for_indicator_dashboard(self, project, company_element_id, indicator_type):
+    def collect_data_for_indicator_dashboard(self, project, company_element_id, indicator_type, company_element_permissions):
         return CollectDataForIndicatorDashboard(project, company_element_id,
-                                                indicator_type).build_response()
+                                                indicator_type, company_element_permissions).build_response()
 
     @staticmethod
     def parameter_is_valid(parameter):

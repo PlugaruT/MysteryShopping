@@ -100,7 +100,7 @@ class CodedCauseSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         self.update_coded_label(instance, validated_data.pop('coded_label'))
-        update_attributes(validated_data, instance)
+        update_attributes(instance, validated_data)
         instance.save()
         return instance
 

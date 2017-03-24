@@ -110,6 +110,9 @@ class QuestionnaireTemplate(TenantModel, TimeStampedModel, QuestionnaireAbstract
             for question_data in info:
                 self.update_question_custom_weight(weight_name, question_data.get('id'), question_data.get('weight'))
 
+    def delete_custom_weights(self, name):
+        CustomWeight.objects.get_custom_weights_for_questionnaire(self.pk, name).delete()
+
 
 class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
     """
@@ -273,7 +276,7 @@ class CustomWeight(models.Model):
 
     # Attributes
     name = models.CharField(max_length=200)
-    weight = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    weight = models.IntegerField(default=0)
 
     objects = models.Manager.from_queryset(CustomWeightQuerySet)()
 
@@ -338,26 +341,14 @@ class QuestionnaireTemplateQuestion(QuestionAbstract):
             try:
                 question_to_update = QuestionnaireTemplateQuestion.objects.get(pk=question_id,
                                                                                template_block=template_block)
-                update_attributes(sibling['question_changes'], question_to_update)
+                update_attributes(question_to_update, sibling['question_changes'])
                 question_to_update.save()
             except QuestionnaireTemplateQuestion.DoesNotExist:
                 pass
 
-    def allow_why_cause_collecting(self):
-        self.allow_why_causes = True
-        self.save(update_fields=['allow_why_causes'])
-
-    def deny_why_cause_collecting(self):
-        self.allow_why_causes = False
-        self.save(update_fields=['allow_why_causes'])
-
-    def allow_other_choice_collecting(self):
-        self.has_other_choice = True
-        self.save(update_fields=['has_other_choice'])
-
-    def deny_other_choice_collecting(self):
-        self.has_other_choice = False
-        self.save(update_fields=['has_other_choice'])
+    def create_custom_weights(self, weights_name):
+        for weight_name in weights_name:
+            self.create_custom_weight(weight_name)
 
     def create_custom_weight(self, name):
         CustomWeight.objects.create(question=self, name=name)

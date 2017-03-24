@@ -10,6 +10,7 @@ from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from mystery_shopping.mystery_shopping_utils.views import GetSerializerClassMixin
 from mystery_shopping.questionnaires.models import QuestionnaireTemplateStatus, CustomWeight
 from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializerGET
+from mystery_shopping.questionnaires.utils import update_attributes
 from .models import QuestionnaireScript
 from .models import Questionnaire
 from .models import QuestionnaireTemplate
@@ -151,6 +152,19 @@ class QuestionnaireTemplateViewSet(GetSerializerClassMixin, viewsets.ModelViewSe
             template_questionnaire.update_custom_weights(data)
         return Response(status=status.HTTP_201_CREATED)
 
+    @detail_route(methods=['post'], url_path='delete-weights')
+    def delete_custom_weights(self, request, pk=None):
+        template_questionnaire = get_object_or_404(QuestionnaireTemplate, pk=pk)
+        weight_name = request.data.get('name')
+        weight_exists = CustomWeight.objects.get_custom_weights_for_questionnaire(template_questionnaire.pk,
+                                                                                  weight_name).exists()
+
+        if weight_name is None or not weight_exists:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            template_questionnaire.delete_custom_weights(weight_name)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
     @staticmethod
     def assign_new_title_and_make_it_editable(questionnaire, new_title):
         questionnaire.title = new_title if new_title else questionnaire.title + ' (Copy)'
@@ -252,7 +266,8 @@ class QuestionnaireTemplateQuestionViewSet(viewsets.ModelViewSet):
         :return: status code ok
         """
         template_question = get_object_or_404(QuestionnaireTemplateQuestion, pk=pk)
-        template_question.allow_why_cause_collecting()
+        update_attributes(template_question, {'allow_why_causes': True})
+        template_question.save(update_fields=['allow_why_causes'])
         return Response(status=status.HTTP_200_OK)
 
     @detail_route(methods=['put'], url_path='deny-why-causes')
@@ -263,7 +278,8 @@ class QuestionnaireTemplateQuestionViewSet(viewsets.ModelViewSet):
         :return: status code ok
         """
         template_question = get_object_or_404(QuestionnaireTemplateQuestion, pk=pk)
-        template_question.deny_why_cause_collecting()
+        update_attributes(template_question, {'allow_why_causes': False})
+        template_question.save(update_fields=['allow_why_causes'])
         return Response(status=status.HTTP_200_OK)
 
     @detail_route(methods=['put'], url_path='allow-other-choices')
@@ -274,7 +290,8 @@ class QuestionnaireTemplateQuestionViewSet(viewsets.ModelViewSet):
         :return: status code ok
         """
         template_question = get_object_or_404(QuestionnaireTemplateQuestion, pk=pk)
-        template_question.allow_other_choice_collecting()
+        update_attributes(template_question, {'has_other_choice': True})
+        template_question.save(update_fields=['has_other_choice'])
         return Response(status=status.HTTP_200_OK)
 
     @detail_route(methods=['put'], url_path='deny-other-choices')
@@ -285,7 +302,32 @@ class QuestionnaireTemplateQuestionViewSet(viewsets.ModelViewSet):
         :return: status code ok
         """
         template_question = get_object_or_404(QuestionnaireTemplateQuestion, pk=pk)
-        template_question.deny_other_choice_collecting()
+        update_attributes(template_question, {'has_other_choice': False})
+        template_question.save(update_fields=['has_other_choice'])
+        return Response(status=status.HTTP_200_OK)
+
+    @detail_route(methods=['put'], url_path='set-new-algorithm')
+    def set_as_new_algorithm(self, request, pk=None):
+        """
+        Endpoint for setting the new_algorithm flag to True
+        :param pk: pk of the questions
+        :return: status code ok
+        """
+        template_question = get_object_or_404(QuestionnaireTemplateQuestion, pk=pk)
+        update_attributes(template_question, {'new_algorithm': True})
+        template_question.save(update_fields=['new_algorithm'])
+        return Response(status=status.HTTP_200_OK)
+
+    @detail_route(methods=['put'], url_path='unset-new-algorithm')
+    def unset_as_new_algorithm(self, request, pk=None):
+        """
+        Endpoint for setting the new_algorithm flag to False
+        :param pk: pk of the questions
+        :return: status code ok
+        """
+        template_question = get_object_or_404(QuestionnaireTemplateQuestion, pk=pk)
+        update_attributes(template_question, {'new_algorithm': False})
+        template_question.save(update_fields=['new_algorithm'])
         return Response(status=status.HTTP_200_OK)
 
 
