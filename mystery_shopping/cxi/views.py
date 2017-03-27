@@ -1,3 +1,5 @@
+from django.db.models import Sum, IntegerField, Case, When
+
 from django.shortcuts import get_object_or_404
 from guardian.shortcuts import get_objects_for_user
 from rest_condition import Or
@@ -12,6 +14,7 @@ from rest_framework.response import Response
 from mystery_shopping.companies.models import Company, CompanyElement
 from mystery_shopping.cxi.algorithms import GetPerDayQuestionnaireData
 from mystery_shopping.cxi.serializers import SimpleWhyCauseSerializer
+from mystery_shopping.mystery_shopping_utils.constants import COLORS_MAPPING
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from mystery_shopping.mystery_shopping_utils.paginators import FrustrationWhyCausesPagination, \
     AppreciationWhyCausesPagination, WhyCausesPagination
@@ -250,6 +253,130 @@ class BarChartGraph(views.APIView):
                     (indicator_name, indicators_scores['indicator'])
                 )
         return response
+
+
+class RespondentsDistribution(views.APIView):
+    """
+    
+    View that will return a the distribution of respondents for an indicator. 
+    
+     Query params:
+
+     * `project`: **required**, list of project ids to aggregate data for
+     * `indicator`: **required**, indicator name for which to get questions
+     * `company_element`: **required**, id of the company element for which to aggregate data
+    
+    The list of dicts has the form:
+    [
+        {
+            key: 'CHART.DETRACTOR',
+            value: 5,
+            color: '#f44336'
+        },
+        {
+            key: 'CHART.PASSIVE',
+            value: 2,
+            color: '#9E9E9E'
+        },
+        {
+            key: 'CHART.PROMOTERS',
+            value: 9,
+            color: '#4CAF50'
+        }
+    ]
+    """
+
+    def get(self, request, *args, **kwargs):
+        indicator_name = request.query_params.get('indicator', None)
+        project_id = request.query_params.get('project', None)
+        company_element_id = request.query_params.getlist('company_element', []) or None
+        questions_list = QuestionnaireQuestion.objects.get_indicator_questions_for_company_elements(
+            project=project_id, indicator=indicator_name, company_elements=company_element_id)
+
+        if indicator_name == 'NPS':
+            response = self.build_data_for_nps_indicator(questions_list)
+        else:
+            response = self.build_data_for_other_indicators(questions_list)
+
+        return Response(response, status.HTTP_200_OK)
+
+    def build_data_for_nps_indicator(self, questions_list):
+        number_of_questions = questions_list.count()
+        respondents_data = questions_list.aggregate(
+            DETRACTOR=Sum(
+                Case(
+                    When(score__lte=6, then=1),
+                    output_field=IntegerField()
+                )
+            ),
+            PASSIVE=Sum(
+                Case(
+                    When(score=7, then=1),
+                    When(score=8, then=1),
+                    output_field=IntegerField()
+                )
+            ),
+            PROMOTERS=Sum(
+                Case(
+                    When(score__gte=9, then=1),
+                    output_field=IntegerField()
+                )
+            )
+        )
+        return self.build_data_points_list(respondents_data, number_of_questions)
+
+    def build_data_for_other_indicators(self, questions_list):
+        number_of_questions = questions_list.count()
+        respondents_data = questions_list.aggregate(
+            NEGATIVE=Sum(
+                Case(
+                    When(score__lte=6, then=1),
+                    output_field=IntegerField()
+                )
+            ),
+            NEUTRAL=Sum(
+                Case(
+                    When(score=7, then=1),
+                    When(score=8, then=1),
+                    output_field=IntegerField()
+                )
+            ),
+            POSITIVE=Sum(
+                Case(
+                    When(score__gte=9, then=1),
+                    output_field=IntegerField()
+                )
+            )
+        )
+
+        return self.build_data_points_list(respondents_data, number_of_questions)
+
+    def build_data_points_list(self, data_dict, number_of_questions):
+        """
+        Method for building the final result
+        :param data_dict: Contains number of respondents of each type, example:
+            {
+                'POSITIVE': 47, 
+                'NEUTRAL': 51, 
+                'NEGATIVE': 2
+            }
+        :param number_of_questions: Number of total questions, used for computing % for each type if respondent
+        :return: list of dicts
+        """
+        response = []
+        for key, value in data_dict.items():
+            key_name = 'CHART.{}'.format(key.upper())
+            percentage = value / number_of_questions * 100
+            response.append(self.build_data_point(key_name, percentage, COLORS_MAPPING[key]))
+        return response
+
+    @staticmethod
+    def build_data_point(key, value, color):
+        return {
+            "key": key,
+            "value": value,
+            "color": color
+        }
 
 
 class OverviewDashboard(views.APIView):

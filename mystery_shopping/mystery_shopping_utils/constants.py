@@ -1,0 +1,8 @@
+COLORS_MAPPING = {
+    "DETRACTOR": '#f44336',
+    "PASSIVE": '#9E9E9E',
+    "PROMOTERS": '#4CAF50',
+    "NEGATIVE": '#f44336',
+    "NEUTRAL": '#9E9E9E',
+    "POSITIVE": '#4CAF50',
+}

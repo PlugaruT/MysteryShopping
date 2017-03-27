@@ -2,7 +2,8 @@ from django.conf.urls import url
 
 from rest_framework.routers import DefaultRouter
 
-from mystery_shopping.cxi.views import FrustrationWhyCauseViewSet, AppreciationWhyCauseViewSet, BarChartGraph
+from mystery_shopping.cxi.views import FrustrationWhyCauseViewSet, AppreciationWhyCauseViewSet, BarChartGraph, \
+    RespondentsDistribution
 from .views import CxiIndicatorTimeLapse
 from .views import WhyCauseViewSet
 from .views import CodedCausePercentage
@@ -28,6 +29,9 @@ urlpatterns = [
     url(r'^cxi/bar-chart-data/$',
         BarChartGraph.as_view(),
         name='bar-chart-data'),
+    url(r'^cxi/respondents-distribution/$',
+        RespondentsDistribution.as_view(),
+        name='respondents-distribution'),
     url(r'^cxi/indicator/$',
         IndicatorDashboard.as_view(),
         name='indicator-score'),
