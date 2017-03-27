@@ -262,11 +262,12 @@ class RespondentsDistribution(views.APIView):
     
      Query params:
 
-     * `project`: **required**, list of project ids to aggregate data for
+     * `project`: **required**, id of the project to aggregate data for
      * `indicator`: **required**, indicator name for which to get questions
      * `company_element`: **required**, id of the company element for which to aggregate data
     
     The list of dicts has the form:
+    ```
     [
         {
             key: 'CHART.DETRACTOR',
@@ -284,6 +285,7 @@ class RespondentsDistribution(views.APIView):
             color: '#4CAF50'
         }
     ]
+    ```
     """
 
     def get(self, request, *args, **kwargs):
@@ -364,8 +366,10 @@ class RespondentsDistribution(views.APIView):
         :return: list of dicts
         """
         response = []
+        number_of_questions = number_of_questions if number_of_questions else 1
         for key, value in data_dict.items():
             key_name = 'CHART.{}'.format(key.upper())
+            value = value if value else 0
             percentage = value / number_of_questions * 100
             response.append(self.build_data_point(key_name, percentage, COLORS_MAPPING[key]))
         return response
