@@ -79,3 +79,34 @@ class TestTemplateQuestionSpecialFlags(TestCase):
         self.question.refresh_from_db()
         self.assertTrue(self.question.has_other_choice)
 
+    def test_unset_new_algorithm_from_true(self):
+        self.question.new_algorithm = True
+        self.question.save()
+        self.client.put(reverse('questionnairetemplatequestion-unset-new-algorithm', args=(self.question.pk,)))
+
+        self.question.refresh_from_db()
+        self.assertFalse(self.question.new_algorithm)
+
+    def test_unset_new_algorithm_from_false(self):
+        self.question.new_algorithm = False
+        self.question.save()
+        self.client.put(reverse('questionnairetemplatequestion-unset-new-algorithm', args=(self.question.pk,)))
+
+        self.question.refresh_from_db()
+        self.assertFalse(self.question.new_algorithm)
+
+    def test_set_new_algorithmfrom_true(self):
+        self.question.new_algorithm = True
+        self.question.save()
+        self.client.put(reverse('questionnairetemplatequestion-set-new-algorithm', args=(self.question.pk,)))
+
+        self.question.refresh_from_db()
+        self.assertTrue(self.question.new_algorithm)
+
+    def test_set_new_algorithmfrom_false(self):
+        self.question.new_algorithm = False
+        self.question.save()
+        self.client.put(reverse('questionnairetemplatequestion-set-new-algorithm', args=(self.question.pk,)))
+
+        self.question.refresh_from_db()
+        self.assertTrue(self.question.new_algorithm)

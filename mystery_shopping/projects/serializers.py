@@ -127,7 +127,7 @@ class ResearchMethodologySerializer(serializers.ModelSerializer):
         self._set_many_to_many(instance, popped_fields)
         self.link_research_methodology_to_project(popped_fields.project_id, instance)
 
-        update_attributes(validated_data, instance)
+        update_attributes(instance, validated_data)
         instance.save()
 
         return instance
@@ -222,7 +222,7 @@ class ProjectSerializer(serializers.ModelSerializer):
                                                                            research_methodology_instance=research_methodology_instance,
                                                                            data=research_methodology)
 
-        update_attributes(validated_data, instance)
+        update_attributes(instance, validated_data)
         instance.save()
 
         return instance
@@ -321,7 +321,7 @@ class EvaluationSerializer(serializers.ModelSerializer):
         instance.questionnaire = Questionnaire.objects.get(pk=instance.questionnaire.pk)
         instance.questionnaire.save()
 
-        update_attributes(validated_data, instance)
+        update_attributes(instance, validated_data)
         instance.save()
         return instance
 

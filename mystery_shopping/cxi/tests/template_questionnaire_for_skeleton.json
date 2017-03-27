@@ -1,105 +1,105 @@
 {
-    "template_blocks": [
+  "template_blocks": [
+    {
+      "template_questions": [
         {
-            "template_questions": [
-                {
-                    "template_question_choices": [],
-                    "question_body": "How would you assess this service?",
-                    "type": "i",
-                    "max_score": null,
-                    "order": 1,
-                    "weight": "1.00",
-                    "show_comment": true,
-                    "additional_info": "NPS"
-                },
-                {
-                    "template_question_choices": [
-                        {
-                            "text": "Romanian",
-                            "score": "0.00",
-                            "weight": "0.00",
-                            "order": 1
-                        },
-                        {
-                            "text": "English",
-                            "score": "0.00",
-                            "weight": "0.00",
-                            "order": 2
-                        }
-                    ],
-                    "question_body": "Language",
-                    "type": "s",
-                    "max_score": null,
-                    "order": 2,
-                    "weight": "1.00",
-                    "show_comment": true,
-                    "additional_info": ""
-                },
-                {
-                    "template_question_choices": [
-                        {
-                            "text": "14-18",
-                            "score": "0.00",
-                            "weight": "0.00",
-                            "order": 1
-                        },
-                        {
-                            "text": "19-25",
-                            "score": "0.00",
-                            "weight": "0.00",
-                            "order": 2
-                        },
-                        {
-                            "text": "26-100",
-                            "score": "0.00",
-                            "weight": "0.00",
-                            "order": 3
-                        }
-                    ],
-                    "question_body": "Age",
-                    "type": "s",
-                    "max_score": null,
-                    "order": 3,
-                    "weight": "0.00",
-                    "show_comment": true,
-                    "additional_info": ""
-                },
-                {
-                    "template_question_choices": [
-                        {
-                            "text": "Male",
-                            "score": "0.00",
-                            "weight": "0.00",
-                            "order": 1
-                        },
-                        {
-                            "text": "Female",
-                            "score": "0.00",
-                            "weight": "0.00",
-                            "order": 2
-                        }
-                    ],
-                    "question_body": "Gender",
-                    "type": "s",
-                    "max_score": null,
-                    "order": 4,
-                    "weight": "0.00",
-                    "show_comment": true,
-                    "additional_info": ""
-                }
-            ],
-            "title": "NPS main block",
-            "weight": "1.00",
-            "order_number": 1,
-            "parent_order_number": null,
-            "order": 1
+          "template_question_choices": [],
+          "question_body": "How would you assess this service?",
+          "type": "i",
+          "max_score": null,
+          "order": 1,
+          "weight": "1.00",
+          "show_comment": true,
+          "additional_info": "NPS"
+        },
+        {
+          "template_question_choices": [
+            {
+              "text": "Romanian",
+              "score": "0.00",
+              "weight": "0.00",
+              "order": 1
+            },
+            {
+              "text": "English",
+              "score": "0.00",
+              "weight": "0.00",
+              "order": 2
+            }
+          ],
+          "question_body": "Language",
+          "type": "s",
+          "max_score": null,
+          "order": 2,
+          "weight": "1.00",
+          "show_comment": true,
+          "additional_info": ""
+        },
+        {
+          "template_question_choices": [
+            {
+              "text": "14-18",
+              "score": "0.00",
+              "weight": "0.00",
+              "order": 1
+            },
+            {
+              "text": "19-25",
+              "score": "0.00",
+              "weight": "0.00",
+              "order": 2
+            },
+            {
+              "text": "26-100",
+              "score": "0.00",
+              "weight": "0.00",
+              "order": 3
+            }
+          ],
+          "question_body": "Age",
+          "type": "s",
+          "max_score": null,
+          "order": 3,
+          "weight": "0.00",
+          "show_comment": true,
+          "additional_info": ""
+        },
+        {
+          "template_question_choices": [
+            {
+              "text": "Male",
+              "score": "0.00",
+              "weight": "0.00",
+              "order": 1
+            },
+            {
+              "text": "Female",
+              "score": "0.00",
+              "weight": "0.00",
+              "order": 2
+            }
+          ],
+          "question_body": "Gender",
+          "type": "s",
+          "max_score": null,
+          "order": 4,
+          "weight": "0.00",
+          "show_comment": true,
+          "additional_info": ""
         }
-    ],
-    "title": "NPS Questionnaire",
-    "type": "c",
-    "description": "NPS Template",
-    "is_editable": true,
-    "is_archived": false,
-    "status": 1,
-    "created_by": 1
+      ],
+      "title": "NPS main block",
+      "weight": "1.00",
+      "order_number": 1,
+      "parent_order_number": null,
+      "order": 1
+    }
+  ],
+  "title": "NPS Questionnaire",
+  "type": "c",
+  "description": "NPS Template",
+  "is_editable": true,
+  "is_archived": false,
+  "status": 1,
+  "created_by": 1
 }
