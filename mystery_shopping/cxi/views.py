@@ -290,9 +290,9 @@ class RespondentsDistribution(views.APIView):
     def get(self, request, *args, **kwargs):
         indicator_name = request.query_params.get('indicator', None)
         project_id = request.query_params.get('project', None)
-        company_element_id = request.query_params.get('company_element', None)
+        company_element_id = request.query_params.getlist('company_element', [])
         questions_list = QuestionnaireQuestion.objects.get_indicator_questions_for_company_elements(
-            project=project_id, indicator=indicator_name, company_elements=[company_element_id])
+            project=project_id, indicator=indicator_name, company_elements=company_element_id)
         if indicator_name == 'NPS':
             response = self.build_data_for_nps_indicator(questions_list)
         else:
