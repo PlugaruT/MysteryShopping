@@ -1,5 +1,3 @@
-from django.db.models import Sum, IntegerField, Case, When
-
 from django.shortcuts import get_object_or_404
 from guardian.shortcuts import get_objects_for_user
 from rest_condition import Or
@@ -18,10 +16,11 @@ from mystery_shopping.mystery_shopping_utils.constants import COLORS_MAPPING
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from mystery_shopping.mystery_shopping_utils.paginators import FrustrationWhyCausesPagination, \
     AppreciationWhyCausesPagination, WhyCausesPagination
+from mystery_shopping.mystery_shopping_utils.utils import aggregate_questions_for_nps_indicator, \
+    aggregate_questions_for_other_indicators
 from mystery_shopping.projects.models import Project
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from mystery_shopping.questionnaires.utils import check_interval_date
-from mystery_shopping.users.models import ClientManager
 from mystery_shopping.users.permissions import IsCompanyManager, IsCompanyEmployee
 from mystery_shopping.users.permissions import IsCompanyProjectManager
 from mystery_shopping.users.permissions import IsTenantConsultant
@@ -291,10 +290,9 @@ class RespondentsDistribution(views.APIView):
     def get(self, request, *args, **kwargs):
         indicator_name = request.query_params.get('indicator', None)
         project_id = request.query_params.get('project', None)
-        company_element_id = request.query_params.getlist('company_element', []) or None
+        company_element_id = request.query_params.get('company_element', None)
         questions_list = QuestionnaireQuestion.objects.get_indicator_questions_for_company_elements(
-            project=project_id, indicator=indicator_name, company_elements=company_element_id)
-
+            project=project_id, indicator=indicator_name, company_elements=[company_element_id])
         if indicator_name == 'NPS':
             response = self.build_data_for_nps_indicator(questions_list)
         else:
@@ -304,53 +302,12 @@ class RespondentsDistribution(views.APIView):
 
     def build_data_for_nps_indicator(self, questions_list):
         number_of_questions = questions_list.count()
-        respondents_data = questions_list.aggregate(
-            DETRACTOR=Sum(
-                Case(
-                    When(score__lte=6, then=1),
-                    output_field=IntegerField()
-                )
-            ),
-            PASSIVE=Sum(
-                Case(
-                    When(score=7, then=1),
-                    When(score=8, then=1),
-                    output_field=IntegerField()
-                )
-            ),
-            PROMOTERS=Sum(
-                Case(
-                    When(score__gte=9, then=1),
-                    output_field=IntegerField()
-                )
-            )
-        )
+        respondents_data = aggregate_questions_for_nps_indicator(questions_list)
         return self.build_data_points_list(respondents_data, number_of_questions)
 
     def build_data_for_other_indicators(self, questions_list):
         number_of_questions = questions_list.count()
-        respondents_data = questions_list.aggregate(
-            NEGATIVE=Sum(
-                Case(
-                    When(score__lte=6, then=1),
-                    output_field=IntegerField()
-                )
-            ),
-            NEUTRAL=Sum(
-                Case(
-                    When(score=7, then=1),
-                    When(score=8, then=1),
-                    output_field=IntegerField()
-                )
-            ),
-            POSITIVE=Sum(
-                Case(
-                    When(score__gte=9, then=1),
-                    output_field=IntegerField()
-                )
-            )
-        )
-
+        respondents_data = aggregate_questions_for_other_indicators(questions_list)
         return self.build_data_points_list(respondents_data, number_of_questions)
 
     def build_data_points_list(self, data_dict, number_of_questions):
@@ -493,7 +450,8 @@ class IndicatorDashboard(views.APIView):
         }, status.HTTP_400_BAD_REQUEST)
 
     # @CacheResult(age=60 * 60 * 24) # 24h
-    def collect_data_for_indicator_dashboard(self, project, company_element_id, indicator_type, company_element_permissions):
+    def collect_data_for_indicator_dashboard(self, project, company_element_id, indicator_type,
+                                             company_element_permissions):
         return CollectDataForIndicatorDashboard(project, company_element_id,
                                                 indicator_type, company_element_permissions).build_response()
 

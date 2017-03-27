@@ -8,66 +8,116 @@ from mystery_shopping.factories.companies import CompanyElementFactory
 from mystery_shopping.factories.projects import ProjectFactory, EvaluationFactory, ResearchMethodologyFactory
 from mystery_shopping.factories.questionnaires import QuestionnaireBlockFactory, IndicatorQuestionFactory, \
     QuestionnaireFactory, QuestionnaireTemplateFactory, QuestionTemplateFactory
-from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from mystery_shopping.users.tests.user_authentication import AuthenticateUser
 
 
 class RespondentsDistributionAPITestCase(APITestCase):
     def setUp(self):
-        self.authentification = AuthenticateUser()
-        self.client = self.authentification.client
-        self.questionnaire_template = QuestionnaireTemplateFactory.create()
-        research_methodology = ResearchMethodologyFactory.create()
+        self.authentication = AuthenticateUser()
+        self.client = self.authentication.client
+        user = self.authentication.user
+        self.questionnaire_template = QuestionnaireTemplateFactory.create(tenant=user.tenant)
+        research_methodology = ResearchMethodologyFactory.create(tenant=user.tenant)
         research_methodology.questionnaires.add(self.questionnaire_template)
 
-        self.indicator_type = 'NPS'
+        self.indicator_type = 'random'
 
-        self.company_element = CompanyElementFactory.create()
+        self.company_element = CompanyElementFactory.create(tenant=user.tenant)
         self.template_indicator_question = QuestionTemplateFactory.create(
             questionnaire_template=self.questionnaire_template, type='i', additional_info=self.indicator_type)
 
-        # Dependency between Project and ResearchMethodology
         self.project = ProjectFactory.create(research_methodology=research_methodology)
 
-        # Dependency between Project Evaluation and Questionnaire
         self.questionnaire1 = QuestionnaireFactory.create(template=self.questionnaire_template, title='first')
         self.evaluation1 = EvaluationFactory.create(project=self.project, questionnaire=self.questionnaire1,
                                                     company_element=self.company_element)
         self.questionnaire2 = QuestionnaireFactory.create(template=self.questionnaire_template, title='second')
         self.evaluation2 = EvaluationFactory.create(project=self.project, questionnaire=self.questionnaire2,
                                                     company_element=self.company_element)
-        self.query_params = QueryDict('indicator={}&project={}&company_element={}'.format(self.indicator_type,
-                                                                                          self.project.id,
-                                                                                          self.company_element.id))
 
-    def test_when_there_are_no_completed_questionnaires(self):
-        self._generate_first_indicator_question(5)
-        self._generate_second_indicator_question(9)
-        print(QuestionnaireQuestion.objects.get_indicator_questions_for_company_elements(
-            project=self.project.id, indicator=self.indicator_type).count())
-        print(self.query_params)
+    def test_when_there_are_no_completed_questionnaires_for_other_indicators(self):
+        query_params = QueryDict('indicator={}&project={}&company_element={}'.format(self.indicator_type,
+                                                                                     self.project.id,
+                                                                                     self.company_element.id))
         expected_response = [
-            {'value': 0, 'key': 'CHART.NEGATIVE', 'color': '#f44336'},
-            {'value': 0, 'key': 'CHART.POSITIVE', 'color': '#4CAF50'},
-            {'value': 0, 'key': 'CHART.NEUTRAL', 'color': '#9E9E9E'}]
-        response = self.client.get('{}?{}'.format(reverse('cxi:respondents-distribution'), self.query_params))
-        print(response.data)
-        self.assertFalse(True)
-        self.assertListEqual(expected_response, response.data)
+            {'value': 0.0, 'key': 'CHART.NEGATIVE', 'color': '#f44336'},
+            {'value': 0.0, 'key': 'CHART.POSITIVE', 'color': '#4CAF50'},
+            {'value': 0.0, 'key': 'CHART.NEUTRAL', 'color': '#9E9E9E'}]
+        response = self.client.get('{}?{}'.format(reverse('cxi:respondents-distribution'), query_params.urlencode()))
+        self.assertCountEqual(expected_response, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def _generate_first_indicator_question(self, score):
+    def test_when_there_are_no_completed_questionnaires_for_nps_indicator(self):
+        indicator_name = 'NPS'
+        query_params = QueryDict('indicator={}&project={}&company_element={}'.format(indicator_name,
+                                                                                     self.project.id,
+                                                                                     self.company_element.id))
+        expected_response = [
+            {'value': 0.0, 'key': 'CHART.DETRACTOR', 'color': '#f44336'},
+            {'value': 0.0, 'key': 'CHART.PROMOTERS', 'color': '#4CAF50'},
+            {'value': 0.0, 'key': 'CHART.PASSIVE', 'color': '#9E9E9E'}]
+        response = self.client.get('{}?{}'.format(reverse('cxi:respondents-distribution'), query_params.urlencode()))
+        self.assertCountEqual(expected_response, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_when_there_are_one_detractor_and_one_negative_questionnaires(self):
+        query_params = QueryDict('indicator={}&project={}&company_element={}'.format(self.indicator_type,
+                                                                                     self.project.id,
+                                                                                     self.company_element.id))
+        self._generate_first_indicator_question(8, self.indicator_type)
+        self._generate_second_indicator_question(2, self.indicator_type)
+        expected_response = [
+            {'color': '#9E9E9E', 'value': 50.0, 'key': 'CHART.NEUTRAL'},
+            {'color': '#f44336', 'value': 50.0, 'key': 'CHART.NEGATIVE'},
+            {'color': '#4CAF50', 'value': 0.0, 'key': 'CHART.POSITIVE'}
+        ]
+        response = self.client.get('{}?{}'.format(reverse('cxi:respondents-distribution'), query_params.urlencode()))
+        self.assertCountEqual(expected_response, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_when_there_are_one_detractor_and_one_promoter_questionnaires(self):
+        query_params = QueryDict('indicator={}&project={}&company_element={}'.format(self.indicator_type,
+                                                                                     self.project.id,
+                                                                                     self.company_element.id))
+        self._generate_first_indicator_question(9, self.indicator_type)
+        self._generate_second_indicator_question(2, self.indicator_type)
+        expected_response = [
+            {'color': '#9E9E9E', 'value': 0.0, 'key': 'CHART.NEUTRAL'},
+            {'color': '#f44336', 'value': 50.0, 'key': 'CHART.NEGATIVE'},
+            {'color': '#4CAF50', 'value': 50.0, 'key': 'CHART.POSITIVE'}
+        ]
+        response = self.client.get('{}?{}'.format(reverse('cxi:respondents-distribution'), query_params.urlencode()))
+        self.assertCountEqual(expected_response, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_when_there_are_one_detractor_and_one_promoter_questionnaires_for_nps(self):
+        indicator_name = 'NPS'
+        query_params = QueryDict('indicator={}&project={}&company_element={}'.format(indicator_name,
+                                                                                     self.project.id,
+                                                                                     self.company_element.id))
+        self._generate_first_indicator_question(9, indicator_name)
+        self._generate_second_indicator_question(2, indicator_name)
+        expected_response = [
+            {'color': '#9E9E9E', 'value': 0.0, 'key': 'CHART.PASSIVE'},
+            {'color': '#f44336', 'value': 50.0, 'key': 'CHART.DETRACTOR'},
+            {'color': '#4CAF50', 'value': 50.0, 'key': 'CHART.PROMOTERS'}
+        ]
+        response = self.client.get('{}?{}'.format(reverse('cxi:respondents-distribution'), query_params.urlencode()))
+        self.assertCountEqual(expected_response, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def _generate_first_indicator_question(self, score, indicator_name):
         block1 = QuestionnaireBlockFactory(questionnaire=self.questionnaire1)
         return IndicatorQuestionFactory.create(questionnaire=self.questionnaire1,
                                                block=block1,
-                                               additional_info=self.indicator_type,
+                                               additional_info=indicator_name,
                                                score=score,
-                                               template_question=self.template_indicator_question, type='i')
+                                               template_question=self.template_indicator_question)
 
-    def _generate_second_indicator_question(self, score):
+    def _generate_second_indicator_question(self, score, indicator_name):
         block2 = QuestionnaireBlockFactory(questionnaire=self.questionnaire2)
         return IndicatorQuestionFactory.create(questionnaire=self.questionnaire2,
                                                block=block2,
-                                               additional_info=self.indicator_type,
+                                               additional_info=indicator_name,
                                                score=score,
-                                               template_question=self.template_indicator_question, type='i')
+                                               template_question=self.template_indicator_question)

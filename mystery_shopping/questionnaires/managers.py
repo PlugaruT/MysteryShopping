@@ -76,7 +76,7 @@ class QuestionnaireQuestionQuerySet(QuerySet):
     def get_project_specific_indicator_questions(self, project, indicator):
         return self.get_project_indicator_questions(project).filter(additional_info=indicator)
 
-    def get_indicator_questions_for_company_elements(self, project, indicator, company_elements=None):
+    def get_indicator_questions_for_company_elements(self, project, indicator, company_elements=[]):
         if company_elements:
             return self.get_project_specific_indicator_questions(project, indicator).filter(
                 questionnaire__evaluation__company_element__in=company_elements)
