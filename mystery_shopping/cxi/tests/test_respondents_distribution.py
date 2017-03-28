@@ -40,9 +40,9 @@ class RespondentsDistributionAPITestCase(APITestCase):
                                                                                      self.project.id,
                                                                                      self.company_element.id))
         expected_response = [
-            {'value': 0.0, 'key': 'CHART.NEGATIVE'},
-            {'value': 0.0, 'key': 'CHART.POSITIVE'},
-            {'value': 0.0, 'key': 'CHART.NEUTRAL'}]
+            {'value': 0.0, 'key': 'NEGATIVE'},
+            {'value': 0.0, 'key': 'POSITIVE'},
+            {'value': 0.0, 'key': 'NEUTRAL'}]
         response = self.client.get('{}?{}'.format(reverse('cxi:respondents-distribution'), query_params.urlencode()))
         self.assertCountEqual(expected_response, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -53,9 +53,9 @@ class RespondentsDistributionAPITestCase(APITestCase):
                                                                                      self.project.id,
                                                                                      self.company_element.id))
         expected_response = [
-            {'value': 0.0, 'key': 'CHART.DETRACTOR'},
-            {'value': 0.0, 'key': 'CHART.PROMOTERS'},
-            {'value': 0.0, 'key': 'CHART.PASSIVE'}]
+            {'value': 0.0, 'key': 'DETRACTOR'},
+            {'value': 0.0, 'key': 'PROMOTERS'},
+            {'value': 0.0, 'key': 'PASSIVE'}]
         response = self.client.get('{}?{}'.format(reverse('cxi:respondents-distribution'), query_params.urlencode()))
         self.assertCountEqual(expected_response, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -67,9 +67,9 @@ class RespondentsDistributionAPITestCase(APITestCase):
         self._generate_first_indicator_question(8, self.indicator_type)
         self._generate_second_indicator_question(2, self.indicator_type)
         expected_response = [
-            {'value': 50.0, 'key': 'CHART.NEUTRAL'},
-            {'value': 50.0, 'key': 'CHART.NEGATIVE'},
-            {'value': 0.0, 'key': 'CHART.POSITIVE'}
+            {'value': 50.0, 'key': 'NEUTRAL'},
+            {'value': 50.0, 'key': 'NEGATIVE'},
+            {'value': 0.0, 'key': 'POSITIVE'}
         ]
         response = self.client.get('{}?{}'.format(reverse('cxi:respondents-distribution'), query_params.urlencode()))
         self.assertCountEqual(expected_response, response.data)
@@ -82,9 +82,9 @@ class RespondentsDistributionAPITestCase(APITestCase):
         self._generate_first_indicator_question(9, self.indicator_type)
         self._generate_second_indicator_question(2, self.indicator_type)
         expected_response = [
-            {'value': 0.0, 'key': 'CHART.NEUTRAL'},
-            {'value': 50.0, 'key': 'CHART.NEGATIVE'},
-            {'value': 50.0, 'key': 'CHART.POSITIVE'}
+            {'value': 0.0, 'key': 'NEUTRAL'},
+            {'value': 50.0, 'key': 'NEGATIVE'},
+            {'value': 50.0, 'key': 'POSITIVE'}
         ]
         response = self.client.get('{}?{}'.format(reverse('cxi:respondents-distribution'), query_params.urlencode()))
         self.assertCountEqual(expected_response, response.data)
@@ -98,9 +98,9 @@ class RespondentsDistributionAPITestCase(APITestCase):
         self._generate_first_indicator_question(9, indicator_name)
         self._generate_second_indicator_question(2, indicator_name)
         expected_response = [
-            {'value': 0.0, 'key': 'CHART.PASSIVE'},
-            {'value': 50.0, 'key': 'CHART.DETRACTOR'},
-            {'value': 50.0, 'key': 'CHART.PROMOTERS'}
+            {'value': 0.0, 'key': 'PASSIVE'},
+            {'value': 50.0, 'key': 'DETRACTOR'},
+            {'value': 50.0, 'key': 'PROMOTERS'}
         ]
         response = self.client.get('{}?{}'.format(reverse('cxi:respondents-distribution'), query_params.urlencode()))
         self.assertCountEqual(expected_response, response.data)
