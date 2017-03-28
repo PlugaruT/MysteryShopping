@@ -12,7 +12,6 @@ from rest_framework.response import Response
 from mystery_shopping.companies.models import Company, CompanyElement
 from mystery_shopping.cxi.algorithms import GetPerDayQuestionnaireData
 from mystery_shopping.cxi.serializers import SimpleWhyCauseSerializer
-from mystery_shopping.mystery_shopping_utils.constants import COLORS_MAPPING
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from mystery_shopping.mystery_shopping_utils.paginators import FrustrationWhyCausesPagination, \
     AppreciationWhyCausesPagination, WhyCausesPagination
@@ -275,17 +274,14 @@ class RespondentsDistribution(views.APIView):
         {
             key: 'CHART.DETRACTOR',
             value: 5,
-            color: '#f44336'
         },
         {
             key: 'CHART.PASSIVE',
             value: 2,
-            color: '#9E9E9E'
         },
         {
             key: 'CHART.PROMOTERS',
             value: 9,
-            color: '#4CAF50'
         }
     ]
     ```
@@ -329,18 +325,16 @@ class RespondentsDistribution(views.APIView):
         response = []
         number_of_questions = number_of_questions if number_of_questions else 1
         for key, value in data_dict.items():
-            key_name = 'CHART.{}'.format(key.upper())
             value = value if value else 0
             percentage = value / number_of_questions * 100
-            response.append(self.build_data_point(key_name, percentage, COLORS_MAPPING[key]))
+            response.append(self.build_data_point(key.upper(), percentage))
         return response
 
     @staticmethod
-    def build_data_point(key, value, color):
+    def build_data_point(key, value):
         return {
             "key": key,
             "value": value,
-            "color": color
         }
 
 
