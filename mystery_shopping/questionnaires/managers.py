@@ -32,11 +32,11 @@ class QuestionnaireQuerySet(QuerySet):
 
     def get_project_questionnaires_for_subdivision_children(self, project, company_element=None):
         """
-        filter the questionnaires for the company element and its immediate children if company element is provided, else
+        filter the questionnaires for the company element's immediate children if company element is provided, else
         filter all completed questionnaires for the given project
 
         :param project: project to get questionnaire for
-        :param company_element: project to get questionnaire for
+        :param company_element: company element to get questionnaire for
         :return: questionnaire queryset
         """
         questionnaires = self.get_project_submitted_or_approved_questionnaires(project)
@@ -51,7 +51,7 @@ class QuestionnaireQuerySet(QuerySet):
         filter all completed questionnaires for the given project
 
         :param project: project to get questionnaire for
-        :param company_element: project to get questionnaire for
+        :param company_element: company element to get questionnaire for
         :return: questionnaire queryset
         """
         questionnaires = self.get_project_submitted_or_approved_questionnaires(project)
