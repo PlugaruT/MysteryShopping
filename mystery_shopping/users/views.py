@@ -62,6 +62,18 @@ class CreateUserMixin:
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
+class DestroyOneToOneUserMixin:
+    """
+    Mixin for deleting One To One relations of model instance with User model
+    """
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        # if the user is destroyed, cascading deleting is triggered and the current instance will be destroyed
+        instance.user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 class UserFilter(django_filters.rest_framework.FilterSet):
     groups = django_filters.AllValuesMultipleFilter(name="groups")
 
@@ -236,7 +248,7 @@ class ShopperFilter(django_filters.rest_framework.FilterSet):
         fields = ['license', 'sex', 'age']
 
 
-class ShopperViewSet(GetSerializerClassMixin, CreateUserMixin, viewsets.ModelViewSet):
+class ShopperViewSet(DestroyOneToOneUserMixin, GetSerializerClassMixin, CreateUserMixin, viewsets.ModelViewSet):
     queryset = Shopper.objects.all()
     serializer_class = ShopperSerializer
     serializer_class_get = ShopperSerializerGET
@@ -257,7 +269,7 @@ class ClientFilter(django_filters.rest_framework.FilterSet):
         fields = ['groups', 'company']
 
 
-class ClientUserViewSet(GetSerializerClassMixin, CreateUserMixin, viewsets.ModelViewSet):
+class ClientUserViewSet(DestroyOneToOneUserMixin, GetSerializerClassMixin, CreateUserMixin, viewsets.ModelViewSet):
     queryset = ClientUser.objects.all()
     serializer_class = ClientUserSerializer
     serializer_class_get = ClientUserSerializerGET
