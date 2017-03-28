@@ -4,26 +4,25 @@ from __future__ import absolute_import, unicode_literals
 import django_filters
 from django.contrib.auth.models import Permission, Group
 from django.shortcuts import get_object_or_404
-from django.db.models import Q
 
 from rest_framework import viewsets
 from rest_framework import status
 from rest_condition import Or
-from rest_framework.decorators import list_route, detail_route
-from rest_framework.filters import SearchFilter
+from rest_framework.decorators import detail_route
 from rest_framework.decorators import list_route
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django_filters.rest_framework import DjangoFilterBackend, ModelMultipleChoiceFilter
+from django_filters.rest_framework import DjangoFilterBackend
 
-from mystery_shopping.companies.models import CompanyElement
 from mystery_shopping.companies.serializers import CompanyElementSerializer
 from mystery_shopping.companies.models import CompanyElement
+from mystery_shopping.mystery_shopping_utils.custom_filters import DetractorIndicatorMultipleChoiceFilter
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from mystery_shopping.mystery_shopping_utils.paginators import DetractorRespondentPaginator
 from mystery_shopping.mystery_shopping_utils.permissions import DetractorFilterPerCompanyElement
 from mystery_shopping.mystery_shopping_utils.views import GetSerializerClassMixin
+from mystery_shopping.questionnaires.models import Questionnaire
 from mystery_shopping.questionnaires.serializers import DetractorRespondentForTenantSerializer, \
     DetractorRespondentForClientSerializer
 from mystery_shopping.users.models import DetractorRespondent, ClientUser
@@ -292,10 +291,13 @@ class DetractorFilter(django_filters.rest_framework.FilterSet):
                                                       name="evaluation__company_element")
     date = django_filters.DateFromToRangeFilter(name="evaluation__time_accomplished", lookup_expr='date')
     questions = django_filters.AllValuesMultipleFilter(name='number_of_questions')
+    indicators = DetractorIndicatorMultipleChoiceFilter(name="evaluation__questionnaire__questions__additional_info",
+                                                        conjoined=True,
+                                                        query_manager=Questionnaire.objects.filter)
 
     class Meta:
         model = DetractorRespondent
-        fields = ['date', 'places', 'status', 'questions']
+        fields = ['date', 'places', 'status', 'questions', 'indicators']
 
 
 class DetractorRespondentForTenantViewSet(viewsets.ModelViewSet):
