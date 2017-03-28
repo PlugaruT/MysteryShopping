@@ -10,13 +10,16 @@ from mystery_shopping.users.roles import UserRole
 
 
 class AuthenticateUser:
-    def __init__(self):
+    def __init__(self, tenant=None):
         api_settings.JWT_RESPONSE_PAYLOAD_HANDLER = jwt_response_payload_handler
         self.credentials = {
             'username': 'user_test',
             'password': 'moldova123'
         }
-        self.tenant = Tenant.objects.create(name='tenant demo')
+        if tenant is None:
+            self.tenant = Tenant.objects.create(name='tenant demo')
+        else:
+            self.tenant = tenant
         self._set_user()
         # self._attach_tenant_product_manager_to_user()
         self._set_client()
