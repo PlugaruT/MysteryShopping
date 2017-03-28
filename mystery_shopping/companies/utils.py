@@ -91,42 +91,29 @@ class FilterCompanyStructure:
         """
         method to filter out top level nodes that are found in lower levels
 
-        initial structure:
-            10
-                33
-                16
-                    11
-                        2
-                    20
-            16
-                11
-                    2
-                20
-            11
-                2
-            23
-                15
-            33
-            21
-                35
-            2
-            20
-            15
-            35
-            45
-
-        filtered structure:
-            10
-                33
-                16
-                    11
-                        2
-                    20
-            23
-                15
-            21
-                35
-            45
+        initial structure:      |   filtered structure:            
+            10                  |       10
+                33              |           33    
+                16              |           16    
+                    11          |               11        
+                        2       |                   2            
+                    20          |               20        
+            16                  |       23
+                11              |           15    
+                    2           |       21        
+                20              |           35    
+            11                  |       45
+                2               |    
+            23                  |
+                15              |    
+            33                  |
+            21                  |
+                35              |    
+            2                   |
+            20                  |
+            15                  |
+            35                  |
+            45                  |
         :return: list of nodes with the filtered structure
         """
         accepted_nodes = list()
