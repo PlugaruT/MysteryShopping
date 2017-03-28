@@ -1,11 +1,9 @@
-from django.contrib.contenttypes.models import ContentType
 from django.test.testcases import TestCase
 
 from mystery_shopping.factories.companies import CompanyElementFactory
 from mystery_shopping.factories.projects import EvaluationFactory, ProjectFactory, ResearchMethodologyFactory
 from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFactory
 from mystery_shopping.factories.tenants import TenantFactory
-from mystery_shopping.projects.serializers import ProjectSerializer, ProjectSerializerGET
 
 
 class TestProjectEditablePlaces(TestCase):

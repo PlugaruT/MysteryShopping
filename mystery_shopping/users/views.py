@@ -18,6 +18,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from mystery_shopping.companies.serializers import CompanyElementSerializer
 from mystery_shopping.companies.models import CompanyElement
 from mystery_shopping.mystery_shopping_utils.custom_filters import DetractorIndicatorMultipleChoiceFilter
+from mystery_shopping.companies.utils import FilterCompanyStructure
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from mystery_shopping.mystery_shopping_utils.paginators import DetractorRespondentPaginator
 from mystery_shopping.mystery_shopping_utils.permissions import DetractorFilterPerCompanyElement
@@ -61,6 +62,18 @@ class CreateUserMixin:
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class DestroyOneToOneUserMixin:
+    """
+    Mixin for deleting One To One relations of model instance with User model
+    """
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        # if the user is destroyed, cascading deleting is triggered and the current instance will be destroyed
+        instance.user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class UserFilter(django_filters.rest_framework.FilterSet):
@@ -133,34 +146,22 @@ class UserViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
     @detail_route(methods=['get'], url_path='detractor-permissions')
     def detractor_permissions(self, request, pk=None):
         user = get_object_or_404(User, pk=pk)
-        company_elements = user.detractors_permissions()
-        company_structure = CompanyElementSerializer(user.user_company()).data
-        allowed_company_elements = self.filter_company_and_serialize(company_elements)
-        self.filter_objects(company_structure['children'], allowed_company_elements)
-        return Response(company_structure)
+        return Response(self._filter_company_entities(user.detractors_permissions, user.user_company()))
 
     @detail_route(methods=['get'], url_path='statistics-permissions')
     def statistics_permissions(self, request, pk=None):
         user = get_object_or_404(User, pk=pk)
-        company_elements = user.statistics_permissions()
-        company_structure = CompanyElementSerializer(user.user_company()).data
-        allowed_company_elements = self.filter_company_and_serialize(company_elements)
-        self.filter_objects(company_structure['children'], allowed_company_elements)
-        return Response(company_structure)
+        return Response(self._filter_company_entities(user.statistics_permissions, user.user_company()))
 
     @detail_route(methods=['get'], url_path='coded-causes-permissions')
     def coded_causes_permissions(self, request, pk=None):
         user = get_object_or_404(User, pk=pk)
-        company_elements = user.coded_causes_permissions()
-        response = self.filter_company_and_serialize(company_elements)
-        return Response(response)
+        return Response(self._filter_company_entities(user.coded_causes_permissions, user.user_company()))
 
     @detail_route(methods=['get'], url_path='management-permissions')
     def management_permissions(self, request, pk=None):
         user = get_object_or_404(User, pk=pk)
-        company_elements = user.management_permissions()
-        response = self.filter_company_and_serialize(company_elements)
-        return Response(response)
+        return Response(self._filter_company_entities(user.management_permissions, user.user_company()))
 
     @staticmethod
     def filter_company_and_serialize(company_elements_ids):
@@ -168,23 +169,13 @@ class UserViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
         serializer = CompanyElementSerializer(company_elements, many=True)
         return serializer.data
 
-    def filter_objects(self, childrens, company_elements):
-        """
-        Function for filtering the company structure according to the allowed company elements.
-        The function iterates through children and if the child is not in allowed list, all its
-        children are moved one level out.
-        :param childrens: list of children of the company
-        :param company_elements: allowed company elements serialized
-        :return: modified company structure with filtered children
-        """
-        for child in childrens:
-            if child not in company_elements:
-                childrens.extend(child.pop('children', []))
-                childrens.remove(child)
-                continue
-            else:
-                child['children'] = [obj for obj in child['children'] if obj in company_elements]
-            self.filter_objects(child['children'], company_elements)
+    def _filter_company_entities(self, permission_method, company):
+        company_elements_id = permission_method()
+        company_structure = CompanyElementSerializer(company).data
+        allowed_company_elements = self.filter_company_and_serialize(company_elements_id)
+        company_structure['children'] = FilterCompanyStructure(allowed_company_elements,
+                                                               company_elements_id).run_filter()
+        return company_structure
 
 
 class UserPermissionsViewSet(viewsets.ReadOnlyModelViewSet):
@@ -239,7 +230,7 @@ class ShopperFilter(django_filters.rest_framework.FilterSet):
         fields = ['license', 'sex', 'age']
 
 
-class ShopperViewSet(GetSerializerClassMixin, CreateUserMixin, viewsets.ModelViewSet):
+class ShopperViewSet(DestroyOneToOneUserMixin, GetSerializerClassMixin, CreateUserMixin, viewsets.ModelViewSet):
     queryset = Shopper.objects.all()
     serializer_class = ShopperSerializer
     serializer_class_get = ShopperSerializerGET
@@ -260,7 +251,7 @@ class ClientFilter(django_filters.rest_framework.FilterSet):
         fields = ['groups', 'company']
 
 
-class ClientUserViewSet(GetSerializerClassMixin, CreateUserMixin, viewsets.ModelViewSet):
+class ClientUserViewSet(DestroyOneToOneUserMixin, GetSerializerClassMixin, CreateUserMixin, viewsets.ModelViewSet):
     queryset = ClientUser.objects.all()
     serializer_class = ClientUserSerializer
     serializer_class_get = ClientUserSerializerGET
