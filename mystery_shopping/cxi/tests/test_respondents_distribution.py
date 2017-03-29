@@ -60,7 +60,7 @@ class RespondentsDistributionAPITestCase(APITestCase):
         self.assertCountEqual(expected_response, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_when_there_are_one_detractor_and_one_negative_questionnaires(self):
+    def test_when_there_are_one_negative_and_one_neutral_questionnaires(self):
         query_params = QueryDict('indicator={}&project={}&company_element={}'.format(self.indicator_type,
                                                                                      self.project.id,
                                                                                      self.company_element.id))
@@ -75,7 +75,7 @@ class RespondentsDistributionAPITestCase(APITestCase):
         self.assertCountEqual(expected_response, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_when_there_are_one_detractor_and_one_promoter_questionnaires(self):
+    def test_when_there_are_one_negative_and_one_positive_questionnaires(self):
         query_params = QueryDict('indicator={}&project={}&company_element={}'.format(self.indicator_type,
                                                                                      self.project.id,
                                                                                      self.company_element.id))
