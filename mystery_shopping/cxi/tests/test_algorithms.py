@@ -490,7 +490,7 @@ class AlgorithmsTestCase(TestCase):
         indicator_question_4.id = 44
         coded_causes_dict[coded_cause_3.id].append(indicator_question_4.id)
 
-        result = sort_question_by_coded_cause(coded_causes_dict)
+        result = sort_question_by_coded_cause(coded_causes_dict, 4)
 
         expected_result = [
             {

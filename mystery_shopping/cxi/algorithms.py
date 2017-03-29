@@ -5,6 +5,7 @@ from django.db.models import Count, Min
 from django.db.models.query import Prefetch
 
 from mystery_shopping.companies.models import CompanyElement
+from mystery_shopping.mystery_shopping_utils.utils import calculate_percentage
 from mystery_shopping.questionnaires.constants import QuestionType
 from mystery_shopping.questionnaires.models import Questionnaire, QuestionnaireQuestion, CustomWeight, \
     QuestionnaireTemplateQuestion
@@ -15,6 +16,7 @@ from mystery_shopping.cxi.serializers import ProjectCommentSerializer
 from mystery_shopping.questionnaires.utils import first_or_none
 
 from mystery_shopping.mystery_shopping_utils.constants import ROUND_TO_DIGITS
+
 
 def get_indicator_scores(questionnaire_list, indicator_type):
     """
@@ -242,7 +244,7 @@ def get_indicator_details(questionnaire_list, children_questionnaire_list, indic
 
     return_dict = dict()
     return_dict['details'] = details
-    return_dict['coded_causes'] = sort_question_by_coded_cause(coded_causes_dict)
+    return_dict['coded_causes'] = sort_question_by_coded_cause(coded_causes_dict, questionnaire_list.count())
     return return_dict
 
 
@@ -421,8 +423,8 @@ class GetPerDayQuestionnaireData:
 
 def add_question_per_coded_cause(indicator_question, coded_cause_dict):
     """
-    Function for grouping indicator questions by coded_cause. If coded_cause doesn't exists, it appends the question id
-    to the 'unsorted' key
+    Function for grouping indicator questions by coded_cause. If coded_cause doesn't exist, it appends the question id to the 'unsorted' key
+    
     :param indicator_question: question to be sorted
     :param coded_cause_dict: dict of existing coded_causes
     :return: dict with sorted questions by coded_cause
@@ -435,7 +437,7 @@ def add_question_per_coded_cause(indicator_question, coded_cause_dict):
             coded_cause_dict[coded_cause.id].append(indicator_question.id)
 
 
-def sort_question_by_coded_cause(coded_causes_dict):
+def sort_question_by_coded_cause(coded_causes_dict, total_count):
     """
     Function for counting the number of coded_cause with the same id
     :param coded_causes_dict: dict with unsorted coded causes
@@ -450,6 +452,7 @@ def sort_question_by_coded_cause(coded_causes_dict):
         coded_cause_serialized = CodedCauseSerializer(coded_cause_inst)
         temp_dict['coded_cause'] = coded_cause_serialized.data
         temp_dict['count'] = len(coded_causes_dict[coded_cause])
+        temp_dict['percentage'] = calculate_percentage(temp_dict['count'], total_count)
         coded_causes_response.append(temp_dict)
     return coded_causes_response
 
@@ -638,7 +641,7 @@ class CodedCausesPercentageTable:
         questions = coded_cause_info.get('questions', [])
         return {
             "sentiment": coded_cause_info.get('sentiment'),
-            "percentage": self.calculate_percentage(number_of_why_causes, number_of_questions),
+            "percentage": calculate_percentage(number_of_why_causes, number_of_questions, ROUND_TO_DIGITS),
             "company_elements": self.build_response_for_company_elements(questions, number_of_questions)
         }
 
@@ -651,7 +654,7 @@ class CodedCausesPercentageTable:
                 "id": company_element.id,
                 "name": company_element.element_name,
                 "type": company_element.element_type,
-                "percentage": self.calculate_percentage(nr_of_why_causes, number_of_questions),
+                "percentage": calculate_percentage(nr_of_why_causes, number_of_questions, ROUND_TO_DIGITS),
                 "company_elements": self.build_response_for_company_elements(questions, number_of_questions) if
                 company_element.children.exists() else []
             }
@@ -690,12 +693,6 @@ class CodedCausesPercentageTable:
             company_element = indicator_question.get_company_element()
             result.setdefault(company_element, []).append(indicator_question)
         return result
-
-    @staticmethod
-    def calculate_percentage(number_of_why_causes, number_of_questions):
-        if number_of_questions == 0:
-            number_of_questions = 1
-        return round(number_of_why_causes / number_of_questions* 100, ROUND_TO_DIGITS)
 
     @staticmethod
     def extract_coded_cause(why_causes):
