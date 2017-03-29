@@ -1,3 +1,4 @@
+from django.db.models.deletion import ProtectedError
 from django.shortcuts import get_object_or_404
 from django.db.models import F
 from rest_framework import viewsets
@@ -76,6 +77,14 @@ class CompanyElementViewSet(viewsets.ModelViewSet):
         queryset = self.filter_queryset(CompanyElement.tree.root_nodes())
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+    def destroy(self, request, *args, **kwargs):
+        try:
+            super(CompanyElementViewSet, self).destroy(request, *args, **kwargs)
+        except ProtectedError:
+            return Response(data={'detail': 'TOAST.COMPANY_ELEMENT_USED_IN_EVALUATION'},
+                            status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @list_route(methods=['get'])
     def companies(self, request, *args, **kwargs):

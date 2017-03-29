@@ -1,6 +1,7 @@
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.db.models.deletion import PROTECT, SET_NULL
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
 from model_utils.fields import StatusField
@@ -70,8 +71,8 @@ class Project(TenantModel):
     # this type of import is used to avoid import circles
     consultants = models.ManyToManyField('users.User', blank=True, related_name='consultant_projects')
     company = models.ForeignKey('companies.CompanyElement')
-    project_manager = models.ForeignKey('users.User', related_name='manager_projects')
-    research_methodology = models.ForeignKey('ResearchMethodology', null=True, blank=True)
+    project_manager = models.ForeignKey('users.User', related_name='manager_projects', on_delete=PROTECT)
+    research_methodology = models.ForeignKey('ResearchMethodology', null=True, blank=True, on_delete=SET_NULL)
     shoppers = models.ManyToManyField('users.User', blank=True, related_name='shopper_projects')
 
     # Attributes
@@ -137,7 +138,7 @@ class Evaluation(TimeStampedModel, models.Model):
     """
     """
     # Relationships
-    company_element = models.ForeignKey('companies.CompanyElement')
+    company_element = models.ForeignKey('companies.CompanyElement', on_delete=PROTECT)
     project = models.ForeignKey(Project)
     questionnaire_script = models.ForeignKey(QuestionnaireScript, null=True)
     saved_by_user = models.ForeignKey('users.User', related_name='saved_evaluations')
