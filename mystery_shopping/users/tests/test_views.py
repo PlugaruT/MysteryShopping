@@ -3,6 +3,7 @@ from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 
+from mystery_shopping.factories.projects import ProjectFactory
 from mystery_shopping.factories.tenants import TenantFactory
 from mystery_shopping.factories.users import UserFactory, ShopperFactory, ClientUserFactory
 from mystery_shopping.users.models import Shopper, User
@@ -37,3 +38,24 @@ class ClientUserAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
         self.assertRaises(ObjectDoesNotExist, Shopper.objects.get, id=self.client_user.id)
         self.assertRaises(ObjectDoesNotExist, User.objects.get, id=self.user.id)
+
+
+class UserAPITestCase(APITestCase):
+    def setUp(self):
+        self.tenant = TenantFactory()
+        self.authentication = AuthenticateUser(tenant=self.tenant)
+        self.client = self.authentication.client
+        self.user = UserFactory(tenant=self.tenant)
+        self.client_user = ClientUserFactory(user=self.user)
+        self.project = ProjectFactory()
+
+    def test_when_try_to_delete_user_without_project(self):
+        response = self.client.delete(reverse('user-detail', args=(self.user.id,)))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+        self.assertRaises(ObjectDoesNotExist, User.objects.get, id=self.user.id)
+
+    def test_when_try_to_delete_user_with_project(self):
+        self.project.project_manager = self.user
+        self.project.save()
+        response = self.client.delete(reverse('user-detail', args=(self.user.id,)))
+        self.assertEquals(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
