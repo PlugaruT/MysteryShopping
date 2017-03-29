@@ -82,7 +82,7 @@ class QuestionnaireTemplate(TenantModel, TimeStampedModel, QuestionnaireAbstract
         return self.template_questions.filter(type=QuestionType.INDICATOR_QUESTION)
 
     def get_indicator_question(self, indicator_type):
-        return self.template_questions.filter(type=indicator_type).first()
+        return self.template_questions.filter(additional_info=indicator_type).first()
 
     def archive(self, user):
         self.is_archived = True

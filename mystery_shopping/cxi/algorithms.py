@@ -233,7 +233,9 @@ def get_indicator_details(questionnaire_list, children_questionnaire_list, indic
     :return: the indicator scores
     """
     details = list()
-    indicator_skeleton = create_details_skeleton(questionnaire_list.first().template)
+    template_questionnaire = questionnaire_list.first().template
+    indicator_question = template_questionnaire.get_indicator_question(indicator_type)
+    indicator_skeleton = create_details_skeleton(template_questionnaire)
     indicator_categories, coded_causes_dict = group_questions_by_answer(questionnaire_list, indicator_type,
                                                                         indicator_skeleton)
     sort_indicator_categories(details, indicator_categories, new_algorithm)
@@ -244,7 +246,11 @@ def get_indicator_details(questionnaire_list, children_questionnaire_list, indic
 
     return_dict = dict()
     return_dict['details'] = details
-    return_dict['coded_causes'] = sort_question_by_coded_cause(coded_causes_dict, questionnaire_list.count())
+    if indicator_question.allow_why_causes:
+        coded_causes = sort_question_by_coded_cause(coded_causes_dict, questionnaire_list.count())
+    else:
+        coded_causes = []
+    return_dict['coded_causes'] = coded_causes
     return return_dict
 
 
