@@ -22,9 +22,6 @@ class ShopperAPITestCase(APITestCase):
         self.authentication = AuthenticateUser(tenant=self.tenant)
         self.client = self.authentication.client
         self.questionnaire_template = QuestionnaireTemplateFactory(tenant=self.tenant)
-        # group = Group.objects.get(name=UserRole.TENANT_PRODUCT_MANAGER_GROUP)
-        # self.authentication.user.groups.add(group)
-        print(self.authentication.user.groups.all())
         self.project = ProjectFactory(tenant=self.tenant)
         self.company_element = CompanyElementFactory(tenant=self.tenant)
 
