@@ -6,6 +6,7 @@ from factory.django import DjangoModelFactory
 from factory import fuzzy, SubFactory, PostGenerationMethodCall, RelatedFactory
 
 from mystery_shopping.factories.companies import CompanyElementFactory
+from mystery_shopping.users.admin import DetractorRespondent
 from mystery_shopping.users.roles import UserRole
 from .tenants import TenantFactory
 from mystery_shopping.users.models import User, TenantProjectManager, Shopper, ClientUser
@@ -100,3 +101,9 @@ class UserThatIsTenantProjectManagerFactory(DjangoModelFactory):
     password = PostGenerationMethodCall('set_password', r_password)
     is_active = True
     shopper = RelatedFactory(TenantProjectManager, factory_related_name='user')
+
+
+class DetractorRespondentFactory(DjangoModelFactory):
+    class Meta:
+        model = DetractorRespondent
+

@@ -68,10 +68,10 @@ class Tenants(admin.ModelAdmin):
 
 
 @admin.register(Shopper)
-class Shoppers(admin.ModelAdmin):
+class ShopperAdmin(admin.ModelAdmin):
     pass
 
 
 @admin.register(DetractorRespondent)
-class DetractorRespondent(admin.ModelAdmin):
+class DetractorRespondentAdmin(admin.ModelAdmin):
     pass
