@@ -260,7 +260,7 @@ class BarChartGraph(views.APIView):
 class RespondentsDistribution(views.APIView):
     """
     
-    View that will return a the distribution of respondents for an indicator. 
+    View that will return the distribution of respondents for an indicator. 
     
      Query params:
 

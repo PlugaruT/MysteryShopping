@@ -44,8 +44,8 @@ class RespondentsDistributionAPITestCase(APITestCase):
             {'value': 0.0, 'key': 'POSITIVE'},
             {'value': 0.0, 'key': 'NEUTRAL'}]
         response = self.client.get('{}?{}'.format(reverse('cxi:respondents-distribution'), query_params.urlencode()))
-        self.assertCountEqual(expected_response, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertCountEqual(expected_response, response.data)
 
     def test_when_there_are_no_completed_questionnaires_for_nps_indicator(self):
         indicator_name = 'NPS'
@@ -57,8 +57,8 @@ class RespondentsDistributionAPITestCase(APITestCase):
             {'value': 0.0, 'key': 'PROMOTERS'},
             {'value': 0.0, 'key': 'PASSIVE'}]
         response = self.client.get('{}?{}'.format(reverse('cxi:respondents-distribution'), query_params.urlencode()))
-        self.assertCountEqual(expected_response, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertCountEqual(expected_response, response.data)
 
     def test_when_there_are_one_negative_and_one_neutral_questionnaires(self):
         query_params = QueryDict('indicator={}&project={}&company_element={}'.format(self.indicator_type,
@@ -72,8 +72,8 @@ class RespondentsDistributionAPITestCase(APITestCase):
             {'value': 0.0, 'key': 'POSITIVE'}
         ]
         response = self.client.get('{}?{}'.format(reverse('cxi:respondents-distribution'), query_params.urlencode()))
-        self.assertCountEqual(expected_response, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertCountEqual(expected_response, response.data)
 
     def test_when_there_are_one_negative_and_one_positive_questionnaires(self):
         query_params = QueryDict('indicator={}&project={}&company_element={}'.format(self.indicator_type,
@@ -87,8 +87,8 @@ class RespondentsDistributionAPITestCase(APITestCase):
             {'value': 50.0, 'key': 'POSITIVE'}
         ]
         response = self.client.get('{}?{}'.format(reverse('cxi:respondents-distribution'), query_params.urlencode()))
-        self.assertCountEqual(expected_response, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertCountEqual(expected_response, response.data)
 
     def test_when_there_are_one_detractor_and_one_promoter_questionnaires_for_nps(self):
         indicator_name = 'NPS'
@@ -103,8 +103,8 @@ class RespondentsDistributionAPITestCase(APITestCase):
             {'value': 50.0, 'key': 'PROMOTERS'}
         ]
         response = self.client.get('{}?{}'.format(reverse('cxi:respondents-distribution'), query_params.urlencode()))
-        self.assertCountEqual(expected_response, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertCountEqual(expected_response, response.data)
 
     def _generate_first_indicator_question(self, score, indicator_name):
         block1 = QuestionnaireBlockFactory(questionnaire=self.questionnaire1)
