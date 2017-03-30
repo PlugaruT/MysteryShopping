@@ -1,6 +1,8 @@
 from datetime import datetime
 
 
+# TODO methods from this file should be moved to mystery_shopping_utils/utils.py
+
 def check_q_param_date(string_to_check):
     try:
         date = datetime.strptime(string_to_check, '%Y-%m-%d').date()
