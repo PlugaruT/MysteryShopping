@@ -490,7 +490,7 @@ class AlgorithmsTestCase(TestCase):
         indicator_question_4.id = 44
         coded_causes_dict[coded_cause_3.id].append(indicator_question_4.id)
 
-        result = sort_question_by_coded_cause(coded_causes_dict)
+        result = sort_question_by_coded_cause(coded_causes_dict, 4)
 
         expected_result = [
             {
@@ -532,8 +532,10 @@ class AlgorithmsTestCase(TestCase):
         ]
 
         for item in result:
+            print(item)
             item['coded_cause']['coded_label'] = {}
             item['coded_cause'].pop('why_causes_count')
             item['coded_cause'].pop('why_causes')
+            item.pop('percentage')
 
         self.assertCountEqual(expected_result, result)
