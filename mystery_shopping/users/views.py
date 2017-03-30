@@ -3,6 +3,7 @@ from __future__ import absolute_import, unicode_literals
 
 import django_filters
 from django.contrib.auth.models import Permission, Group
+from django.db.models.deletion import ProtectedError
 from django.shortcuts import get_object_or_404
 
 from rest_framework import viewsets
@@ -23,6 +24,7 @@ from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from mystery_shopping.mystery_shopping_utils.paginators import DetractorRespondentPaginator
 from mystery_shopping.mystery_shopping_utils.permissions import DetractorFilterPerCompanyElement
 from mystery_shopping.mystery_shopping_utils.views import GetSerializerClassMixin
+from mystery_shopping.projects.models import Project
 from mystery_shopping.questionnaires.models import Questionnaire
 from mystery_shopping.questionnaires.serializers import DetractorRespondentForTenantSerializer, \
     DetractorRespondentForClientSerializer
@@ -107,6 +109,13 @@ class UserViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def destroy(self, request, *args, **kwargs):
+        try:
+            super(UserViewSet, self).destroy(request, *args, **kwargs)
+        except ProtectedError:
+            return Response(data={'detail': 'TOAST.USER_SET_IN_PROJECT'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @list_route(methods=['get'])
     def consultants(self, request):
