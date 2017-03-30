@@ -20,7 +20,7 @@ router.register(r'shoppers', ShopperViewSet)
 router.register(r'client-users', ClientUserViewSet)
 router.register(r'collectors', CollectorViewSet)
 router.register(r'detractors', DetractorRespondentForTenantViewSet)
-router.register(r'detractorsforclient', DetractorRespondentForClientViewSet)
+router.register(r'detractorsforclient', DetractorRespondentForClientViewSet, base_name='detractorrespondent-forclient')
 router.register(r'permissions', UserPermissionsViewSet)
 router.register(r'groups', UserGroupsViewSet)
 
