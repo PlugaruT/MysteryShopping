@@ -71,7 +71,8 @@ class QuestionnaireQuestionQuerySet(QuerySet):
                                    'questionnaire__evaluation__company_element').prefetch_related(
             'why_causes', 'why_causes__coded_causes',
             'why_causes__coded_causes__coded_label').filter(questionnaire__evaluation__project=project,
-                                                            type=QuestionType.INDICATOR_QUESTION)
+                                                            type=QuestionType.INDICATOR_QUESTION,
+                                                            questionnaire__evaluation__status=EvaluationStatus.APPROVED)
 
     def get_project_specific_indicator_questions(self, project, indicator):
         return self.get_project_indicator_questions(project).filter(additional_info=indicator)

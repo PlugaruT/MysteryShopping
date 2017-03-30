@@ -16,7 +16,7 @@ from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from mystery_shopping.mystery_shopping_utils.paginators import FrustrationWhyCausesPagination, \
     AppreciationWhyCausesPagination, WhyCausesPagination
 from mystery_shopping.mystery_shopping_utils.utils import aggregate_questions_for_nps_indicator, \
-    aggregate_questions_for_other_indicators
+    aggregate_questions_for_other_indicators, calculate_percentage
 from mystery_shopping.projects.models import Project
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from mystery_shopping.questionnaires.utils import check_interval_date
@@ -323,10 +323,9 @@ class RespondentsDistribution(views.APIView):
         :return: list of dicts
         """
         response = []
-        number_of_questions = number_of_questions if number_of_questions else 1
         for key, value in data_dict.items():
             value = value if value else 0
-            percentage = value / number_of_questions * 100
+            percentage = calculate_percentage(value, number_of_questions)
             response.append(self.build_data_point(key.upper(), percentage))
         return response
 
