@@ -8,6 +8,7 @@ from mystery_shopping.factories.companies import CompanyElementFactory
 from mystery_shopping.factories.projects import ProjectFactory, EvaluationFactory, ResearchMethodologyFactory
 from mystery_shopping.factories.questionnaires import QuestionnaireBlockFactory, IndicatorQuestionFactory, \
     QuestionnaireFactory, QuestionnaireTemplateFactory, QuestionTemplateFactory
+from mystery_shopping.projects.constants import EvaluationStatus
 from mystery_shopping.users.tests.user_authentication import AuthenticateUser
 
 
@@ -30,10 +31,12 @@ class RespondentsDistributionAPITestCase(APITestCase):
 
         self.questionnaire1 = QuestionnaireFactory.create(template=self.questionnaire_template, title='first')
         self.evaluation1 = EvaluationFactory.create(project=self.project, questionnaire=self.questionnaire1,
-                                                    company_element=self.company_element)
+                                                    company_element=self.company_element,
+                                                    status=EvaluationStatus.APPROVED)
         self.questionnaire2 = QuestionnaireFactory.create(template=self.questionnaire_template, title='second')
         self.evaluation2 = EvaluationFactory.create(project=self.project, questionnaire=self.questionnaire2,
-                                                    company_element=self.company_element)
+                                                    company_element=self.company_element,
+                                                    status=EvaluationStatus.APPROVED)
 
     def test_when_there_are_no_completed_questionnaires_for_other_indicators(self):
         query_params = QueryDict('indicator={}&project={}&company_element={}'.format(self.indicator_type,

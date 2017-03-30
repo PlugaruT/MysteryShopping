@@ -1,5 +1,6 @@
 from django.db.models import Sum, IntegerField, Case, When
 
+
 def calculate_percentage(nominator, denominator, round_to=2):
     """
     helper method for calculating the percentage
