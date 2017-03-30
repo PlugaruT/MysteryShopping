@@ -18,12 +18,14 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from mystery_shopping.companies.serializers import CompanyElementSerializer
 from mystery_shopping.companies.models import CompanyElement
+from mystery_shopping.mystery_shopping_utils.custom_filters import DetractorIndicatorMultipleChoiceFilter
 from mystery_shopping.companies.utils import FilterCompanyStructure
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from mystery_shopping.mystery_shopping_utils.paginators import DetractorRespondentPaginator
 from mystery_shopping.mystery_shopping_utils.permissions import DetractorFilterPerCompanyElement
 from mystery_shopping.mystery_shopping_utils.views import GetSerializerClassMixin
 from mystery_shopping.projects.models import Project
+from mystery_shopping.questionnaires.models import Questionnaire
 from mystery_shopping.questionnaires.serializers import DetractorRespondentForTenantSerializer, \
     DetractorRespondentForClientSerializer
 from mystery_shopping.users.models import DetractorRespondent, ClientUser
@@ -176,26 +178,6 @@ class UserViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
         serializer = CompanyElementSerializer(company_elements, many=True)
         return serializer.data
 
-    def filter_objects(self, children, company_elements):
-        """
-        Function for filtering the company structure according to the allowed company elements.
-        The function iterates through children and if the child is not in allowed list, all its
-        children are moved one level out.
-        :param children: list of children of the company
-        :param company_elements: allowed company elements serialized
-        :return: modified company structure with filtered children
-        """
-        for child in children:
-            print(children)
-            if child not in company_elements:
-                children.extend(child.pop('children', []))
-                children.remove(child)
-                continue
-            else:
-                child['children'] = [obj for obj in child['children'] if obj in company_elements]
-            # print(child.get('children', []))
-            self.filter_objects(child['children'], company_elements)
-
     def _filter_company_entities(self, permission_method, company):
         company_elements_id = permission_method()
         company_structure = CompanyElementSerializer(company).data
@@ -309,10 +291,13 @@ class DetractorFilter(django_filters.rest_framework.FilterSet):
                                                       name="evaluation__company_element")
     date = django_filters.DateFromToRangeFilter(name="evaluation__time_accomplished", lookup_expr='date')
     questions = django_filters.AllValuesMultipleFilter(name='number_of_questions')
+    indicators = DetractorIndicatorMultipleChoiceFilter(name="evaluation__questionnaire__questions__additional_info",
+                                                        conjoined=True,
+                                                        query_manager=Questionnaire.objects.filter)
 
     class Meta:
         model = DetractorRespondent
-        fields = ['date', 'places', 'status', 'questions']
+        fields = ['date', 'places', 'status', 'questions', 'indicators']
 
 
 class DetractorRespondentForTenantViewSet(viewsets.ModelViewSet):
