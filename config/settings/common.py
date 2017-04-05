@@ -253,7 +253,7 @@ CORS_ORIGIN_WHITELIST = (
     'localhost:3000'
 )
 
-CORS_ORIGIN_REGEX_WHITELIST = ('^(https?://)?(\w+\.)?dapi\.solutions', )
+CORS_ORIGIN_REGEX_WHITELIST = ('^(https?://)?(\w+\.)?dapi\.solutions', '^(https?://)?(\w+\.)?cloudfront\.net')
 
 CORS_ALLOW_CREDENTIALS = True
 
