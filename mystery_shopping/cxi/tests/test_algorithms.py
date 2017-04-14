@@ -71,9 +71,11 @@ class AlgorithmsTestCase(TestCase):
         indicator_name_2 = 'name2'
         template_questionnaire = QuestionnaireTemplateFactory()
         question_1 = QuestionTemplateFactory(questionnaire_template=template_questionnaire,
-                                             type=QuestionType.INDICATOR_QUESTION, additional_info=indicator_name_1)
+                                             type=QuestionType.INDICATOR_QUESTION, additional_info=indicator_name_1,
+                                             new_algorithm=True)
         question_2 = QuestionTemplateFactory(questionnaire_template=template_questionnaire,
-                                             type=QuestionType.INDICATOR_QUESTION, additional_info=indicator_name_2)
+                                             type=QuestionType.INDICATOR_QUESTION, additional_info=indicator_name_2,
+                                             new_algorithm=True)
 
         custom_weight_name_1 = 'Weight-1'
         custom_weight_name_2 = 'Weight-2'
@@ -103,10 +105,10 @@ class AlgorithmsTestCase(TestCase):
         indicator_name_2 = 'name2'
         template_questionnaire = QuestionnaireTemplateFactory()
         question_1 = QuestionTemplateFactory(questionnaire_template=template_questionnaire,
-                                             type=QuestionType.INDICATOR_QUESTION, additional_info=indicator_name_1,
-                                             new_algorithm=False)
+                                             type=QuestionType.INDICATOR_QUESTION, additional_info=indicator_name_1)
         question_2 = QuestionTemplateFactory(questionnaire_template=template_questionnaire,
-                                             type=QuestionType.INDICATOR_QUESTION, additional_info=indicator_name_2)
+                                             type=QuestionType.INDICATOR_QUESTION, additional_info=indicator_name_2,
+                                             new_algorithm=True)
 
         custom_weight_name_1 = 'Weight-1'
         custom_weight_name_2 = 'Weight-2'
@@ -125,13 +127,13 @@ class AlgorithmsTestCase(TestCase):
             }
         }
 
-        old_algorithm_indicator_dict = {
-            indicator_name_1: [Decimal(10), Decimal(10), Decimal(2)]
+        new_algorithm_indicator_dict = {
+            indicator_name_2: [Decimal(10), Decimal(10), Decimal(2)]
         }
-        result = calculate_cxi_scores(indicator_scores, old_algorithm_indicator_dict, template_questionnaire)
+        result = calculate_cxi_scores(indicator_scores, new_algorithm_indicator_dict, template_questionnaire)
 
-        result_indicator_1 = Decimal(61)
-        result_indicator_2 = Decimal(62)
+        result_indicator_1 = Decimal(50)
+        result_indicator_2 = Decimal(54)
         self.assertEqual(result[custom_weight_name_1], result_indicator_1)
         self.assertEqual(result[custom_weight_name_2], result_indicator_2)
 

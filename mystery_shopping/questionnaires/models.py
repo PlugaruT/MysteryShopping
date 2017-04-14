@@ -321,7 +321,7 @@ class QuestionnaireTemplateQuestion(QuestionAbstract):
 
     objects = models.Manager.from_queryset(QuestionnaireTemplateQuestionQuerySet)()
 
-    new_algorithm = models.BooleanField(default=True)
+    new_algorithm = models.BooleanField(default=False)
     allow_why_causes = models.BooleanField(default=True)
     has_other_choice = models.BooleanField(default=True)
 
