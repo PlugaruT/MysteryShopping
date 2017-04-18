@@ -305,7 +305,7 @@ class EvaluationSerializer(serializers.ModelSerializer):
         detractor_instance = None
         if detractor_info:
             detractor_instance = self._create_detractor(detractor_info)
-        self.set_evaluation_to_detractor(detractor_instance, instance)
+
 
         if questionnaire and current_status in EvaluationStatus.EDITABLE_STATUSES:
             self._update_questionnaire_answers(questionnaire)
@@ -323,6 +323,7 @@ class EvaluationSerializer(serializers.ModelSerializer):
 
         update_attributes(instance, validated_data)
         instance.save()
+        self.set_evaluation_to_detractor(detractor_instance, instance)
         return instance
 
     def _update_questionnaire_answers(self, questionnaire):
