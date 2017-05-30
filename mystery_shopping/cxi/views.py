@@ -259,15 +259,15 @@ class BarChartGraph(views.APIView):
 
 class RespondentsDistribution(views.APIView):
     """
-    
-    View that will return the distribution of respondents for an indicator. 
-    
+
+    View that will return the distribution of respondents for an indicator.
+
      Query params:
 
      * `project`: **required**, id of the project to aggregate data for
      * `indicator`: **required**, indicator name for which to get questions
      * `company_element`: **required**, id of the company element for which to aggregate data
-    
+
     The list of dicts has the form:
     ```
     [
@@ -315,8 +315,8 @@ class RespondentsDistribution(views.APIView):
         Method for building the final result
         :param data_dict: Contains number of respondents of each type, example:
             {
-                'POSITIVE': 47, 
-                'NEUTRAL': 51, 
+                'POSITIVE': 47,
+                'NEUTRAL': 51,
                 'NEGATIVE': 2
             }
         :param number_of_questions: Number of total questions, used for computing % for each type if respondent
@@ -326,14 +326,15 @@ class RespondentsDistribution(views.APIView):
         for key, value in data_dict.items():
             value = value if value else 0
             percentage = calculate_percentage(value, number_of_questions)
-            response.append(self.build_data_point(key.upper(), percentage))
+            response.append(self.build_data_point(key.upper(), percentage, value))
         return response
 
     @staticmethod
-    def build_data_point(key, value):
+    def build_data_point(key, value, additional):
         return {
             "key": key,
             "value": value,
+            "additional": additional
         }
 
 
