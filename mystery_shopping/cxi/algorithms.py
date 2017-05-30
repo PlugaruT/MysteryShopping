@@ -197,6 +197,13 @@ def sort_indicator_categories(details, indicator_categories, new_algorithm):
             answer_choice_result['order'] = responses[answer_choice]['order']
             answer_choice_result['score'] = calculate_indicator_score(indicator_marks=responses[answer_choice]['marks'],
                                                                       new_algorithm=new_algorithm)
+            detractors = sum(n < 6 for n in responses[answer_choice]['marks'])
+            passive = sum(n == 7 or n == 8 for n in responses[answer_choice]['marks'])
+            promoters = sum(n > 9 for n in responses[answer_choice]['marks'])
+            answer_choice_result['distribution'] = dict()
+            answer_choice_result['distribution']['detractors'] = detractors
+            answer_choice_result['distribution']['passive'] = passive
+            answer_choice_result['distribution']['promoters'] = promoters
             answer_choice_result['number_of_respondents'] = len(responses[answer_choice]['marks'])
             answer_choice_result['other_answer_choices'] = responses[answer_choice]['other_choices']
             detail_item['results'].append(answer_choice_result)
@@ -430,7 +437,7 @@ class GetPerDayQuestionnaireData:
 def add_question_per_coded_cause(indicator_question, coded_cause_dict):
     """
     Function for grouping indicator questions by coded_cause. If coded_cause doesn't exist, it appends the question id to the 'unsorted' key
-    
+
     :param indicator_question: question to be sorted
     :param coded_cause_dict: dict of existing coded_causes
     :return: dict with sorted questions by coded_cause
