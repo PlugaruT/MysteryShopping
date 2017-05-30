@@ -43,9 +43,9 @@ class RespondentsDistributionAPITestCase(APITestCase):
                                                                                      self.project.id,
                                                                                      self.company_element.id))
         expected_response = [
-            {'value': 0.0, 'key': 'NEGATIVE'},
-            {'value': 0.0, 'key': 'POSITIVE'},
-            {'value': 0.0, 'key': 'NEUTRAL'}]
+            {'value': 0.0, 'key': 'NEGATIVE', 'additional': 0},
+            {'value': 0.0, 'key': 'POSITIVE', 'additional': 0},
+            {'value': 0.0, 'key': 'NEUTRAL', 'additional': 0}]
         response = self.client.get('{}?{}'.format(reverse('cxi:respondents-distribution'), query_params.urlencode()))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertCountEqual(expected_response, response.data)
@@ -56,9 +56,9 @@ class RespondentsDistributionAPITestCase(APITestCase):
                                                                                      self.project.id,
                                                                                      self.company_element.id))
         expected_response = [
-            {'value': 0.0, 'key': 'DETRACTOR'},
-            {'value': 0.0, 'key': 'PROMOTERS'},
-            {'value': 0.0, 'key': 'PASSIVE'}]
+            {'value': 0.0, 'key': 'DETRACTOR', 'additional': 0},
+            {'value': 0.0, 'key': 'PROMOTERS', 'additional': 0},
+            {'value': 0.0, 'key': 'PASSIVE', 'additional': 0}]
         response = self.client.get('{}?{}'.format(reverse('cxi:respondents-distribution'), query_params.urlencode()))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertCountEqual(expected_response, response.data)
@@ -70,9 +70,9 @@ class RespondentsDistributionAPITestCase(APITestCase):
         self._generate_first_indicator_question(8, self.indicator_type)
         self._generate_second_indicator_question(2, self.indicator_type)
         expected_response = [
-            {'value': 50.0, 'key': 'NEUTRAL'},
-            {'value': 50.0, 'key': 'NEGATIVE'},
-            {'value': 0.0, 'key': 'POSITIVE'}
+            {'value': 50.0, 'key': 'NEUTRAL', 'additional': 1},
+            {'value': 50.0, 'key': 'NEGATIVE', 'additional': 1},
+            {'value': 0.0, 'key': 'POSITIVE', 'additional': 0}
         ]
         response = self.client.get('{}?{}'.format(reverse('cxi:respondents-distribution'), query_params.urlencode()))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -85,9 +85,9 @@ class RespondentsDistributionAPITestCase(APITestCase):
         self._generate_first_indicator_question(9, self.indicator_type)
         self._generate_second_indicator_question(2, self.indicator_type)
         expected_response = [
-            {'value': 0.0, 'key': 'NEUTRAL'},
-            {'value': 50.0, 'key': 'NEGATIVE'},
-            {'value': 50.0, 'key': 'POSITIVE'}
+            {'value': 0.0, 'key': 'NEUTRAL', 'additional': 0},
+            {'value': 50.0, 'key': 'NEGATIVE', 'additional': 1},
+            {'value': 50.0, 'key': 'POSITIVE', 'additional': 1}
         ]
         response = self.client.get('{}?{}'.format(reverse('cxi:respondents-distribution'), query_params.urlencode()))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -101,9 +101,9 @@ class RespondentsDistributionAPITestCase(APITestCase):
         self._generate_first_indicator_question(9, indicator_name)
         self._generate_second_indicator_question(2, indicator_name)
         expected_response = [
-            {'value': 0.0, 'key': 'PASSIVE'},
-            {'value': 50.0, 'key': 'DETRACTOR'},
-            {'value': 50.0, 'key': 'PROMOTERS'}
+            {'value': 0.0, 'key': 'PASSIVE', 'additional': 0},
+            {'value': 50.0, 'key': 'DETRACTOR', 'additional': 1},
+            {'value': 50.0, 'key': 'PROMOTERS', 'additional': 1}
         ]
         response = self.client.get('{}?{}'.format(reverse('cxi:respondents-distribution'), query_params.urlencode()))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
