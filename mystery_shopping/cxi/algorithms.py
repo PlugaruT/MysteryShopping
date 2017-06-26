@@ -197,9 +197,9 @@ def sort_indicator_categories(details, indicator_categories, new_algorithm):
             answer_choice_result['order'] = responses[answer_choice]['order']
             answer_choice_result['score'] = calculate_indicator_score(indicator_marks=responses[answer_choice]['marks'],
                                                                       new_algorithm=new_algorithm)
-            detractors = sum(n < 6 for n in responses[answer_choice]['marks'])
+            detractors = sum(n <= 6 for n in responses[answer_choice]['marks'])
             passive = sum(n == 7 or n == 8 for n in responses[answer_choice]['marks'])
-            promoters = sum(n > 9 for n in responses[answer_choice]['marks'])
+            promoters = sum(n >= 9 for n in responses[answer_choice]['marks'])
             answer_choice_result['distribution'] = dict()
             answer_choice_result['distribution']['detractors'] = detractors
             answer_choice_result['distribution']['passive'] = passive
