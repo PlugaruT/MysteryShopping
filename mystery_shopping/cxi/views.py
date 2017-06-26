@@ -438,6 +438,8 @@ class IndicatorDashboard(views.APIView):
             }, status.HTTP_400_BAD_REQUEST)
 
         if project is not None:
+            if request.user.is_tenant_user():
+                company_element_permissions = project.get_company_elements_with_evaluations()
             response = self.collect_data_for_indicator_dashboard(project, company_element_id, indicator_type,
                                                                  company_element_permissions)
 
