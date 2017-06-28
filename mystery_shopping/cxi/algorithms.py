@@ -604,7 +604,7 @@ def compute_cxi_score_per_company_element(project):
                           .select_related('template', 'evaluation', 'evaluation__company_element')
                           .prefetch_related(questions))
 
-    questionnaire_list = questionnaire_list.get_project_questionnaires_for_subdivision(project=project).all()
+    questionnaire_list = questionnaire_list.get_project_questionnaires_for_subdivision(project=project)
     grouped_questionnaires = group_questionnaires_per_company_element(questionnaire_list)
     result = dict()
     for company_element, questionnaires in grouped_questionnaires.items():
