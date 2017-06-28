@@ -596,6 +596,30 @@ def collect_data_for_overview_dashboard(project, company_element_id):
     return calculate_overview_score(questionnaire_list, project, company_element_id)
 
 
+def compute_cxi_score_per_company_element(project):
+    questions = Prefetch('questions',
+                         queryset=QuestionnaireQuestion.objects.all()
+                         .select_related('template_question'), to_attr='questions_list')
+    questionnaire_list = (Questionnaire.objects
+                          .select_related('template', 'evaluation', 'evaluation__company_element')
+                          .prefetch_related(questions))
+
+    questionnaire_list = questionnaire_list.get_project_questionnaires_for_subdivision(project=project).all()
+    grouped_questionnaires = group_questionnaires_per_company_element(questionnaire_list)
+    result = dict()
+    for company_element, questionnaires in grouped_questionnaires.items():
+        result[company_element] = calculate_overview_score(questionnaires, project, None)['score']['cxi_indicators']
+    return result
+
+
+def group_questionnaires_per_company_element(questionnaire_list):
+    result = dict()
+    for questionnaire in questionnaire_list:
+        company_element = questionnaire.get_company_element().element_name
+        result.setdefault(company_element, []).append(questionnaire)
+    return result
+
+
 def get_project_indicator_questions_list(project):
     indicators = dict()
     indicators['indicator_list'] = set()

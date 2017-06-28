@@ -4,6 +4,7 @@ from rest_framework.routers import DefaultRouter
 
 from mystery_shopping.cxi.views import FrustrationWhyCauseViewSet, AppreciationWhyCauseViewSet, BarChartGraph, \
     RespondentsDistribution
+from mystery_shopping.cxi.views_chart import CXIPerCompanyElement
 from .views import CxiIndicatorTimeLapse
 from .views import WhyCauseViewSet
 from .views import CodedCausePercentage
@@ -29,6 +30,9 @@ urlpatterns = [
     url(r'^cxi/bar-chart-data/$',
         BarChartGraph.as_view(),
         name='bar-chart-data'),
+    url(r'^cxi/cxi-per-company-element/$',
+        CXIPerCompanyElement.as_view(),
+        name='cxi-per-company-element'),
     url(r'^cxi/respondents-distribution/$',
         RespondentsDistribution.as_view(),
         name='respondents-distribution'),
