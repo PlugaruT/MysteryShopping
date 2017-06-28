@@ -187,6 +187,14 @@ def create_details_skeleton(questionnaire_template):
     return indicator_skeleton
 
 
+def get_respondents_distribution(list_of_marks):
+    return {
+        'detractors': sum(n <= 6 for n in list_of_marks),
+        'passive': sum(n == 7 or n == 8 for n in list_of_marks),
+        'promoters': sum(n >= 9 for n in list_of_marks)
+    }
+
+
 def sort_indicator_categories(details, indicator_categories, new_algorithm):
     for item_label, responses in indicator_categories.items():
         detail_item = dict()
@@ -197,13 +205,7 @@ def sort_indicator_categories(details, indicator_categories, new_algorithm):
             answer_choice_result['order'] = responses[answer_choice]['order']
             answer_choice_result['score'] = calculate_indicator_score(indicator_marks=responses[answer_choice]['marks'],
                                                                       new_algorithm=new_algorithm)
-            detractors = sum(n <= 6 for n in responses[answer_choice]['marks'])
-            passive = sum(n == 7 or n == 8 for n in responses[answer_choice]['marks'])
-            promoters = sum(n >= 9 for n in responses[answer_choice]['marks'])
-            answer_choice_result['distribution'] = dict()
-            answer_choice_result['distribution']['detractors'] = detractors
-            answer_choice_result['distribution']['passive'] = passive
-            answer_choice_result['distribution']['promoters'] = promoters
+            answer_choice_result['distribution'] = get_respondents_distribution(responses[answer_choice]['marks'])
             answer_choice_result['number_of_respondents'] = len(responses[answer_choice]['marks'])
             answer_choice_result['other_answer_choices'] = responses[answer_choice]['other_choices']
             detail_item['results'].append(answer_choice_result)
@@ -225,6 +227,7 @@ def sort_indicators_per_pos(details, indicators, new_algorithm):
         pos_detail['score'] = calculate_indicator_score(indicator_marks=marks, new_algorithm=new_algorithm)
         pos_detail['number_of_respondents'] = len(marks)
         pos_detail['other_answer_choices'] = indicators['ids'][entity]
+        pos_detail['distribution'] = get_respondents_distribution(marks)
         detail_item['results'].append(pos_detail)
     details.append(detail_item)
 
