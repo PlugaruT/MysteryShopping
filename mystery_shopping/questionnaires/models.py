@@ -300,6 +300,7 @@ class QuestionAbstract(models.Model):
                            (QuestionType.MULTIPLE_CHOICE, 'Multiple Choice'),
                            (QuestionType.INDICATOR_QUESTION, 'Indicator Question'))
     type = models.CharField(max_length=1, choices=type_choices, default=type_choices.t)
+    min_score = models.PositiveIntegerField(null=True, blank=True)
     max_score = models.PositiveSmallIntegerField(null=True, blank=True)
     order = models.PositiveIntegerField()
     weight = models.DecimalField(max_digits=5, decimal_places=2)
