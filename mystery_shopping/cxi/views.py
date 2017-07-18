@@ -350,8 +350,8 @@ class OverviewDashboard(views.APIView):
      * `section`: section id
     """
 
-    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager,
-                             IsCompanyManager, IsCompanyEmployee),)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant,
+                             IsCompanyProjectManager, IsCompanyManager, IsCompanyEmployee),)
 
     def get(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
@@ -396,8 +396,8 @@ class IndicatorDashboard(views.APIView):
     :param indicator: can be anything
     """
 
-    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager,
-                             IsCompanyManager, IsCompanyEmployee),)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant,
+                             IsCompanyProjectManager, IsCompanyManager, IsCompanyEmployee),)
 
     def get(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
