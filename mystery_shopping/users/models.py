@@ -308,9 +308,7 @@ class DetractorRespondent(models.Model):
     email = models.EmailField(blank=True)
     comment = models.CharField(max_length=400, blank=True)
     additional_comment = models.CharField(max_length=400, blank=True)
-    phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$',
-                                 message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
-    phone = models.CharField(validators=[phone_regex], blank=True, max_length=15)
+    phone = models.CharField(blank=True, max_length=15)
     status_choices = Choices(('TO_CONTACT', 'To Contact'),
                              ('CALL_BACK', 'Call Back'),
                              ('CONTACTED', 'Contacted'))
