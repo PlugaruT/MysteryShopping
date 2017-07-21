@@ -303,8 +303,8 @@ class DetractorRespondent(models.Model):
     """
         Model for storing information about detractors of an evaluation.
     """
-    name = models.CharField(max_length=20, blank=True)
-    surname = models.CharField(max_length=30, blank=True)
+    name = models.CharField(max_length=200, blank=True)
+    surname = models.CharField(max_length=200, blank=True)
     email = models.EmailField(blank=True)
     comment = models.CharField(max_length=400, blank=True)
     additional_comment = models.CharField(max_length=400, blank=True)
