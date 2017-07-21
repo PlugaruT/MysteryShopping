@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from mystery_shopping.cxi.algorithms import compute_cxi_score_per_company_element
 from mystery_shopping.projects.models import Project
 from mystery_shopping.users.permissions import IsTenantProductManager, IsTenantProjectManager, \
-    IsCompanyProjectManager, IsCompanyManager, IsCompanyEmployee
+    IsCompanyProjectManager, IsCompanyManager, IsCompanyEmployee, IsTenantConsultant
 
 
 class CXIPerCompanyElement(views.APIView):
@@ -21,7 +21,7 @@ class CXIPerCompanyElement(views.APIView):
     """
 
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager,
-                             IsCompanyManager, IsCompanyEmployee),)
+                             IsTenantConsultant, IsCompanyProjectManager, IsCompanyManager, IsCompanyEmployee),)
 
     def get(self, request, *args, **kwargs):
         project_id = request.query_params.get('project', None)
