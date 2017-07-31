@@ -1,5 +1,7 @@
 from django.db.models import Sum, IntegerField, Case, When
 
+from mystery_shopping.questionnaires.models import QuestionnaireQuestionChoice, QuestionnaireQuestion
+
 
 def calculate_percentage(nominator, denominator, round_to=2):
     """
@@ -91,3 +93,25 @@ def modify_questions_body(questionnaire):
             question.question_body = new_body
             question.save()
             question.questions.update(question_body=new_body)
+
+
+def modify_choices_body(questionnaire):
+    questions = questionnaire.template_questions.all()
+
+    for question in questions:
+        print('Question: \n{}\n'.format(question.question_body))
+        if question.template_question_choices.exists():
+            for choice in question.template_question_choices.all():
+                print('Choice: {} \nid:{}'.format(choice.text, choice.id))
+                new_text = input('New text: ')
+                if new_text != '':
+                    QuestionnaireQuestion.objects\
+                        .filter(template_question=choice.template_question, answer=choice.text)\
+                        .update(answer=new_text)
+                    QuestionnaireQuestionChoice.objects \
+                        .filter(question__template_question=choice.template_question, text=choice.text) \
+                        .update(text=new_text)
+                    choice.text = new_text
+                    choice.save()
+        else:
+            print('No choices for current question.\n')
