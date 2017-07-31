@@ -303,14 +303,12 @@ class DetractorRespondent(models.Model):
     """
         Model for storing information about detractors of an evaluation.
     """
-    name = models.CharField(max_length=20, blank=True)
-    surname = models.CharField(max_length=30, blank=True)
+    name = models.CharField(max_length=200, blank=True)
+    surname = models.CharField(max_length=200, blank=True)
     email = models.EmailField(blank=True)
     comment = models.CharField(max_length=400, blank=True)
     additional_comment = models.CharField(max_length=400, blank=True)
-    phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$',
-                                 message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
-    phone = models.CharField(validators=[phone_regex], blank=True, max_length=15)
+    phone = models.CharField(blank=True, max_length=15)
     status_choices = Choices(('TO_CONTACT', 'To Contact'),
                              ('CALL_BACK', 'Call Back'),
                              ('CONTACTED', 'Contacted'))

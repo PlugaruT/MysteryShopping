@@ -17,10 +17,10 @@ def calculate_percentage(nominator, denominator, round_to=2):
 def aggregate_questions_for_nps_indicator(questions_list):
     """
     :param questions_list: list of QuestionnaireQuestions to count number of respondents for NPS indicator
-    :return: dict of the form 
+    :return: dict of the form
         {
-            'DETRACTOR': 1224, 
-            'PASSIVE': 125, 
+            'DETRACTOR': 1224,
+            'PASSIVE': 125,
             'PROMOTERS': 644
         }
     """
@@ -50,10 +50,10 @@ def aggregate_questions_for_nps_indicator(questions_list):
 def aggregate_questions_for_other_indicators(questions_list):
     """
     :param questions_list: list of QuestionnaireQuestions to count number of respondents for other indicators
-    :return: dict of the form 
+    :return: dict of the form
         {
-            'NEGATIVE': 1224, 
-            'NEUTRAL': 125, 
+            'NEGATIVE': 1224,
+            'NEUTRAL': 125,
             'POSITIVE': 644
         }
     """
@@ -78,3 +78,16 @@ def aggregate_questions_for_other_indicators(questions_list):
             )
         )
     )
+
+
+def modify_questions_body(questionnaire):
+    questions = questionnaire.template_questions.all()
+
+    for question in questions:
+        new_body = ''
+        print('Current question body is: {}'.format(question.question_body))
+        new_body = input('New body: ')
+        if new_body != '':
+            question.question_body = new_body
+            question.save()
+            question.questions.update(question_body=new_body)
