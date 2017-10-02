@@ -19,6 +19,7 @@ def create_groups(apps, schema_editor, with_create_permissions=True):
         Group(name=u'Client Employees'),
         Group(name=u'collectors'),
         Group(name=u'shoppers'),
+        Group(name=u'Detractors Managers'),
     ])
 
 
