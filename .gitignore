@@ -16,6 +16,9 @@
 # proportion of contributors will probably not be using SublimeText
 # *.sublime-project
 
+# VSCode files
+.vscode/
+
 # sftp configuration file
 sftp-config.json
 
