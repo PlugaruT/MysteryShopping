@@ -1,5 +1,4 @@
 import logging
-from collections import Sequence
 from smtplib import SMTPRecipientsRefused
 
 from django.core.mail import get_connection
