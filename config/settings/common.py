@@ -300,6 +300,8 @@ JWT_AUTH = {
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
 }
 
+SHELL_PLUS = "ipython"
+
 # email SMTP config
 EMAIL_USE_SSL = env('EMAIL_USE_SSL', default=True)
 EMAIL_HOST = env('EMAIL_HOST', default='')

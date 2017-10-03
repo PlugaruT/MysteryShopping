@@ -10,11 +10,10 @@ from django.template.loader import get_template
 log = logging.getLogger(__name__)
 
 
-class DetractorMailDispatcher:
+class DetractorEmailDispatcher:
     def __init__(self, recipients):
-        if not isinstance(recipients, Sequence):
+        if isinstance(recipients, str):
             recipients = [recipients]
-
         self.recipients = recipients
 
     def send_new_detractor_email(self):
@@ -25,9 +24,9 @@ class DetractorMailDispatcher:
         }
 
         text_content = self.get_content_for_template(
-            'new_detractor.txt', context)
+            'detractors/new_detractor.txt', context)
         html_content = self.get_content_for_template(
-            'hew_detractor.html', context)
+            'detractors/new_detractor.html', context)
 
         email = EmailMultiAlternatives(subject=subject_line,
                                        body=text_content,
@@ -35,7 +34,7 @@ class DetractorMailDispatcher:
         email.attach_alternative(html_content, 'text/html')
 
         with get_connection() as connection:
-            if not self.send_email(connection, email)
+            if not self._send_email(connection, email):
                 return False
 
         return True
@@ -46,10 +45,10 @@ class DetractorMailDispatcher:
             "random": "random"
         }
 
-           text_content = self.get_content_for_template(
-            'new_detractor.txt', context)
+        text_content = self.get_content_for_template(
+            'detractors/new_detractor_case.txt', context)
         html_content = self.get_content_for_template(
-            'hew_detractor.html', context)
+            'detractors/new_detractor_case.html', context)
 
         email = EmailMultiAlternatives(subject=subject_line,
                                        body=text_content,
@@ -57,18 +56,18 @@ class DetractorMailDispatcher:
         email.attach_alternative(html_content, 'text/html')
 
         with get_connection() as connection:
-            if not self.send_email(connection, email)
+            if not self._send_email(connection, email):
                 return False
 
         return True
 
-    def send_email(self, connection, email)
+    def _send_email(self, connection, email):
         try:
-            return connection.send_message([email])
+            return connection.send_messages([email])
         except SMTPRecipientsRefused:
             log.error('Could not send email to {}'.format(email.to))
 
     @staticmethod
-    def get_content_for_template(template_name, context)
-        text_template = get_template('detractors/{}'.format(template_name))
+    def get_content_for_template(template_path, context):
+        text_template = get_template(template_path)
         return text_template.render(context)
