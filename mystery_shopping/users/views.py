@@ -266,6 +266,7 @@ class ClientUserViewSet(DestroyOneToOneUserMixin, GetSerializerClassMixin, Creat
     serializer_class_get = ClientUserSerializerGET
     filter_backends = (DjangoFilterBackend,)
     filter_class = ClientFilter
+    filter_fields = ('company',)
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
 
     def get_queryset(self):

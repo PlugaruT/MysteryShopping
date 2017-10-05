@@ -236,6 +236,7 @@ class ProjectSerializerGET(ProjectSerializer):
     company = CompanyElementSerializer(read_only=True)
     shoppers = UserSerializerGET(many=True, read_only=True)
     project_manager = UserSerializerGET(read_only=True)
+    detractors_manager = UserSerializerGET(read_only=True)
     consultants = UserSerializerGET(read_only=True, many=True)
     evaluation_assessment_levels = EvaluationAssessmentLevelSerializer(read_only=True, many=True)
     cxi_indicators = serializers.DictField(source='get_indicators_list', read_only=True)
