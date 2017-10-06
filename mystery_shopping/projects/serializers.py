@@ -6,8 +6,7 @@ from rest_framework import serializers
 from mystery_shopping.companies.serializers import CompanyElementSerializer
 from mystery_shopping.cxi.serializers import WhyCauseSerializer
 from mystery_shopping.mail_service.mail import DetractorEmailDispatcher
-from mystery_shopping.projects.constants import (EvaluationStatus,
-                                                 RespondentType)
+from mystery_shopping.projects.constants import EvaluationStatus
 from mystery_shopping.projects.models import (Evaluation,
                                               EvaluationAssessmentComment,
                                               EvaluationAssessmentLevel,
@@ -21,8 +20,7 @@ from mystery_shopping.questionnaires.serializers import (DetractorRespondentForT
                                                          QuestionnaireTemplateSerializer,
                                                          QuestionnaireTemplateSerializerGET)
 from mystery_shopping.questionnaires.utils import update_attributes
-from mystery_shopping.users.serializers import (ShopperSerializer,
-                                                UserSerializer,
+from mystery_shopping.users.serializers import (UserSerializer,
                                                 UserSerializerGET)
 
 
