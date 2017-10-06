@@ -2,7 +2,6 @@ import logging
 from smtplib import SMTPRecipientsRefused
 
 from django.core.mail import get_connection
-from django.core.mail.backends.smtp import EmailBackend
 from django.core.mail.message import EmailMultiAlternatives
 from django.template.loader import get_template
 
@@ -22,14 +21,10 @@ class DetractorEmailDispatcher:
             'random': 'random'
         }
 
-        text_content = self.get_content_for_template(
-            'detractors/new_detractor.txt', context)
-        html_content = self.get_content_for_template(
-            'detractors/new_detractor.html', context)
+        text_content = self.get_content_for_template('detractors/new_detractor.txt', context)
+        html_content = self.get_content_for_template('detractors/new_detractor.html', context)
 
-        email = EmailMultiAlternatives(subject=subject_line,
-                                       body=text_content,
-                                       to=self.recipients)
+        email = EmailMultiAlternatives(subject=subject_line, body=text_content, to=self.recipients)
         email.attach_alternative(html_content, 'text/html')
 
         with get_connection() as connection:
@@ -44,14 +39,10 @@ class DetractorEmailDispatcher:
             "random": "random"
         }
 
-        text_content = self.get_content_for_template(
-            'detractors/new_detractor_case.txt', context)
-        html_content = self.get_content_for_template(
-            'detractors/new_detractor_case.html', context)
+        text_content = self.get_content_for_template('detractors/new_detractor_case.txt', context)
+        html_content = self.get_content_for_template('detractors/new_detractor_case.html', context)
 
-        email = EmailMultiAlternatives(subject=subject_line,
-                                       body=text_content,
-                                       to=self.recipients)
+        email = EmailMultiAlternatives(subject=subject_line, body=text_content, to=self.recipients)
         email.attach_alternative(html_content, 'text/html')
 
         with get_connection() as connection:
@@ -60,7 +51,8 @@ class DetractorEmailDispatcher:
 
         return True
 
-    def _send_email(self, connection, email):
+    @staticmethod
+    def _send_email(connection, email):
         try:
             return connection.send_messages([email])
         except SMTPRecipientsRefused:
