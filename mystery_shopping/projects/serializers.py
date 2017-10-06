@@ -350,7 +350,7 @@ class EvaluationSerializer(serializers.ModelSerializer):
         question_instance.save()
 
     def set_evaluation_to_detractor(self, detractor_instance, evaluation):
-        number_of_detractor_questions = evaluation.get_detractor_questions().count()
+        number_of_detractor_questions = evaluation.number_of_detractor_questions()
 
         detractor_instance.evaluation = evaluation
         detractor_instance.number_of_questions = number_of_detractor_questions

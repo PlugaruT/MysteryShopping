@@ -214,6 +214,9 @@ class Evaluation(TimeStampedModel, models.Model):
     def get_detractor_questions(self):
         return self.questionnaire.get_indicator_questions().filter(score__lte=RespondentType.DETRACTOR_HIGH)
 
+    def number_of_detractor_questions(self):
+        return self.get_detractor_questions().count()
+
     def get_detractors_manager(self):
         return self.project.detractors_manager
 
