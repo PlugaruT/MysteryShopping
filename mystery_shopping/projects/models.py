@@ -74,6 +74,7 @@ class Project(TenantModel):
     consultants = models.ManyToManyField('users.User', blank=True, related_name='consultant_projects')
     company = models.ForeignKey('companies.CompanyElement')
     project_manager = models.ForeignKey('users.User', related_name='manager_projects', on_delete=PROTECT)
+    detractors_manager = models.ForeignKey('users.User', null=True, blank=True, related_name='detractors_manager_projects', on_delete=PROTECT)
     research_methodology = models.ForeignKey('ResearchMethodology', null=True, blank=True, on_delete=SET_NULL)
     shoppers = models.ManyToManyField('users.User', blank=True, related_name='shopper_projects')
 
