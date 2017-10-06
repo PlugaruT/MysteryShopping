@@ -1,16 +1,15 @@
+from unittest.mock import patch
+
 from django.core import mail
 from django.test.testcases import TestCase
 
-from unittest.mock import patch
-from mystery_shopping.factories.projects import (EvaluationFactory,
-                                                 ProjectFactory)
-from mystery_shopping.factories.questionnaires import (QuestionnaireFactory,
-                                                       QuestionnaireTemplateFactory)
+from mystery_shopping.factories.projects import EvaluationFactory, ProjectFactory
+from mystery_shopping.factories.questionnaires import QuestionnaireFactory, QuestionnaireTemplateFactory
 from mystery_shopping.factories.tenants import TenantFactory
+from mystery_shopping.factories.users import UserFactory
 from mystery_shopping.projects.models import Evaluation
 from mystery_shopping.projects.serializers import EvaluationSerializer
 from mystery_shopping.users.models import DetractorRespondent
-from mystery_shopping.factories.users import UserFactory
 
 
 class TestEvaluationWithDetractor(TestCase):
