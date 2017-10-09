@@ -13,7 +13,6 @@ from .models import TenantConsultant
 from .models import ClientProjectManager
 from .models import ClientManager
 from .models import ClientEmployee
-from .models import PersonToAssess
 from .models import Shopper
 from .models import Collector
 
@@ -397,14 +396,3 @@ class CollectorSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelS
     class Meta:
         model = Collector
         fields = '__all__'
-
-
-class PersonToAssessSerializer(serializers.ModelSerializer):
-    """
-
-    """
-
-    class Meta:
-        model = PersonToAssess
-        fields = '__all__'
-        extra_kwargs = {'research_methodology': {'required': False}}

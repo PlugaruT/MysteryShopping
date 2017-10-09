@@ -229,8 +229,7 @@ class ClientManager(ClientUserAbstract):
         return u'{} {}'.format(self.user, self.place)
 
     def has_evaluations(self):
-        return PersonToAssess.objects.filter(person_id=self.id,
-                                             person_type=ContentType.objects.get_for_model(self)).exists()
+        return False
 
 
 class ClientEmployee(ClientUserAbstract):
@@ -249,8 +248,7 @@ class ClientEmployee(ClientUserAbstract):
         return u'{} {} {}'.format(self.user, self.company, self.entity)
 
     def has_evaluations(self):
-        return PersonToAssess.objects.filter(person_id=self.id,
-                                             person_type=ContentType.objects.get_for_model(self)).exists()
+        return False
 
 
 class Shopper(models.Model):
@@ -276,21 +274,6 @@ class Collector(models.Model):
 
     def __str__(self):
         return u'{}'.format(self.user.username)
-
-
-class PersonToAssess(models.Model):
-    """
-    A class with a generic foreign key for setting people to be evaluated for a project.
-
-    A person to assess can either be a Client Manager or a Client Employee
-    """
-    limit = models.Q(app_label='users', model='clientmanager') | \
-            models.Q(app_label='users', model='clientemployee')
-    person_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='content_type_person_to_assess')
-    person_id = models.PositiveIntegerField()
-    person = GenericForeignKey('person_type', 'person_id')
-
-    research_methodology = models.ForeignKey(ResearchMethodology, related_name='people_to_assess')
 
 
 class DetractorRespondent(models.Model):

@@ -5,20 +5,18 @@ from django import forms
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as AuthUserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
+from django.utils.translation import ugettext_lazy as _
 from guardian.admin import GuardedModelAdmin
 
-from django.utils.translation import ugettext, ugettext_lazy as _
 from mystery_shopping.users.models import ClientUser
-from .models import User
-from .models import TenantProductManager
-from .models import TenantProjectManager
-from .models import TenantConsultant
-from .models import Shopper
-from .models import ClientManager
-from .models import ClientEmployee
-from .models import PersonToAssess
-from .models import ClientProjectManager
-from .models import DetractorRespondent
+
+from mystery_shopping.users.models import (
+    ClientProjectManager,
+    DetractorRespondent,
+    Shopper,
+    TenantProductManager,
+    User
+)
 
 
 class MyUserChangeForm(UserChangeForm):
@@ -61,10 +59,18 @@ class UserAdmin(AuthUserAdmin, GuardedModelAdmin):
     )
 
 
-@admin.register(TenantProductManager, TenantProjectManager, TenantConsultant, ClientProjectManager, ClientManager,
-                ClientEmployee, PersonToAssess, ClientUser)
-class Tenants(admin.ModelAdmin):
-    pass
+@admin.register(ClientUser)
+class ClientUserAdmin(admin.ModelAdmin):
+    list_display = ('get_username', 'get_company', 'job_title')
+
+    def get_company(self, obj):
+        return obj.company.element_name
+
+    def get_username(self, obj):
+        return obj.user.username
+
+    get_company.short_description = 'Company'
+    get_username.short_description = 'Username'
 
 
 @admin.register(Shopper)
