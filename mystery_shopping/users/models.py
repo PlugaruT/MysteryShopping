@@ -1,24 +1,18 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals, absolute_import
+from __future__ import absolute_import, unicode_literals
 
 from django.contrib.auth.models import AbstractUser
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
-from django.core.validators import RegexValidator
 from django.db import models
 from guardian.shortcuts import get_objects_for_user
 from model_utils import Choices
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes.fields import GenericForeignKey
 
-from mystery_shopping.companies.models import Company, CompanyElement
-from mystery_shopping.companies.models import Entity
-from mystery_shopping.companies.models import Section
+from mystery_shopping.companies.models import Company, CompanyElement, Entity, Section
 from mystery_shopping.mystery_shopping_utils.models import OptionalTenantModel
-from mystery_shopping.projects.models import Project, Evaluation
-from mystery_shopping.projects.models import ResearchMethodology
+from mystery_shopping.projects.models import Evaluation, ResearchMethodology
 from mystery_shopping.tenants.models import Tenant
-
-# @python_2_unicode_compatible
 from mystery_shopping.users.roles import UserRole
 
 

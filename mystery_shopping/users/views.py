@@ -1,47 +1,57 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
 
-import django_filters
-from django.contrib.auth.models import Permission, Group
+from django.contrib.auth.models import Group, Permission
 from django.db.models.deletion import ProtectedError
 from django.shortcuts import get_object_or_404
-
-from rest_framework import viewsets
-from rest_framework import status
+from django_filters.rest_framework import (
+    AllValuesMultipleFilter,
+    BooleanFilter,
+    CharFilter,
+    DateFromToRangeFilter,
+    DjangoFilterBackend,
+    ModelMultipleChoiceFilter,
+    FilterSet
+)
 from rest_condition import Or
-from rest_framework.decorators import detail_route
-from rest_framework.decorators import list_route
+from rest_framework import status, viewsets
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django_filters.rest_framework import DjangoFilterBackend
 
-from mystery_shopping.companies.serializers import CompanyElementSerializer
 from mystery_shopping.companies.models import CompanyElement
-from mystery_shopping.mystery_shopping_utils.custom_filters import DetractorIndicatorMultipleChoiceFilter
+from mystery_shopping.companies.serializers import CompanyElementSerializer
 from mystery_shopping.companies.utils import FilterCompanyStructure
+from mystery_shopping.mystery_shopping_utils.custom_filters import DetractorIndicatorMultipleChoiceFilter
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from mystery_shopping.mystery_shopping_utils.paginators import DetractorRespondentPaginator
 from mystery_shopping.mystery_shopping_utils.permissions import DetractorFilterPerCompanyElement
 from mystery_shopping.mystery_shopping_utils.views import GetSerializerClassMixin
-from mystery_shopping.projects.models import Project
 from mystery_shopping.questionnaires.models import Questionnaire
-from mystery_shopping.questionnaires.serializers import DetractorRespondentForTenantSerializer, \
-    DetractorRespondentForClientSerializer
-from mystery_shopping.users.models import DetractorRespondent, ClientUser
+from mystery_shopping.questionnaires.serializers import (
+    DetractorRespondentForClientSerializer,
+    DetractorRespondentForTenantSerializer
+)
+from mystery_shopping.users.models import ClientUser, Collector, DetractorRespondent, Shopper, User
+from mystery_shopping.users.permissions import (
+    HasReadOnlyAccessToProjectsOrEvaluations,
+    IsTenantConsultant,
+    IsTenantProductManager,
+    IsTenantProjectManager
+)
 from mystery_shopping.users.roles import UserRole
-from mystery_shopping.users.serializers import PermissionSerializer, GroupSerializer, UserSerializerGET, \
-    ClientUserSerializer, ShopperSerializerGET, ClientUserSerializerGET
-from .models import Shopper
-from .models import Collector
-from .models import User
-
-from .serializers import UserSerializer
-from .serializers import ShopperSerializer
-from .serializers import CollectorSerializer
-from mystery_shopping.users.permissions import IsTenantProductManager, HasReadOnlyAccessToProjectsOrEvaluations
-from mystery_shopping.users.permissions import IsTenantProjectManager
-from mystery_shopping.users.permissions import IsTenantConsultant
+from mystery_shopping.users.serializers import (
+    ClientUserSerializer,
+    ClientUserSerializerGET,
+    CollectorSerializer,
+    GroupSerializer,
+    PermissionSerializer,
+    ShopperSerializer,
+    ShopperSerializerGET,
+    UserSerializer,
+    UserSerializerGET
+)
 
 
 # Todo: remove this
@@ -78,8 +88,8 @@ class DestroyOneToOneUserMixin:
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class UserFilter(django_filters.rest_framework.FilterSet):
-    groups = django_filters.AllValuesMultipleFilter(name="groups")
+class UserFilter(FilterSet):
+    groups = AllValuesMultipleFilter(name="groups")
 
     class Meta:
         model = User
@@ -229,10 +239,10 @@ class PermissionsPerUserViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
 
-class ShopperFilter(django_filters.rest_framework.FilterSet):
-    license = django_filters.BooleanFilter(name='has_drivers_license')
-    sex = django_filters.CharFilter(name='user__gender')
-    age = django_filters.DateFromToRangeFilter(name='user__date_of_birth')
+class ShopperFilter(FilterSet):
+    license = BooleanFilter(name='has_drivers_license')
+    sex = CharFilter(name='user__gender')
+    age = DateFromToRangeFilter(name='user__date_of_birth')
 
     class Meta:
         model = Shopper
@@ -252,8 +262,8 @@ class ShopperViewSet(DestroyOneToOneUserMixin, GetSerializerClassMixin, CreateUs
         return self.queryset.filter(user__tenant=self.request.user.tenant)
 
 
-class ClientFilter(django_filters.rest_framework.FilterSet):
-    groups = django_filters.AllValuesMultipleFilter(name="user__groups")
+class ClientFilter(FilterSet):
+    groups = AllValuesMultipleFilter(name="user__groups")
 
     class Meta:
         model = ClientUser
@@ -287,14 +297,12 @@ class CollectorViewSet(viewsets.ModelViewSet):
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
 
 
-class DetractorFilter(django_filters.rest_framework.FilterSet):
-    places = django_filters.ModelMultipleChoiceFilter(queryset=CompanyElement.objects.all(),
-                                                      name="evaluation__company_element")
-    date = django_filters.DateFromToRangeFilter(name="evaluation__time_accomplished", lookup_expr='date')
-    questions = django_filters.AllValuesMultipleFilter(name='number_of_questions')
+class DetractorFilter(FilterSet):
+    places = ModelMultipleChoiceFilter(queryset=CompanyElement.objects.all(), name="evaluation__company_element")
+    date = DateFromToRangeFilter(name="evaluation__time_accomplished", lookup_expr='date')
+    questions = AllValuesMultipleFilter(name='number_of_questions')
     indicators = DetractorIndicatorMultipleChoiceFilter(name="evaluation__questionnaire__questions__additional_info",
-                                                        conjoined=True,
-                                                        query_manager=Questionnaire.objects.filter)
+                                                        conjoined=True, query_manager=Questionnaire.objects.filter)
 
     class Meta:
         model = DetractorRespondent
