@@ -3,13 +3,10 @@ from copy import deepcopy
 from django.db import models
 from model_utils import Choices
 
+from mystery_shopping.companies.models import CompanyElement
 from mystery_shopping.mystery_shopping_utils.models import TenantModel
-from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from mystery_shopping.projects.models import Project
-from mystery_shopping.companies.models import Department, CompanyElement
-from mystery_shopping.companies.models import Entity
-from mystery_shopping.companies.models import Section
-from mystery_shopping.tenants.models import Tenant
+from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 
 
 class CodedCauseLabel(TenantModel):
@@ -100,11 +97,6 @@ class ProjectComment(models.Model):
     # Relations
     company_element = models.ForeignKey(CompanyElement, null=True, blank=True)
     project = models.ForeignKey(Project)
-    # TODO: delete
-    department = models.ForeignKey(Department, null=True, blank=True)
-    entity = models.ForeignKey(Entity, null=True, blank=True)
-    section = models.ForeignKey(Section, null=True, blank=True)
-    # till here.
 
     # Attributes
     causes = models.TextField(blank=True)

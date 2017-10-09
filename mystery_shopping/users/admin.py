@@ -61,8 +61,7 @@ class UserAdmin(AuthUserAdmin, GuardedModelAdmin):
     )
 
 
-@admin.register(TenantProductManager, TenantProjectManager, TenantConsultant, ClientProjectManager, ClientManager,
-                ClientEmployee, PersonToAssess, ClientUser)
+@admin.register(PersonToAssess, ClientUser)
 class Tenants(admin.ModelAdmin):
     pass
 

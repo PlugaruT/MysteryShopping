@@ -1,0 +1,21 @@
+{
+  "python.pythonPath": "/home/plugaru/.virtualenvs/mystery_venv/bin/python",
+  "python.envFile": "${workspaceRoot}/.env",
+  "python.linting.pep8Enabled": false,
+  "python.linting.flake8Enabled": false,
+  "python.linting.pylintPath": "/home/plugaru/.virtualenvs/mystery_venv/bin/pylint",
+  "python.linting.pylintArgs": [
+    "--load-plugins",
+    "pylint_django"
+  ],
+  "python.linting.pylintEnabled": true,
+  "editor.formatOnSave": false,
+  "python.unitTest.nosetestArgs": [
+  ],
+  "python.unitTest.nosetestsEnabled": true,
+  "terminal.integrated.env.linux": {
+    "DJANGO_SETTINGS_MODULE": "config.settings.local"  },
+  "terminal.integrated.shellArgs.linux": [
+    "--login"
+  ]
+}

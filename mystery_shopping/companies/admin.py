@@ -2,11 +2,10 @@ from django.contrib import admin
 from guardian.admin import GuardedModelAdmin
 from mptt.admin import MPTTModelAdmin
 
-from mystery_shopping.companies.models import AdditionalInfoType
-from .models import Industry, Company, Department, Entity, Section, SubIndustry, CompanyElement
+from mystery_shopping.companies.models import AdditionalInfoType, CompanyElement, Industry, SubIndustry
 
 
-@admin.register(Industry, SubIndustry, Company, Department, Entity, Section, AdditionalInfoType)
+@admin.register(Industry, SubIndustry, AdditionalInfoType)
 class CompanyAdmin(admin.ModelAdmin):
     pass
 
