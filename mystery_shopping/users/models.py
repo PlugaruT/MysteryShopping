@@ -11,7 +11,7 @@ from model_utils import Choices
 
 from mystery_shopping.companies.models import Company, CompanyElement, Entity, Section
 from mystery_shopping.mystery_shopping_utils.models import OptionalTenantModel
-from mystery_shopping.projects.models import Evaluation, ResearchMethodology
+from mystery_shopping.projects.models import Evaluation
 from mystery_shopping.tenants.models import Tenant
 from mystery_shopping.users.roles import UserRole
 
