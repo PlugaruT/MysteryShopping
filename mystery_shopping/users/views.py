@@ -4,15 +4,7 @@ from __future__ import absolute_import, unicode_literals
 from django.contrib.auth.models import Group, Permission
 from django.db.models.deletion import ProtectedError
 from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import (
-    AllValuesMultipleFilter,
-    BooleanFilter,
-    CharFilter,
-    DateFromToRangeFilter,
-    DjangoFilterBackend,
-    ModelMultipleChoiceFilter,
-    FilterSet
-)
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_condition import Or
 from rest_framework import status, viewsets
 from rest_framework.decorators import detail_route, list_route
@@ -23,16 +15,15 @@ from rest_framework.response import Response
 from mystery_shopping.companies.models import CompanyElement
 from mystery_shopping.companies.serializers import CompanyElementSerializer
 from mystery_shopping.companies.utils import FilterCompanyStructure
-from mystery_shopping.mystery_shopping_utils.custom_filters import DetractorIndicatorMultipleChoiceFilter
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from mystery_shopping.mystery_shopping_utils.paginators import DetractorRespondentPaginator
 from mystery_shopping.mystery_shopping_utils.permissions import DetractorFilterPerCompanyElement
 from mystery_shopping.mystery_shopping_utils.views import GetSerializerClassMixin
-from mystery_shopping.questionnaires.models import Questionnaire
 from mystery_shopping.questionnaires.serializers import (
     DetractorRespondentForClientSerializer,
     DetractorRespondentForTenantSerializer
 )
+from mystery_shopping.users.filters import ClientFilter, DetractorFilter, ShopperFilter, UserFilter
 from mystery_shopping.users.models import ClientUser, Collector, DetractorRespondent, Shopper, User
 from mystery_shopping.users.permissions import (
     HasReadOnlyAccessToProjectsOrEvaluations,
@@ -54,26 +45,10 @@ from mystery_shopping.users.serializers import (
 )
 
 
-# Todo: remove this
-class FilterQuerysetOnTenantMixIn:
-    """
-    Mixin class that adds 'get_queryset' that filters the queryset agains the request.user.tenant
-    """
-
-    def get_queryset(self):
-        queryset = self.queryset.all()
-        queryset = queryset.filter(tenant=self.request.user.tenant)
-        return queryset
-
-
 class CreateUserMixin:
     def create(self, request, *args, **kwargs):
         request.data['user']['tenant'] = request.user.tenant.id
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        super().create(request, *args, **kwargs)
 
 
 class DestroyOneToOneUserMixin:
@@ -88,14 +63,6 @@ class DestroyOneToOneUserMixin:
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class UserFilter(FilterSet):
-    groups = AllValuesMultipleFilter(name="groups")
-
-    class Meta:
-        model = User
-        fields = ['groups', ]
-
-
 class UserViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -106,11 +73,7 @@ class UserViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         request.data['tenant'] = request.user.tenant_id
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        super().create(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -122,7 +85,7 @@ class UserViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         try:
-            super(UserViewSet, self).destroy(request, *args, **kwargs)
+            super().destroy(request, *args, **kwargs)
         except ProtectedError:
             return Response(data={'detail': 'TOAST.USER_SET_IN_PROJECT'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -239,16 +202,6 @@ class PermissionsPerUserViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
 
-class ShopperFilter(FilterSet):
-    license = BooleanFilter(name='has_drivers_license')
-    sex = CharFilter(name='user__gender')
-    age = DateFromToRangeFilter(name='user__date_of_birth')
-
-    class Meta:
-        model = Shopper
-        fields = ['license', 'sex', 'age']
-
-
 class ShopperViewSet(DestroyOneToOneUserMixin, GetSerializerClassMixin, CreateUserMixin, viewsets.ModelViewSet):
     queryset = Shopper.objects.all()
     serializer_class = ShopperSerializer
@@ -260,14 +213,6 @@ class ShopperViewSet(DestroyOneToOneUserMixin, GetSerializerClassMixin, CreateUs
 
     def get_queryset(self):
         return self.queryset.filter(user__tenant=self.request.user.tenant)
-
-
-class ClientFilter(FilterSet):
-    groups = AllValuesMultipleFilter(name="user__groups")
-
-    class Meta:
-        model = ClientUser
-        fields = ['groups', 'company']
 
 
 class ClientUserViewSet(DestroyOneToOneUserMixin, GetSerializerClassMixin, CreateUserMixin, viewsets.ModelViewSet):
@@ -295,18 +240,6 @@ class CollectorViewSet(viewsets.ModelViewSet):
     queryset = Collector.objects.all()
     serializer_class = CollectorSerializer
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
-
-
-class DetractorFilter(FilterSet):
-    places = ModelMultipleChoiceFilter(queryset=CompanyElement.objects.all(), name="evaluation__company_element")
-    date = DateFromToRangeFilter(name="evaluation__time_accomplished", lookup_expr='date')
-    questions = AllValuesMultipleFilter(name='number_of_questions')
-    indicators = DetractorIndicatorMultipleChoiceFilter(name="evaluation__questionnaire__questions__additional_info",
-                                                        conjoined=True, query_manager=Questionnaire.objects.filter)
-
-    class Meta:
-        model = DetractorRespondent
-        fields = ['date', 'places', 'status', 'questions', 'indicators']
 
 
 class DetractorRespondentForTenantViewSet(viewsets.ModelViewSet):
