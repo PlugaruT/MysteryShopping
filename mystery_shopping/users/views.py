@@ -24,6 +24,7 @@ from mystery_shopping.questionnaires.serializers import (
     DetractorRespondentForTenantSerializer
 )
 from mystery_shopping.users.filters import ClientFilter, DetractorFilter, ShopperFilter, UserFilter
+from mystery_shopping.users.mixins import CreateUserMixin, DestroyOneToOneUserMixin
 from mystery_shopping.users.models import ClientUser, Collector, DetractorRespondent, Shopper, User
 from mystery_shopping.users.permissions import (
     HasReadOnlyAccessToProjectsOrEvaluations,
@@ -43,24 +44,6 @@ from mystery_shopping.users.serializers import (
     UserSerializer,
     UserSerializerGET
 )
-
-
-class CreateUserMixin:
-    def create(self, request, *args, **kwargs):
-        request.data['user']['tenant'] = request.user.tenant.id
-        super().create(request, *args, **kwargs)
-
-
-class DestroyOneToOneUserMixin:
-    """
-    Mixin for deleting One To One relations of model instance with User model
-    """
-
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        # if the user is destroyed, cascading deleting is triggered and the current instance will be destroyed
-        instance.user.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class UserViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
