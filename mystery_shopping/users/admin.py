@@ -5,20 +5,11 @@ from django import forms
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as AuthUserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
+from django.utils.translation import ugettext_lazy as _
 from guardian.admin import GuardedModelAdmin
 
-from django.utils.translation import ugettext, ugettext_lazy as _
-from mystery_shopping.users.models import ClientUser
-from .models import User
-from .models import TenantProductManager
-from .models import TenantProjectManager
-from .models import TenantConsultant
-from .models import Shopper
-from .models import ClientManager
-from .models import ClientEmployee
-from .models import PersonToAssess
-from .models import ClientProjectManager
-from .models import DetractorRespondent
+from mystery_shopping.users.models import (ClientUser, DetractorRespondent,
+                                           Shopper, User)
 
 
 class MyUserChangeForm(UserChangeForm):
@@ -61,7 +52,7 @@ class UserAdmin(AuthUserAdmin, GuardedModelAdmin):
     )
 
 
-@admin.register(PersonToAssess, ClientUser)
+@admin.register(ClientUser)
 class Tenants(admin.ModelAdmin):
     pass
 

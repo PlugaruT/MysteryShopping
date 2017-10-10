@@ -23,8 +23,6 @@ from mystery_shopping.users.permissions import (
     IsTenantProductManager,
     IsTenantProjectManager
 )
-from mystery_shopping.users.serializers import SimpleCompanySerializer
-
 
 class IndustryViewSet(viewsets.ModelViewSet):
     queryset = Industry.objects.all()

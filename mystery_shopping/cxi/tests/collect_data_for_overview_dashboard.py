@@ -1,7 +1,7 @@
 from django.test.testcases import TestCase
 
 from mystery_shopping.cxi.algorithms import collect_data_for_overview_dashboard
-from mystery_shopping.factories.companies import EntityFactory
+from mystery_shopping.factories.companies import CompanyElementFactory
 from mystery_shopping.factories.projects import ResearchMethodologyFactory, ProjectFactory, EvaluationFactory
 from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFactory, QuestionnaireFactory, \
     QuestionTemplateFactory, QuestionnaireBlockFactory, IndicatorQuestionFactory
@@ -16,7 +16,7 @@ class TestCollectDataForOverviewDashboard(TestCase):
 
         self.indicator_type = 'random'
 
-        self.entity = EntityFactory.create()
+        self.company_element = CompanyElementFactory.create()
         self.template_indicator_question = QuestionTemplateFactory.create(
             questionnaire_template=self.questionnaire_template, type='i', additional_info=self.indicator_type)
 
@@ -26,10 +26,10 @@ class TestCollectDataForOverviewDashboard(TestCase):
         # Dependency between Project Evaluation and Questionnaire
         self.questionnaire1 = QuestionnaireFactory.create(template=self.questionnaire_template, title='first')
         self.evaluation1 = EvaluationFactory.create(project=self.project, questionnaire=self.questionnaire1,
-                                                    entity=self.entity)
+                                                    company_element=self.company_element)
         self.questionnaire2 = QuestionnaireFactory.create(template=self.questionnaire_template, title='second')
         self.evaluation2 = EvaluationFactory.create(project=self.project, questionnaire=self.questionnaire2,
-                                                    entity=self.entity)
+                                                    company_element=self.company_element)
 
     def test_when_there_are_no_indicator_questions(self):
         expected_result = {
@@ -86,7 +86,7 @@ class TestCollectDataForOverviewDashboard(TestCase):
         self._generate_first_indicator_question(self.indicator_type, 5, self.template_indicator_question)
         self._generate_second_indicator_question(self.indicator_type, 9, self.template_indicator_question)
         # change the entity for second evaluation method to see the results just for on entity
-        self.evaluation2.entity = EntityFactory()
+        self.evaluation2.company_element = CompanyElementFactory()
         self.evaluation2.save()
 
         expected_result = {
@@ -103,7 +103,7 @@ class TestCollectDataForOverviewDashboard(TestCase):
             'project_comment': None
         }
 
-        result = collect_data_for_overview_dashboard(self.project, None, self.entity.pk, None)
+        result = collect_data_for_overview_dashboard(self.project, None, self.company_element.pk, None)
         self.assertDictEqual(result, expected_result)
 
     def _generate_first_indicator_question(self, additional_info, score, question_template):

@@ -8,7 +8,7 @@ import django.db.models.deletion
 import django.db.models.manager
 import mptt.fields
 
-from mystery_shopping.companies.models import CompanyElement, Company
+from mystery_shopping.companies.models import CompanyElement
 
 
 def save_section(section, parent, index):
@@ -76,8 +76,9 @@ def save_company(company):
 
 
 def migrate_companies(*args):
-    for company in Company.objects.all():
-        save_company(company)
+    pass
+    # for company in Company.objects.all():
+    #     save_company(company)
 
 
 class Migration(migrations.Migration):
@@ -110,5 +111,5 @@ class Migration(migrations.Migration):
                 'abstract': False,
             },
         ),
-        migrations.RunPython(migrate_companies)
+        # migrations.RunPython(migrate_companies)
     ]

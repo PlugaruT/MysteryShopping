@@ -2,7 +2,7 @@ from django.test.testcases import TestCase
 from datetime import datetime
 from json import loads, dumps
 
-from mystery_shopping.factories.companies import EntityFactory, CompanyElementFactory
+from mystery_shopping.factories.companies import CompanyElementFactory
 from mystery_shopping.factories.projects import ProjectFactory, EvaluationFactory
 from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFactory, QuestionnaireScriptFactory
 from mystery_shopping.factories.tenants import TenantFactory

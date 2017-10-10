@@ -9,7 +9,7 @@ from rest_framework.filters import SearchFilter
 from rest_framework.mixins import ListModelMixin
 from rest_framework.response import Response
 
-from mystery_shopping.companies.models import Company, CompanyElement
+from mystery_shopping.companies.models import CompanyElement
 from mystery_shopping.cxi.algorithms import GetPerDayQuestionnaireData
 from mystery_shopping.cxi.serializers import SimpleWhyCauseSerializer
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
