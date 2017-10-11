@@ -41,6 +41,9 @@ htmlcov
 # Pycharm
 .idea
 
+# VSCode
+.vscode/
+
 # Vim
 
 *~

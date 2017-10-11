@@ -1,18 +1,16 @@
 from rest_framework import serializers
 
-from .models import WhyCause
-from .models import CodedCauseLabel
-from .models import CodedCause
-from .models import ProjectComment
-
+from mystery_shopping.cxi.models import CodedCause, CodedCauseLabel, ProjectComment, WhyCause
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from mystery_shopping.questionnaires.utils import update_attributes
+from mystery_shopping.users.serializers import SimpleClientUserSerializerGET
 
 
 class CodedCauseLabelSerializer(serializers.ModelSerializer):
     """
 
     """
+
     class Meta:
         model = CodedCauseLabel
         fields = '__all__'
@@ -74,6 +72,7 @@ class CodedCauseSerializer(serializers.ModelSerializer):
     coded_label = CodedCauseLabelSerializer()
     why_causes = WhyCauseSerializer(source='get_few_why_causes', many=True, read_only=True)
     why_causes_count = serializers.IntegerField(source='get_number_of_why_causes', read_only=True)
+    responsible_users = SimpleClientUserSerializerGET()
 
     class Meta:
         model = CodedCause
@@ -83,7 +82,8 @@ class CodedCauseSerializer(serializers.ModelSerializer):
     @staticmethod
     def setup_eager_loading(queryset):
         queryset = queryset.select_related('coded_label', 'coded_label__tenant', 'project')
-        queryset = queryset.prefetch_related('raw_causes', 'raw_causes__question', 'raw_causes__coded_causes')
+        queryset = queryset.prefetch_related('raw_causes', 'raw_causes__question', 'raw_causes__coded_causes',
+                                             'responsible_users')
         return queryset
 
     def create(self, validated_data):
@@ -128,6 +128,7 @@ class ProjectCommentSerializer(serializers.ModelSerializer):
     """
 
     """
+
     class Meta:
         model = ProjectComment
         fields = '__all__'

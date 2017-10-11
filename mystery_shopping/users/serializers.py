@@ -279,6 +279,12 @@ class UserSerializerGET(UserSerializer):
                   'date_of_birth', 'gender', 'roles', 'object_permissions', 'phone_number', 'company')
 
 
+class SimpleUserSerializerGET(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'first_name', 'last_name', 'date_of_birth')
+
+
 class TenantProductManagerSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):
     """Serializer class for TenantProductManager user model.
     """
@@ -383,6 +389,18 @@ class ClientUserSerializerGET(serializers.ModelSerializer):
     Serializer class for client users
     """
     user = UserSerializerGET()
+
+    class Meta:
+        model = ClientUser
+        fields = '__all__'
+
+
+class SimpleClientUserSerializerGET(serializers.ModelSerializer):
+    """
+        A simple serializer class for client users that won't include it's
+        user permissions
+    """
+    user = SimpleUserSerializerGET()
 
     class Meta:
         model = ClientUser
