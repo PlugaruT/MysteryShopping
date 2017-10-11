@@ -87,22 +87,35 @@ class CodedCauseSerializer(serializers.ModelSerializer):
         return queryset
 
     def create(self, validated_data):
-        coded_cause_label = validated_data.get('coded_label', None)
-        coded_cause_label['tenant'] = coded_cause_label['tenant'].pk
-        coded_cause_label_ser = CodedCauseLabelSerializer(data=coded_cause_label)
-        coded_cause_label_ser.is_valid(raise_exception=True)
-        coded_cause_label_ser.save()
-        validated_data['coded_label'] = coded_cause_label_ser.instance
+        coded_label_data = validated_data.get('coded_label', None)
+        responsible_users_data = validated_data.pop('responsible_users', None)
 
+        validated_data['coded_label'] = self.create_coded_cause_label(coded_label_data)
         coded_cause = CodedCause.objects.create(**validated_data)
 
+        if responsible_users_data:
+            coded_cause.responsible_users.add(*responsible_users_data)
         return coded_cause
 
     def update(self, instance, validated_data):
+        responsible_users_data = validated_data.pop('responsible_users', None)
+
         self.update_coded_label(instance, validated_data.pop('coded_label'))
         update_attributes(instance, validated_data)
         instance.save()
+
+        if responsible_users_data:
+            instance.responsible_users.clear()
+            instance.responsible_users.add(*responsible_users_data)
         return instance
+
+    @staticmethod
+    def create_coded_cause_label(coded_label_data):
+        coded_label_data['tenant'] = coded_label_data['tenant'].pk
+        serializer = CodedCauseLabelSerializer(data=coded_label_data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return serializer.instance
 
     @staticmethod
     def update_coded_label(instance, coded_label):
