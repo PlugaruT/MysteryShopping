@@ -8,6 +8,7 @@ Local settings
 - Add django-extensions as app
 '''
 
+import logging
 from .common import *  # noqa
 
 # DEBUG
@@ -72,3 +73,5 @@ REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'] = [
     'rest_framework.authentication.BasicAuthentication',
     'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
 ]
+
+logging.getLogger('factory').setLevel(logging.CRITICAL)

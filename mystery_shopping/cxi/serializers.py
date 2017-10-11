@@ -72,12 +72,16 @@ class CodedCauseSerializer(serializers.ModelSerializer):
     coded_label = CodedCauseLabelSerializer()
     why_causes = WhyCauseSerializer(source='get_few_why_causes', many=True, read_only=True)
     why_causes_count = serializers.IntegerField(source='get_number_of_why_causes', read_only=True)
-    responsible_users = SimpleClientUserSerializerGET()
+    responsible_users_repr = SimpleClientUserSerializerGET(many=True, source='responsible_users', required=False)
 
     class Meta:
         model = CodedCause
-        extra_kwargs = {'tenant': {'required': False}}
         exclude = ('raw_causes',)
+        extra_kwargs = {
+            'tenant': {
+                'required': False
+            },
+        }
 
     @staticmethod
     def setup_eager_loading(queryset):
@@ -88,7 +92,8 @@ class CodedCauseSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         coded_label_data = validated_data.get('coded_label', None)
-        responsible_users_data = validated_data.pop('responsible_users', None)
+        responsible_users_data = validated_data.get('responsible_users', None)
+
 
         validated_data['coded_label'] = self.create_coded_cause_label(coded_label_data)
         coded_cause = CodedCause.objects.create(**validated_data)

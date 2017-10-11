@@ -498,6 +498,8 @@ class AlgorithmsTestCase(TestCase):
             {
                 'count': 2,
                 'coded_cause': {
+                    'responsible_users': [],
+                    'responsible_users_repr': [],
                     'coded_label': {},
                     'tenant': coded_cause_1.tenant.id,
                     'type': 'a',
@@ -510,6 +512,8 @@ class AlgorithmsTestCase(TestCase):
             {
                 'count': 1,
                 'coded_cause': {
+                    'responsible_users': [],
+                    'responsible_users_repr': [],
                     'coded_label': {},
                     'tenant': coded_cause_2.tenant.id,
                     'type': 'b',
@@ -522,6 +526,8 @@ class AlgorithmsTestCase(TestCase):
             {
                 'count': 1,
                 'coded_cause': {
+                    'responsible_users': [],
+                    'responsible_users_repr': [],
                     'coded_label': {},
                     'tenant': coded_cause_3.tenant.id,
                     'type': 'c',
@@ -534,7 +540,6 @@ class AlgorithmsTestCase(TestCase):
         ]
 
         for item in result:
-            print(item)
             item['coded_cause']['coded_label'] = {}
             item['coded_cause'].pop('why_causes_count')
             item['coded_cause'].pop('why_causes')

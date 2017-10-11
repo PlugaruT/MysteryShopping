@@ -37,6 +37,13 @@ class CodedCauseFactory(DjangoModelFactory):
             for cause in causes:
                 self.raw_causes.add(cause)
 
+    @post_generation
+    def responsible_users(self, create, users, **kwargs):
+        if not create:
+            return
+        if users:
+            self.responsible_users.add(*users)
+
 
 class WhyCauseFactory(DjangoModelFactory):
     class Meta:

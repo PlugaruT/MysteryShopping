@@ -1,10 +1,11 @@
-from django.http.request import QueryDict
 from rest_framework import status
 from rest_framework.reverse import reverse
-
 from rest_framework.test import APITestCase
 
-from mystery_shopping.factories.cxi import CodedCauseFactory
+from mystery_shopping.cxi.models import CodedCause, CodedCauseLabel
+from mystery_shopping.factories.projects import ProjectFactory
+from mystery_shopping.factories.users import ClientUserFactory
+from mystery_shopping.users.serializers import ClientUserSerializer
 from mystery_shopping.users.tests.user_authentication import AuthenticateUser
 
 
@@ -12,8 +13,62 @@ class CodedCausesAPITestCase(APITestCase):
     def setUp(self):
         self.authentication = AuthenticateUser()
         self.client = self.authentication.client
-        user = self.authentication.user
-        self.coded_cause = CodedCauseFactory(tenant=user.tenant)
+        self.user = self.authentication.user
+        self.project = ProjectFactory(tenant=self.user.tenant)
 
-    def test_create_coded_cause_with_responsible_user(self):
-        pass
+        self.coded_cause_label = 'random_name'
+        self.data = {
+            'coded_label': {
+                'name': self.coded_cause_label
+            },
+            'project': self.project.id,
+            'sentiment': 'a',
+            'responsible_users': [],
+            'tenant': self.user.tenant.id,
+            'type': 'c',
+            'parent': None
+        }
+
+    def test_create_coded_cause_without_responsible_users(self):
+        response = self.client.post(reverse('codedcause-list'), data=self.data, format='json')
+
+        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
+        self._assert_coded_cause_created()
+
+    def test_create_coded_cause_with_responsible_users(self):
+        user = self._create_client_user()
+        self.data['responsible_users'].append(user.id)
+
+        response = self.client.post(reverse('codedcause-list'), data=self.data, format='json')
+        print(response.data)
+        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
+        self._assert_coded_cause_created()
+
+    def test_if_users_are_set_on_coded_cause_creation_with_responsible_users(self):
+        user = self._create_client_user()
+        self.data['responsible_users'].append(user.id)
+
+        self.client.post(reverse('codedcause-list'), data=self.data, format='json')
+
+        coded_cause_instance = CodedCause.objects.get(coded_label__name=self.coded_cause_label)
+        coded_cause_responsible_users = list(coded_cause_instance.responsible_users.all())
+
+        self.assertListEqual([user.instance], coded_cause_responsible_users)
+
+    def test_if_users_are_set_on_coded_cause_creation_without_responsible_users(self):
+        self.client.post(reverse('codedcause-list'), data=self.data, format='json')
+
+        coded_cause_instance = CodedCause.objects.get(coded_label__name=self.coded_cause_label)
+        coded_cause_responsible_users = list(coded_cause_instance.responsible_users.all())
+
+        self.assertListEqual([], coded_cause_responsible_users)
+
+    def _assert_coded_cause_created(self):
+        self.assertEqual(1, CodedCause.objects.count())
+        self.assertEqual(1, CodedCauseLabel.objects.count())
+
+    @staticmethod
+    def _create_client_user():
+        user_1 = ClientUserFactory()
+        serialized_user = ClientUserSerializer(user_1)
+        return serialized_user.instance
