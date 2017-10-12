@@ -94,7 +94,6 @@ class CodedCauseSerializer(serializers.ModelSerializer):
         coded_label_data = validated_data.get('coded_label', None)
         responsible_users_data = validated_data.get('responsible_users', None)
 
-
         validated_data['coded_label'] = self.create_coded_cause_label(coded_label_data)
         coded_cause = CodedCause.objects.create(**validated_data)
 

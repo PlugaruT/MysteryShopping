@@ -19,13 +19,11 @@ class CodedCausesAPITestCase(APITestCase):
         self.coded_cause_label = 'random_name'
         self.data = {
             'coded_label': {
-                'name': self.coded_cause_label
+                'name': self.coded_cause_label,
             },
             'project': self.project.id,
             'sentiment': 'a',
-            'responsible_users': [],
-            'tenant': self.user.tenant.id,
-            'type': 'c',
+            'type': 'indicator',
             'parent': None
         }
 
@@ -37,7 +35,7 @@ class CodedCausesAPITestCase(APITestCase):
 
     def test_create_coded_cause_with_responsible_users(self):
         user = self._create_client_user()
-        self.data['responsible_users'].append(user.id)
+        self.data['responsible_users'] = [user.id]
 
         response = self.client.post(reverse('codedcause-list'), data=self.data, format='json')
         print(response.data)
@@ -46,14 +44,14 @@ class CodedCausesAPITestCase(APITestCase):
 
     def test_if_users_are_set_on_coded_cause_creation_with_responsible_users(self):
         user = self._create_client_user()
-        self.data['responsible_users'].append(user.id)
+        self.data['responsible_users'] = [user.id]
 
         self.client.post(reverse('codedcause-list'), data=self.data, format='json')
 
         coded_cause_instance = CodedCause.objects.get(coded_label__name=self.coded_cause_label)
         coded_cause_responsible_users = list(coded_cause_instance.responsible_users.all())
 
-        self.assertListEqual([user.instance], coded_cause_responsible_users)
+        self.assertListEqual([user], coded_cause_responsible_users)
 
     def test_if_users_are_set_on_coded_cause_creation_without_responsible_users(self):
         self.client.post(reverse('codedcause-list'), data=self.data, format='json')
