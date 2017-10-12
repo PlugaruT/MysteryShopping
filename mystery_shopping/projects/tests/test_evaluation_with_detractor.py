@@ -10,7 +10,7 @@ from mystery_shopping.factories.users import ShopperFactory, UserFactory
 from mystery_shopping.projects.constants import EvaluationStatus
 from mystery_shopping.projects.models import Evaluation
 from mystery_shopping.projects.serializers import EvaluationSerializer, EvaluationSerializerGET
-from mystery_shopping.users.models import DetractorRespondent
+from mystery_shopping.respondents.models import Respondent
 
 
 class TestEvaluationWithDetractor(TestCase):
@@ -59,6 +59,6 @@ class TestEvaluationWithDetractor(TestCase):
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
-        self.assertTrue(DetractorRespondent.objects.filter(name=detractor_info['name']).exists())
-        self.assertEqual(DetractorRespondent.objects.get(name=detractor_info['name']).evaluation.id,
+        self.assertTrue(Respondent.objects.filter(name=detractor_info['name']).exists())
+        self.assertEqual(Respondent.objects.get(name=detractor_info['name']).evaluation.id,
                          serializer.instance.id)

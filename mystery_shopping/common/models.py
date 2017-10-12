@@ -90,3 +90,14 @@ class Sector(models.Model):
 
     def __str__(self):
         return 'Name: %s, City: %s' % (self.name, self.city.name)
+
+
+class Tag(models.Model):
+    """
+    A simple generic Tag grouped by type
+    """
+    type = models.CharField(max_length=30, db_index=True)
+    name = models.CharField(max_length=50, db_index=True)
+
+    def __str__(self):
+        return '{}: {}'.format(self.type, self.name)

@@ -18,7 +18,6 @@ from .models import ClientManager
 from .models import ClientEmployee
 from .models import PersonToAssess
 from .models import ClientProjectManager
-from .models import DetractorRespondent
 
 
 class MyUserChangeForm(UserChangeForm):
@@ -69,9 +68,4 @@ class Tenants(admin.ModelAdmin):
 
 @admin.register(Shopper)
 class ShopperAdmin(admin.ModelAdmin):
-    pass
-
-
-@admin.register(DetractorRespondent)
-class DetractorRespondentAdmin(admin.ModelAdmin):
     pass

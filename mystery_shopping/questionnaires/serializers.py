@@ -3,22 +3,21 @@ from rest_framework import serializers
 
 from mystery_shopping.cxi.serializers import WhyCauseSerializer
 from mystery_shopping.questionnaires.constants import QuestionType
-from mystery_shopping.users.models import DetractorRespondent
-from mystery_shopping.users.serializers import ShopperSerializer, UserSerializerGET
-
 from mystery_shopping.questionnaires.models import CrossIndexQuestion, QuestionnaireTemplateStatus, CustomWeight
-from .models import QuestionnaireScript
-from .models import Questionnaire
-from .models import QuestionnaireTemplate
-from .models import QuestionnaireBlock
-from .models import QuestionnaireTemplateBlock
-from .models import QuestionnaireQuestion
-from .models import QuestionnaireTemplateQuestion
-from .models import QuestionnaireTemplateQuestionChoice
-from .models import QuestionnaireQuestionChoice
-from .models import CrossIndexTemplate
+from mystery_shopping.respondents.models import Respondent
+from mystery_shopping.users.serializers import UserSerializerGET
 from .models import CrossIndex
 from .models import CrossIndexQuestionTemplate
+from .models import CrossIndexTemplate
+from .models import Questionnaire
+from .models import QuestionnaireBlock
+from .models import QuestionnaireQuestion
+from .models import QuestionnaireQuestionChoice
+from .models import QuestionnaireScript
+from .models import QuestionnaireTemplate
+from .models import QuestionnaireTemplateBlock
+from .models import QuestionnaireTemplateQuestion
+from .models import QuestionnaireTemplateQuestionChoice
 from .utils import update_attributes
 
 
@@ -583,7 +582,7 @@ class DetractorRespondentForTenantSerializer(serializers.ModelSerializer):
     visited_place = serializers.CharField(source='get_visited_place.element_name', read_only=True)
 
     class Meta:
-        model = DetractorRespondent
+        model = Respondent
         fields = '__all__'
         extra_kwargs = {
             'email': {
@@ -613,7 +612,7 @@ class DetractorRespondentForClientSerializer(serializers.ModelSerializer):
     visited_place = serializers.CharField(source='get_visited_place.element_name', read_only=True)
 
     class Meta:
-        model = DetractorRespondent
+        model = Respondent
         fields = '__all__'
 
     @staticmethod
