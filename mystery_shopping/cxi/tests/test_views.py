@@ -42,16 +42,32 @@ class CodedCausesAPITestCase(APITestCase):
         self.assertEqual(status.HTTP_201_CREATED, response.status_code)
         self.assertCodedCauseCreation()
 
-    def test_if_users_are_set_on_coded_cause_creation_with_responsible_users(self):
+    def test_if_users_are_set_on_coded_cause_creation_with_one_responsible_users(self):
         user = self._create_client_user()
-        self.data['responsible_users'] = [user.id]
+        expected_users = [user]
+
+        self.data['responsible_users'] = list(map(lambda user: user.id, expected_users))
 
         self.client.post(reverse('codedcause-list'), data=self.data, format='json')
 
         coded_cause_instance = CodedCause.objects.get(coded_label__name=self.coded_cause_label)
-        coded_cause_responsible_users = list(coded_cause_instance.responsible_users.all())
+        responsible_users = list(coded_cause_instance.responsible_users.all())
 
-        self.assertListEqual([user], coded_cause_responsible_users)
+        self.assertListEqual(expected_users, responsible_users)
+
+    def test_if_users_are_set_on_coded_cause_creation_with_two_responsible_users(self):
+        user_1 = self._create_client_user()
+        user_2 = self._create_client_user()
+        expected_users = [user_1, user_2]
+
+        self.data['responsible_users'] = list(map(lambda user: user.id, expected_users))
+
+        self.client.post(reverse('codedcause-list'), data=self.data, format='json')
+
+        coded_cause_instance = CodedCause.objects.get(coded_label__name=self.coded_cause_label)
+        responsible_users = list(coded_cause_instance.responsible_users.all())
+
+        self.assertListEqual(expected_users, responsible_users)
 
     def test_if_users_are_set_on_coded_cause_creation_without_responsible_users(self):
         self.client.post(reverse('codedcause-list'), data=self.data, format='json')
@@ -67,6 +83,6 @@ class CodedCausesAPITestCase(APITestCase):
 
     @staticmethod
     def _create_client_user():
-        user_1 = ClientUserFactory()
-        serialized_user = ClientUserSerializer(user_1)
+        user = ClientUserFactory()
+        serialized_user = ClientUserSerializer(user)
         return serialized_user.instance
