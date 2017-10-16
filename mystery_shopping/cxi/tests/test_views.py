@@ -31,21 +31,21 @@ class CodedCausesAPITestCase(APITestCase):
         response = self.client.post(reverse('codedcause-list'), data=self.data, format='json')
 
         self.assertEqual(status.HTTP_201_CREATED, response.status_code)
-        self._assert_coded_cause_created()
+        self.assertCodedCauseCreation()
 
     def test_create_coded_cause_with_responsible_users(self):
         user = self._create_client_user()
         self.data['responsible_users'] = [user.id]
-
+        print(self.data)
         response = self.client.post(reverse('codedcause-list'), data=self.data, format='json')
         print(response.data)
         self.assertEqual(status.HTTP_201_CREATED, response.status_code)
-        self._assert_coded_cause_created()
+        self.assertCodedCauseCreation()
 
     def test_if_users_are_set_on_coded_cause_creation_with_responsible_users(self):
         user = self._create_client_user()
         self.data['responsible_users'] = [user.id]
-
+        print(self.data)
         self.client.post(reverse('codedcause-list'), data=self.data, format='json')
 
         coded_cause_instance = CodedCause.objects.get(coded_label__name=self.coded_cause_label)
@@ -61,7 +61,7 @@ class CodedCausesAPITestCase(APITestCase):
 
         self.assertListEqual([], coded_cause_responsible_users)
 
-    def _assert_coded_cause_created(self):
+    def assertCodedCauseCreation(self):
         self.assertEqual(1, CodedCause.objects.count())
         self.assertEqual(1, CodedCauseLabel.objects.count())
 
