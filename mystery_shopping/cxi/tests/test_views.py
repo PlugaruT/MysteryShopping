@@ -36,16 +36,16 @@ class CodedCausesAPITestCase(APITestCase):
     def test_create_coded_cause_with_responsible_users(self):
         user = self._create_client_user()
         self.data['responsible_users'] = [user.id]
-        print(self.data)
+
         response = self.client.post(reverse('codedcause-list'), data=self.data, format='json')
-        print(response.data)
+
         self.assertEqual(status.HTTP_201_CREATED, response.status_code)
         self.assertCodedCauseCreation()
 
     def test_if_users_are_set_on_coded_cause_creation_with_responsible_users(self):
         user = self._create_client_user()
         self.data['responsible_users'] = [user.id]
-        print(self.data)
+
         self.client.post(reverse('codedcause-list'), data=self.data, format='json')
 
         coded_cause_instance = CodedCause.objects.get(coded_label__name=self.coded_cause_label)
