@@ -16,6 +16,12 @@ class ProjectType:
 
 
 class RespondentType:
+    """
+    class that holds information about the scores that define each respondent type
+    Detractors are from 0 to 6
+    Passive are 7 and 8
+    Promoters are 9 and 10
+    """
     DETRACTOR_LOW = 0
     DETRACTOR_HIGH = 6
 
