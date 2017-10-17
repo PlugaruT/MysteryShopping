@@ -39,8 +39,14 @@ class DetractorEmailDispatcher:
             "random": "random"
         }
 
-        text_content = self.get_content_for_template('detractors/new_detractor_case.txt', context)
-        html_content = self.get_content_for_template('detractors/new_detractor_case.html', context)
+        self._build_and_send_email('new_detractor_case', context, subject_line)
+
+        return True
+
+    def _build_and_send_email(self, template_name, context, subject_line):
+        template_name = 'detractors/{}'.format(template_name)
+        text_content = self.get_content_for_template(template_name + '.txt', context)
+        html_content = self.get_content_for_template(template_name + '.html', context)
 
         email = EmailMultiAlternatives(subject=subject_line, body=text_content, to=self.recipients)
         email.attach_alternative(html_content, 'text/html')
@@ -48,8 +54,6 @@ class DetractorEmailDispatcher:
         with get_connection() as connection:
             if not self._send_email(connection, email):
                 return False
-
-        return True
 
     @staticmethod
     def _send_email(connection, email):
