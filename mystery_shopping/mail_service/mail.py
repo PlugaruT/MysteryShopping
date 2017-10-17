@@ -21,15 +21,7 @@ class DetractorEmailDispatcher:
             'random': 'random'
         }
 
-        text_content = self.get_content_for_template('detractors/new_detractor.txt', context)
-        html_content = self.get_content_for_template('detractors/new_detractor.html', context)
-
-        email = EmailMultiAlternatives(subject=subject_line, body=text_content, to=self.recipients)
-        email.attach_alternative(html_content, 'text/html')
-
-        with get_connection() as connection:
-            if not self._send_email(connection, email):
-                return False
+        self._build_and_send_email('new_detractor', context, subject_line)
 
         return True
 
