@@ -3,30 +3,25 @@ from collections import namedtuple
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
-from .models import Project
-from .models import ResearchMethodology
-from .models import Evaluation
-from .models import EvaluationAssessmentLevel
-from .models import EvaluationAssessmentComment
-
 from mystery_shopping.companies.serializers import CompanyElementSerializer
 from mystery_shopping.cxi.serializers import WhyCauseSerializer
 from mystery_shopping.projects.constants import EvaluationStatus
-from mystery_shopping.questionnaires.serializers import QuestionnaireScriptSerializer, \
-    DetractorRespondentForTenantSerializer, QuestionnaireTemplateSerializerGET
-from mystery_shopping.questionnaires.serializers import QuestionnaireSerializer
-from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializer
-from mystery_shopping.questionnaires.models import QuestionnaireQuestion
-from mystery_shopping.questionnaires.models import Questionnaire
+from mystery_shopping.projects.models import Evaluation, EvaluationAssessmentComment, EvaluationAssessmentLevel, \
+    Project, ResearchMethodology
 from mystery_shopping.questionnaires.constants import QuestionType
+from mystery_shopping.questionnaires.models import Questionnaire, QuestionnaireQuestion
+from mystery_shopping.questionnaires.serializers import QuestionnaireScriptSerializer, QuestionnaireSerializer, \
+    QuestionnaireTemplateSerializer, QuestionnaireTemplateSerializerGET
 from mystery_shopping.questionnaires.utils import update_attributes
-from mystery_shopping.users.serializers import UserSerializer, UserSerializerGET, ShopperSerializer
+from mystery_shopping.respondents.serializers import RespondentForTenantSerializer
+from mystery_shopping.users.serializers import UserSerializer, UserSerializerGET
 
 
 class EvaluationAssessmentCommentSerializer(serializers.ModelSerializer):
     """
     Default Evaluation Assessment Comment serializer.
     """
+
     class Meta:
         model = EvaluationAssessmentComment
         fields = '__all__'
@@ -109,7 +104,6 @@ class ResearchMethodologySerializer(serializers.ModelSerializer):
         instance.scripts.set(fields.scripts)
         instance.questionnaires.set(fields.questionnaires)
         instance.company_elements.set(fields.company_elements)
-
 
     def create(self, validated_data):
         popped_fields = self._extract_attributes(validated_data)
@@ -263,7 +257,7 @@ class EvaluationSerializer(serializers.ModelSerializer):
     """
     Default Evaluation serializer that can update questionnaire answers and such.
     """
-    detractor_info = DetractorRespondentForTenantSerializer(write_only=True, required=False)
+    detractor_info = RespondentForTenantSerializer(write_only=True, required=False)
     questionnaire = QuestionnaireSerializer(required=False)
 
     class Meta:
@@ -306,7 +300,6 @@ class EvaluationSerializer(serializers.ModelSerializer):
         detractor_instance = None
         if detractor_info:
             detractor_instance = self._create_detractor(detractor_info)
-
 
         if questionnaire and current_status in EvaluationStatus.EDITABLE_STATUSES:
             self._update_questionnaire_answers(questionnaire)
@@ -358,7 +351,7 @@ class EvaluationSerializer(serializers.ModelSerializer):
     @staticmethod
     def _create_detractor(detractor_info, evaluation_id=None):
         detractor_info['evaluation'] = evaluation_id
-        detractor_to_create = DetractorRespondentForTenantSerializer(data=detractor_info)
+        detractor_to_create = RespondentForTenantSerializer(data=detractor_info)
         detractor_to_create.is_valid(raise_exception=True)
         detractor_to_create.save()
         return detractor_to_create.instance
@@ -392,7 +385,6 @@ class EvaluationSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError('Indicator Question isn\'t allowed to have null score')
 
 
-
 class EvaluationSerializerGET(EvaluationSerializer):
     """
     GET Evaluation serializer that uses nested serializers.
@@ -417,6 +409,7 @@ class ProjectStatisticsForCompanySerializer(serializers.ModelSerializer):
         model = Evaluation
         fields = ('id', 'time_accomplished', 'company_element')
 
+
 class ProjectStatisticsForCompanySerializerGET(ProjectStatisticsForCompanySerializer):
     """
         Serializer class for client view for GET requests
@@ -433,6 +426,7 @@ class ProjectStatisticsForTenantSerializer(serializers.ModelSerializer):
     class Meta:
         model = Evaluation
         fields = ('id', 'time_accomplished', 'company_element', 'shopper')
+
 
 class ProjectStatisticsForTenantSerializerGET(ProjectStatisticsForTenantSerializer):
     """
