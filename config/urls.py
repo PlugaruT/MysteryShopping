@@ -20,7 +20,7 @@ from mystery_shopping.users.urls import router as user_router, shopper_evaluatio
 
 urlpatterns = [
     # Django Admin, use {% url 'admin:index' %}
-    url(settings.ADMIN_URL, include(admin.site.urls)),
+    url(settings.ADMIN_URL, admin.site.urls),
 
     url(r'^api-token-auth/', obtain_jwt_token),
     url(r'^api-token-refresh/', refresh_jwt_token),
@@ -28,11 +28,11 @@ urlpatterns = [
     # User management
     url(r'^accounts/', include('allauth.urls')),
 
-    url(r'^api/v1/common/', include('mystery_shopping.common.urls', namespace='common')),
+    url(r'^api/v1/common/', include('mystery_shopping.common.urls')),
 
-    url(r'^api/v1/', include('mystery_shopping.cxi.urls', namespace='cxi')),
-    url(r'^api/v1/', include('mystery_shopping.companies.urls', namespace='companies')),
-    url(r'^api/v1/', include('mystery_shopping.respondents.urls', namespace='respondents')),
+    url(r'^api/v1/', include('mystery_shopping.cxi.urls')),
+    url(r'^api/v1/', include('mystery_shopping.companies.urls')),
+    url(r'^api/v1/', include('mystery_shopping.respondents.urls')),
 
     # Your stuff: custom urls includes go here
     url(r'^api/v1/', include(common_router.urls)),

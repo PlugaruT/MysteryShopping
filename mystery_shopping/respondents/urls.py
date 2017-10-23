@@ -12,6 +12,8 @@ respondents_router.register(r'detractors', RespondentForTenantViewSet)
 respondents_router.register(r'detractorsforclient', RespondentForClientViewSet,
                             base_name='detractorrespondent-forclient')
 
+app_name = 'respondents'
+
 urlpatterns = [
     url(r'^respondents/distribution', RespondentsDistribution.as_view(), name='distribution')
 ]

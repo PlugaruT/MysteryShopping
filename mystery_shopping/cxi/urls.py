@@ -14,6 +14,8 @@ router.register(r'whycauses', WhyCauseViewSet)
 router.register(r'frustration-whycauses', FrustrationWhyCauseViewSet)
 router.register(r'appreciation-whycauses', AppreciationWhyCauseViewSet)
 
+app_name = 'cxi'
+
 urlpatterns = [
     url(r'^cxi/overview/$',
         OverviewDashboard.as_view(),

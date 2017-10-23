@@ -58,4 +58,4 @@ class UserAPITestCase(APITestCase):
         self.project.project_manager = self.user
         self.project.save()
         response = self.client.delete(reverse('user-detail', args=(self.user.id,)))
-        self.assertEquals(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)

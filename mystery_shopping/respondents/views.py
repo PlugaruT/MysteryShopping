@@ -159,3 +159,12 @@ class RespondentsDistribution(APIView):
     @staticmethod
     def change_dict_keys(dict_to_change):
         return dict((RESPONDENTS_MAPPING[key], value) for (key, value) in dict_to_change.items())
+
+
+class RespondentCasesPerState(APIView):
+    """
+
+    """
+    def get(self, *args, **kwargs):
+
+        RespondentCase.objects.all()

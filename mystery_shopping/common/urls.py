@@ -18,6 +18,8 @@ router.register(r'counties', CountyViewSet)
 router.register(r'cities', CityViewSet)
 router.register(r'sectors', SectorViewSet)
 
+app_name = 'common'
+
 urlpatterns = [
     url(r'^upload/localities/$', LocalityCsvUploadView.as_view(), name='upload-localities'),
     url(r'^upload/countries/$', CountryCsvUploadView.as_view(), name='upload-countries')

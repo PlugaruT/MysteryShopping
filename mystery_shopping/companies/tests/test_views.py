@@ -33,4 +33,4 @@ class CompanyElementAPITestCase(APITestCase):
         self.evaluation.company_element = self.company_element
         self.evaluation.save()
         response = self.client.delete(reverse('companyelement-detail', args=(self.company_element.id,)))
-        self.assertEquals(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
