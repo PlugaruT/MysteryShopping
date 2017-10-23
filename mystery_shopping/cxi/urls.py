@@ -1,19 +1,10 @@
 from django.conf.urls import url
-
 from rest_framework.routers import DefaultRouter
 
-from mystery_shopping.cxi.views import FrustrationWhyCauseViewSet, AppreciationWhyCauseViewSet, BarChartGraph, \
-    RespondentsDistribution
+from mystery_shopping.cxi.views import AppreciationWhyCauseViewSet, BarChartGraph, CodedCauseLabelViewSet, \
+    CodedCausePercentage, CodedCauseViewSet, CxiIndicatorTimeLapse, FrustrationWhyCauseViewSet, IndicatorDashboard, \
+    IndicatorDashboardList, OverviewDashboard, ProjectCommentViewSet, WhyCauseViewSet
 from mystery_shopping.cxi.views_chart import CXIPerCompanyElement
-from .views import CxiIndicatorTimeLapse
-from .views import WhyCauseViewSet
-from .views import CodedCausePercentage
-from .views import CodedCauseLabelViewSet
-from .views import CodedCauseViewSet
-from .views import ProjectCommentViewSet
-from .views import OverviewDashboard
-from .views import IndicatorDashboard
-from .views import IndicatorDashboardList
 
 router = DefaultRouter()
 router.register(r'codedcauselabels', CodedCauseLabelViewSet)

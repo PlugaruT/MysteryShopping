@@ -5,7 +5,7 @@ from rest_framework.routers import DefaultRouter
 
 from .views import RespondentForClientViewSet, RespondentForTenantViewSet
 
-router = DefaultRouter()
-router.register(r'detractors', RespondentForTenantViewSet)
-router.register(r'detractorsforclient', RespondentForClientViewSet, base_name='detractorrespondent-forclient')
-
+respondents_router = DefaultRouter()
+respondents_router.register(r'detractors', RespondentForTenantViewSet)
+respondents_router.register(r'detractorsforclient', RespondentForClientViewSet,
+                            base_name='detractorrespondent-forclient')

@@ -6,23 +6,17 @@ from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.views import defaults as default_views
-
-from rest_framework_jwt.views import obtain_jwt_token
-from rest_framework_jwt.views import refresh_jwt_token
+from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token
 
 from mystery_shopping.common.urls import router as common_router
-from mystery_shopping.companies.urls import router as company_router
-from mystery_shopping.companies.urls import company_router_for_projects
-from mystery_shopping.companies.urls import company_project_router
-from mystery_shopping.projects.urls import router as project_router
-from mystery_shopping.projects.urls import project_evaluation
-from mystery_shopping.questionnaires.urls import router as questionnaire_router
-from mystery_shopping.users.urls import router as user_router
-from mystery_shopping.users.urls import user_permissions
-from mystery_shopping.users.urls import shopper_evaluation
+from mystery_shopping.companies.urls import company_project_router, company_router_for_projects, \
+    router as company_router
 from mystery_shopping.cxi.urls import router as nps_router
 from mystery_shopping.dashboard.urls import router as dashboard_router
-
+from mystery_shopping.projects.urls import project_evaluation, router as project_router
+from mystery_shopping.questionnaires.urls import router as questionnaire_router
+from mystery_shopping.respondents.urls import respondents_router
+from mystery_shopping.users.urls import router as user_router, shopper_evaluation, user_permissions
 
 urlpatterns = [
     # Django Admin, use {% url 'admin:index' %}
@@ -38,6 +32,7 @@ urlpatterns = [
 
     url(r'^api/v1/', include('mystery_shopping.cxi.urls', namespace='cxi')),
     url(r'^api/v1/', include('mystery_shopping.companies.urls', namespace='companies')),
+    url(r'^api/v1/', include('mystery_shopping.respondents.urls', namespace='respondents')),
 
     # Your stuff: custom urls includes go here
     url(r'^api/v1/', include(common_router.urls)),
@@ -54,6 +49,7 @@ urlpatterns = [
     url(r'^api/v1/', include(user_permissions.urls)),
     url(r'^api/v1/', include(shopper_evaluation.urls)),
     url(r'^api/v1/', include(nps_router.urls)),
+    url(r'^api/v1/', include(respondents_router.urls)),
     url(r'^api/v1/dashboard/', include(dashboard_router.urls)),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
