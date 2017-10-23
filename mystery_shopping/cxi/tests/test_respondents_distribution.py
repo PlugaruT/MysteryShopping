@@ -46,7 +46,7 @@ class RespondentsDistributionAPITestCase(APITestCase):
             {'value': 0.0, 'key': 'NEGATIVE', 'additional': 0},
             {'value': 0.0, 'key': 'POSITIVE', 'additional': 0},
             {'value': 0.0, 'key': 'NEUTRAL', 'additional': 0}]
-        response = self.client.get('{}?{}'.format(reverse('cxi:respondents-distribution'), query_params.urlencode()))
+        response = self.client.get('{}?{}'.format(reverse('respondents:distribution'), query_params.urlencode()))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertCountEqual(expected_response, response.data)
 
@@ -59,7 +59,7 @@ class RespondentsDistributionAPITestCase(APITestCase):
             {'value': 0.0, 'key': 'DETRACTOR', 'additional': 0},
             {'value': 0.0, 'key': 'PROMOTERS', 'additional': 0},
             {'value': 0.0, 'key': 'PASSIVE', 'additional': 0}]
-        response = self.client.get('{}?{}'.format(reverse('cxi:respondents-distribution'), query_params.urlencode()))
+        response = self.client.get('{}?{}'.format(reverse('respondents:distribution'), query_params.urlencode()))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertCountEqual(expected_response, response.data)
 
@@ -74,7 +74,7 @@ class RespondentsDistributionAPITestCase(APITestCase):
             {'value': 50.0, 'key': 'NEGATIVE', 'additional': 1},
             {'value': 0.0, 'key': 'POSITIVE', 'additional': 0}
         ]
-        response = self.client.get('{}?{}'.format(reverse('cxi:respondents-distribution'), query_params.urlencode()))
+        response = self.client.get('{}?{}'.format(reverse('respondents:distribution'), query_params.urlencode()))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertCountEqual(expected_response, response.data)
 
@@ -89,7 +89,7 @@ class RespondentsDistributionAPITestCase(APITestCase):
             {'value': 50.0, 'key': 'NEGATIVE', 'additional': 1},
             {'value': 50.0, 'key': 'POSITIVE', 'additional': 1}
         ]
-        response = self.client.get('{}?{}'.format(reverse('cxi:respondents-distribution'), query_params.urlencode()))
+        response = self.client.get('{}?{}'.format(reverse('respondents:distribution'), query_params.urlencode()))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertCountEqual(expected_response, response.data)
 
@@ -105,7 +105,7 @@ class RespondentsDistributionAPITestCase(APITestCase):
             {'value': 50.0, 'key': 'DETRACTOR', 'additional': 1},
             {'value': 50.0, 'key': 'PROMOTERS', 'additional': 1}
         ]
-        response = self.client.get('{}?{}'.format(reverse('cxi:respondents-distribution'), query_params.urlencode()))
+        response = self.client.get('{}?{}'.format(reverse('respondents:distribution'), query_params.urlencode()))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertCountEqual(expected_response, response.data)
 

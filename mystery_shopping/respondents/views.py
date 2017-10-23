@@ -1,19 +1,20 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_condition import Or
-from rest_framework import viewsets, status
+from rest_framework import status, viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from mystery_shopping.mystery_shopping_utils.paginators import DetractorRespondentPaginator
 from mystery_shopping.mystery_shopping_utils.permissions import DetractorFilterPerCompanyElement
 from mystery_shopping.mystery_shopping_utils.utils import aggregate_questions_for_nps_indicator, \
-    aggregate_questions_for_other_indicators
+    aggregate_questions_for_other_indicators, calculate_percentage
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion
-from mystery_shopping.respondents.serializers import RespondentForClientSerializer, \
-    RespondentForTenantSerializer
 from mystery_shopping.respondents.filters import RespondentFilter
 from mystery_shopping.respondents.models import Respondent, RespondentCase
+from mystery_shopping.respondents.serializers import RespondentForClientSerializer, \
+    RespondentForTenantSerializer
 from mystery_shopping.users.permissions import HasReadOnlyAccessToProjectsOrEvaluations, IsTenantConsultant, \
     IsTenantProductManager, IsTenantProjectManager
 
@@ -49,7 +50,7 @@ class RespondentForClientViewSet(viewsets.ModelViewSet):
 class RespondentCaseViewSet(viewsets.ModelViewSet):
     serializer_class = RespondentCase
     queryset = RespondentCase.objects.all()
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated,)
     pagination_class = DetractorRespondentPaginator
 
     @detail_route(methods=['post'])
@@ -77,7 +78,7 @@ class RespondentCaseViewSet(viewsets.ModelViewSet):
         pass
 
 
-class RespondentsDistribution(views.APIView):
+class RespondentsDistribution(APIView):
     """
 
     View that will return the distribution of respondents for an indicator.
@@ -156,4 +157,3 @@ class RespondentsDistribution(views.APIView):
             "value": value,
             "additional": additional
         }
-
