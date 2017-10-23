@@ -8,9 +8,10 @@ from rest_framework.views import APIView
 
 from mystery_shopping.mystery_shopping_utils.paginators import DetractorRespondentPaginator
 from mystery_shopping.mystery_shopping_utils.permissions import DetractorFilterPerCompanyElement
-from mystery_shopping.mystery_shopping_utils.utils import aggregate_questions_for_nps_indicator, \
-    aggregate_questions_for_other_indicators, calculate_percentage
+from mystery_shopping.mystery_shopping_utils.utils import aggregate_respondents_distribution, \
+    calculate_percentage
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion
+from mystery_shopping.respondents.constants import RESPONDENTS_MAPPING
 from mystery_shopping.respondents.filters import RespondentFilter
 from mystery_shopping.respondents.models import Respondent, RespondentCase
 from mystery_shopping.respondents.serializers import RespondentForClientSerializer, \
@@ -108,27 +109,24 @@ class RespondentsDistribution(APIView):
     ```
     """
 
+    NPS = 'NPS'
+
     def get(self, request, *args, **kwargs):
         indicator_name = request.query_params.get('indicator', None)
         project_id = request.query_params.get('project', None)
         company_element_id = request.query_params.getlist('company_element', [])
         questions_list = QuestionnaireQuestion.objects.get_indicator_questions_for_company_elements(
             project=project_id, indicator=indicator_name, company_elements=company_element_id)
-        if indicator_name == 'NPS':
-            response = self.build_data_for_nps_indicator(questions_list)
-        else:
-            response = self.build_data_for_other_indicators(questions_list)
+
+        response = self.build_response_for_indicator(questions_list, indicator_name)
 
         return Response(response, status.HTTP_200_OK)
 
-    def build_data_for_nps_indicator(self, questions_list):
+    def build_response_for_indicator(self, questions_list, indicator_name):
         number_of_questions = questions_list.count()
-        respondents_data = aggregate_questions_for_nps_indicator(questions_list)
-        return self.build_data_points_list(respondents_data, number_of_questions)
-
-    def build_data_for_other_indicators(self, questions_list):
-        number_of_questions = questions_list.count()
-        respondents_data = aggregate_questions_for_other_indicators(questions_list)
+        respondents_data = aggregate_respondents_distribution(questions_list)
+        if indicator_name != self.NPS:
+            respondents_data = self.change_dict_keys(respondents_data)
         return self.build_data_points_list(respondents_data, number_of_questions)
 
     def build_data_points_list(self, data_dict, number_of_questions):
@@ -157,3 +155,7 @@ class RespondentsDistribution(APIView):
             "value": value,
             "additional": additional
         }
+
+    @staticmethod
+    def change_dict_keys(dict_to_change):
+        return dict((RESPONDENTS_MAPPING[key], value) for (key, value) in dict_to_change.items())
