@@ -1,7 +1,6 @@
-from datetime import date
 from django.db import models
 from django_extensions.db.models import TimeStampedModel
-from django_fsm import FSMField, transition, GET_STATE, RETURN_VALUE
+from django_fsm import FSMField, RETURN_VALUE, transition
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
 
@@ -77,7 +76,7 @@ class RespondentCase(TimeStampedModel):
                                            related_query_name='solution_respondent_cases')
 
     follow_up_date = models.DateField(null=True, blank=True)
-    follow_up_user = models.ForeignKey(User,  null=True, blank=True,
+    follow_up_user = models.ForeignKey(User, null=True, blank=True,
                                        related_name='respondent_cases_to_follow_up',
                                        related_query_name='respondent_cases_to_follow_up')
     follow_up = models.TextField(null=True, blank=True)

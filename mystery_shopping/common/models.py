@@ -1,5 +1,7 @@
 from django.db import models
 
+from mystery_shopping.common.managers import TagQuerySet
+
 
 class Country(models.Model):
     """
@@ -101,3 +103,5 @@ class Tag(models.Model):
 
     def __str__(self):
         return '{}: {}'.format(self.type, self.name)
+
+    objects = TagQuerySet.as_manager()

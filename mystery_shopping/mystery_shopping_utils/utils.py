@@ -47,6 +47,22 @@ def aggregate_respondents_distribution(questions_list):
     )
 
 
+def build_data_point(key, value, additional=0):
+    """
+    This method is going to be used when aggregating data for charts
+    This represents a data point on the bar/pie/waterfall chart
+    :param key: the name for what this data point represents
+    :param value: value of the data point
+    :param additional: additional info than can be used for different purposes
+    :return: dict
+    """
+    return {
+        'key': key,
+        'value': value,
+        'additional': additional
+    }
+
+
 def modify_questions_body(questionnaire):
     questions = questionnaire.template_questions.all()
 

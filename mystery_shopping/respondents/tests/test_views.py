@@ -58,20 +58,23 @@ class RespondentCasesPerSolutionTagAPITestCase(APITestCase):
         self.authentication = AuthenticateUser()
         self.client = self.authentication.client
 
-        tag_type = 'RESPONDENT_CASE_SOLUTION'
-
-        self.tag_1 = TagFactory(type=tag_type)
-        self.tag_2 = TagFactory(type=tag_type)
-        self.tag_3 = TagFactory(type=tag_type)
+        self.tag_1 = TagFactory(name='tag_1')
+        self.tag_2 = TagFactory(name='tag_2')
+        self.tag_3 = TagFactory(name='tag_3')
 
     def test_view_with_no_data(self):
-        expected_data = []
+        expected_data = [
+            {'key': self.tag_1.name, 'value': 0, 'additional': 0},
+            {'key': self.tag_2.name, 'value': 0, 'additional': 0},
+            {'key': self.tag_3.name, 'value': 0, 'additional': 0}
+        ]
         response = self.client.get(reverse('respondents:cases-per-solution-tag'))
 
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertCountEqual(expected_data, response.data)
 
     def test_view_with_data(self):
+        self._generate_cases_with_tags()
         expected_data = [
             {'key': self.tag_1.name, 'value': 2, 'additional': 0},
             {'key': self.tag_2.name, 'value': 3, 'additional': 0},
@@ -83,30 +86,34 @@ class RespondentCasesPerSolutionTagAPITestCase(APITestCase):
         self.assertCountEqual(expected_data, response.data)
 
     def _generate_cases_with_tags(self):
-        RespondentCaseFactory(tags=(self.tag_1, self.tag_2))
-        RespondentCaseFactory(tags=(self.tag_2,))
-        RespondentCaseFactory(tags=(self.tag_3,))
-        RespondentCaseFactory(tags=(self.tag_1, self.tag_2, self.tag_3))
+        RespondentCaseFactory(solution_tags=(self.tag_1, self.tag_2))
+        RespondentCaseFactory(solution_tags=(self.tag_2,))
+        RespondentCaseFactory(solution_tags=(self.tag_3,))
+        RespondentCaseFactory(solution_tags=(self.tag_1, self.tag_2, self.tag_3))
 
 
 class RespondentCasesPerIssueTagAPITestCase(APITestCase):
     def setUp(self):
         self.authentication = AuthenticateUser()
         self.client = self.authentication.client
-        tag_type = 'RESPONDENT_CASE_ISSUE'
 
-        self.tag_1 = TagFactory(type=tag_type)
-        self.tag_2 = TagFactory(type=tag_type)
-        self.tag_3 = TagFactory(type=tag_type)
+        self.tag_1 = TagFactory(name='tag_1')
+        self.tag_2 = TagFactory(name='tag_2')
+        self.tag_3 = TagFactory(name='tag_3')
 
     def test_view_with_no_data(self):
-        expected_data = []
+        expected_data = [
+            {'key': self.tag_1.name, 'value': 0, 'additional': 0},
+            {'key': self.tag_2.name, 'value': 0, 'additional': 0},
+            {'key': self.tag_3.name, 'value': 0, 'additional': 0}
+        ]
         response = self.client.get(reverse('respondents:cases-per-issue-tag'))
 
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertCountEqual(expected_data, response.data)
 
     def test_view_with_data(self):
+        self._generate_cases_with_tags()
         expected_data = [
             {'key': self.tag_1.name, 'value': 2, 'additional': 0},
             {'key': self.tag_2.name, 'value': 4, 'additional': 0},
@@ -118,7 +125,7 @@ class RespondentCasesPerIssueTagAPITestCase(APITestCase):
         self.assertCountEqual(expected_data, response.data)
 
     def _generate_cases_with_tags(self):
-        RespondentCaseFactory(tags=(self.tag_1, self.tag_2))
-        RespondentCaseFactory(tags=(self.tag_2,))
-        RespondentCaseFactory(tags=(self.tag_3, self.tag_2))
-        RespondentCaseFactory(tags=(self.tag_1, self.tag_2, self.tag_3))
+        RespondentCaseFactory(issue_tags=(self.tag_1, self.tag_2))
+        RespondentCaseFactory(issue_tags=(self.tag_2,))
+        RespondentCaseFactory(issue_tags=(self.tag_3, self.tag_2))
+        RespondentCaseFactory(issue_tags=(self.tag_1, self.tag_2, self.tag_3))

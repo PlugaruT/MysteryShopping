@@ -1,4 +1,3 @@
-from django.db.models.aggregates import Count
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_condition import Or
 from rest_framework import status, viewsets
@@ -7,9 +6,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from mystery_shopping.common.models import Tag
 from mystery_shopping.mystery_shopping_utils.paginators import DetractorRespondentPaginator
 from mystery_shopping.mystery_shopping_utils.permissions import DetractorFilterPerCompanyElement
-from mystery_shopping.mystery_shopping_utils.utils import aggregate_respondents_distribution, \
+from mystery_shopping.mystery_shopping_utils.utils import aggregate_respondents_distribution, build_data_point, \
     calculate_percentage
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from mystery_shopping.respondents.constants import RESPONDENTS_MAPPING
@@ -171,17 +171,9 @@ class RespondentCasesPerState(APIView):
         response = list()
         cases_info = RespondentCase.objects.get_cases_per_state()
         for case in cases_info:
-            response.append(self.build_data_point(case.get('state'), case.get('count')))
+            response.append(build_data_point(case.get('state'), case.get('count')))
 
         return Response(response, status=status.HTTP_200_OK)
-
-    @staticmethod
-    def build_data_point(key, value, additional=0):
-        return {
-            'key': key,
-            'value': value,
-            'additional': additional
-        }
 
 
 class RespondentCasesPerSolutionTag(APIView):
@@ -190,7 +182,11 @@ class RespondentCasesPerSolutionTag(APIView):
     """
 
     def get(self, *args, **kwargs):
-        return Response()
+        response = list()
+        tags_info = Tag.objects.get_solution_tags_info()
+        for tag_info in tags_info:
+            response.append(build_data_point(tag_info.get('name'), tag_info.get('count_cases')))
+        return Response(response, status=status.HTTP_200_OK)
 
 
 class RespondentCasesPerIssueTag(APIView):
@@ -200,4 +196,8 @@ class RespondentCasesPerIssueTag(APIView):
     """
 
     def get(self, *args, **kwargs):
-        return Response()
+        response = list()
+        tags_info = Tag.objects.get_issue_tags_info()
+        for tag_info in tags_info:
+            response.append(build_data_point(tag_info.get('name'), tag_info.get('count_cases')))
+        return Response(response, status=status.HTTP_200_OK)
