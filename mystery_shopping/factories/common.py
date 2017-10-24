@@ -1,8 +1,8 @@
+from factory import SubFactory, fuzzy
 from factory.django import DjangoModelFactory
-from factory import fuzzy
-from factory import SubFactory
+from factory.fuzzy import FuzzyChoice
 
-from mystery_shopping.common.models import Country, CountryRegion, County, City, Sector
+from mystery_shopping.common.models import City, Country, CountryRegion, County, Sector, Tag
 
 
 class CountryFactory(DjangoModelFactory):
@@ -45,3 +45,11 @@ class SectorFactory(DjangoModelFactory):
 
     city = SubFactory(CityFactory)
     name = fuzzy.FuzzyText(length=10)
+
+
+class TagFactory(DjangoModelFactory):
+    class Meta:
+        model = Tag
+
+    name = fuzzy.FuzzyText(length=10)
+    type = FuzzyChoice(['RESPONDENT_CASE_ISSUE', 'RESPONDENT_CASE_SOLUTION', 'RESPONDENT_CASE_FOLLOW_UP'])

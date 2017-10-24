@@ -1,3 +1,4 @@
+from django.db.models.aggregates import Count
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_condition import Or
 from rest_framework import status, viewsets
@@ -163,8 +164,28 @@ class RespondentsDistribution(APIView):
 
 class RespondentCasesPerState(APIView):
     """
+        View class that returns the number of cases for each possible state
+    """
+
+    def get(self, *args, **kwargs):
+        temp_data = RespondentCase.objects.all().values('state').annotate(value=Count('id'))
+        return Response(temp_data, status.HTTP_200_OK)
+
+
+class RespondentCasesPerSolutionTag(APIView):
+    """
+        View class that returns the number of cases for each solution tag
+    """
+
+    def get(self, *args, **kwargs):
+        return Response()
+
+
+class RespondentCasesPerIssueTag(APIView):
+    """
+        View class that returns the number of cases for each issue tag
 
     """
-    def get(self, *args, **kwargs):
 
-        RespondentCase.objects.all()
+    def get(self, *args, **kwargs):
+        return Response()

@@ -101,9 +101,3 @@ class UserThatIsTenantProjectManagerFactory(DjangoModelFactory):
     password = PostGenerationMethodCall('set_password', r_password)
     is_active = True
     shopper = RelatedFactory(TenantProjectManager, factory_related_name='user')
-
-
-class RespondentFactory(DjangoModelFactory):
-    class Meta:
-        model = Respondent
-
