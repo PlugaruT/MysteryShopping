@@ -5,7 +5,8 @@ from django.conf.urls import url
 from rest_framework.routers import DefaultRouter
 
 from mystery_shopping.respondents.views import RespondentCasesPerIssueTag, RespondentCasesPerSolutionTag, \
-    RespondentCasesPerState, RespondentForClientViewSet, RespondentForTenantViewSet, RespondentsDistribution
+    RespondentCasesPerState, RespondentCasesPerUser, RespondentForClientViewSet, RespondentForTenantViewSet, \
+    RespondentsDistribution
 
 respondents_router = DefaultRouter()
 respondents_router.register(r'detractors', RespondentForTenantViewSet)
@@ -19,4 +20,5 @@ urlpatterns = [
     url(r'^respondents/cases-per-state', RespondentCasesPerState.as_view(), name='cases-per-state'),
     url(r'^respondents/cases-per-solution-tag', RespondentCasesPerSolutionTag.as_view(), name='cases-per-solution-tag'),
     url(r'^respondents/cases-per-issue-tag', RespondentCasesPerIssueTag.as_view(), name='cases-per-issue-tag'),
+    url(r'^respondents/cases-per-user', RespondentCasesPerUser.as_view(), name='cases-per-user'),
 ]

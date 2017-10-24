@@ -4,6 +4,7 @@ from rest_framework.test import APITestCase
 
 from mystery_shopping.factories.common import TagFactory
 from mystery_shopping.factories.respondents import RespondentCaseFactory
+from mystery_shopping.factories.users import UserFactory
 from mystery_shopping.users.tests.user_authentication import AuthenticateUser
 
 
@@ -129,3 +130,38 @@ class RespondentCasesPerIssueTagAPITestCase(APITestCase):
         RespondentCaseFactory(issue_tags=(self.tag_2,))
         RespondentCaseFactory(issue_tags=(self.tag_3, self.tag_2))
         RespondentCaseFactory(issue_tags=(self.tag_1, self.tag_2, self.tag_3))
+
+
+class RespondentCasesPerUserAPITestCase(APITestCase):
+    def setUp(self):
+        self.authentication = AuthenticateUser()
+        self.client = self.authentication.client
+
+        self.user_1 = UserFactory()
+        self.user_2 = UserFactory()
+        self.user_3 = UserFactory()
+
+    def test_view_with_no_data(self):
+        expected_data = []
+        response = self.client.get(reverse('respondents:cases-per-user'))
+
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        self.assertCountEqual(expected_data, response.data)
+
+    def test_view_with_data(self):
+        self._generate_cases_with_responsible_users()
+        expected_data = [
+            {'key': '{} {}'.format(self.user_1.first_name, self.user_1.last_name), 'value': 2, 'additional': 0},
+            {'key': '{} {}'.format(self.user_2.first_name, self.user_2.last_name), 'value': 1, 'additional': 0},
+            {'key': '{} {}'.format(self.user_3.first_name, self.user_3.last_name), 'value': 1, 'additional': 0}
+        ]
+        response = self.client.get(reverse('respondents:cases-per-user'))
+
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        self.assertCountEqual(expected_data, response.data)
+
+    def _generate_cases_with_responsible_users(self):
+        RespondentCaseFactory(responsible_user=self.user_1)
+        RespondentCaseFactory(responsible_user=self.user_1)
+        RespondentCaseFactory(responsible_user=self.user_3)
+        RespondentCaseFactory(responsible_user=self.user_2)

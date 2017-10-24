@@ -17,6 +17,7 @@ from mystery_shopping.respondents.filters import RespondentFilter
 from mystery_shopping.respondents.models import Respondent, RespondentCase
 from mystery_shopping.respondents.serializers import RespondentForClientSerializer, \
     RespondentForTenantSerializer
+from mystery_shopping.users.models import User
 from mystery_shopping.users.permissions import HasReadOnlyAccessToProjectsOrEvaluations, IsTenantConsultant, \
     IsTenantProductManager, IsTenantProjectManager
 
@@ -200,4 +201,18 @@ class RespondentCasesPerIssueTag(APIView):
         tags_info = Tag.objects.get_issue_tags_info()
         for tag_info in tags_info:
             response.append(build_data_point(tag_info.get('name'), tag_info.get('count_cases')))
+        return Response(response, status=status.HTTP_200_OK)
+
+
+class RespondentCasesPerUser(APIView):
+    """
+        View class that returns number of cases for each user
+    """
+
+    def get(self, *args, **kwargs):
+        response = list()
+        users_info = User.objects.get_cases_info()
+        for user_info in users_info:
+            key = '{} {}'.format(user_info.get('first_name'), user_info.get('last_name'))
+            response.append(build_data_point(key, user_info.get('count_cases')))
         return Response(response, status=status.HTTP_200_OK)

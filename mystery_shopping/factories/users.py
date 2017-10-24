@@ -2,14 +2,13 @@ from datetime import date
 
 import factory
 from django.contrib.auth.models import Group
+from factory import PostGenerationMethodCall, RelatedFactory, SubFactory, fuzzy
 from factory.django import DjangoModelFactory
-from factory import fuzzy, SubFactory, PostGenerationMethodCall, RelatedFactory
 
 from mystery_shopping.factories.companies import CompanyElementFactory
-from mystery_shopping.respondents.models import Respondent
+from mystery_shopping.factories.tenants import TenantFactory
+from mystery_shopping.users.models import ClientUser, Shopper, TenantProjectManager, User
 from mystery_shopping.users.roles import UserRole
-from .tenants import TenantFactory
-from mystery_shopping.users.models import User, TenantProjectManager, Shopper, ClientUser
 
 
 class TenantProductManagerGroupFactory(DjangoModelFactory):
@@ -25,6 +24,8 @@ class UserFactory(DjangoModelFactory):
         model = User
         exclude = ('r_password',)
 
+    first_name = factory.Faker('name')
+    last_name = factory.Faker('name')
     tenant = SubFactory(TenantFactory)
     date_of_birth = fuzzy.FuzzyDate(date(1990, 1, 12))
     gender = 'f'

@@ -534,7 +534,6 @@ class AlgorithmsTestCase(TestCase):
         ]
 
         for item in result:
-            print(item)
             item['coded_cause']['coded_label'] = {}
             item['coded_cause'].pop('why_causes_count')
             item['coded_cause'].pop('why_causes')
