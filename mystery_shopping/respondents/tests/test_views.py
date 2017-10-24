@@ -31,13 +31,13 @@ class RespondentCasesPerStateAPITestCase(APITestCase):
     def test_view_with_data(self):
         self._create_cases()
         expected_result = [
-            {'key': 'ASSIGNED', 'value': 0, 'additional': 0},
+            {'key': 'ASSIGNED', 'value': 1, 'additional': 0},
             {'key': 'ESCALATED', 'value': 0, 'additional': 0},
-            {'key': 'ANAL', 'value': 0, 'additional': 0},
+            {'key': 'ANAL', 'value': 2, 'additional': 0},
             {'key': 'IMPLEMENTATION', 'value': 0, 'additional': 0},
             {'key': 'FOLLOW_UP', 'value': 0, 'additional': 0},
             {'key': 'SOLVED', 'value': 0, 'additional': 0},
-            {'key': 'CLOSED', 'value': 0, 'additional': 0},
+            {'key': 'CLOSED', 'value': 1, 'additional': 0},
         ]
 
         response = self.client.get(reverse('respondents:cases-per-state'))
@@ -47,8 +47,10 @@ class RespondentCasesPerStateAPITestCase(APITestCase):
 
     @staticmethod
     def _create_cases():
-        for _ in range(4):
-            RespondentCaseFactory()
+        RespondentCaseFactory(state='ANAL')
+        RespondentCaseFactory(state='ASSIGNED')
+        RespondentCaseFactory(state='CLOSED')
+        RespondentCaseFactory(state='ANAL')
 
 
 class RespondentCasesPerSolutionTagAPITestCase(APITestCase):

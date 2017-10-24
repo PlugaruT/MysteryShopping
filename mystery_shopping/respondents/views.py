@@ -168,8 +168,20 @@ class RespondentCasesPerState(APIView):
     """
 
     def get(self, *args, **kwargs):
-        temp_data = RespondentCase.objects.all().values('state').annotate(value=Count('id'))
-        return Response(temp_data, status.HTTP_200_OK)
+        response = list()
+        cases_info = RespondentCase.objects.get_cases_per_state()
+        for case in cases_info:
+            response.append(self.build_data_point(case.get('state'), case.get('count')))
+
+        return Response(response, status=status.HTTP_200_OK)
+
+    @staticmethod
+    def build_data_point(key, value, additional=0):
+        return {
+            'key': key,
+            'value': value,
+            'additional': additional
+        }
 
 
 class RespondentCasesPerSolutionTag(APIView):
