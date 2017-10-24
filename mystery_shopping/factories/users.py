@@ -24,8 +24,8 @@ class UserFactory(DjangoModelFactory):
         model = User
         exclude = ('r_password',)
 
-    first_name = factory.Faker('name')
-    last_name = factory.Faker('name')
+    first_name = factory.Faker('first_name')
+    last_name = factory.Faker('last_name')
     tenant = SubFactory(TenantFactory)
     date_of_birth = fuzzy.FuzzyDate(date(1990, 1, 12))
     gender = 'f'
