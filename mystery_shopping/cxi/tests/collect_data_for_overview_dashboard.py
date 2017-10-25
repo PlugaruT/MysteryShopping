@@ -39,7 +39,7 @@ class TestCollectDataForOverviewDashboard(TestCase):
         result = collect_data_for_overview_dashboard(self.project, None, None, None)
         self.assertDictEqual(result, expected_result)
 
-    def test_when_the_given_entity_is_none_and_one_indicator_type(self):
+    def test_when_the_given_company_element_is_none_and_one_indicator_type(self):
         self._generate_first_indicator_question(self.indicator_type, 5, self.template_indicator_question)
         self._generate_second_indicator_question(self.indicator_type, 9, self.template_indicator_question)
         result = collect_data_for_overview_dashboard(self.project, None, None, None)
@@ -56,7 +56,7 @@ class TestCollectDataForOverviewDashboard(TestCase):
         }
         self.assertDictEqual(result, expected_result)
 
-    def test_when_the_given_entity_is_none_and_two_different_indicator_types(self):
+    def test_when_the_given_company_element_is_none_and_two_different_indicator_types(self):
         indicator_type2 = 'another random'
         template_indicator_question2 = QuestionTemplateFactory.create(
             questionnaire_template=self.questionnaire_template, type='i', additional_info=indicator_type2)
@@ -82,10 +82,10 @@ class TestCollectDataForOverviewDashboard(TestCase):
         }
         self.assertDictEqual(result, expected_result)
 
-    def test_when_the_entity_is_given(self):
+    def test_when_the_company_element_is_given(self):
         self._generate_first_indicator_question(self.indicator_type, 5, self.template_indicator_question)
         self._generate_second_indicator_question(self.indicator_type, 9, self.template_indicator_question)
-        # change the entity for second evaluation method to see the results just for on entity
+        # change the company_element for second evaluation method to see the results just for on entity
         self.evaluation2.company_element = CompanyElementFactory()
         self.evaluation2.save()
 

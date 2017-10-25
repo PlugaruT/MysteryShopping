@@ -75,14 +75,14 @@ def save_company(company):
         save_department(department, element, index)
 
 
-def migrate_companies(*args):
-    pass
-    # for company in Company.objects.all():
-    #     save_company(company)
+def migrate_companies(apps, schema_editor):
+    Company = apps.get_model('companies', 'Company')
+    db_alias = schema_editor.connection.alias
+    for company in Company.objects.using(db_alias).all():
+        save_company(company)
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('tenants', '0001_initial'),
         ('companies', '0006_company_subindustry'),
@@ -111,5 +111,5 @@ class Migration(migrations.Migration):
                 'abstract': False,
             },
         ),
-        # migrations.RunPython(migrate_companies)
+        migrations.RunPython(migrate_companies)
     ]
