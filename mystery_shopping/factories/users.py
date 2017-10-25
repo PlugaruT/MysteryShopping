@@ -2,14 +2,13 @@ from datetime import date
 
 import factory
 from django.contrib.auth.models import Group
-from factory.django import DjangoModelFactory
 from factory import fuzzy, SubFactory, PostGenerationMethodCall, RelatedFactory
+from factory.django import DjangoModelFactory
 
 from mystery_shopping.factories.companies import CompanyElementFactory
-from mystery_shopping.respondents.models import Respondent
+from mystery_shopping.users.models import User, TenantProjectManager, Shopper, ClientUser
 from mystery_shopping.users.roles import UserRole
 from .tenants import TenantFactory
-from mystery_shopping.users.models import User, TenantProjectManager, Shopper, ClientUser
 
 
 class TenantProductManagerGroupFactory(DjangoModelFactory):
@@ -101,9 +100,3 @@ class UserThatIsTenantProjectManagerFactory(DjangoModelFactory):
     password = PostGenerationMethodCall('set_password', r_password)
     is_active = True
     shopper = RelatedFactory(TenantProjectManager, factory_related_name='user')
-
-
-class RespondentFactory(DjangoModelFactory):
-    class Meta:
-        model = Respondent
-

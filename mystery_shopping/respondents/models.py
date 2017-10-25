@@ -144,7 +144,7 @@ class RespondentCase(TimeStampedModel):
     @transition(field=state, target=STATE.CLOSED)
     def close(self, reason, user=None):
         user = user if user else self.responsible_user
-        self._add_comment(reason, user)
+        self._add_comment(reason, user, self.STATE.CLOSED)
 
 
 class RespondentCaseComment(models.Model):
