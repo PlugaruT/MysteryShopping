@@ -3,18 +3,20 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models.deletion import PROTECT, SET_NULL
 from model_utils import Choices
-from model_utils.models import TimeStampedModel
 from model_utils.fields import StatusField
+from model_utils.models import TimeStampedModel
 
 from mystery_shopping.companies.models import CompanyElement
 from mystery_shopping.mystery_shopping_utils.models import TenantModel
-from mystery_shopping.projects.managers import ProjectQuerySet, EvaluationQuerySet
-from mystery_shopping.questionnaires.models import QuestionnaireScript, QuestionnaireTemplate
+from mystery_shopping.projects.constants import (EvaluationStatus,
+                                                 RespondentType)
+from mystery_shopping.projects.managers import (EvaluationQuerySet,
+                                                ProjectQuerySet)
+from mystery_shopping.questionnaires.models import (Questionnaire,
+                                                    QuestionnaireQuestion,
+                                                    QuestionnaireScript,
+                                                    QuestionnaireTemplate)
 from mystery_shopping.tenants.models import Tenant
-from mystery_shopping.questionnaires.models import QuestionnaireTemplate
-from mystery_shopping.questionnaires.models import Questionnaire
-from mystery_shopping.questionnaires.models import QuestionnaireQuestion
-from mystery_shopping.projects.constants import EvaluationStatus
 
 
 # TODO: Delete model
@@ -25,8 +27,8 @@ class PlaceToAssess(models.Model):
     A person to assess can either be an Entity or a Section
     """
     limit = models.Q(app_label='companies', model='department') | \
-            models.Q(app_label='companies', model='entity') | \
-            models.Q(app_label='companies', model='section')
+        models.Q(app_label='companies', model='entity') | \
+        models.Q(app_label='companies', model='section')
     place_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='content_type_place_to_assess')
     place_id = models.PositiveIntegerField()
     place = GenericForeignKey('place_type', 'place_id')
@@ -208,6 +210,15 @@ class Evaluation(TimeStampedModel, models.Model):
 
     def get_indicator_questions(self):
         return self.questionnaire.get_indicator_questions()
+
+    def get_detractor_questions(self):
+        return self.questionnaire.get_indicator_questions().filter(score__lte=RespondentType.DETRACTOR_HIGH.value)
+
+    def number_of_detractor_questions(self):
+        return self.get_detractor_questions().count()
+
+    def get_detractors_manager(self):
+        return self.project.detractors_manager
 
 
 class EvaluationAssessmentLevel(models.Model):

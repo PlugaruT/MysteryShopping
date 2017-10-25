@@ -53,6 +53,7 @@ class ProjectFactory(DjangoModelFactory):
     company = SubFactory(CompanyElementFactory)
     project_manager = SubFactory(UserFactory)
     research_methodology = SubFactory(ResearchMethodologyFactory)
+    detractors_manager = SubFactory(UserFactory)
 
     period_start = FuzzyDate(date(1990, 12, 12))
     period_end = FuzzyDate(date(2000, 11, 2))
