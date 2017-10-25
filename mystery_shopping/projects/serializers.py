@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 from mystery_shopping.companies.serializers import CompanyElementSerializer
 from mystery_shopping.cxi.serializers import WhyCauseSerializer
-from mystery_shopping.mail_service.mail import DetractorEmailDispatcher
+from mystery_shopping.mail_service.detractors_mail import send_email_when_new_detractor
 from mystery_shopping.projects.constants import EvaluationStatus
 from mystery_shopping.projects.models import (Evaluation,
                                               EvaluationAssessmentComment,
@@ -28,6 +28,7 @@ class EvaluationAssessmentCommentSerializer(serializers.ModelSerializer):
     """
     Default Evaluation Assessment Comment serializer.
     """
+
     class Meta:
         model = EvaluationAssessmentComment
         fields = '__all__'
@@ -362,8 +363,7 @@ class EvaluationSerializer(serializers.ModelSerializer):
     @staticmethod
     def send_email_notification(evaluation):
         detractors_manager = evaluation.get_detractors_manager()
-        email_service = DetractorEmailDispatcher(detractors_manager.email)
-        email_service.send_new_detractor_email()
+        send_email_when_new_detractor(detractors_manager.email)
 
     @staticmethod
     def _create_detractor(detractor_info, evaluation_id=None):

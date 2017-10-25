@@ -18,39 +18,19 @@ from mystery_shopping.mystery_shopping_utils.permissions import ProjectStatistic
 from mystery_shopping.mystery_shopping_utils.views import GetSerializerClassMixin
 from mystery_shopping.projects.constants import EvaluationStatus
 from mystery_shopping.projects.mixins import EvaluationViewMixIn, UpdateSerializerMixin
-from mystery_shopping.projects.serializers import (
-    EvaluationAssessmentCommentSerializerGET,
-    EvaluationAssessmentLevelSerializerGET,
-    EvaluationSerializerGET,
-    ProjectSerializerGET,
-    ProjectShortSerializer,
-    ProjectStatisticsForCompanySerializerGET,
-    ProjectStatisticsForTenantSerializerGET,
-    ResearchMethodologySerializerGET
-)
-from mystery_shopping.users.permissions import (
-    HasAccessToProjectsOrEvaluations,
-    HasReadOnlyAccessToProjectsOrEvaluations,
-    IsCollector,
-    IsShopper,
-    IsShopperAccountOwner,
-    IsTenantConsultant,
-    IsTenantProductManager,
-    IsTenantProjectManager
-)
+from mystery_shopping.projects.models import Evaluation, EvaluationAssessmentComment, EvaluationAssessmentLevel, \
+    Project, ResearchMethodology
+from mystery_shopping.projects.serializers import EvaluationAssessmentCommentSerializer, \
+    EvaluationAssessmentCommentSerializerGET, EvaluationAssessmentLevelSerializer, \
+    EvaluationAssessmentLevelSerializerGET, EvaluationSerializer, EvaluationSerializerGET, ProjectSerializer, \
+    ProjectSerializerGET, ProjectShortSerializer, ProjectStatisticsForCompanySerializer, \
+    ProjectStatisticsForCompanySerializerGET, ProjectStatisticsForTenantSerializer, \
+    ProjectStatisticsForTenantSerializerGET, ResearchMethodologySerializer, ResearchMethodologySerializerGET
+from mystery_shopping.users.permissions import HasAccessToProjectsOrEvaluations, \
+    HasReadOnlyAccessToProjectsOrEvaluations, IsCollector, IsShopper, IsShopperAccountOwner, IsTenantConsultant, \
+    IsTenantProductManager, IsTenantProjectManager
 from mystery_shopping.users.roles import UserRole
 from mystery_shopping.users.services import ShopperService
-
-from .models import Evaluation, EvaluationAssessmentComment, EvaluationAssessmentLevel, Project, ResearchMethodology
-from .serializers import (
-    EvaluationAssessmentCommentSerializer,
-    EvaluationAssessmentLevelSerializer,
-    EvaluationSerializer,
-    ProjectSerializer,
-    ProjectStatisticsForCompanySerializer,
-    ProjectStatisticsForTenantSerializer,
-    ResearchMethodologySerializer
-)
 
 
 class ProjectViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
@@ -95,7 +75,7 @@ class ProjectPerCompanyViewSet(viewsets.ModelViewSet):
     serializer_class = ProjectSerializer
     permission_classes = [ConditionalPermission, IsAuthenticated]
     permission_condition = (C(HasAccessToProjectsOrEvaluations) | HasReadOnlyAccessToProjectsOrEvaluations)
-    filter_backends = (TenantFilter, )
+    filter_backends = (TenantFilter,)
 
     def list(self, request, company_element_pk=None):
         project_type = self.request.query_params.get('type', 'm')
@@ -144,7 +124,8 @@ class EvaluationViewSet(UpdateSerializerMixin, EvaluationViewMixIn, viewsets.Mod
     queryset = Evaluation.objects.all()
     serializer_class = EvaluationSerializer
     serializer_class_get = EvaluationSerializerGET
-    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant, IsShopper, IsCollector),)
+    permission_classes = (
+        Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant, IsShopper, IsCollector),)
     pagination_class = EvaluationPagination
 
     def get_queryset(self):
