@@ -1,3 +1,6 @@
+from enum import Enum
+
+
 class EvaluationStatus:
     PLANNED = 'planned'
     DRAFT = 'draft'
@@ -15,7 +18,7 @@ class ProjectType:
     CUSTOMER_EXPERIENCE_INDEX = 'c'
 
 
-class RespondentType:
+class RespondentType(Enum):
     """
     class that holds information about the scores that define each respondent type
     Detractors are from 0 to 6

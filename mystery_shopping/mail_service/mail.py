@@ -30,6 +30,7 @@ class EmailDispatcher:
             return connection.send_messages([email])
         except SMTPRecipientsRefused:
             log.error('Could not send email to {}'.format(email.to))
+            return False
 
 
 def get_text_and_html_content(template_path, context):
