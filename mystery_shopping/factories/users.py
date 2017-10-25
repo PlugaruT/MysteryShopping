@@ -29,6 +29,7 @@ class UserFactory(DjangoModelFactory):
     date_of_birth = fuzzy.FuzzyDate(date(1990, 1, 12))
     gender = 'f'
     username = fuzzy.FuzzyText(length=10)
+    email = factory.LazyAttribute(lambda o: '%s@example.org' % o.username)
     r_password = '1234'
     password = PostGenerationMethodCall('set_password', r_password)
     is_active = True
