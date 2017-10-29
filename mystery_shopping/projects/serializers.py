@@ -19,6 +19,7 @@ from mystery_shopping.questionnaires.serializers import (QuestionnaireScriptSeri
                                                          QuestionnaireTemplateSerializer,
                                                          QuestionnaireTemplateSerializerGET)
 from mystery_shopping.questionnaires.utils import update_attributes
+from mystery_shopping.respondents.serializers import RespondentForTenantSerializer
 from mystery_shopping.users.serializers import (UserSerializer,
                                                 UserSerializerGET)
 
