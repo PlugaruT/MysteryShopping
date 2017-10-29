@@ -1,7 +1,7 @@
 from datetime import date
 
 from django.contrib.auth.models import Group
-from factory import PostGenerationMethodCall, SubFactory, fuzzy, post_generation
+from factory import PostGenerationMethodCall, SubFactory, fuzzy, post_generation, LazyAttribute
 from factory.django import DjangoModelFactory
 
 from mystery_shopping.factories.companies import CompanyElementFactory
@@ -28,7 +28,7 @@ class UserFactory(DjangoModelFactory):
     date_of_birth = fuzzy.FuzzyDate(date(1990, 1, 12))
     gender = 'f'
     username = fuzzy.FuzzyText(length=10)
-    email = factory.LazyAttribute(lambda o: '%s@example.org' % o.username)
+    email = LazyAttribute(lambda o: '%s@example.org' % o.username)
     r_password = '1234'
     password = PostGenerationMethodCall('set_password', r_password)
     is_active = True
