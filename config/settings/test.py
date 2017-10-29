@@ -12,7 +12,8 @@ TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 NOSE_ARGS = [
     '--with-coverage',
     '--cover-package=mystery_shopping',
+    '--nologcapture'
 ]
 # Deactivate logging information for factory_boy module
-logging.getLogger("factory").setLevel(logging.INFO)
+logging.getLogger("factory").setLevel(logging.CRITICAL)
 

@@ -5,16 +5,22 @@ from rest_framework import serializers
 
 from mystery_shopping.companies.serializers import CompanyElementSerializer
 from mystery_shopping.cxi.serializers import WhyCauseSerializer
+from mystery_shopping.mail_service.detractors_mail import send_email_when_new_detractor
 from mystery_shopping.projects.constants import EvaluationStatus
-from mystery_shopping.projects.models import Evaluation, EvaluationAssessmentComment, EvaluationAssessmentLevel, \
-    Project, ResearchMethodology
+from mystery_shopping.projects.models import (Evaluation,
+                                              EvaluationAssessmentComment,
+                                              EvaluationAssessmentLevel,
+                                              Project, ResearchMethodology)
 from mystery_shopping.questionnaires.constants import QuestionType
-from mystery_shopping.questionnaires.models import Questionnaire, QuestionnaireQuestion
-from mystery_shopping.questionnaires.serializers import QuestionnaireScriptSerializer, QuestionnaireSerializer, \
-    QuestionnaireTemplateSerializer, QuestionnaireTemplateSerializerGET
+from mystery_shopping.questionnaires.models import (Questionnaire,
+                                                    QuestionnaireQuestion)
+from mystery_shopping.questionnaires.serializers import (QuestionnaireScriptSerializer,
+                                                         QuestionnaireSerializer,
+                                                         QuestionnaireTemplateSerializer,
+                                                         QuestionnaireTemplateSerializerGET)
 from mystery_shopping.questionnaires.utils import update_attributes
-from mystery_shopping.respondents.serializers import RespondentForTenantSerializer
-from mystery_shopping.users.serializers import UserSerializer, UserSerializerGET
+from mystery_shopping.users.serializers import (UserSerializer,
+                                                UserSerializerGET)
 
 
 class EvaluationAssessmentCommentSerializer(serializers.ModelSerializer):
@@ -317,7 +323,9 @@ class EvaluationSerializer(serializers.ModelSerializer):
 
         update_attributes(instance, validated_data)
         instance.save()
-        self.set_evaluation_to_detractor(detractor_instance, instance)
+
+        if detractor_instance:
+            self.set_evaluation_to_detractor(detractor_instance, instance)
         return instance
 
     def _update_questionnaire_answers(self, questionnaire):
@@ -341,12 +349,20 @@ class EvaluationSerializer(serializers.ModelSerializer):
             why_cause_ser.save()
         question_instance.save()
 
+    def set_evaluation_to_detractor(self, detractor_instance, evaluation):
+        number_of_detractor_questions = evaluation.number_of_detractor_questions()
+
+        detractor_instance.evaluation = evaluation
+        detractor_instance.number_of_questions = number_of_detractor_questions
+        detractor_instance.save()
+
+        if number_of_detractor_questions:
+            self.send_email_notification(evaluation)
+
     @staticmethod
-    def set_evaluation_to_detractor(detractor_instance, evaluation):
-        if detractor_instance:
-            detractor_instance.evaluation = evaluation
-            detractor_instance.number_of_questions = evaluation.get_indicator_questions().filter(score__lte=6).count()
-            detractor_instance.save()
+    def send_email_notification(evaluation):
+        detractors_manager = evaluation.get_detractors_manager()
+        send_email_when_new_detractor(detractors_manager.email)
 
     @staticmethod
     def _create_detractor(detractor_info, evaluation_id=None):

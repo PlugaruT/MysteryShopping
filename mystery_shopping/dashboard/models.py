@@ -1,11 +1,10 @@
+from datetime import datetime
+
 from django.db import models
 
-from mystery_shopping.companies.models import Company, CompanyElement
+from mystery_shopping.companies.models import CompanyElement
 from mystery_shopping.mystery_shopping_utils.models import TenantModel
-from mystery_shopping.tenants.models import Tenant
-from mystery_shopping.projects.models import Project
 from mystery_shopping.users.models import User
-from datetime import datetime
 
 
 class DashboardTemplate(TenantModel):
@@ -14,8 +13,6 @@ class DashboardTemplate(TenantModel):
     """
     # Relations
     company_element = models.ForeignKey(CompanyElement)
-    # TODO: delete
-    company = models.ForeignKey(Company)
     modified_by = models.ForeignKey(User)
     users = models.ManyToManyField(User, related_name='have_access')
 
