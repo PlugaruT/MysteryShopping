@@ -1,34 +1,13 @@
 import re
 
-from django.contrib.auth.models import Permission, Group
+from django.contrib.auth.models import Group, Permission
 from guardian.shortcuts import assign_perm, remove_perm
 from rest_framework import serializers
 
+from mystery_shopping.companies.models import CompanyElement
 from mystery_shopping.companies.serializers import SimpleCompanyElementSerializer
-from mystery_shopping.users.models import ClientUser
-from .models import User
-from .models import TenantProductManager
-from .models import TenantProjectManager
-from .models import TenantConsultant
-from .models import ClientProjectManager
-from .models import ClientManager
-from .models import ClientEmployee
-from .models import PersonToAssess
-from .models import Shopper
-from .models import Collector
-
-from mystery_shopping.companies.models import Company, CompanyElement
 from mystery_shopping.tenants.serializers import TenantSerializer
-
-
-class SimpleCompanySerializer(serializers.ModelSerializer):
-    """
-    A Company serializer that does not have any nested serializer fields.
-    """
-
-    class Meta:
-        model = Company
-        fields = '__all__'
+from mystery_shopping.users.models import ClientUser, Collector, PersonToAssess, Shopper, User
 
 
 class AssignCustomObjectPermissions:
@@ -283,72 +262,6 @@ class SimpleUserSerializerGET(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'email', 'first_name', 'last_name', 'date_of_birth')
-
-
-class TenantProductManagerSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):
-    """Serializer class for TenantProductManager user model.
-    """
-    user = UserSerializer()
-    tenant_repr = TenantSerializer(source='tenant', read_only=True)
-    type = serializers.CharField(source='get_type', read_only=True)
-
-    class Meta:
-        model = TenantProductManager
-        fields = '__all__'
-
-
-class TenantProjectManagerSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):
-    """Serializer class for TenantProjectManager user model.
-    """
-    user = UserSerializer()
-    tenant_repr = TenantSerializer(source='tenant', read_only=True)
-    type = serializers.CharField(source='get_type', read_only=True)
-
-    class Meta:
-        model = TenantProjectManager
-        fields = '__all__'
-
-
-class TenantConsultantSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):
-    """Serializer class for TenantConsultant user model.
-    """
-    user = UserSerializer()
-    tenant_repr = TenantSerializer(source='tenant', read_only=True)
-    type = serializers.CharField(source='get_type', read_only=True)
-
-    class Meta:
-        model = TenantConsultant
-        fields = '__all__'
-
-
-class ClientProjectManagerSerializer(serializers.ModelSerializer):
-    """Serializer class for ClientProjectManager user model.
-    """
-
-    class Meta:
-        model = ClientProjectManager
-        fields = '__all__'
-
-
-class ClientManagerSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):
-    """Serializer class for ClientManager user model.
-    """
-    user = UserSerializer(required=False, allow_null=True)
-
-    class Meta:
-        model = ClientManager
-        fields = '__all__'
-
-
-class ClientEmployeeSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):
-    """Serializer class for ClientEmployee user model.
-    """
-    user = UserSerializer(required=False, allow_null=True)
-    company_repr = SimpleCompanySerializer(source='company', read_only=True)
-
-    class Meta:
-        model = ClientEmployee
-        fields = '__all__'
 
 
 class ShopperSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):

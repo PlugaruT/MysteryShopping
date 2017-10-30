@@ -74,7 +74,7 @@ class Migration(migrations.Migration):
                 ('period_start', models.DateField()),
                 ('period_end', models.DateField()),
                 ('type', models.CharField(choices=[('m', 'Mystery Questionnaire'), ('c', 'Customer Experience Index Questionnaire')], default='m', max_length=1)),
-                ('company', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='companies.Company')),
+                ('company', models.IntegerField()),
             ],
             options={
                 'ordering': ('tenant',),

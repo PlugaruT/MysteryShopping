@@ -10,7 +10,7 @@ Local settings
 
 import logging
 from .common import *  # noqa
-
+import logging
 # DEBUG
 # ------------------------------------------------------------------------------
 DEBUG = env.bool('DJANGO_DEBUG', default=True)
@@ -66,6 +66,8 @@ NOSE_ARGS = [
     '--with-coverage',
     '--cover-package=mystery_shopping',
 ]
+
+logging.getLogger("factory").setLevel(logging.CRITICAL)
 
 # Your local stuff: Below this line define 3rd party library settings
 
