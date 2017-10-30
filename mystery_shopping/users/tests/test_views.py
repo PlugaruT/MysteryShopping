@@ -41,9 +41,6 @@ class ClientUserAPITestCase(APITestCase):
         self.assertRaises(ObjectDoesNotExist, Shopper.objects.get, id=self.client_user.id)
         self.assertRaises(ObjectDoesNotExist, User.objects.get, id=self.user.id)
 
-    def test_filter_detractors_managers(self):
-        pass
-
 
 class UserAPITestCase(APITestCase):
     def setUp(self):

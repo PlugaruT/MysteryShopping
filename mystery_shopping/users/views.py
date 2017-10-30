@@ -19,31 +19,16 @@ from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from mystery_shopping.mystery_shopping_utils.paginators import DetractorRespondentPaginator
 from mystery_shopping.mystery_shopping_utils.permissions import DetractorFilterPerCompanyElement
 from mystery_shopping.mystery_shopping_utils.views import GetSerializerClassMixin
-from mystery_shopping.questionnaires.serializers import (
-    DetractorRespondentForClientSerializer,
+from mystery_shopping.questionnaires.serializers import DetractorRespondentForClientSerializer, \
     DetractorRespondentForTenantSerializer
-)
 from mystery_shopping.users.filters import ClientFilter, DetractorFilter, ShopperFilter, UserFilter
 from mystery_shopping.users.mixins import CreateUserMixin, DestroyOneToOneUserMixin
 from mystery_shopping.users.models import ClientUser, Collector, DetractorRespondent, Shopper, User
-from mystery_shopping.users.permissions import (
-    HasReadOnlyAccessToProjectsOrEvaluations,
-    IsTenantConsultant,
-    IsTenantProductManager,
-    IsTenantProjectManager
-)
+from mystery_shopping.users.permissions import HasReadOnlyAccessToProjectsOrEvaluations, IsTenantConsultant, \
+    IsTenantProductManager, IsTenantProjectManager
 from mystery_shopping.users.roles import UserRole
-from mystery_shopping.users.serializers import (
-    ClientUserSerializer,
-    ClientUserSerializerGET,
-    CollectorSerializer,
-    GroupSerializer,
-    PermissionSerializer,
-    ShopperSerializer,
-    ShopperSerializerGET,
-    UserSerializer,
-    UserSerializerGET
-)
+from mystery_shopping.users.serializers import ClientUserSerializer, ClientUserSerializerGET, CollectorSerializer, \
+    GroupSerializer, PermissionSerializer, ShopperSerializer, ShopperSerializerGET, UserSerializer, UserSerializerGET
 
 
 class UserViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
