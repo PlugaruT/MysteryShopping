@@ -24,6 +24,6 @@ urlpatterns = [
     url(r'^cxi/indicatorlist/$', IndicatorDashboardList.as_view(), name='indicator-list'),
     url(r'^cxi/indicatortimelapse/$', CxiIndicatorTimeLapse.as_view(), name='indicator-timestamp'),
     url(r'^cxi/codedcausepercentage', CodedCausePercentage.as_view(), name='codedcause-percentage'),
-    url(r'^cxi/indicator-per-company-element', IndicatorPerCompanyElement.as_view(), name='indicator-per-element'),
+    url(r'^cxi/indicator-per-company-elements', IndicatorPerCompanyElement.as_view(), name='indicator-per-elements'),
     url(r'^cxi/cxi-per-company-elements', CXIPerCompanyElements.as_view(), name='cxi-per-company-elements'),
 ]
