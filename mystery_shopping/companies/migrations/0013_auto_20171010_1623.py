@@ -9,7 +9,6 @@ class Migration(migrations.Migration):
     dependencies = [
         ('users', '0013_auto_20171010_1623'),
         ('cxi', '0010_auto_20171010_1623'),
-        ('dashboard', '0006_remove_dashboardtemplate_company'),
         ('companies', '0012_auto_20170118_1605'),
     ]
 
