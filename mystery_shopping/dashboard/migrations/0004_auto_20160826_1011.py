@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='dashboardtemplate',
             name='company',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='companies.Company'),
+            field=models.IntegerField(),
             preserve_default=False,
         ),
         migrations.AddField(

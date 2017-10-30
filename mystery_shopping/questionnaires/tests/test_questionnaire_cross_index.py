@@ -1,7 +1,7 @@
 from django.test.testcases import TestCase
 from json import loads, dumps
 
-from mystery_shopping.factories.companies import EntityFactory, CompanyElementFactory
+from mystery_shopping.factories.companies import CompanyElementFactory
 from mystery_shopping.factories.projects import ProjectFactory
 from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFactory, QuestionTemplateFactory, \
     QuestionnaireTemplateBlockFactory

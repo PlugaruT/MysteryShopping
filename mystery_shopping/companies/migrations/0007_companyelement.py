@@ -8,7 +8,7 @@ import django.db.models.deletion
 import django.db.models.manager
 import mptt.fields
 
-from mystery_shopping.companies.models import CompanyElement, Company
+from mystery_shopping.companies.models import CompanyElement
 
 
 def save_section(section, parent, index):
@@ -75,13 +75,14 @@ def save_company(company):
         save_department(department, element, index)
 
 
-def migrate_companies(*args):
-    for company in Company.objects.all():
+def migrate_companies(apps, schema_editor):
+    Company = apps.get_model('companies', 'Company')
+    db_alias = schema_editor.connection.alias
+    for company in Company.objects.using(db_alias).all():
         save_company(company)
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('tenants', '0001_initial'),
         ('companies', '0006_company_subindustry'),

@@ -1,7 +1,7 @@
 from rest_framework.test import APITestCase
 import json
 
-from mystery_shopping.factories.companies import CompanyFactory, CompanyElementFactory
+from mystery_shopping.factories.companies import CompanyElementFactory
 from mystery_shopping.factories.dashboard import DashboardTemplateFactory
 from mystery_shopping.users.tests.user_authentication import AuthenticateUser
 
@@ -13,7 +13,7 @@ class TestPermissionsToDashboard(APITestCase):
         self.user = self.authenthification.user
         self.tenant = self.user.tenant
         self.company_element = CompanyElementFactory()
-        self.company = CompanyFactory()
+        self.company = CompanyElementFactory()
         self.dashboard1 = DashboardTemplateFactory(title='Dashboard 1', company=self.company, tenant=self.tenant)
         self.dashboard2 = DashboardTemplateFactory(title='Dashboard 2', company=self.company, tenant=self.tenant)
 

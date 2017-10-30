@@ -2,7 +2,7 @@ from django.test.testcases import TestCase
 from factory import fuzzy
 
 from mystery_shopping.cxi.algorithms import CollectDataForIndicatorDashboard
-from mystery_shopping.factories.companies import EntityFactory
+from mystery_shopping.factories.companies import CompanyElementFactory
 from mystery_shopping.factories.projects import ResearchMethodologyFactory, ProjectFactory, EvaluationFactory
 from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFactory, QuestionnaireFactory, \
     IndicatorQuestionFactory, QuestionnaireBlockFactory, QuestionTemplateFactory, QuestionnaireTemplateQuestionChoiceFactory, \
@@ -29,7 +29,7 @@ class TestClassConstructor(TestCase):
         self.assertIsNone(obj.entity)
 
     def _test_that_entity_is_fetched_from_db_the_given_entity_id_is_in_db(self):
-        entity = EntityFactory.create()
+        entity = CompanyElementFactory.create()
         obj = CollectDataForIndicatorDashboard(None, None, entity.pk, None, None)
         self.assertEqual(obj.entity, entity)
 
@@ -43,7 +43,7 @@ class TestBuildResponse(TestCase):
 
         self.indicator_type = 'random'
 
-        self.entity = EntityFactory.create()
+        self.entity = CompanyElementFactory.create()
         self.template_indicator_question = QuestionTemplateFactory.create(
             questionnaire_template=self.questionnaire_template, type='i', additional_info=self.indicator_type)
 
@@ -107,7 +107,7 @@ class TestBuildResponse(TestCase):
         self.assertDictEqual(result, expected_result)
 
     def _test_when_there_is_one_indicator_questions_and_entity_is_given(self):
-        self.evaluation2.entity = EntityFactory(name='demo1')
+        self.evaluation2.entity = CompanyElementFactory(name='demo1')
         self.evaluation2.save()
         self._generate_first_indicator_question(self.indicator_type, 6, self.template_indicator_question)
         self._generate_second_indicator_question(self.indicator_type, 8, self.template_indicator_question)

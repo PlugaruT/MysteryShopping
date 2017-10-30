@@ -5,7 +5,7 @@ from datetime import datetime
 from factory.helpers import post_generation
 
 from mystery_shopping.dashboard.models import DashboardTemplate
-from mystery_shopping.factories.companies import CompanyFactory, CompanyElementFactory
+from mystery_shopping.factories.companies import CompanyElementFactory
 from mystery_shopping.factories.tenants import TenantFactory
 from mystery_shopping.factories.users import UserFactory
 
@@ -17,7 +17,6 @@ class DashboardTemplateFactory(DjangoModelFactory):
     # Relations
     tenant = SubFactory(TenantFactory)
     company_element = SubFactory(CompanyElementFactory)
-    company = SubFactory(CompanyFactory)
     modified_by = SubFactory(UserFactory)
 
     # Attributes

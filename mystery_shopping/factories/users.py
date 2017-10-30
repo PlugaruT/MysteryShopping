@@ -1,13 +1,13 @@
 from datetime import date
 
 from django.contrib.auth.models import Group
-from factory import LazyAttribute, PostGenerationMethodCall, RelatedFactory, SubFactory, fuzzy, post_generation
+from factory import LazyAttribute, PostGenerationMethodCall, SubFactory, fuzzy, post_generation
 from factory.django import DjangoModelFactory
 
 from mystery_shopping.factories.companies import CompanyElementFactory
 from mystery_shopping.factories.tenants import TenantFactory
 from mystery_shopping.users.admin import DetractorRespondent
-from mystery_shopping.users.models import ClientUser, Shopper, TenantProjectManager, User
+from mystery_shopping.users.models import ClientUser, Shopper, User
 from mystery_shopping.users.roles import UserRole
 
 
@@ -61,14 +61,6 @@ class TenantProductManagerFactory(DjangoModelFactory):
     tenant = SubFactory(TenantFactory)
 
 
-class TenantProjectManagerFactory(DjangoModelFactory):
-    class Meta:
-        model = TenantProjectManager
-
-    user = SubFactory(UserFactory)
-    tenant = SubFactory(TenantFactory)
-
-
 class ShopperFactory(DjangoModelFactory):
     class Meta:
         model = Shopper
@@ -98,18 +90,6 @@ class UserThatIsTenantProductManagerFactory(DjangoModelFactory):
         if extracted:
             for group in extracted:
                 self.groups.add(group)
-
-
-class UserThatIsTenantProjectManagerFactory(DjangoModelFactory):
-    class Meta:
-        model = User
-        exclude = ('r_password',)
-
-    username = fuzzy.FuzzyText(length=10)
-    r_password = '1234'
-    password = PostGenerationMethodCall('set_password', r_password)
-    is_active = True
-    shopper = RelatedFactory(TenantProjectManager, factory_related_name='user')
 
 
 class DetractorRespondentFactory(DjangoModelFactory):

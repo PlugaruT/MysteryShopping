@@ -4,22 +4,11 @@ from django.contrib.auth.models import Group, Permission
 from guardian.shortcuts import assign_perm, remove_perm
 from rest_framework import serializers
 
-from mystery_shopping.companies.models import Company, CompanyElement
+from mystery_shopping.companies.models import CompanyElement
 from mystery_shopping.companies.serializers import SimpleCompanyElementSerializer
 from mystery_shopping.tenants.serializers import TenantSerializer
 from mystery_shopping.users.models import ClientUser
-
-from .models import Collector, Shopper, User
-
-
-class SimpleCompanySerializer(serializers.ModelSerializer):
-    """
-    A Company serializer that does not have any nested serializer fields.
-    """
-
-    class Meta:
-        model = Company
-        fields = '__all__'
+from mystery_shopping.users.models import Collector, Shopper, User
 
 
 class AssignCustomObjectPermissions:

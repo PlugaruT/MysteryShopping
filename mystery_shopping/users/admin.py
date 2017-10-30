@@ -46,7 +46,7 @@ class UserAdmin(AuthUserAdmin, GuardedModelAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('tenant', 'username', 'password1', 'password2', ),
+            'fields': ('tenant', 'username', 'password1', 'password2',),
         }),
     )
 

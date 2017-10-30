@@ -12,7 +12,6 @@ from .tenants import TenantFactory
 
 from .questionnaires import QuestionnaireScriptFactory
 from .questionnaires import QuestionnaireTemplateFactory
-from .companies import EntityFactory
 
 from mystery_shopping.projects.models import ResearchMethodology
 from mystery_shopping.projects.models import Project
