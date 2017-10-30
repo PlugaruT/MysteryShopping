@@ -123,7 +123,7 @@ def calculate_indicator_score(indicator_marks, new_algorithm=False, divide_by=10
 
 
 def sort_indicator_question_marks(indicator_dict, indicator_question, question):
-    if question.type != QuestionType.INDICATOR_QUESTION:
+    if question.type != QuestionType.INDICATOR_QUESTION and question.type == QuestionType.SINGLE_CHOICE:
         if question.answer_choices not in [None, []]:
             indicator_dict[question.question_body][question.answer]['marks'].append(indicator_question.score)
         else:
@@ -179,7 +179,7 @@ def create_details_skeleton(questionnaire_template):
     :return: initial structure of the indicator details
     """
     indicator_skeleton = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
-    for question in questionnaire_template.template_questions.all():
+    for question in questionnaire_template.template_questions.all().filter(type=QuestionType.SINGLE_CHOICE):
         for question_choice in question.template_question_choices.all():
             indicator_skeleton[question.question_body][question_choice.text]['other_choices'] = []
             indicator_skeleton[question.question_body][question_choice.text]['marks'] = []
