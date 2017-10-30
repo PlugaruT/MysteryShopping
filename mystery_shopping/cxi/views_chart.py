@@ -12,7 +12,7 @@ from mystery_shopping.users.permissions import IsCompanyEmployee, IsCompanyManag
     IsTenantConsultant, IsTenantProductManager, IsTenantProjectManager
 
 
-class CXIPerCompanyElement(views.APIView):
+class CXIPerCompanyElementsPerWeight(views.APIView):
     """
     View that returns computed cxi score per company element
     from a project
@@ -116,4 +116,60 @@ class IndicatorPerCompanyElement(views.APIView):
         return {
             'label': label,
             'value': value
+        }
+
+
+class CXIPerCompanyElements(views.APIView):
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager,
+                             IsTenantConsultant, IsCompanyProjectManager, IsCompanyManager, IsCompanyEmployee),)
+
+    def get(self, request, *args, **kwargs):
+        company_id = request.query_params.get('company')
+
+        if company_id is None:
+            return Response({'detail': 'Company param is invalid or was not provided'}, status.HTTP_400_BAD_REQUEST)
+
+        company = get_object_or_404(CompanyElement, pk=company_id)
+        if request.user.tenant != company.tenant:
+            return Response({'detail': 'You do not have permission to access to this project.'},
+                            status.HTTP_403_FORBIDDEN)
+
+        project_list = company.list_of_projects()
+        temp = defaultdict(dict)
+        for project in project_list:
+            temp[project.name] = compute_cxi_score_per_company_element(project)
+
+        resp = self.map_response(temp)
+        return Response(resp, status=status.HTTP_200_OK)
+
+    def map_response(self, input_dict):
+        output_dict = defaultdict(list)
+        for project, company_elements in input_dict.items():
+            for company_element, indicators in company_elements.items():
+                for indicator, indicator_value in indicators.items():
+                    projects_list = output_dict[indicator]
+                    out_project = self.get_or_add_project(projects_list, project)
+                    out_project['values'].append(self.create_element_indicator(company_element, indicator_value))
+
+        return output_dict
+
+    @staticmethod
+    def get_or_add_project(projects_list, project_name):
+        for project in projects_list:
+            if project['key'] == project_name:
+                return project
+        # if we get here, then no project was found, and we need to create a new one
+        new_project = {
+            'key': project_name,
+            'values': []
+        }
+
+        projects_list.append(new_project)
+        return new_project
+
+    @staticmethod
+    def create_element_indicator(company_element, indicator_value):
+        return {
+            'label': company_element,
+            'value': indicator_value
         }
