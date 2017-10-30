@@ -99,7 +99,6 @@ class Project(TenantModel):
         from mystery_shopping.cxi.algorithms import get_project_indicator_questions_list
         return get_project_indicator_questions_list(self)
 
-    # Todo: rewrite or delete
     def get_company_elements_with_evaluations(self):
         """
         Method for getting all company elements that are included into the current project

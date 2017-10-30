@@ -6,6 +6,7 @@ from mptt.models import MPTTModel
 
 from mystery_shopping.companies.managers import CompanyElementQuerySet
 from mystery_shopping.mystery_shopping_utils.models import TenantModel
+from mystery_shopping.projects.constants import EvaluationStatus
 
 
 class CompanyElement(TenantModel, MPTTModel):
