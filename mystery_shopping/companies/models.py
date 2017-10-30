@@ -6,7 +6,6 @@ from mptt.models import MPTTModel
 
 from mystery_shopping.companies.managers import CompanyElementQuerySet
 from mystery_shopping.mystery_shopping_utils.models import TenantModel
-from mystery_shopping.projects.constants import EvaluationStatus
 
 
 class CompanyElement(TenantModel, MPTTModel):
@@ -46,6 +45,9 @@ class CompanyElement(TenantModel, MPTTModel):
     def update_parent(self, new_parent):
         self.parent = new_parent
         self.save(update_fields=['parent'])
+
+    def list_of_projects(self):
+        return self.projects.all()
 
 
 class AdditionalInfoType(TenantModel):
