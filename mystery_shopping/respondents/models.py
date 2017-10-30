@@ -44,6 +44,10 @@ class RespondentCase(TimeStampedModel):
     A solvable case that is opened for a respondent
     """
 
+    ISSUE_TAG_TYPE = 'RESPONDENT_CASE_ISSUE'
+    SOLUTION_TAG_TYPE = 'RESPONDENT_CASE_SOLUTION'
+    FOLLOW_UP_TAG_TYPE = 'RESPONDENT_CASE_FOLLOW_UP'
+
     class STATE:
         ASSIGNED = 'ASSIGNED'
         ESCALATED = 'ESCALATED'
@@ -100,6 +104,7 @@ class RespondentCase(TimeStampedModel):
 
             for tag_name in tag_names:
                 tag = get_or_create_func(tag_name)
+                import pdb;pdb.set_trace()
                 tags.add(tag)
 
     def _add_comment(self, message, user, state):
@@ -122,12 +127,14 @@ class RespondentCase(TimeStampedModel):
     @transition(field=state, source=STATE.ANALYSIS, target=STATE.IMPLEMENTATION)
     def analyse(self, issue, issue_tags=None):
         self.issue = issue
-        self._update_tags(self.issue_tags, issue_tags, self.objects.get_or_create_issue_tag)
+        self.issue_tags.clear()
+        self.issue_tags.add(*Tag.objects.get_or_create_all(self.ISSUE_TAG_TYPE, issue_tags))
 
     @transition(field=state, source=STATE.IMPLEMENTATION, target=RETURN_VALUE(STATE.FOLLOW_UP, STATE.SOLVED))
     def implement(self, solution, solution_tags=None, follow_up_date=None, follow_up_user=None):
         self.solution = solution
-        self._update_tags(self.solution_tags, solution_tags, self.objects.get_or_create_solution_tag)
+        self.solution_tags.clear()
+        self.solution_tags.add(*Tag.objects.get_or_create_all(self.SOLUTION_TAG_TYPE, solution_tags))
 
         if follow_up_date:
             self.follow_up_date = follow_up_date
@@ -137,9 +144,10 @@ class RespondentCase(TimeStampedModel):
             return self.STATE.SOLVED
 
     @transition(field=state, source=STATE.FOLLOW_UP, target=STATE.SOLVED)
-    def follow_up(self, result, follow_up_tags=None):
-        self.follow_up = result
-        self._update_tags(self.follow_up_tags, follow_up_tags, self.objects.get_or_create_follow_up_tag)
+    def follow_up(self, follow_up, follow_up_tags=None):
+        self.follow_up = follow_up
+        self.follow_up_tags.clear()
+        self.follow_up_tags.add(*Tag.objects.get_or_create_all(self.FOLLOW_UP_TAG_TYPE, follow_up_tags))
 
     @transition(field=state, target=STATE.CLOSED)
     def close(self, reason, user=None):
