@@ -297,6 +297,7 @@ class ClientUserSerializerGET(serializers.ModelSerializer):
     Serializer class for client users
     """
     user = UserSerializerGET()
+    detractor_manager_to_projects = serializers.ListField(source='get_detractor_manager_ids', read_only=True)
 
     class Meta:
         model = ClientUser

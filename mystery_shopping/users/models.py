@@ -114,6 +114,9 @@ class ClientUser(models.Model):
     def __str__(self):
         return u'pk: {}, username: {}'.format(self.id, self.user.username)
 
+    def get_detractor_manager_ids(self):
+        return self.user.detractors_manager_projects.all().values_list('id', flat=True)
+
 
 class Shopper(models.Model):
     """
