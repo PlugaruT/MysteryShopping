@@ -12,66 +12,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='clientemployee',
-            name='company',
-        ),
-        migrations.RemoveField(
-            model_name='clientemployee',
-            name='entity',
-        ),
-        migrations.RemoveField(
-            model_name='clientemployee',
-            name='section',
-        ),
-        migrations.RemoveField(
-            model_name='clientemployee',
-            name='user',
-        ),
-        migrations.RemoveField(
-            model_name='clientmanager',
-            name='company',
-        ),
-        migrations.RemoveField(
-            model_name='clientmanager',
-            name='place_type',
-        ),
-        migrations.RemoveField(
-            model_name='clientmanager',
-            name='user',
-        ),
-        migrations.RemoveField(
-            model_name='clientprojectmanager',
-            name='company',
-        ),
-        migrations.RemoveField(
-            model_name='clientprojectmanager',
-            name='user',
-        ),
-        migrations.RemoveField(
-            model_name='tenantconsultant',
-            name='tenant',
-        ),
-        migrations.RemoveField(
-            model_name='tenantconsultant',
-            name='user',
-        ),
-        migrations.RemoveField(
-            model_name='tenantproductmanager',
-            name='tenant',
-        ),
-        migrations.RemoveField(
-            model_name='tenantproductmanager',
-            name='user',
-        ),
-        migrations.RemoveField(
-            model_name='tenantprojectmanager',
-            name='tenant',
-        ),
-        migrations.RemoveField(
-            model_name='tenantprojectmanager',
-            name='user',
-        ),
         migrations.DeleteModel(
             name='ClientEmployee',
         ),
