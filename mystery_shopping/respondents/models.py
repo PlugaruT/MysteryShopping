@@ -67,7 +67,7 @@ class RespondentCase(TimeStampedModel):
         (STATE.CLOSED, 'Closed'),
     )
 
-    respondent = models.ForeignKey(Respondent)
+    respondent = models.ForeignKey(Respondent, related_name='respondent_case', related_query_name='respondent_case')
     responsible_user = models.ForeignKey(User, null=True, blank=True,
                                          related_name='respondent_cases_responsible_for',
                                          related_query_name='respondent_cases_responsible_for')
@@ -81,7 +81,7 @@ class RespondentCase(TimeStampedModel):
                                            related_query_name='solution_respondent_cases')
 
     follow_up_date = models.DateField(null=True, blank=True)
-    follow_up_user = models.ForeignKey(User,  null=True, blank=True,
+    follow_up_user = models.ForeignKey(User, null=True, blank=True,
                                        related_name='respondent_cases_to_follow_up',
                                        related_query_name='respondent_cases_to_follow_up')
     follow_up = models.TextField(null=True, blank=True)
@@ -104,7 +104,6 @@ class RespondentCase(TimeStampedModel):
 
             for tag_name in tag_names:
                 tag = get_or_create_func(tag_name)
-                import pdb;pdb.set_trace()
                 tags.add(tag)
 
     def _add_comment(self, message, user, state):

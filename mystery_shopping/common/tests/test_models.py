@@ -4,6 +4,24 @@ from mystery_shopping.common.models import Tag
 
 
 class TagCase(TestCase):
+    def test_get_or_create_empty(self):
+        names = []
+        type = 'none1'
+
+        tags = Tag.objects.get_or_create_all(type, names)
+
+        self.assertIsInstance(tags, list, "response is not a list")
+        self.assertEqual(len(tags), 0)
+
+    def test_get_or_create_none(self):
+        names = None
+        type = 'none2'
+
+        tags = Tag.objects.get_or_create_all(type, names)
+
+        self.assertIsInstance(tags, list, "response is not a list")
+        self.assertEqual(len(tags), 0)
+
     def test_get_or_create_all_returns_tags(self):
         names = {'tag1', 'tag2'}
         type = 'return1'
