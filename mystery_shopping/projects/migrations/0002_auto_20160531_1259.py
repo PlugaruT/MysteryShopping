@@ -8,15 +8,12 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    initial = True
-
     dependencies = [
         ('questionnaires', '0001_initial'),
         ('users', '0001_initial'),
         ('tenants', '0001_initial'),
-        ('projects', '0001_initial'),
         ('contenttypes', '0002_remove_content_type_name'),
-        ('companies', '0001_initial'),
+        ('projects', '0001_initial'),
     ]
 
     operations = [
@@ -28,12 +25,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='project',
             name='project_manager',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='users.TenantProjectManager'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='users.User'),
         ),
         migrations.AddField(
             model_name='project',
             name='research_methodology',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='projects.ResearchMethodology'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
+                                    to='projects.ResearchMethodology'),
         ),
         migrations.AddField(
             model_name='project',
@@ -48,12 +46,14 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='placetoassess',
             name='place_type',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='content_type_place_to_assess', to='contenttypes.ContentType'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                    related_name='content_type_place_to_assess', to='contenttypes.ContentType'),
         ),
         migrations.AddField(
             model_name='placetoassess',
             name='research_methodology',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='places_to_assess', to='projects.ResearchMethodology'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='places_to_assess',
+                                    to='projects.ResearchMethodology'),
         ),
         migrations.AddField(
             model_name='evaluationassessmentlevel',
@@ -63,7 +63,8 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='evaluationassessmentlevel',
             name='previous_level',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='next_level', to='projects.EvaluationAssessmentLevel'),
+            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
+                                       related_name='next_level', to='projects.EvaluationAssessmentLevel'),
         ),
         migrations.AddField(
             model_name='evaluationassessmentlevel',
@@ -73,12 +74,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='evaluationassessmentlevel',
             name='project_manager',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='users.TenantProjectManager'),
+            field=models.IntegerField(),
         ),
         migrations.AddField(
             model_name='evaluationassessmentcomment',
             name='commenter_type',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='commenter_type', to='contenttypes.ContentType'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='commenter_type',
+                                    to='contenttypes.ContentType'),
         ),
         migrations.AddField(
             model_name='evaluationassessmentcomment',
@@ -88,7 +90,8 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='evaluationassessmentcomment',
             name='evaluation_assessment_level',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='projects.EvaluationAssessmentLevel'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                    to='projects.EvaluationAssessmentLevel'),
         ),
         migrations.AddField(
             model_name='evaluationassessmentcomment',
@@ -98,17 +101,19 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='evaluation',
             name='employee_type',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='employee_type', to='contenttypes.ContentType'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
+                                    related_name='employee_type', to='contenttypes.ContentType'),
         ),
         migrations.AddField(
             model_name='evaluation',
             name='entity',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='companies.Entity'),
+            field=models.IntegerField(),
         ),
         migrations.AddField(
             model_name='evaluation',
             name='evaluation_assessment_level',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='projects.EvaluationAssessmentLevel'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
+                                    to='projects.EvaluationAssessmentLevel'),
         ),
         migrations.AddField(
             model_name='evaluation',
@@ -118,22 +123,25 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='evaluation',
             name='questionnaire',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='evaluation', to='questionnaires.Questionnaire'),
+            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
+                                       related_name='evaluation', to='questionnaires.Questionnaire'),
         ),
         migrations.AddField(
             model_name='evaluation',
             name='questionnaire_script',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='questionnaires.QuestionnaireScript'),
+            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE,
+                                    to='questionnaires.QuestionnaireScript'),
         ),
         migrations.AddField(
             model_name='evaluation',
             name='questionnaire_template',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='questionnaires.QuestionnaireTemplate'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                    to='questionnaires.QuestionnaireTemplate'),
         ),
         migrations.AddField(
             model_name='evaluation',
             name='section',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='companies.Section'),
+            field=models.IntegerField(),
         ),
         migrations.AddField(
             model_name='evaluation',

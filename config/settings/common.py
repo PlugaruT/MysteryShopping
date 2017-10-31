@@ -64,6 +64,7 @@ LOCAL_APPS = (
     'mystery_shopping.mystery_shopping_utils',
     'mystery_shopping.cxi',
     'mystery_shopping.dashboard',
+    'mystery_shopping.mail_service',
     'mystery_shopping.respondents',
 )
 
@@ -297,3 +298,13 @@ JWT_AUTH = {
 
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
 }
+
+SHELL_PLUS = "ipython"
+
+# email SMTP config
+EMAIL_USE_SSL = env('EMAIL_USE_SSL', default=True)
+EMAIL_HOST = env('EMAIL_HOST', default='')
+EMAIL_PORT = env('EMAIL_PORT', default='')
+EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')

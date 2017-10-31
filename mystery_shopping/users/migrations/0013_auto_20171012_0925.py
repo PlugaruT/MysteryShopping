@@ -19,5 +19,23 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.DeleteModel(
+            name='ClientEmployee',
+        ),
+        migrations.DeleteModel(
+            name='ClientManager',
+        ),
+        migrations.DeleteModel(
+            name='ClientProjectManager',
+        ),
+        migrations.DeleteModel(
+            name='TenantConsultant',
+        ),
+        migrations.DeleteModel(
+            name='TenantProductManager',
+        ),
+        migrations.DeleteModel(
+            name='TenantProjectManager',
+        ),
         migrations.SeparateDatabaseAndState(database_operations=db_operations, state_operations=state_operations)
     ]

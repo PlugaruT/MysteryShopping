@@ -1,7 +1,7 @@
 from django.test.testcases import TestCase
 from rest_framework.reverse import reverse
 
-from mystery_shopping.factories.companies import EntityFactory
+from mystery_shopping.factories.companies import CompanyElementFactory
 from mystery_shopping.factories.cxi import WhyCauseFactory, CodedCauseFactory
 from mystery_shopping.factories.projects import ResearchMethodologyFactory, ProjectFactory, EvaluationFactory
 from mystery_shopping.factories.questionnaires import QuestionnaireTemplateFactory, QuestionTemplateFactory, \
@@ -22,7 +22,7 @@ class WhyCauseTestCase(TestCase):
 
         self.indicator_type = 'random'
 
-        self.entity = EntityFactory(tenant=self.tenant)
+        self.entity = CompanyElementFactory(tenant=self.tenant)
         self.template_indicator_question = QuestionTemplateFactory(
             questionnaire_template=self.questionnaire_template,
             type='i',

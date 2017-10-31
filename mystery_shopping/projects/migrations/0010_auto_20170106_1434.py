@@ -57,5 +57,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(migrate_all)
+        # migrations.RunPython(migrate_all)
     ]

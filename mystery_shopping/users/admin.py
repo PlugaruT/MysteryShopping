@@ -5,19 +5,12 @@ from django import forms
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as AuthUserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
+from django.utils.translation import ugettext_lazy as _
 from guardian.admin import GuardedModelAdmin
 
-from django.utils.translation import ugettext, ugettext_lazy as _
 from mystery_shopping.users.models import ClientUser
-from .models import User
-from .models import TenantProductManager
-from .models import TenantProjectManager
-from .models import TenantConsultant
 from .models import Shopper
-from .models import ClientManager
-from .models import ClientEmployee
-from .models import PersonToAssess
-from .models import ClientProjectManager
+from .models import User
 
 
 class MyUserChangeForm(UserChangeForm):
@@ -55,13 +48,12 @@ class UserAdmin(AuthUserAdmin, GuardedModelAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('tenant', 'username', 'password1', 'password2', ),
+            'fields': ('tenant', 'username', 'password1', 'password2',),
         }),
     )
 
 
-@admin.register(TenantProductManager, TenantProjectManager, TenantConsultant, ClientProjectManager, ClientManager,
-                ClientEmployee, PersonToAssess, ClientUser)
+@admin.register(ClientUser)
 class Tenants(admin.ModelAdmin):
     pass
 
