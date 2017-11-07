@@ -1,21 +1,18 @@
-from _decimal import Decimal
 from collections import defaultdict, namedtuple
 
 from django.db.models import Count, Min
 from django.db.models.query import Prefetch
 
 from mystery_shopping.companies.models import CompanyElement
-from mystery_shopping.mystery_shopping_utils.utils import calculate_percentage
-from mystery_shopping.questionnaires.constants import QuestionType
-from mystery_shopping.questionnaires.models import Questionnaire, QuestionnaireQuestion, CustomWeight, \
-    QuestionnaireTemplateQuestion
-from mystery_shopping.cxi.models import CodedCause, WhyCause
-from mystery_shopping.cxi.models import ProjectComment
-from mystery_shopping.cxi.serializers import CodedCauseSerializer
-from mystery_shopping.cxi.serializers import ProjectCommentSerializer
-from mystery_shopping.questionnaires.utils import first_or_none
-
+from mystery_shopping.cxi.models import CodedCause, ProjectComment, WhyCause
+from mystery_shopping.cxi.serializers import CodedCauseSerializer, ProjectCommentSerializer
 from mystery_shopping.mystery_shopping_utils.constants import ROUND_TO_DIGITS
+from mystery_shopping.mystery_shopping_utils.utils import calculate_percentage, count_detractors, count_passives, \
+    count_promoters, remove_none_from_list, flatten_list_of_lists
+from mystery_shopping.questionnaires.constants import QuestionType
+from mystery_shopping.questionnaires.models import CustomWeight, Questionnaire, QuestionnaireQuestion, \
+    QuestionnaireTemplateQuestion
+from mystery_shopping.questionnaires.utils import first_or_none
 
 
 def get_indicator_scores(questionnaire_list, indicator_type):
@@ -26,22 +23,18 @@ def get_indicator_scores(questionnaire_list, indicator_type):
     :param indicator_type: can be anything
     :return: a list with the indicator's marks
     """
-    indicator_marks = list()
-    for questionnaire in questionnaire_list:
-        for question in questionnaire.questions_list:
-            if question.additional_info == indicator_type:
-                indicator_marks.append(question.score)
-
-    return indicator_marks
+    questions = flatten_list_of_lists(map(lambda q: q.questions_list, questionnaire_list))
+    filtered_questions = filter(lambda question: question.additional_info == indicator_type, questions)
+    return [question.score for question in filtered_questions]
 
 
-def mean(list):
+def mean(list_of_scores):
     """
     calculate the mean of a list
-    :param list: list of elements (numbers) to calculate the mean for
+    :param list_of_scores: list of elements (numbers) to calculate the mean for
     :return: the arithmetic average
     """
-    return float(sum(list)) / max(len(list), 1)
+    return float(sum(list_of_scores)) / max(len(list_of_scores), 1)
 
 
 def use_mean_formula(marks, divide_by):
@@ -51,44 +44,33 @@ def use_mean_formula(marks, divide_by):
 
 
 def calculate_indicator_score_old_formula(indicator_marks):
-    score = dict()
     if not indicator_marks:
-        score['indicator'] = None
-        score['promoters'] = None
-        score['passives'] = None
-        score['detractors'] = None
-        return score
+        return {
+            'indicator': None,
+            'promoters': None,
+            'passives': None,
+            'detractors': None
+        }
 
-    detractors = 0
-    passives = 0
-    promoters = 0
-    indicator_marks = [i for i in indicator_marks if i is not None]
+    indicator_marks = remove_none_from_list(indicator_marks)
 
-    for mark in indicator_marks:
-        if mark < 7:
-            detractors += 1
-        elif mark < 9:
-            passives += 1
-        else:
-            promoters += 1
+    detractors = count_detractors(indicator_marks)
+    passives = count_passives(indicator_marks)
+    promoters = count_promoters(indicator_marks)
 
     indicator_marks_length = len(indicator_marks)
 
-    if indicator_marks_length == 0:
-        indicator_marks_length = 1
-
-    detractors_percentage = detractors / indicator_marks_length * 100
-    passives_percentage = passives / indicator_marks_length * 100
-    promoters_percentage = promoters / indicator_marks_length * 100
-
+    detractors_percentage = calculate_percentage(detractors, indicator_marks_length, round_to=0)
+    passives_percentage = calculate_percentage(passives, indicator_marks_length, round_to=0)
+    promoters_percentage = calculate_percentage(promoters, indicator_marks_length, round_to=0)
     indicator_score = promoters_percentage - detractors_percentage
 
-    score['indicator'] = round(indicator_score, ROUND_TO_DIGITS)
-    score['promoters'] = round(promoters_percentage, ROUND_TO_DIGITS)
-    score['passives'] = round(passives_percentage, ROUND_TO_DIGITS)
-    score['detractors'] = round(detractors_percentage, ROUND_TO_DIGITS)
-
-    return score
+    return {
+        'indicator': round(indicator_score, ROUND_TO_DIGITS),
+        'promoters': promoters_percentage,
+        'passives': passives_percentage,
+        'detractors': detractors_percentage
+    }
 
 
 def calculate_indicator_score_improved_formula(indicator_marks, divide_by):
@@ -125,12 +107,12 @@ def calculate_indicator_score(indicator_marks, new_algorithm=False, divide_by=10
 def sort_indicator_question_marks(indicator_dict, indicator_question, question):
     if question.type != QuestionType.INDICATOR_QUESTION and question.type == QuestionType.SINGLE_CHOICE:
         if question.answer_choices not in [None, []]:
-            indicator_dict[question.question_body][question.answer]['marks'].append(indicator_question.score)
+            indicator_dict[question.additional_info][question.answer]['marks'].append(indicator_question.score)
         else:
-            indicator_dict[question.question_body]['other']['marks'].append(indicator_question.score)
+            indicator_dict[question.additional_info]['other']['marks'].append(indicator_question.score)
             if question.answer is not None and question.answer.capitalize() not in \
-                indicator_dict[question.question_body]['other']['other_choices']:
-                indicator_dict[question.question_body]['other']['other_choices'].append(question.answer)
+                indicator_dict[question.additional_info]['other']['other_choices']:
+                indicator_dict[question.additional_info]['other']['other_choices'].append(question.answer)
 
 
 def group_questions_by_answer(questionnaire_list, indicator_type, indicator_details):
@@ -181,17 +163,17 @@ def create_details_skeleton(questionnaire_template):
     indicator_skeleton = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
     for question in questionnaire_template.template_questions.all().filter(type=QuestionType.SINGLE_CHOICE):
         for question_choice in question.template_question_choices.all():
-            indicator_skeleton[question.question_body][question_choice.text]['other_choices'] = []
-            indicator_skeleton[question.question_body][question_choice.text]['marks'] = []
-            indicator_skeleton[question.question_body][question_choice.text]['order'] = question_choice.order
+            indicator_skeleton[question.additional_info][question_choice.text]['other_choices'] = []
+            indicator_skeleton[question.additional_info][question_choice.text]['marks'] = []
+            indicator_skeleton[question.additional_info][question_choice.text]['order'] = question_choice.order
     return indicator_skeleton
 
 
 def get_respondents_distribution(list_of_marks):
     return {
-        'detractors': sum(n <= 6 for n in list_of_marks),
-        'passive': sum(n == 7 or n == 8 for n in list_of_marks),
-        'promoters': sum(n >= 9 for n in list_of_marks)
+        'detractors': count_detractors(list_of_marks),
+        'passive': count_passives(list_of_marks),
+        'promoters': count_promoters(list_of_marks)
     }
 
 
