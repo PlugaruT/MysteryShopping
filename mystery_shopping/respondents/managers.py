@@ -27,7 +27,7 @@ class RespondentCaseQuerySet(QuerySet):
     def get_or_create_follow_up_tag(self, tag_name):
         return Tag.objects.get_or_create(type=self.FOLLOW_UP_TAG_TYPE, name=tag_name)
 
-    def get_cases_per_state(self):
+    def get_cases_per_state(self, project_id):
         """
         Method returns data about number of cases for each state. If the state doesn't have cases
         It will return that the state has 0
@@ -42,6 +42,7 @@ class RespondentCaseQuerySet(QuerySet):
             {'state': 'SOLVED', 'count': 0},
             {'state': 'CLOSED', 'count': 0},
         ]
-        result = list(self.values('state').annotate(count=Count('id')))
+        result = list(
+            self.filter(respondent__evaluation__project_id=project_id).values('state').annotate(count=Count('id')))
         result.extend(list(filter(lambda d: d['state'] not in [d['state'] for d in result], default_response)))
         return result

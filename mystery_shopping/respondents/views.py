@@ -168,9 +168,10 @@ class RespondentCasesPerState(APIView):
         View class that returns the number of cases for each possible state
     """
 
-    def get(self, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         response = list()
-        cases_info = RespondentCase.objects.get_cases_per_state()
+        project_id = request.query_params.get('project', None)
+        cases_info = RespondentCase.objects.get_cases_per_state(project_id=project_id)
         for case in cases_info:
             response.append(build_data_point(case.get('state'), case.get('count')))
 
@@ -209,8 +210,9 @@ class RespondentCasesPerUser(APIView):
         View class that returns number of cases for each user
     """
 
-    def get(self, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         response = list()
+        company_id = request.query_params.get('company', None)
         users_info = User.objects.get_cases_info()
         for user_info in users_info:
             key = '{} {}'.format(user_info.get('first_name'), user_info.get('last_name'))
