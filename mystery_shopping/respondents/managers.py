@@ -27,6 +27,9 @@ class RespondentCaseQuerySet(QuerySet):
     def get_or_create_follow_up_tag(self, tag_name):
         return Tag.objects.get_or_create(type=self.FOLLOW_UP_TAG_TYPE, name=tag_name)
 
+    def get_average_time_per_state(self, project_id):
+        pass
+
     def get_cases_per_state(self, project_id):
         """
         Method returns data about number of cases for each state. If the state doesn't have cases

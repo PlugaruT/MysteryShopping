@@ -64,6 +64,42 @@ class RespondentCasesPerStateAPITestCase(APITestCase):
         RespondentCaseFactory(state='ANAL', respondent=respondent_4)
 
 
+class AverageProcessingTimePerStateAPITestCase(APITestCase):
+    def setUp(self):
+        self.authentication = AuthenticateUser()
+        self.client = self.authentication.client
+
+        self.project = ProjectFactory()
+
+    def test_view_with_no_data(self):
+        expected_result = []
+
+        query_params = QueryDict('project={}'.format(self.project.id))
+
+        response = self.client.get('{}?{}'.format(reverse('respondents:time-per-state'), query_params.urlencode()))
+
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        self.assertCountEqual(expected_result, response.data)
+
+    def test_view_with_data(self):
+        expected_result = [
+            {'key': 'ASSIGNED', 'value': 0, 'additional': 0},
+            {'key': 'ESCALATED', 'value': 0, 'additional': 0},
+            {'key': 'ANAL', 'value': 0, 'additional': 0},
+            {'key': 'IMPLEMENTATION', 'value': 0, 'additional': 0},
+            {'key': 'FOLLOW_UP', 'value': 0, 'additional': 0},
+            {'key': 'SOLVED', 'value': 0, 'additional': 0},
+            {'key': 'CLOSED', 'value': 0, 'additional': 0},
+        ]
+
+        query_params = QueryDict('project={}'.format(self.project.id))
+
+        response = self.client.get('{}?{}'.format(reverse('respondents:time-per-state'), query_params.urlencode()))
+
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        self.assertCountEqual(expected_result, response.data)
+
+
 class RespondentCasesPerSolutionTagAPITestCase(APITestCase):
     def setUp(self):
         self.authentication = AuthenticateUser()
