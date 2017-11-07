@@ -183,9 +183,10 @@ class RespondentCasesPerSolutionTag(APIView):
         View class that returns the number of cases for each solution tag
     """
 
-    def get(self, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         response = list()
-        tags_info = Tag.objects.get_solution_tags_info()
+        project_id = request.query_params.get('project', None)
+        tags_info = Tag.objects.get_solution_tags_info(project_id=project_id)
         for tag_info in tags_info:
             response.append(build_data_point(tag_info.get('name'), tag_info.get('count_cases')))
         return Response(response, status=status.HTTP_200_OK)
@@ -197,9 +198,10 @@ class RespondentCasesPerIssueTag(APIView):
 
     """
 
-    def get(self, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         response = list()
-        tags_info = Tag.objects.get_issue_tags_info()
+        project_id = request.query_params.get('project', None)
+        tags_info = Tag.objects.get_issue_tags_info(project_id=project_id)
         for tag_info in tags_info:
             response.append(build_data_point(tag_info.get('name'), tag_info.get('count_cases')))
         return Response(response, status=status.HTTP_200_OK)
@@ -212,8 +214,8 @@ class RespondentCasesPerUser(APIView):
 
     def get(self, request, *args, **kwargs):
         response = list()
-        company_id = request.query_params.get('company', None)
-        users_info = User.objects.get_cases_info()
+        project_id = request.query_params.get('project', None)
+        users_info = User.objects.get_cases_info(project_id=project_id)
         for user_info in users_info:
             key = '{} {}'.format(user_info.get('first_name'), user_info.get('last_name'))
             response.append(build_data_point(key, user_info.get('count_cases')))

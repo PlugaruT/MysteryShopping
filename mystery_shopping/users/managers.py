@@ -4,6 +4,7 @@ from django.db.models.aggregates import Count
 
 
 class UserQuerySet(QuerySet, UserManager):
-    def get_cases_info(self):
-        return list(self.annotate(count_cases=Count('respondent_cases_responsible_for'))
+    def get_cases_info(self, project_id):
+        return list(self.filter(respondent_cases_responsible_for__respondent__evaluation__project_id=project_id)
+                    .annotate(count_cases=Count('respondent_cases_responsible_for'))
                     .filter(count_cases__gt=0).values('first_name', 'last_name', 'count_cases'))
