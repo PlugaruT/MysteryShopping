@@ -95,6 +95,19 @@ def modify_questions_body(questionnaire):
             question.questions.update(question_body=new_body)
 
 
+def modify_questions_additional_info(questionnaire):
+    questions = questionnaire.template_questions.all()
+
+    for question in questions:
+        print('Current question body is: {}'.format(question.question_body))
+        print('Current question additional info is: {}'.format(question.additional_info))
+        additional_info = input('New additional_info: ')
+        if additional_info != '':
+            question.additional_info = additional_info
+            question.save()
+            question.questions.update(additional_info=additional_info)
+
+
 def remove_none_from_list(items):
     return [item for item in items if item is not None]
 
