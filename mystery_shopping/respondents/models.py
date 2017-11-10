@@ -7,7 +7,7 @@ from model_utils.models import TimeStampedModel
 
 from mystery_shopping.common.models import Tag
 from mystery_shopping.projects.models import Evaluation
-from mystery_shopping.respondents.managers import RespondentCaseQuerySet
+from mystery_shopping.respondents.managers import RespondentCaseQuerySet, RespondentQuerySet
 from mystery_shopping.users.models import ClientUser, User
 
 
@@ -29,6 +29,8 @@ class Respondent(models.Model):
     evaluation = models.ForeignKey(Evaluation, related_name='detractors', null=True)
     number_of_questions = models.IntegerField(default=0)
 
+    objects = RespondentQuerySet.as_manager()
+
     def __str__(self):
         return u'{} {}'.format(self.name, self.surname)
 
@@ -37,6 +39,11 @@ class Respondent(models.Model):
 
     def get_visited_place(self):
         return self.evaluation.company_element
+
+    def get_current_case(self):
+        if self.respondent_cases.count() > 0:
+            return self.respondent_cases[0]
+        return None
 
 
 class RespondentCase(TimeStampedModel):
@@ -49,6 +56,7 @@ class RespondentCase(TimeStampedModel):
     FOLLOW_UP_TAG_TYPE = 'RESPONDENT_CASE_FOLLOW_UP'
 
     class STATE:
+        INIT = 'INIT'
         ASSIGNED = 'ASSIGNED'
         ESCALATED = 'ESCALATED'
         ANALYSIS = 'ANAL'  # just because we can
@@ -58,6 +66,7 @@ class RespondentCase(TimeStampedModel):
         CLOSED = 'CLOSED'
 
     STATE_CHOICES = Choices(
+        (STATE.INIT, 'Init'),
         (STATE.ASSIGNED, 'Assigned'),
         (STATE.ESCALATED, 'Escalated'),
         (STATE.ANALYSIS, 'Analysis'),
@@ -67,17 +76,19 @@ class RespondentCase(TimeStampedModel):
         (STATE.CLOSED, 'Closed'),
     )
 
-    respondent = models.ForeignKey(Respondent, related_name='respondent_case', related_query_name='respondent_case')
+    respondent = models.ForeignKey(Respondent, related_name='respondent_cases', related_query_name='respondent_cases')
     responsible_user = models.ForeignKey(User, null=True, blank=True,
                                          related_name='respondent_cases_responsible_for',
                                          related_query_name='respondent_cases_responsible_for')
 
     issue = models.TextField(null=True, blank=True)
-    issue_tags = models.ManyToManyField(Tag, related_name='issue_respondent_cases',
+    issue_tags = models.ManyToManyField(Tag, blank=True,
+                                        related_name='issue_respondent_cases',
                                         related_query_name='issue_respondent_cases')
 
     solution = models.TextField(null=True, blank=True)
-    solution_tags = models.ManyToManyField(Tag, related_name='solution_respondent_cases',
+    solution_tags = models.ManyToManyField(Tag, blank=True,
+                                           related_name='solution_respondent_cases',
                                            related_query_name='solution_respondent_cases')
 
     follow_up_date = models.DateField(null=True, blank=True)
@@ -85,10 +96,11 @@ class RespondentCase(TimeStampedModel):
                                        related_name='respondent_cases_to_follow_up',
                                        related_query_name='respondent_cases_to_follow_up')
     follow_up = models.TextField(null=True, blank=True)
-    follow_up_tags = models.ManyToManyField(Tag, related_name='follow_up_respondent_cases',
+    follow_up_tags = models.ManyToManyField(Tag, blank=True,
+                                            related_name='follow_up_respondent_cases',
                                             related_query_name='follow_up_respondent_cases')
 
-    state = FSMField(choices=STATE_CHOICES, default=STATE.ASSIGNED)
+    state = FSMField(choices=STATE_CHOICES, default=STATE.INIT)
 
     objects = RespondentCaseQuerySet.as_manager()
 
@@ -113,7 +125,7 @@ class RespondentCase(TimeStampedModel):
     def escalate(self, reason):
         self._add_comment(reason, self.responsible_user, self.STATE.ESCALATED)
 
-    @transition(field=state, source=STATE.ESCALATED, target=STATE.ASSIGNED)
+    @transition(field=state, source=(STATE.INIT, STATE.ESCALATED), target=STATE.ASSIGNED)
     def assign(self, to, comment=None, user=None):
         if comment:
             self._add_comment(comment, user, self.STATE.ASSIGNED)

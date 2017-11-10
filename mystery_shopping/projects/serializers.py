@@ -19,7 +19,7 @@ from mystery_shopping.questionnaires.serializers import (QuestionnaireScriptSeri
                                                          QuestionnaireTemplateSerializer,
                                                          QuestionnaireTemplateSerializerGET)
 from mystery_shopping.questionnaires.utils import update_attributes
-from mystery_shopping.respondents.serializers import RespondentForTenantSerializer
+from mystery_shopping.respondents.serializers import RespondentSerializer
 from mystery_shopping.users.serializers import (UserSerializer,
                                                 UserSerializerGET)
 
@@ -264,7 +264,7 @@ class EvaluationSerializer(serializers.ModelSerializer):
     """
     Default Evaluation serializer that can update questionnaire answers and such.
     """
-    detractor_info = RespondentForTenantSerializer(write_only=True, required=False)
+    detractor_info = RespondentSerializer(write_only=True, required=False)
     questionnaire = QuestionnaireSerializer(required=False)
 
     class Meta:
@@ -368,7 +368,7 @@ class EvaluationSerializer(serializers.ModelSerializer):
     @staticmethod
     def _create_detractor(detractor_info, evaluation_id=None):
         detractor_info['evaluation'] = evaluation_id
-        detractor_to_create = RespondentForTenantSerializer(data=detractor_info)
+        detractor_to_create = RespondentSerializer(data=detractor_info)
         detractor_to_create.is_valid(raise_exception=True)
         detractor_to_create.save()
         return detractor_to_create.instance

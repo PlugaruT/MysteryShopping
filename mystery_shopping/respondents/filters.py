@@ -4,19 +4,7 @@ from django_filters import AllValuesMultipleFilter, DateFromToRangeFilter, Model
 from mystery_shopping.companies.models import CompanyElement
 from mystery_shopping.questionnaires.models import Questionnaire
 from mystery_shopping.respondents.models import Respondent
-
-
-class RespondentFilter(rest_framework.FilterSet):
-    places = ModelMultipleChoiceFilter(queryset=CompanyElement.objects.all(), name="evaluation__company_element")
-    date = DateFromToRangeFilter(name="evaluation__time_accomplished", lookup_expr='date')
-    questions = AllValuesMultipleFilter(name='number_of_questions')
-    indicators = DetractorIndicatorMultipleChoiceFilter(name="evaluation__questionnaire__questions__additional_info",
-                                                        conjoined=True,
-                                                        query_manager=Questionnaire.objects.filter)
-
-    class Meta:
-        model = Respondent
-        fields = ['date', 'places', 'status', 'questions', 'indicators']
+from mystery_shopping.users.models import User
 
 
 class DetractorIndicatorMultipleChoiceFilter(rest_framework.AllValuesMultipleFilter):
@@ -65,3 +53,19 @@ class DetractorIndicatorMultipleChoiceFilter(rest_framework.AllValuesMultipleFil
     @staticmethod
     def filter_detractors(qs, questionnaires):
         return qs.filter(evaluation__questionnaire__in=questionnaires)
+
+
+class RespondentFilter(rest_framework.FilterSet):
+    places = ModelMultipleChoiceFilter(queryset=CompanyElement.objects.all(), name="evaluation__company_element")
+    date = DateFromToRangeFilter(name="evaluation__time_accomplished", lookup_expr='date')
+    questions = AllValuesMultipleFilter(name='number_of_questions')
+    indicators = DetractorIndicatorMultipleChoiceFilter(name="evaluation__questionnaire__questions__additional_info",
+                                                        conjoined=True,
+                                                        query_manager=Questionnaire.objects.filter)
+    states = AllValuesMultipleFilter(name='respondent_cases__state')
+    responsible_users = ModelMultipleChoiceFilter(queryset=User.objects.all(),
+                                                  name='respondent_cases__responsible_user')
+
+    class Meta:
+        model = Respondent
+        fields = ['date', 'places', 'status', 'questions', 'indicators']

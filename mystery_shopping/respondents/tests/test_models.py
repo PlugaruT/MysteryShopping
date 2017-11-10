@@ -7,7 +7,7 @@ from mystery_shopping.factories.users import UserFactory
 from mystery_shopping.respondents.models import RespondentCase
 
 
-class DetractorCase(TestCase):
+class DetractorCaseTestCase(TestCase):
     def _assert_comment_equal(self, case, comment_text, comment_user):
         self.assertEqual(case.comments.count(), 1)
         comment = case.comments.all()[0]
@@ -19,13 +19,13 @@ class DetractorCase(TestCase):
         self.assertEqual(len(logs), 1)
         self.assertEqual(logs[0].state, state)
 
-    def test_that_case_is_created_assigned(self):
+    def test_that_case_is_created_init(self):
         case = RespondentCaseFactory()
 
-        self.assertEqual(case.state, RespondentCase.STATE.ASSIGNED)
+        self.assertEqual(case.state, RespondentCase.STATE.INIT)
 
     def test_case_escalation(self):
-        case = RespondentCaseFactory()
+        case = RespondentCaseFactory(state=RespondentCase.STATE.ASSIGNED)
 
         case.escalate('reason')
 
@@ -34,6 +34,15 @@ class DetractorCase(TestCase):
         self._assert_state_log_equal(case, RespondentCase.STATE.ESCALATED)
 
     def test_case_assignment(self):
+        case = RespondentCaseFactory()
+        to_user = UserFactory()
+
+        case.assign(to=to_user)
+
+        self.assertEqual(case.state, RespondentCase.STATE.ASSIGNED)
+        self._assert_state_log_equal(case, RespondentCase.STATE.ASSIGNED)
+
+    def test_case_assignment_from_escalation(self):
         case = RespondentCaseFactory(state=RespondentCase.STATE.ESCALATED)
         to_user = UserFactory()
         manager = UserFactory()
@@ -45,7 +54,7 @@ class DetractorCase(TestCase):
         self._assert_state_log_equal(case, RespondentCase.STATE.ASSIGNED)
 
     def test_case_start_analysing(self):
-        case = RespondentCaseFactory()
+        case = RespondentCaseFactory(state=RespondentCase.STATE.ASSIGNED)
 
         case.start_analysis()
 
@@ -128,7 +137,7 @@ class DetractorCase(TestCase):
         self._assert_state_log_equal(case, RespondentCase.STATE.SOLVED)
 
     def test_case_close_no_user(self):
-        case = RespondentCaseFactory()
+        case = RespondentCaseFactory(state=RespondentCase.STATE.ASSIGNED)
 
         case.close(reason='because')
 

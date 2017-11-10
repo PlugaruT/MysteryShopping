@@ -67,6 +67,13 @@ class IsTenantConsultant(permissions.BasePermission):
         return False
 
 
+class IsDetractorManager(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.user:
+            return request.user.is_in_group(UserRole.CLIENT_DETRACTORS_MANAGER_GROUP)
+        return False
+
+
 class IsShopper(permissions.BasePermission):
     """
         Permission for Shopper user.
