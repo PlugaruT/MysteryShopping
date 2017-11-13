@@ -12,6 +12,9 @@ class RespondentCaseCommentSerializer(serializers.ModelSerializer):
 
 
 class RespondentCaseSerializer(serializers.ModelSerializer):
+
+    state = serializers.CharField(source='state.value', read_only=True)
+
     class Meta:
         model = RespondentCase
         fields = '__all__'
