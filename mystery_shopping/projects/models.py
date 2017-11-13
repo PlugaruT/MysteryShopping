@@ -27,8 +27,8 @@ class PlaceToAssess(models.Model):
     A person to assess can either be an Entity or a Section
     """
     limit = models.Q(app_label='companies', model='department') | \
-        models.Q(app_label='companies', model='entity') | \
-        models.Q(app_label='companies', model='section')
+            models.Q(app_label='companies', model='entity') | \
+            models.Q(app_label='companies', model='section')
     place_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='content_type_place_to_assess')
     place_id = models.PositiveIntegerField()
     place = GenericForeignKey('place_type', 'place_id')
@@ -74,7 +74,8 @@ class Project(TenantModel):
     consultants = models.ManyToManyField('users.User', blank=True, related_name='consultant_projects')
     company = models.ForeignKey('companies.CompanyElement')
     project_manager = models.ForeignKey('users.User', related_name='manager_projects', on_delete=PROTECT)
-    detractors_manager = models.ForeignKey('users.User', null=True, blank=True, related_name='detractors_manager_projects', on_delete=PROTECT)
+    detractors_manager = models.ForeignKey('users.User', null=True, blank=True,
+                                           related_name='detractors_manager_projects', on_delete=PROTECT)
     research_methodology = models.ForeignKey('ResearchMethodology', null=True, blank=True, on_delete=SET_NULL)
     shoppers = models.ManyToManyField('users.User', blank=True, related_name='shopper_projects')
 
@@ -99,7 +100,6 @@ class Project(TenantModel):
         from mystery_shopping.cxi.algorithms import get_project_indicator_questions_list
         return get_project_indicator_questions_list(self)
 
-    # Todo: rewrite or delete
     def get_company_elements_with_evaluations(self):
         """
         Method for getting all company elements that are included into the current project
@@ -121,6 +121,9 @@ class Project(TenantModel):
         if self.research_methodology:
             not_in_project_company_elements = CompanyElement.objects.get_company_elements_not_in_project(project=self)
         return not_in_project_company_elements
+
+    def get_company_elements_in_project(self):
+        return self.research_methodology.company_elements.all()
 
     def is_questionnaire_editable(self):
         """

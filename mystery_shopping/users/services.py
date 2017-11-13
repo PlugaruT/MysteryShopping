@@ -1,7 +1,7 @@
 from mystery_shopping.companies.serializers import SimpleCompanyElementSerializer
 from mystery_shopping.projects.constants import EvaluationStatus
 from mystery_shopping.projects.models import Project
-from mystery_shopping.projects.serializers import EvaluationSerializer, EvaluationSerializerGET
+from mystery_shopping.projects.serializers import EvaluationSerializerGET
 
 
 class ShopperService:

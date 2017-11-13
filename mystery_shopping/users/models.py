@@ -2,7 +2,6 @@
 from __future__ import absolute_import, unicode_literals
 
 from django.contrib.auth.models import AbstractUser
-from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.db import models
@@ -121,6 +120,9 @@ class ClientUser(models.Model):
     def __str__(self):
         return u'pk: {}, username: {}'.format(self.id, self.user.username)
 
+    def get_detractor_manager_ids(self):
+        return self.user.detractors_manager_projects.all().values_list('id', flat=True)
+
 
 class Shopper(models.Model):
     """
@@ -145,18 +147,3 @@ class Collector(models.Model):
 
     def __str__(self):
         return u'{}'.format(self.user.username)
-
-
-class PersonToAssess(models.Model):
-    """
-    A class with a generic foreign key for setting people to be evaluated for a project.
-
-    A person to assess can either be a Client Manager or a Client Employee
-    """
-    limit = models.Q(app_label='users', model='clientmanager') | \
-            models.Q(app_label='users', model='clientemployee')
-    person_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='content_type_person_to_assess')
-    person_id = models.PositiveIntegerField()
-    person = GenericForeignKey('person_type', 'person_id')
-
-    research_methodology = models.ForeignKey(ResearchMethodology, related_name='people_to_assess')

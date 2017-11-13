@@ -12,4 +12,33 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RemoveField(
+            model_name='persontoassess',
+            name='person_type',
+        ),
+        migrations.RemoveField(
+            model_name='persontoassess',
+            name='research_methodology',
+        ),
+        migrations.DeleteModel(
+            name='PersonToAssess',
+        ),
+        migrations.DeleteModel(
+            name='ClientEmployee',
+        ),
+        migrations.DeleteModel(
+            name='ClientManager',
+        ),
+        migrations.DeleteModel(
+            name='ClientProjectManager',
+        ),
+        migrations.DeleteModel(
+            name='TenantConsultant',
+        ),
+        migrations.DeleteModel(
+            name='TenantProductManager',
+        ),
+        migrations.DeleteModel(
+            name='TenantProjectManager',
+        ),
     ]

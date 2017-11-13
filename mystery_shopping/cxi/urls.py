@@ -3,8 +3,9 @@ from rest_framework.routers import DefaultRouter
 
 from mystery_shopping.cxi.views import AppreciationWhyCauseViewSet, BarChartGraph, CodedCauseLabelViewSet, \
     CodedCausePercentage, CodedCauseViewSet, CxiIndicatorTimeLapse, FrustrationWhyCauseViewSet, IndicatorDashboard, \
-    IndicatorDashboardList, OverviewDashboard, ProjectCommentViewSet, WhyCauseViewSet
-from mystery_shopping.cxi.views_chart import CXIPerCompanyElement
+    OverviewDashboard, ProjectCommentViewSet, RespondentsDistribution, WhyCauseViewSet
+from mystery_shopping.cxi.views_chart import CXIPerCompanyElements, CXIPerCompanyElementsPerWeight, \
+    IndicatorPerCompanyElement
 
 router = DefaultRouter()
 router.register(r'codedcauselabels', CodedCauseLabelViewSet)
@@ -23,19 +24,16 @@ urlpatterns = [
     url(r'^cxi/bar-chart-data/$',
         BarChartGraph.as_view(),
         name='bar-chart-data'),
-    url(r'^cxi/cxi-per-company-element/$',
-        CXIPerCompanyElement.as_view(),
-        name='cxi-per-company-element'),
+    url(r'^cxi/cxi-per-weight/$', CXIPerCompanyElementsPerWeight.as_view(),
+        name='cxi-per-weight'),
+
     url(r'^cxi/indicator/$',
         IndicatorDashboard.as_view(),
         name='indicator-score'),
-    url(r'^cxi/indicatorlist/$',
-        IndicatorDashboardList.as_view(),
-        name='indicator-list'),
-    url(r'^cxi/indicatortimelapse/$',
-        CxiIndicatorTimeLapse.as_view(),
+    url(r'^cxi/indicatortimelapse/$', CxiIndicatorTimeLapse.as_view(),
         name='indicator-timestamp'),
-    url(r'^cxi/codedcausepercentage',
-        CodedCausePercentage.as_view(),
-        name='codedcause-percentage')
+    url(r'^cxi/codedcausepercentage', CodedCausePercentage.as_view(),name='codedcause-percentage'),
+       url(r'^cxi/indicator-per-company-elements', IndicatorPerCompanyElement.as_view(), name='indicator-per-elements'),
+    url(r'^cxi/cxi-per-company-elements', CXIPerCompanyElements.as_view(),
+        name='cxi-per-company-elements'),
 ]

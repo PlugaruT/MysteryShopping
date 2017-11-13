@@ -1,12 +1,16 @@
 from copy import deepcopy
 
 from django.db import models
+from django.db.models import Count
 from model_utils import Choices
 
 from mystery_shopping.companies.models import CompanyElement
 from mystery_shopping.mystery_shopping_utils.models import TenantModel
+from mystery_shopping.mystery_shopping_utils.utils import is_detractor
+from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from mystery_shopping.projects.models import Project
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion
+from mystery_shopping.users.models import ClientUser
 
 
 class CodedCauseLabel(TenantModel):
@@ -61,23 +65,37 @@ class WhyCause(models.Model):
 
         return new_why_causes
 
+    def get_respondent(self):
+        return self.question.get_respondent()
+
+    def get_evaluation(self):
+        return self.question.get_evaluation()
+
+    def is_detractor_question(self):
+        return is_detractor(self.question.score)
+
+    def evaluation_has_case(self):
+        return self.get_respondent().respondent_cases.exists()
+
 
 class CodedCause(TenantModel):
     """
     Model for Coded Causes that would allow to group different frustration or appreciation together
     """
+    WHY_CAUSE_LIMIT = 3
+
     # Relations
     project = models.ForeignKey(Project)
     coded_label = models.ForeignKey(CodedCauseLabel)
     raw_causes = models.ManyToManyField(WhyCause, related_name='coded_causes', blank=True)
     parent = models.ForeignKey('self', null=True, blank=True)
+    responsible_users = models.ManyToManyField(ClientUser, related_name='coded_causes', blank=True)
 
     # Attributes
     type = models.CharField(max_length=30, blank=True)
     sentiment_choices = Choices(('a', 'Appreciation'),
                                 ('f', 'Frustration'))
     sentiment = models.CharField(max_length=1, choices=sentiment_choices, default=sentiment_choices.a)
-    WHY_CAUSE_LIMIT = 3
 
     def __str__(self):
         return '{}, type: {}'.format(self.coded_label.name, self.type)
@@ -87,6 +105,10 @@ class CodedCause(TenantModel):
 
     def get_number_of_why_causes(self):
         return self.raw_causes.count()
+
+    def get_user_with_few_cases(self):
+        return self.responsible_users.annotate(number_of_cases=Count('coded_causes')) \
+            .order_by('-number_of_cases').first()
 
 
 class ProjectComment(models.Model):

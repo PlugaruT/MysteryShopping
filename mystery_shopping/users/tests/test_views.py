@@ -5,7 +5,7 @@ from rest_framework.test import APITestCase
 
 from mystery_shopping.factories.projects import ProjectFactory
 from mystery_shopping.factories.tenants import TenantFactory
-from mystery_shopping.factories.users import UserFactory, ShopperFactory, ClientUserFactory
+from mystery_shopping.factories.users import ClientUserFactory, ShopperFactory, UserFactory
 from mystery_shopping.users.models import Shopper, User
 from mystery_shopping.users.tests.user_authentication import AuthenticateUser
 
@@ -20,6 +20,7 @@ class ShopperAPITestCase(APITestCase):
 
     def test_destroy(self):
         response = self.client.delete(reverse('shopper-detail', args=(self.shopper.id,)))
+
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
         self.assertRaises(ObjectDoesNotExist, Shopper.objects.get, id=self.shopper.id)
         self.assertRaises(ObjectDoesNotExist, User.objects.get, id=self.user.id)
@@ -35,6 +36,7 @@ class ClientUserAPITestCase(APITestCase):
 
     def test_destroy(self):
         response = self.client.delete(reverse('clientuser-detail', args=(self.client_user.id,)))
+
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
         self.assertRaises(ObjectDoesNotExist, Shopper.objects.get, id=self.client_user.id)
         self.assertRaises(ObjectDoesNotExist, User.objects.get, id=self.user.id)
@@ -51,11 +53,14 @@ class UserAPITestCase(APITestCase):
 
     def test_when_try_to_delete_user_without_project(self):
         response = self.client.delete(reverse('user-detail', args=(self.user.id,)))
+
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
         self.assertRaises(ObjectDoesNotExist, User.objects.get, id=self.user.id)
 
     def test_when_try_to_delete_user_with_project(self):
         self.project.project_manager = self.user
         self.project.save()
+
         response = self.client.delete(reverse('user-detail', args=(self.user.id,)))
+
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)

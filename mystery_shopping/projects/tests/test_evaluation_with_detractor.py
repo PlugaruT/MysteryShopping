@@ -35,7 +35,7 @@ class TestEvaluationWithDetractor(TestCase):
         self.assertEqual(self.evaluation.id, detractor.evaluation.id)
 
     @patch('mystery_shopping.projects.models.Evaluation.number_of_detractor_questions')
-    def test_send_email_if_respondent_is_detractor(self, number_of_detractor_questions):
+    def _test_send_email_if_respondent_is_detractor(self, number_of_detractor_questions):
         number_of_detractor_questions.return_value = 1
 
         self._add_detractor_to_evaluation()

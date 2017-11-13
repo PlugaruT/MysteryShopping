@@ -52,8 +52,17 @@ class UserAdmin(AuthUserAdmin, GuardedModelAdmin):
 
 
 @admin.register(ClientUser)
-class Tenants(admin.ModelAdmin):
-    pass
+class ClientUserAdmin(admin.ModelAdmin):
+    list_display = ('get_username', 'get_company', 'job_title')
+
+    def get_company(self, obj):
+        return obj.company.element_name
+
+    def get_username(self, obj):
+        return obj.user.username
+
+    get_company.short_description = 'Company'
+    get_username.short_description = 'Username'
 
 
 @admin.register(Shopper)

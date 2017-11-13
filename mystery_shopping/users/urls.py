@@ -4,14 +4,9 @@ from __future__ import absolute_import, unicode_literals
 from rest_framework.routers import DefaultRouter
 from rest_framework_nested.routers import NestedSimpleRouter
 
-from mystery_shopping.users.views import ClientUserViewSet
-from mystery_shopping.users.views import UserPermissionsViewSet, UserGroupsViewSet, PermissionsPerUserViewSet
-
-from .views import UserViewSet
-from .views import ShopperViewSet
-from .views import CollectorViewSet
-
 from mystery_shopping.projects.views import EvaluationPerShopperViewSet
+from mystery_shopping.users.views import ClientUserViewSet, CollectorViewSet, PermissionsPerUserViewSet, ShopperViewSet, \
+    UserGroupsViewSet, UserPermissionsViewSet, UserViewSet
 
 router = DefaultRouter()
 router.register(r'users', UserViewSet)
