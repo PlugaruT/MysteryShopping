@@ -7,8 +7,7 @@ from rest_framework import serializers
 from mystery_shopping.companies.models import CompanyElement
 from mystery_shopping.companies.serializers import SimpleCompanyElementSerializer
 from mystery_shopping.tenants.serializers import TenantSerializer
-from mystery_shopping.users.models import ClientUser
-from mystery_shopping.users.models import Collector, Shopper, User
+from mystery_shopping.users.models import ClientUser, Collector, Shopper, User
 
 
 class AssignCustomObjectPermissions:
@@ -259,6 +258,12 @@ class UserSerializerGET(UserSerializer):
                   'date_of_birth', 'gender', 'roles', 'object_permissions', 'phone_number', 'company')
 
 
+class SimpleUserSerializerGET(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'first_name', 'last_name', 'date_of_birth')
+
+
 class ShopperSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):
     """
     Serializer class for Shopper user model.
@@ -298,6 +303,18 @@ class ClientUserSerializerGET(serializers.ModelSerializer):
     """
     user = UserSerializerGET()
     detractor_manager_to_projects = serializers.ListField(source='get_detractor_manager_ids', read_only=True)
+
+    class Meta:
+        model = ClientUser
+        fields = '__all__'
+
+
+class SimpleClientUserSerializerGET(serializers.ModelSerializer):
+    """
+        A simple serializer class for client users that won't include it's
+        user permissions
+    """
+    user = SimpleUserSerializerGET()
 
     class Meta:
         model = ClientUser
