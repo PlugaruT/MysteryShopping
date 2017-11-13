@@ -1,6 +1,14 @@
+from enum import Enum
+
 from django.db import models
 
 from mystery_shopping.common.managers import TagQuerySet
+
+
+class ModelEnum(Enum):
+
+    def __str__(self):
+        return self.value
 
 
 class Country(models.Model):
