@@ -191,17 +191,11 @@ class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
     def get_indicator_questions(self):
         return self.questions.filter(type=QuestionType.INDICATOR_QUESTION)
 
-    def get_entity(self):
-        return self.evaluation.company_element
-
-    def get_section(self):
-        return self.evaluation.section
-
-    def get_department(self):
-        return self.get_entity().department
-
     def get_company_element(self):
         return self.evaluation.company_element
+
+    def get_respondent(self):
+        return self.evaluation.respondents.first()
 
 
 class QuestionnaireBlockAbstract(models.Model):
@@ -419,6 +413,9 @@ class QuestionnaireQuestion(QuestionAbstract):
 
     def get_company_element(self):
         return self.questionnaire.get_company_element()
+
+    def get_respondent(self):
+        return self.questionnaire.get_respondent()
 
     def create_why_causes(self, why_causes):
         from mystery_shopping.cxi.serializers import WhyCauseSerializer

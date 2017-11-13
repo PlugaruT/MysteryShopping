@@ -61,6 +61,9 @@ class WhyCause(models.Model):
 
         return new_why_causes
 
+    def get_respondent(self):
+        return self.question.get_respondent()
+
 
 class CodedCause(TenantModel):
     """
