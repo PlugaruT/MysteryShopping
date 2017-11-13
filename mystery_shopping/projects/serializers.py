@@ -357,9 +357,6 @@ class EvaluationSerializer(serializers.ModelSerializer):
         detractor_instance.number_of_questions = number_of_detractor_questions
         detractor_instance.save()
 
-        if number_of_detractor_questions:
-            self.send_email_notification(evaluation)
-
     @staticmethod
     def send_email_notification(evaluation):
         detractors_manager = evaluation.get_detractors_manager()
