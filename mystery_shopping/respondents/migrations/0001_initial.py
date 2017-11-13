@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
         ('common', '0002_tag'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ('projects', '0015_project_detractors_manager'),
-        ('users', '0013_auto_20171012_0925')
+        ('users', '0014_auto_20171012_0925')
     ]
 
     state_operations = [

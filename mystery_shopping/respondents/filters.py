@@ -4,6 +4,7 @@ from django_filters import AllValuesMultipleFilter, DateFromToRangeFilter, Model
 from mystery_shopping.companies.models import CompanyElement
 from mystery_shopping.questionnaires.models import Questionnaire
 from mystery_shopping.respondents.models import Respondent
+from mystery_shopping.users.models import User
 
 
 class DetractorIndicatorMultipleChoiceFilter(rest_framework.AllValuesMultipleFilter):
@@ -61,6 +62,9 @@ class RespondentFilter(rest_framework.FilterSet):
     indicators = DetractorIndicatorMultipleChoiceFilter(name="evaluation__questionnaire__questions__additional_info",
                                                         conjoined=True,
                                                         query_manager=Questionnaire.objects.filter)
+    states = AllValuesMultipleFilter(name='respondent_cases__state')
+    responsible_users = ModelMultipleChoiceFilter(queryset=User.objects.all(),
+                                                  name='respondent_cases__responsible_user')
 
     class Meta:
         model = Respondent

@@ -1,32 +1,8 @@
 from django.db.models import QuerySet
 from django.db.models.aggregates import Count
 
-from mystery_shopping.common.models import Tag
-
 
 class RespondentCaseQuerySet(QuerySet):
-    ISSUE_TAG_TYPE = 'RESPONDENT_CASE_ISSUE'
-    SOLUTION_TAG_TYPE = 'RESPONDENT_CASE_SOLUTION'
-    FOLLOW_UP_TAG_TYPE = 'RESPONDENT_CASE_FOLLOW_UP'
-
-    def all_issue_tag_options(self):
-        return Tag.objects.filter(type=self.ISSUE_TAG_TYPE)
-
-    def all_solution_tag_options(self):
-        return Tag.objects.filter(type=self.ISSUE_TAG_TYPE)
-
-    def all_follow_up_tag_options(self):
-        return Tag.objects.filter(type=self.FOLLOW_UP_TAG_TYPE)
-
-    def get_or_create_issue_tag(self, tag_name):
-        return Tag.objects.get_or_create(type=self.ISSUE_TAG_TYPE, name=tag_name)
-
-    def get_or_create_solution_tag(self, tag_name):
-        return Tag.objects.get_or_create(type=self.SOLUTION_TAG_TYPE, name=tag_name)
-
-    def get_or_create_follow_up_tag(self, tag_name):
-        return Tag.objects.get_or_create(type=self.FOLLOW_UP_TAG_TYPE, name=tag_name)
-
     def get_average_time_per_state(self, project_id):
         pass
 
@@ -49,3 +25,11 @@ class RespondentCaseQuerySet(QuerySet):
             self.filter(respondent__evaluation__project_id=project_id).values('state').annotate(count=Count('id')))
         result.extend(list(filter(lambda d: d['state'] not in [d['state'] for d in result], default_response)))
         return result
+
+
+class RespondentQuerySet(QuerySet):
+    def without_cases(self):
+        return self.annotate(cases_count=Count('respondent_cases')).filter(cases_count=0)
+
+    def with_cases(self):
+        return self.annotate(cases_count=Count('respondent_cases')).filter(cases_count__gt=0)

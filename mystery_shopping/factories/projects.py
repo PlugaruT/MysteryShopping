@@ -7,6 +7,7 @@ from factory.fuzzy import FuzzyChoice
 from factory import post_generation
 
 from mystery_shopping.factories.companies import CompanyElementFactory
+from mystery_shopping.factories.questionnaires import QuestionnaireFactory
 from mystery_shopping.factories.users import UserFactory
 from .tenants import TenantFactory
 
@@ -85,7 +86,7 @@ class EvaluationFactory(DjangoModelFactory):
     questionnaire_script = SubFactory(QuestionnaireScriptFactory)
     questionnaire_template = SubFactory(QuestionnaireTemplateFactory)
     company_element = SubFactory(CompanyElementFactory)
-    questionnaire = None
+    questionnaire = SubFactory(QuestionnaireFactory)
 
     # TODO: define evaluation choices in a separate file
     evaluation_type = FuzzyChoice(('call', 'visit'))

@@ -6,7 +6,7 @@ class EvaluationPagination(PageNumberPagination):
     page_size = 20
 
 
-class DetractorRespondentPaginator(PageNumberPagination):
+class RespondentPaginator(PageNumberPagination):
 
     page_size = 20
 

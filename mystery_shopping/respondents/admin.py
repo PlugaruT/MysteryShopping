@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from mystery_shopping.respondents.models import Respondent, RespondentCase
+from mystery_shopping.respondents.models import Respondent, RespondentCase, RespondentCaseComment
 
 
 @admin.register(Respondent)
@@ -19,3 +19,8 @@ class RespondentCaseAdmin(admin.ModelAdmin):
 
     def view_place(self, obj):
         return obj.respondent.get_visited_place().element_name
+
+
+@admin.register(RespondentCaseComment)
+class RespondentCaseCommentAdmin(admin.ModelAdmin):
+    pass

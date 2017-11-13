@@ -8,6 +8,7 @@ from django.contrib import admin
 from django.views import defaults as default_views
 from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token
 
+from mystery_shopping.respondents.urls import router as respondents_router
 from mystery_shopping.common.urls import router as common_router
 from mystery_shopping.companies.urls import company_project_router, company_router_for_projects, \
     router as company_router
@@ -15,7 +16,6 @@ from mystery_shopping.cxi.urls import router as nps_router
 from mystery_shopping.dashboard.urls import router as dashboard_router
 from mystery_shopping.projects.urls import project_evaluation, router as project_router
 from mystery_shopping.questionnaires.urls import router as questionnaire_router
-from mystery_shopping.respondents.urls import respondents_router
 from mystery_shopping.users.urls import router as user_router, shopper_evaluation, user_permissions
 
 urlpatterns = [

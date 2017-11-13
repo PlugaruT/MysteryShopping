@@ -7,7 +7,7 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('users', '0012_auto_20170721_1354'),
+        ('users', '0013_auto_20171010_1623'),
     ]
 
     db_operations = [
@@ -36,6 +36,11 @@ class Migration(migrations.Migration):
         ),
         migrations.DeleteModel(
             name='TenantProjectManager',
+        ),
+        migrations.AlterModelManagers(
+            name='user',
+            managers=[
+            ],
         ),
         migrations.SeparateDatabaseAndState(database_operations=db_operations, state_operations=state_operations)
     ]

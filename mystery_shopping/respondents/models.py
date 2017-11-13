@@ -6,7 +6,7 @@ from model_utils.models import TimeStampedModel
 
 from mystery_shopping.common.models import Tag
 from mystery_shopping.projects.models import Evaluation
-from mystery_shopping.respondents.managers import RespondentCaseQuerySet
+from mystery_shopping.respondents.managers import RespondentCaseQuerySet, RespondentQuerySet
 from mystery_shopping.users.models import ClientUser, User
 
 
@@ -28,6 +28,8 @@ class Respondent(models.Model):
     evaluation = models.ForeignKey(Evaluation, related_name='detractors', null=True)
     number_of_questions = models.IntegerField(default=0)
 
+    objects = RespondentQuerySet.as_manager()
+
     def __str__(self):
         return u'{} {}'.format(self.name, self.surname)
 
@@ -37,13 +39,23 @@ class Respondent(models.Model):
     def get_visited_place(self):
         return self.evaluation.company_element
 
+    def get_current_case(self):
+        if self.respondent_cases.count() > 0:
+            return self.respondent_cases[0]
+        return None
+
 
 class RespondentCase(TimeStampedModel):
     """
     A solvable case that is opened for a respondent
     """
 
+    ISSUE_TAG_TYPE = 'RESPONDENT_CASE_ISSUE'
+    SOLUTION_TAG_TYPE = 'RESPONDENT_CASE_SOLUTION'
+    FOLLOW_UP_TAG_TYPE = 'RESPONDENT_CASE_FOLLOW_UP'
+
     class STATE:
+        INIT = 'INIT'
         ASSIGNED = 'ASSIGNED'
         ESCALATED = 'ESCALATED'
         ANALYSIS = 'ANAL'  # just because we can
@@ -53,6 +65,7 @@ class RespondentCase(TimeStampedModel):
         CLOSED = 'CLOSED'
 
     STATE_CHOICES = Choices(
+        (STATE.INIT, 'Init'),
         (STATE.ASSIGNED, 'Assigned'),
         (STATE.ESCALATED, 'Escalated'),
         (STATE.ANALYSIS, 'Analysis'),
@@ -62,17 +75,19 @@ class RespondentCase(TimeStampedModel):
         (STATE.CLOSED, 'Closed'),
     )
 
-    respondent = models.ForeignKey(Respondent)
+    respondent = models.ForeignKey(Respondent, related_name='respondent_cases', related_query_name='respondent_cases')
     responsible_user = models.ForeignKey(User, null=True, blank=True,
                                          related_name='respondent_cases_responsible_for',
                                          related_query_name='respondent_cases_responsible_for')
 
     issue = models.TextField(null=True, blank=True)
-    issue_tags = models.ManyToManyField(Tag, related_name='issue_respondent_cases',
+    issue_tags = models.ManyToManyField(Tag, blank=True,
+                                        related_name='issue_respondent_cases',
                                         related_query_name='issue_respondent_cases')
 
     solution = models.TextField(null=True, blank=True)
-    solution_tags = models.ManyToManyField(Tag, related_name='solution_respondent_cases',
+    solution_tags = models.ManyToManyField(Tag, blank=True,
+                                           related_name='solution_respondent_cases',
                                            related_query_name='solution_respondent_cases')
 
     follow_up_date = models.DateField(null=True, blank=True)
@@ -80,10 +95,11 @@ class RespondentCase(TimeStampedModel):
                                        related_name='respondent_cases_to_follow_up',
                                        related_query_name='respondent_cases_to_follow_up')
     follow_up = models.TextField(null=True, blank=True)
-    follow_up_tags = models.ManyToManyField(Tag, related_name='follow_up_respondent_cases',
+    follow_up_tags = models.ManyToManyField(Tag, blank=True,
+                                            related_name='follow_up_respondent_cases',
                                             related_query_name='follow_up_respondent_cases')
 
-    state = FSMField(choices=STATE_CHOICES, default=STATE.ASSIGNED)
+    state = FSMField(choices=STATE_CHOICES, default=STATE.INIT)
 
     objects = RespondentCaseQuerySet.as_manager()
 
@@ -108,7 +124,7 @@ class RespondentCase(TimeStampedModel):
     def escalate(self, reason):
         self._add_comment(reason, self.responsible_user, self.STATE.ESCALATED)
 
-    @transition(field=state, source=STATE.ESCALATED, target=STATE.ASSIGNED)
+    @transition(field=state, source=(STATE.INIT, STATE.ESCALATED), target=STATE.ASSIGNED)
     def assign(self, to, comment=None, user=None):
         if comment:
             self._add_comment(comment, user, self.STATE.ASSIGNED)
@@ -121,12 +137,14 @@ class RespondentCase(TimeStampedModel):
     @transition(field=state, source=STATE.ANALYSIS, target=STATE.IMPLEMENTATION)
     def analyse(self, issue, issue_tags=None):
         self.issue = issue
-        self._update_tags(self.issue_tags, issue_tags, self.objects.get_or_create_issue_tag)
+        self.issue_tags.clear()
+        self.issue_tags.add(*Tag.objects.get_or_create_all(self.ISSUE_TAG_TYPE, issue_tags))
 
     @transition(field=state, source=STATE.IMPLEMENTATION, target=RETURN_VALUE(STATE.FOLLOW_UP, STATE.SOLVED))
     def implement(self, solution, solution_tags=None, follow_up_date=None, follow_up_user=None):
         self.solution = solution
-        self._update_tags(self.solution_tags, solution_tags, self.objects.get_or_create_solution_tag)
+        self.solution_tags.clear()
+        self.solution_tags.add(*Tag.objects.get_or_create_all(self.SOLUTION_TAG_TYPE, solution_tags))
 
         if follow_up_date:
             self.follow_up_date = follow_up_date
@@ -136,14 +154,15 @@ class RespondentCase(TimeStampedModel):
             return self.STATE.SOLVED
 
     @transition(field=state, source=STATE.FOLLOW_UP, target=STATE.SOLVED)
-    def follow_up(self, result, follow_up_tags=None):
-        self.follow_up = result
-        self._update_tags(self.follow_up_tags, follow_up_tags, self.objects.get_or_create_follow_up_tag)
+    def follow_up(self, follow_up, follow_up_tags=None):
+        self.follow_up = follow_up
+        self.follow_up_tags.clear()
+        self.follow_up_tags.add(*Tag.objects.get_or_create_all(self.FOLLOW_UP_TAG_TYPE, follow_up_tags))
 
     @transition(field=state, target=STATE.CLOSED)
     def close(self, reason, user=None):
         user = user if user else self.responsible_user
-        self._add_comment(reason, user)
+        self._add_comment(reason, user, self.STATE.CLOSED)
 
 
 class RespondentCaseComment(models.Model):
