@@ -13,7 +13,7 @@ class RespondentCaseCommentSerializer(serializers.ModelSerializer):
 
 class RespondentCaseSerializer(serializers.ModelSerializer):
 
-    state = serializers.CharField(source='state.value', read_only=True)
+    comments = RespondentCaseCommentSerializer(many=True)
 
     class Meta:
         model = RespondentCase
