@@ -1,7 +1,7 @@
 from datetime import date
 
 from django.contrib.auth.models import Group
-from factory import PostGenerationMethodCall, SubFactory, fuzzy, post_generation, LazyAttribute
+from factory import LazyAttribute, PostGenerationMethodCall, SubFactory, fuzzy, post_generation
 from factory.django import DjangoModelFactory
 
 from mystery_shopping.factories.companies import CompanyElementFactory
@@ -32,6 +32,15 @@ class UserFactory(DjangoModelFactory):
     r_password = '1234'
     password = PostGenerationMethodCall('set_password', r_password)
     is_active = True
+
+    @post_generation
+    def groups(self, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if extracted:
+            for group in extracted:
+                self.groups.add(group)
 
 
 class ClientUserFactory(DjangoModelFactory):

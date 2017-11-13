@@ -8,8 +8,7 @@ from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 from django.utils.translation import ugettext_lazy as _
 from guardian.admin import GuardedModelAdmin
 
-from mystery_shopping.users.models import (ClientUser, DetractorRespondent,
-                                           Shopper, User)
+from mystery_shopping.users.models import ClientUser, DetractorRespondent, Shopper, User
 
 
 class MyUserChangeForm(UserChangeForm):
@@ -47,14 +46,23 @@ class UserAdmin(AuthUserAdmin, GuardedModelAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('tenant', 'username', 'password1', 'password2', ),
+            'fields': ('tenant', 'username', 'password1', 'password2',),
         }),
     )
 
 
 @admin.register(ClientUser)
-class Tenants(admin.ModelAdmin):
-    pass
+class ClientUserAdmin(admin.ModelAdmin):
+    list_display = ('get_username', 'get_company', 'job_title')
+
+    def get_company(self, obj):
+        return obj.company.element_name
+
+    def get_username(self, obj):
+        return obj.user.username
+
+    get_company.short_description = 'Company'
+    get_username.short_description = 'Username'
 
 
 @admin.register(Shopper)

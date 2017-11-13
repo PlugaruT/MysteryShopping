@@ -1,18 +1,14 @@
 import re
 
-from django.contrib.auth.models import Permission, Group
+from django.contrib.auth.models import Group, Permission
 from guardian.shortcuts import assign_perm, remove_perm
 from rest_framework import serializers
 
-from mystery_shopping.companies.serializers import SimpleCompanyElementSerializer
-from mystery_shopping.users.models import ClientUser
-from .models import User
-from .models import PersonToAssess
-from .models import Shopper
-from .models import Collector
-
 from mystery_shopping.companies.models import CompanyElement
+from mystery_shopping.companies.serializers import SimpleCompanyElementSerializer
 from mystery_shopping.tenants.serializers import TenantSerializer
+from mystery_shopping.users.models import ClientUser
+from mystery_shopping.users.models import Collector, Shopper, User
 
 
 class AssignCustomObjectPermissions:
@@ -301,6 +297,7 @@ class ClientUserSerializerGET(serializers.ModelSerializer):
     Serializer class for client users
     """
     user = UserSerializerGET()
+    detractor_manager_to_projects = serializers.ListField(source='get_detractor_manager_ids', read_only=True)
 
     class Meta:
         model = ClientUser
@@ -315,14 +312,3 @@ class CollectorSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelS
     class Meta:
         model = Collector
         fields = '__all__'
-
-
-class PersonToAssessSerializer(serializers.ModelSerializer):
-    """
-
-    """
-
-    class Meta:
-        model = PersonToAssess
-        fields = '__all__'
-        extra_kwargs = {'research_methodology': {'required': False}}
