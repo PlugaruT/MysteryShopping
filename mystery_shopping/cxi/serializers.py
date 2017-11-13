@@ -1,18 +1,16 @@
 from rest_framework import serializers
 
-from .models import WhyCause
-from .models import CodedCauseLabel
-from .models import CodedCause
-from .models import ProjectComment
-
+from mystery_shopping.cxi.models import CodedCause, CodedCauseLabel, ProjectComment, WhyCause
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from mystery_shopping.questionnaires.utils import update_attributes
+from mystery_shopping.users.serializers import SimpleClientUserSerializerGET
 
 
 class CodedCauseLabelSerializer(serializers.ModelSerializer):
     """
 
     """
+
     class Meta:
         model = CodedCauseLabel
         fields = '__all__'
@@ -74,35 +72,54 @@ class CodedCauseSerializer(serializers.ModelSerializer):
     coded_label = CodedCauseLabelSerializer()
     why_causes = WhyCauseSerializer(source='get_few_why_causes', many=True, read_only=True)
     why_causes_count = serializers.IntegerField(source='get_number_of_why_causes', read_only=True)
+    responsible_users_repr = SimpleClientUserSerializerGET(many=True, source='responsible_users', read_only=True)
 
     class Meta:
         model = CodedCause
-        extra_kwargs = {'tenant': {'required': False}}
         exclude = ('raw_causes',)
+        extra_kwargs = {
+            'tenant': {
+                'required': False
+            },
+        }
 
     @staticmethod
     def setup_eager_loading(queryset):
         queryset = queryset.select_related('coded_label', 'coded_label__tenant', 'project')
-        queryset = queryset.prefetch_related('raw_causes', 'raw_causes__question', 'raw_causes__coded_causes')
+        queryset = queryset.prefetch_related('raw_causes', 'raw_causes__question', 'raw_causes__coded_causes',
+                                             'responsible_users')
         return queryset
 
     def create(self, validated_data):
-        coded_cause_label = validated_data.get('coded_label', None)
-        coded_cause_label['tenant'] = coded_cause_label['tenant'].pk
-        coded_cause_label_ser = CodedCauseLabelSerializer(data=coded_cause_label)
-        coded_cause_label_ser.is_valid(raise_exception=True)
-        coded_cause_label_ser.save()
-        validated_data['coded_label'] = coded_cause_label_ser.instance
+        coded_label_data = validated_data.get('coded_label', None)
+        responsible_users_data = validated_data.pop('responsible_users', [])
 
+        coded_cause_label = self.create_coded_cause_label(coded_label_data)
+        validated_data['coded_label'] = coded_cause_label
         coded_cause = CodedCause.objects.create(**validated_data)
 
+        coded_cause.responsible_users.add(*responsible_users_data)
         return coded_cause
 
     def update(self, instance, validated_data):
+        responsible_users_data = validated_data.pop('responsible_users', None)
+
         self.update_coded_label(instance, validated_data.pop('coded_label'))
         update_attributes(instance, validated_data)
         instance.save()
+
+        if responsible_users_data:
+            instance.responsible_users.clear()
+            instance.responsible_users.add(*responsible_users_data)
         return instance
+
+    @staticmethod
+    def create_coded_cause_label(coded_label_data):
+        coded_label_data['tenant'] = coded_label_data['tenant'].pk
+        serializer = CodedCauseLabelSerializer(data=coded_label_data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return serializer.instance
 
     @staticmethod
     def update_coded_label(instance, coded_label):
@@ -128,6 +145,7 @@ class ProjectCommentSerializer(serializers.ModelSerializer):
     """
 
     """
+
     class Meta:
         model = ProjectComment
         fields = '__all__'

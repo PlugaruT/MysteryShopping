@@ -5,14 +5,12 @@ from mystery_shopping.companies.models import AdditionalInfoType, CompanyElement
 
 
 class IndustrySerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Industry
         fields = '__all__'
 
 
 class SubIndustrySerializer(serializers.ModelSerializer):
-
     full_name = serializers.CharField(source='return_industry_and_subindustry', read_only=True)
     industry = IndustrySerializer(read_only=True)
 

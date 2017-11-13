@@ -33,7 +33,7 @@
           "order": 2,
           "weight": "1.00",
           "show_comment": true,
-          "additional_info": ""
+          "additional_info": "Language"
         },
         {
           "template_question_choices": [
@@ -62,7 +62,7 @@
           "order": 3,
           "weight": "0.00",
           "show_comment": true,
-          "additional_info": ""
+          "additional_info": "Age"
         },
         {
           "template_question_choices": [
@@ -85,7 +85,7 @@
           "order": 4,
           "weight": "0.00",
           "show_comment": true,
-          "additional_info": ""
+          "additional_info": "Gender"
         }
       ],
       "title": "NPS main block",

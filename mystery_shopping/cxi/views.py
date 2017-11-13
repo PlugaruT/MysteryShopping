@@ -247,13 +247,10 @@ class BarChartGraph(views.APIView):
         for project_name, overview_data in raw_overview_data.items():
             response[project_name] = list()
             for cxi_indicator, indicator_score in overview_data['score']['cxi_indicators'].items():
-                response[project_name].append(
-                    (cxi_indicator, indicator_score)
-                )
+                indicator_name = 'CXI {}'.format(cxi_indicator)
+                response[project_name].append((indicator_name, indicator_score))
             for indicator_name, indicators_scores in overview_data['score']['indicators'].items():
-                response[project_name].append(
-                    (indicator_name, indicators_scores['indicator'])
-                )
+                response[project_name].append((indicator_name, indicators_scores['indicator']))
         return response
 
 

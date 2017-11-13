@@ -84,6 +84,10 @@ class QuestionnaireQuestionQuerySet(QuerySet):
         else:
             return self.get_project_specific_indicator_questions(project, indicator)
 
+    def indicator_questions_for_company_element(self, project, indicator, company_element):
+        return self.get_project_specific_indicator_questions(project, indicator).filter(
+            questionnaire__evaluation__company_element=company_element)
+
 
 class QuestionnaireTemplateQuestionQuerySet(QuerySet):
     def is_question_editable(self, pk):

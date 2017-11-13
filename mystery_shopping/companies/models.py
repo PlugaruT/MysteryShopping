@@ -46,6 +46,9 @@ class CompanyElement(TenantModel, MPTTModel):
         self.parent = new_parent
         self.save(update_fields=['parent'])
 
+    def list_of_projects(self):
+        return self.projects.all()
+
 
 class AdditionalInfoType(TenantModel):
     """

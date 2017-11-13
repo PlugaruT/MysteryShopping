@@ -1,5 +1,7 @@
 from django.db.models import Sum, IntegerField, Case, When
 
+from mystery_shopping.projects.constants import RespondentType
+
 
 def calculate_percentage(nominator, denominator, round_to=2):
     """
@@ -91,3 +93,48 @@ def modify_questions_body(questionnaire):
             question.question_body = new_body
             question.save()
             question.questions.update(question_body=new_body)
+
+
+def modify_questions_additional_info(questionnaire):
+    questions = questionnaire.template_questions.all()
+
+    for question in questions:
+        print('Current question body is: {}'.format(question.question_body))
+        print('Current question additional info is: {}'.format(question.additional_info))
+        additional_info = input('New additional_info: ')
+        if additional_info != '':
+            question.additional_info = additional_info
+            question.save()
+            question.questions.update(additional_info=additional_info)
+
+
+def remove_none_from_list(items):
+    return [item for item in items if item is not None]
+
+
+def is_detractor(score):
+    return score <= RespondentType.DETRACTOR_HIGH.value
+
+
+def is_passive(score):
+    return score == RespondentType.PASSIVE_LOW.value or score == RespondentType.PASSIVE_HIGH.value
+
+
+def is_promoter(score):
+    return score >= RespondentType.PROMOTER_LOW.value
+
+
+def count_detractors(scores):
+    return sum(is_detractor(score) for score in scores)
+
+
+def count_passives(scores):
+    return sum(is_passive(score) for score in scores)
+
+
+def count_promoters(scores):
+    return sum(is_promoter(score) for score in scores)
+
+
+def flatten_list_of_lists(list_of_lists):
+    return [y for x in list_of_lists for y in x]
