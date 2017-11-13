@@ -248,12 +248,12 @@ class AlgorithmsTestCase(TestCase):
         question = MagicMock()
         question.type = QuestionType.SINGLE_CHOICE
         question.answer = 'Romanian'
-        question.question_body = 'Language'
+        question.additional_info = 'Language'
         question.answer_choices = answer_choice
 
         sort_indicator_question_marks(indicator_dict, indicator_question, question)
 
-        self.assertEqual(indicator_dict[question.question_body][question.answer]['marks'][0], mark)
+        self.assertEqual(indicator_dict[question.additional_info][question.answer]['marks'][0], mark)
 
     def test_sort_indicator_question_marks_with_no_answer_choices(self):
         indicator_dict = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
@@ -272,7 +272,7 @@ class AlgorithmsTestCase(TestCase):
 
         sort_indicator_question_marks(indicator_dict, indicator_question, question)
 
-        self.assertEqual(indicator_dict[question.question_body]['other']['marks'][0], mark)
+        self.assertEqual(indicator_dict[question.additional_info]['other']['marks'][0], mark)
 
     def test_sort_indicator_question_marks_with_with_indicator_question(self):
         indicator_dict = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
@@ -342,7 +342,7 @@ class AlgorithmsTestCase(TestCase):
                 question.answer = 'Chinese'
                 question.answer_choices = []
 
-            question.question_body = 'Language'
+            question.additional_info = 'Language'
 
             question_list.append(question)
             question_list.append(indicator_question)
