@@ -1,10 +1,12 @@
 from copy import deepcopy
 
 from django.db import models
+from django.db.models import Count
 from model_utils import Choices
 
 from mystery_shopping.companies.models import CompanyElement
 from mystery_shopping.mystery_shopping_utils.models import TenantModel
+from mystery_shopping.mystery_shopping_utils.utils import is_detractor
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from mystery_shopping.projects.models import Project
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion
@@ -66,6 +68,15 @@ class WhyCause(models.Model):
     def get_respondent(self):
         return self.question.get_respondent()
 
+    def get_evaluation(self):
+        return self.question.get_evaluation()
+
+    def is_detractor_question(self):
+        return is_detractor(self.question.score)
+
+    def evaluation_has_case(self):
+        return self.get_respondent().respondent_cases.exists()
+
 
 class CodedCause(TenantModel):
     """
@@ -94,6 +105,10 @@ class CodedCause(TenantModel):
 
     def get_number_of_why_causes(self):
         return self.raw_causes.count()
+
+    def get_user_with_few_cases(self):
+        return self.responsible_users.annotate(number_of_cases=Count('coded_causes')) \
+            .order_by('-number_of_cases').first()
 
 
 class ProjectComment(models.Model):

@@ -195,8 +195,11 @@ class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
         return self.evaluation.company_element
 
     def get_respondent(self):
-        return self.evaluation.respondents.first()
+        if self.evaluation.respondents.exists():
+            return self.evaluation.respondents.first()
 
+    def get_evaluation(self):
+        return self.evaluation
 
 class QuestionnaireBlockAbstract(models.Model):
     """
@@ -416,6 +419,9 @@ class QuestionnaireQuestion(QuestionAbstract):
 
     def get_respondent(self):
         return self.questionnaire.get_respondent()
+
+    def get_evaluation(self):
+        return self.questionnaire.evaluation
 
     def create_why_causes(self, why_causes):
         from mystery_shopping.cxi.serializers import WhyCauseSerializer
