@@ -16,8 +16,6 @@ from mystery_shopping.cxi.serializers import CodedCauseLabelSerializer, CodedCau
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from mystery_shopping.mystery_shopping_utils.paginators import AppreciationWhyCausesPagination, \
     FrustrationWhyCausesPagination, WhyCausesPagination
-from mystery_shopping.mystery_shopping_utils.utils import aggregate_questions_for_nps_indicator, \
-    aggregate_questions_for_other_indicators, calculate_percentage
 from mystery_shopping.projects.models import Project
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from mystery_shopping.questionnaires.utils import check_interval_date

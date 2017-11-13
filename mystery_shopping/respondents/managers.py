@@ -4,7 +4,7 @@ from django.db.models.aggregates import Count
 
 class RespondentCaseQuerySet(QuerySet):
     def get_average_time_per_state(self, project_id):
-        pass
+        return []
 
     def get_cases_per_state(self, project_id):
         """

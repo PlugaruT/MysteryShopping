@@ -2,7 +2,7 @@ from datetime import date
 
 import factory
 from django.contrib.auth.models import Group
-from factory import LazyAttribute, PostGenerationMethodCall, SubFactory, fuzzy, post_generation
+from factory import LazyAttribute, PostGenerationMethodCall, SubFactory, fuzzy
 from factory.django import DjangoModelFactory
 from factory.helpers import post_generation
 
