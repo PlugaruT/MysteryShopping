@@ -69,18 +69,34 @@ class RespondentCaseViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['post'])
     def implement(self, request, pk=None):
-        respondent = get_object_or_404(RespondentCase, pk=pk)
+        case = get_object_or_404(RespondentCase, pk=pk)
+        solution = request.POST['solution']
+        tags = request.POST['tags']
+        user = request.POST['user']
+        date = request.POST['date']
 
+        case.implement(solution=solution, solution_tags=tags, follow_up_date=date, follow_up_user=user)
+        case.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @detail_route(methods=['post'], url_path='follow-up')
     def follow_up(self, request, pk=None):
-        pass
+        case = get_object_or_404(RespondentCase, pk=pk)
+        follow_up = request.POST['follow_up']
+        tags = request.POST['tags']
+
+        case.follow_up(follow_up=follow_up, follow_up_tags=tags)
+        case.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @detail_route(methods=['post'])
-    def solve(self, request, pk=None):
-        pass
+    def assign(self, request, pk=None):
+        case = get_object_or_404(RespondentCase, pk=pk)
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @detail_route(methods=['post'])
     def close(self, request, pk=None):
-        pass
+        case = get_object_or_404(RespondentCase, pk=pk)
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
