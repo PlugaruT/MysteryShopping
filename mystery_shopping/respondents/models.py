@@ -45,7 +45,7 @@ class Respondent(models.Model):
         return None
 
 
-class RespondentCaseState(ModelEnum):
+class RespondentCaseState:
     INIT = 'INIT'
     ASSIGNED = 'ASSIGNED'
     ESCALATED = 'ESCALATED'
