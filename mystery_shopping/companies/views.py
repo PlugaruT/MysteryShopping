@@ -24,6 +24,7 @@ from mystery_shopping.users.permissions import (
     IsTenantProjectManager
 )
 
+
 class IndustryViewSet(viewsets.ModelViewSet):
     queryset = Industry.objects.all()
     serializer_class = IndustrySerializer
