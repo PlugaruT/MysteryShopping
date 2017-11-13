@@ -64,6 +64,7 @@ class RespondentCaseViewSet(viewsets.ModelViewSet):
         issue = request.data.get('issue')
         tags = request.data.get('tags')
 
+        case.start_analysis()
         case.analyse(issue=issue, issue_tags=tags)
         case.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -75,8 +76,11 @@ class RespondentCaseViewSet(viewsets.ModelViewSet):
         tags = request.data.get('tags')
         user_id = request.data.get('user')
         date = request.data.get('date')
+        if not user_id or not date:
+            return Response(data=[{'details': 'You must provide values for date and user'}],
+                            status=status.HTTP_400_BAD_REQUEST)
 
-        user = User.objects.get(pk=int(user_id))
+        user = User.objects.get(pk=user_id)
         date_object = datetime.strftime(date, '%d-%m-%Y')
 
         case.implement(solution=solution, solution_tags=tags, follow_up_date=date_object, follow_up_user=user)
@@ -98,7 +102,7 @@ class RespondentCaseViewSet(viewsets.ModelViewSet):
         case = get_object_or_404(RespondentCase, pk=pk)
         user_id = request.data.get('user')
         comment = request.data.get('comment')
-        comment_user_id = request.data.get('comment')['user']
+        comment_user_id = request.data.get('comment')['author']
 
         user = User.objects.get(pk=int(user_id))
         comment_user = User.objects.get(pk=int(comment_user_id))
@@ -118,3 +122,7 @@ class RespondentCaseViewSet(viewsets.ModelViewSet):
         case.close(reason=reason, user=user)
         case.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @detail_route(methods=['post'])
+    def add_comment(self, request, pk=None):
+        case = get_object_or_404(RespondentCase, pk=pk)

@@ -1,9 +1,12 @@
+from datetime import datetime
+
 from django.http import QueryDict
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 
 from mystery_shopping.factories.respondents import RespondentCaseFactory
+from mystery_shopping.factories.users import UserFactory
 from mystery_shopping.respondents.models import RespondentCase, Respondent, RespondentCaseState
 from mystery_shopping.users.tests.user_authentication import AuthenticateUser
 
@@ -70,14 +73,52 @@ class RespondentCasesAPITestCase(APITestCase):
                                     data={'issue': 'because', 'tags': ['valera']})
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        read_case = RespondentCase.objects.get(id=case.id)
-        print(read_case.state)
 
-        self.assertEqual(read_case.state, RespondentCaseState.ANALYSIS)
+        read_case = RespondentCase.objects.get(id=case.id)
+
+        self.assertEqual(read_case.state, RespondentCaseState.IMPLEMENTATION)
         self.assertEqual(read_case.issue, 'because')
+        self.assertEqual(read_case.issue_tags.first().name, 'valera')
+
+    def test_implement_with_no_date(self):
+        user = UserFactory()
+        case = RespondentCaseFactory()
+        case.assign(self.authentication.user)
+        case.save()
+
+        response = self.client.post(path=reverse('respondentcases-implement', args=(case.id,)),
+                                    data={'solution': 'because', 'solution_tags': ['tag1', ], 'user': user.id})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_implement_with_no_user(self):
+        case = RespondentCaseFactory()
+        case.assign(self.authentication.user)
+        case.save()
+
+        response = self.client.post(path=reverse('respondentcases-implement', args=(case.id,)),
+                                    data={'solution': 'because', 'solution_tags': ['tag1', ], 'date': '10-10-2017'})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_implement(self):
-        pass
+        user = UserFactory()
+        case = RespondentCaseFactory()
+        case.assign(self.authentication.user)
+        case.save()
+
+        response = self.client.post(path=reverse('respondentcases-implement', args=(case.id,)),
+                                    data={'solution': 'because', 'solution_tags': ['tag1', ],
+                                          'user': user.id, 'date': '10-10-2017'})
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        read_case = RespondentCase.objects.get(id=case.id)
+
+        self.assertEqual(read_case.state, RespondentCaseState.IMPLEMENTATION)
+        self.assertEqual(read_case.solution, 'because')
+        self.assertEqual(read_case.solution_tags.first().name, 'tag1')
+        self.assertEqual(read_case.follow_up_date, datetime.strptime('10-10-2017', '%d-%m-%Y'))
 
     def test_follow_up(self):
         pass
@@ -86,4 +127,18 @@ class RespondentCasesAPITestCase(APITestCase):
         pass
 
     def test_close(self):
-        pass
+        user = UserFactory()
+        case = RespondentCaseFactory()
+        case.assign(self.authentication.user)
+        case.save()
+
+        response = self.client.post(path=reverse('respondentcases-close', args=(case.id,)),
+                                    data={'reason': 'because', 'user': user.id})
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        read_case = RespondentCase.objects.get(id=case.id)
+
+        self.assertEqual(read_case.state, RespondentCaseState.CLOSED)
+        self.assertEqual(read_case.comments.first().text, 'because')
+        self.assertEqual(read_case.comments.first().author, user)
