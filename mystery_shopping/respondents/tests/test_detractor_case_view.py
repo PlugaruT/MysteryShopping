@@ -60,3 +60,30 @@ class RespondentCasesAPITestCase(APITestCase):
         read_case = RespondentCase.objects.get(id=case.id)
         self.assertEqual(read_case.state, RespondentCaseState.ESCALATED)
         self.assertEqual(read_case.comments.first().text, 'because')
+
+    def test_analyse(self):
+        case = RespondentCaseFactory()
+        case.assign(self.authentication.user)
+        case.save()
+
+        response = self.client.post(path=reverse('respondentcases-analyse', args=(case.id,)),
+                                    data={'issue': 'because', 'tags': ['valera']})
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        read_case = RespondentCase.objects.get(id=case.id)
+        print(read_case.state)
+
+        self.assertEqual(read_case.state, RespondentCaseState.ANALYSIS)
+        self.assertEqual(read_case.issue, 'because')
+
+    def test_implement(self):
+        pass
+
+    def test_follow_up(self):
+        pass
+
+    def test_assign(self):
+        pass
+
+    def test_close(self):
+        pass
