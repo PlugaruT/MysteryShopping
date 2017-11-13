@@ -48,31 +48,34 @@ class RespondentCaseViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['post'])
     def escalate(self, request, pk=None):
-        respondent = get_object_or_404(Respondent, pk=pk)
-        reason = request.query_params.get('reason')
-        respondent.get_current_case().escalate(reason)
+        case = get_object_or_404(RespondentCase, pk=pk)
+        reason = request.POST['reason']
 
+        case.escalate(reason)
+        case.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @detail_route(methods=['post'])
+    @detail_route(methods=['post'], url_path='start-analysis')
     def start_analysis(self, request, pk=None):
-        respondent = get_object_or_404(Respondent, pk=pk)
-        respondent.get_current_case().start_analysis()
+        case = get_object_or_404(RespondentCase, pk=pk)
 
+        case.start_analysis()
+        case.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @detail_route(methods=['post'])
     def analyze(self, request, pk=None):
-        respondent = get_object_or_404(Respondent, pk=pk)
-        issue = request.query_params.get('issue')
-        tags = request.query_params.get('tags')
+        case = get_object_or_404(RespondentCase, pk=pk)
+        issue = request.POST['issue']
+        tags = request.POST['tags']
 
-        respondent.get_current_case().analyse(issue=issue, issue_tags=tags)
+        case.analyse(issue=issue, issue_tags=tags)
+        case.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @detail_route(methods=['post'])
     def implement(self, request, pk=None):
-        respondent = get_object_or_404(Respondent, pk=pk)
+        respondent = get_object_or_404(RespondentCase, pk=pk)
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 

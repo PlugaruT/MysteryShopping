@@ -17,7 +17,7 @@ class DetractorCaseTestCase(TestCase):
     def _assert_state_log_equal(self, case, state):
         logs = StateLog.objects.for_(case).all()
         self.assertEqual(len(logs), 1)
-        self.assertEqual(logs[0].state, state.value)
+        self.assertEqual(logs[0].state, state)
 
     def test_that_case_is_created_init(self):
         case = RespondentCaseFactory()
