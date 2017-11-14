@@ -119,7 +119,7 @@ class DetractorCaseTestCase(TestCase):
     def test_case_follow_up(self):
         case = RespondentCaseFactory(state=RespondentCaseState.FOLLOW_UP)
 
-        case.follow_up(follow_up='the follow up', follow_up_tags=('tag1', 'tag2'))
+        case.do_follow_up(follow_up='the follow up', follow_up_tags=('tag1', 'tag2'))
 
         self.assertEqual(case.state, RespondentCaseState.SOLVED)
         self.assertEqual(case.follow_up, 'the follow up')
@@ -129,7 +129,7 @@ class DetractorCaseTestCase(TestCase):
     def test_case_follow_up_no_tags(self):
         case = RespondentCaseFactory(state=RespondentCaseState.FOLLOW_UP)
 
-        case.follow_up(follow_up='the follow up')
+        case.do_follow_up(follow_up='the follow up')
 
         self.assertEqual(case.state, RespondentCaseState.SOLVED)
         self.assertEqual(case.follow_up, 'the follow up')

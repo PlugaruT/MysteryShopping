@@ -79,11 +79,11 @@ class RespondentCasesAPITestCase(APITestCase):
         self.assertEqual(read_case.issue_tags.first().name, 'valera')
 
     def test_implement_with_no_date_and_user(self):
-        user = UserFactory()
         case = RespondentCaseFactory(state=RespondentCaseState.IMPLEMENTATION)
 
         response = self.client.post(path=reverse('respondentcases-implement', args=(case.id,)),
                                     data={'solution': 'because', 'solution_tags': ['tag1', ]})
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
         read_case = RespondentCase.objects.get(id=case.id)
         self.assertEqual(read_case.state, RespondentCaseState.SOLVED)
@@ -116,13 +116,34 @@ class RespondentCasesAPITestCase(APITestCase):
         self.assertEqual(read_case.follow_up_date, datetime.strptime('10-10-2017', '%d-%m-%Y').date())
 
     def test_follow_up(self):
-        pass
+        case = RespondentCaseFactory(state=RespondentCaseState.FOLLOW_UP)
+
+        response = self.client.post(path=reverse('respondentcases-follow-up', args=(case.id,)),
+                                    data={'follow_up': 'because', 'follow_up_tags': ['tag1', ]})
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        read_case = RespondentCase.objects.get(id=case.id)
+        self.assertEqual(read_case.state, RespondentCaseState.SOLVED)
+        self.assertEqual(read_case.follow_up, 'because')
+        self.assertEqual(read_case.follow_up_tags.first().name, 'tag1')
 
     def test_assign(self):
-        pass
+        assign_user = UserFactory()
+        case = RespondentCaseFactory(state=RespondentCaseState.ESCALATED)
+
+        response = self.client.post(path=reverse('respondentcases-assign', args=(case.id,)),
+                                    data={'comment': 'because', 'user': assign_user.id})
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        read_case = RespondentCase.objects.get(id=case.id)
+
+        self.assertEqual(read_case.state, RespondentCaseState.ASSIGNED)
+        self.assertEqual(read_case.responsible_user, assign_user)
+        self.assertEqual(read_case.comments.first().text, 'because')
+        self.assertEqual(read_case.comments.first().author, self.authentication.user)
 
     def test_close(self):
-        user = UserFactory()
         case = RespondentCaseFactory()
         case.assign(self.authentication.user)
         case.save()
@@ -137,3 +158,19 @@ class RespondentCasesAPITestCase(APITestCase):
         self.assertEqual(read_case.state, RespondentCaseState.CLOSED)
         self.assertEqual(read_case.comments.first().text, 'because')
         self.assertEqual(read_case.comments.first().author, self.authentication.user)
+
+    def test_add_comment(self):
+        case = RespondentCaseFactory()
+        case.assign(self.authentication.user)
+        case.save()
+
+        response = self.client.post(path=reverse('respondentcases-add-comment', args=(case.id,)),
+                                    data={'comment': 'this is cool'})
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        read_case = RespondentCase.objects.get(id=case.id)
+
+        self.assertEqual(read_case.comments.first().text, 'this is cool')
+        self.assertEqual(read_case.comments.first().author, self.authentication.user)
+

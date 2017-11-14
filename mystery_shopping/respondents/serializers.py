@@ -6,7 +6,7 @@ from mystery_shopping.users.serializers import UserSerializerGET, SimpleUserSeri
 
 
 class RespondentCaseCommentSerializer(serializers.ModelSerializer):
-    author = SimpleUserSerializerGET(source='author', read_only=True)
+    author = SimpleUserSerializerGET(read_only=True)
 
     class Meta:
         model = RespondentCaseComment
@@ -16,7 +16,7 @@ class RespondentCaseCommentSerializer(serializers.ModelSerializer):
 class RespondentCaseSerializer(serializers.ModelSerializer):
 
     comments = RespondentCaseCommentSerializer(many=True)
-    responsible_user = SimpleUserSerializerGET(source='author', read_only=True)
+    responsible_user = SimpleUserSerializerGET(read_only=True)
 
     class Meta:
         model = RespondentCase

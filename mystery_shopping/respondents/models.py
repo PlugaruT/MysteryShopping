@@ -159,7 +159,7 @@ class RespondentCase(TimeStampedModel):
             return RespondentCaseState.SOLVED
 
     @transition(field=state, source=RespondentCaseState.FOLLOW_UP, target=RespondentCaseState.SOLVED)
-    def follow_up(self, follow_up, follow_up_tags=None):
+    def do_follow_up(self, follow_up, follow_up_tags=None):
         self.follow_up = follow_up
         self.follow_up_tags.clear()
         self.follow_up_tags.add(*Tag.objects.get_or_create_all(self.FOLLOW_UP_TAG_TYPE, follow_up_tags))
