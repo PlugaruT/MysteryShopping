@@ -259,5 +259,5 @@ class AverageTimePerState(APIView):
         project_id = request.query_params.get('project', None)
         cases_info = RespondentCase.objects.get_average_time_per_state(project_id=project_id)
         for case in cases_info:
-            response.append(build_data_point(case.get('state'), case.get('count')))
+            response.append(build_data_point(case.get('state'), case.get('avg_time')))
         return Response(response, status=status.HTTP_200_OK)
