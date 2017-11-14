@@ -20,7 +20,4 @@ class Migration(migrations.Migration):
             model_name='persontoassess',
             name='research_methodology',
         ),
-        migrations.DeleteModel(
-            name='PersonToAssess',
-        ),
     ]
