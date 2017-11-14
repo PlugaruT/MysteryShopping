@@ -113,5 +113,3 @@ class Tag(models.Model):
 
     def __str__(self):
         return '{}: {}'.format(self.type, self.name)
-
-    objects = TagQuerySet.as_manager()

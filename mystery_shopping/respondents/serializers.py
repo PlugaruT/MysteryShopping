@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from mystery_shopping.common.serializer import TagSerializer
 from mystery_shopping.questionnaires.serializers import QuestionnaireQuestionSerializer
 from mystery_shopping.respondents.models import Respondent, RespondentCaseComment, RespondentCase
 from mystery_shopping.users.serializers import SimpleUserSerializerGET
@@ -17,6 +18,10 @@ class RespondentCaseSerializer(serializers.ModelSerializer):
 
     comments = RespondentCaseCommentSerializer(many=True)
     responsible_user = SimpleUserSerializerGET(read_only=True)
+
+    issue_tags = TagSerializer(many=True)
+    solution_tags = TagSerializer(many=True)
+    follow_up_tags = TagSerializer(many=True)
 
     class Meta:
         model = RespondentCase
