@@ -2,10 +2,12 @@ from rest_framework import serializers
 
 from mystery_shopping.questionnaires.serializers import QuestionnaireQuestionSerializer
 from mystery_shopping.respondents.models import Respondent, RespondentCaseComment, RespondentCase
-from mystery_shopping.users.serializers import UserSerializerGET
+from mystery_shopping.users.serializers import UserSerializerGET, SimpleUserSerializerGET
 
 
 class RespondentCaseCommentSerializer(serializers.ModelSerializer):
+    author = SimpleUserSerializerGET(source='author', read_only=True)
+
     class Meta:
         model = RespondentCaseComment
         fields = '__all__'
@@ -14,6 +16,7 @@ class RespondentCaseCommentSerializer(serializers.ModelSerializer):
 class RespondentCaseSerializer(serializers.ModelSerializer):
 
     comments = RespondentCaseCommentSerializer(many=True)
+    responsible_user = SimpleUserSerializerGET(source='author', read_only=True)
 
     class Meta:
         model = RespondentCase
@@ -24,8 +27,8 @@ class RespondentSerializer(serializers.ModelSerializer):
     """
     Serializer for Respondent for tenant (that includes all the fields)
     """
-    saved_by = UserSerializerGET(source='evaluation.saved_by_user', read_only=True)
-    shopper = UserSerializerGET(source='evaluation.shopper', read_only=True)
+    saved_by = SimpleUserSerializerGET(source='evaluation.saved_by_user', read_only=True)
+    shopper = SimpleUserSerializerGET(source='evaluation.shopper', read_only=True)
     questionnaire_title = serializers.CharField(source='evaluation.questionnaire.title', read_only=True)
     time_accomplished = serializers.DateTimeField(source='evaluation.time_accomplished', read_only=True)
     questions = QuestionnaireQuestionSerializer(source='get_detractor_questions', many=True, read_only=True)

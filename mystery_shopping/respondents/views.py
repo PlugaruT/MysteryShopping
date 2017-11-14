@@ -69,9 +69,8 @@ class RespondentCaseViewSet(viewsets.ModelViewSet):
     def analyse(self, request, pk=None):
         case = get_object_or_404(RespondentCase, pk=pk)
         issue = request.data.get('issue')
-        tags = request.data.get('tags')
+        tags = request.data.get('issue_tags')
 
-        case.start_analysis()
         case.analyse(issue=issue, issue_tags=tags)
         case.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -80,15 +79,16 @@ class RespondentCaseViewSet(viewsets.ModelViewSet):
     def implement(self, request, pk=None):
         case = get_object_or_404(RespondentCase, pk=pk)
         solution = request.data.get('solution')
-        tags = request.data.get('tags')
-        user_id = request.data.get('user')
-        date = request.data.get('date')
-        if not user_id or not date:
-            return Response(data=[{'details': 'You must provide values for date and user'}],
-                            status=status.HTTP_400_BAD_REQUEST)
+        tags = request.data.get('solution_tags')
+        user_id = request.data.get('follow_up_user', None)
+        date = request.data.get('follow_up_date', None)
 
-        user = User.objects.get(pk=user_id)
-        date_object = datetime.strftime(date, '%d-%m-%Y')
+        user = User.objects.get(pk=user_id) if user_id else None
+        date_object = datetime.strptime(date, '%d-%m-%Y') if date else None
+
+        if (user is None) != (date_object is None):
+            return Response(data=[{'details': 'You must provide values for both date and user, or none of them'}],
+                            status=status.HTTP_400_BAD_REQUEST)
 
         case.implement(solution=solution, solution_tags=tags, follow_up_date=date_object, follow_up_user=user)
         case.save()
@@ -98,7 +98,7 @@ class RespondentCaseViewSet(viewsets.ModelViewSet):
     def follow_up(self, request, pk=None):
         case = get_object_or_404(RespondentCase, pk=pk)
         follow_up = request.data.get('follow_up')
-        tags = request.data.get('tags')
+        tags = request.data.get('follow_up_tags')
 
         case.follow_up(follow_up=follow_up, follow_up_tags=tags)
         case.save()
@@ -108,13 +108,11 @@ class RespondentCaseViewSet(viewsets.ModelViewSet):
     def assign(self, request, pk=None):
         case = get_object_or_404(RespondentCase, pk=pk)
         user_id = request.data.get('user')
+        to_user = User.objects.get(pk=int(user_id))
         comment = request.data.get('comment')
-        comment_user_id = request.data.get('comment')['author']
+        comment_user = request.user
 
-        user = User.objects.get(pk=int(user_id))
-        comment_user = User.objects.get(pk=int(comment_user_id))
-
-        case.assign(to=user, comment=comment, user=comment_user)
+        case.assign(to=to_user, comment=comment, user=comment_user)
         case.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -122,17 +120,20 @@ class RespondentCaseViewSet(viewsets.ModelViewSet):
     def close(self, request, pk=None):
         case = get_object_or_404(RespondentCase, pk=pk)
         reason = request.data.get('reason')
-        user_id = request.data.get('user')
-
-        user = User.objects.get(pk=int(user_id))
+        user = request.user
 
         case.close(reason=reason, user=user)
         case.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @detail_route(methods=['post'])
+    @detail_route(methods=['post'], url_path='add-comment')
     def add_comment(self, request, pk=None):
         case = get_object_or_404(RespondentCase, pk=pk)
+        comment = request.data.get('comment')
+        user = request.user
+
+        case.add_comment(comment, user)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class RespondentsDistribution(APIView):
