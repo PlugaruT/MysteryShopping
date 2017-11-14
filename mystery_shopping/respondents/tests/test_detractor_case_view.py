@@ -158,3 +158,19 @@ class RespondentCasesAPITestCase(APITestCase):
         self.assertEqual(read_case.state, RespondentCaseState.CLOSED)
         self.assertEqual(read_case.comments.first().text, 'because')
         self.assertEqual(read_case.comments.first().author, self.authentication.user)
+
+    def test_add_comment(self):
+        case = RespondentCaseFactory()
+        case.assign(self.authentication.user)
+        case.save()
+
+        response = self.client.post(path=reverse('respondentcases-add-comment', args=(case.id,)),
+                                    data={'comment': 'this is cool'})
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        read_case = RespondentCase.objects.get(id=case.id)
+
+        self.assertEqual(read_case.comments.first().text, 'this is cool')
+        self.assertEqual(read_case.comments.first().author, self.authentication.user)
+
