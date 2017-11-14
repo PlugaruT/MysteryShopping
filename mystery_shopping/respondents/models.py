@@ -121,11 +121,14 @@ class RespondentCase(TimeStampedModel):
     def _add_comment(self, message, user, state):
         RespondentCaseComment.objects.create(author=user, text=message, case_state=state, respondent_case=self)
 
-    @transition(field=state, source=(RespondentCaseState.ASSIGNED, RespondentCaseState.ANALYSIS, RespondentCaseState.IMPLEMENTATION), target=RespondentCaseState.ESCALATED)
+    @transition(field=state,
+                source=(RespondentCaseState.ASSIGNED, RespondentCaseState.ANALYSIS, RespondentCaseState.IMPLEMENTATION),
+                target=RespondentCaseState.ESCALATED)
     def escalate(self, reason):
         self._add_comment(reason, self.responsible_user, RespondentCaseState.ESCALATED)
 
-    @transition(field=state, source=(RespondentCaseState.INIT, RespondentCaseState.ESCALATED), target=RespondentCaseState.ASSIGNED)
+    @transition(field=state, source=(RespondentCaseState.INIT, RespondentCaseState.ESCALATED),
+                target=RespondentCaseState.ASSIGNED)
     def assign(self, to, comment=None, user=None):
         if comment:
             self._add_comment(comment, user, RespondentCaseState.ASSIGNED)
@@ -141,7 +144,8 @@ class RespondentCase(TimeStampedModel):
         self.issue_tags.clear()
         self.issue_tags.add(*Tag.objects.get_or_create_all(self.ISSUE_TAG_TYPE, issue_tags))
 
-    @transition(field=state, source=RespondentCaseState.IMPLEMENTATION, target=RETURN_VALUE(RespondentCaseState.FOLLOW_UP, RespondentCaseState.SOLVED))
+    @transition(field=state, source=RespondentCaseState.IMPLEMENTATION,
+                target=RETURN_VALUE(RespondentCaseState.FOLLOW_UP, RespondentCaseState.SOLVED))
     def implement(self, solution, solution_tags=None, follow_up_date=None, follow_up_user=None):
         self.solution = solution
         self.solution_tags.clear()
@@ -164,6 +168,9 @@ class RespondentCase(TimeStampedModel):
     def close(self, reason, user=None):
         user = user if user else self.responsible_user
         self._add_comment(reason, user, RespondentCaseState.CLOSED)
+
+    def add_comment(self, comment, user):
+        self._add_comment(comment, user, self.state)
 
 
 class RespondentCaseComment(models.Model):
