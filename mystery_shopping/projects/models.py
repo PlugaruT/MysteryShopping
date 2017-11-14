@@ -1,4 +1,3 @@
-from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models.deletion import PROTECT, SET_NULL
@@ -17,26 +16,6 @@ from mystery_shopping.questionnaires.models import (Questionnaire,
                                                     QuestionnaireScript,
                                                     QuestionnaireTemplate)
 from mystery_shopping.tenants.models import Tenant
-
-
-# TODO: Delete model
-class PlaceToAssess(models.Model):
-    """
-    A class with a generic foreign key for setting places to be evaluated for a project.
-
-    A person to assess can either be an Entity or a Section
-    """
-    limit = models.Q(app_label='companies', model='department') | \
-            models.Q(app_label='companies', model='entity') | \
-            models.Q(app_label='companies', model='section')
-    place_type = models.ForeignKey(ContentType, limit_choices_to=limit, related_name='content_type_place_to_assess')
-    place_id = models.PositiveIntegerField()
-    place = GenericForeignKey('place_type', 'place_id')
-
-    research_methodology = models.ForeignKey('ResearchMethodology', related_name='places_to_assess')
-
-    def evaluations(self):
-        return self.place.evaluations
 
 
 class ResearchMethodology(TenantModel):
