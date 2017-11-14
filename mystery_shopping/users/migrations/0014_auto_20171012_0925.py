@@ -19,24 +19,24 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.DeleteModel(
-            name='ClientEmployee',
-        ),
-        migrations.DeleteModel(
-            name='ClientManager',
-        ),
-        migrations.DeleteModel(
-            name='ClientProjectManager',
-        ),
-        migrations.DeleteModel(
-            name='TenantConsultant',
-        ),
-        migrations.DeleteModel(
-            name='TenantProductManager',
-        ),
-        migrations.DeleteModel(
-            name='TenantProjectManager',
-        ),
+        # migrations.DeleteModel(
+        #     name='ClientEmployee',
+        # ),
+        # migrations.DeleteModel(
+        #     name='ClientManager',
+        # ),
+        # migrations.DeleteModel(
+        #     name='ClientProjectManager',
+        # ),
+        # migrations.DeleteModel(
+        #     name='TenantConsultant',
+        # ),
+        # migrations.DeleteModel(
+        #     name='TenantProductManager',
+        # ),
+        # migrations.DeleteModel(
+        #     name='TenantProjectManager',
+        # ),
         migrations.AlterModelManagers(
             name='user',
             managers=[
