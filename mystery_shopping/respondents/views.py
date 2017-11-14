@@ -52,8 +52,9 @@ class RespondentCaseViewSet(viewsets.ModelViewSet):
     def escalate(self, request, pk=None):
         case = get_object_or_404(RespondentCase, pk=pk)
         reason = request.data.get('reason')
+        user = request.user
 
-        case.escalate(reason)
+        case.escalate(reason, user)
         case.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 

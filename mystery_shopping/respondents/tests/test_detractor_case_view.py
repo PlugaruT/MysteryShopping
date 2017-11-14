@@ -63,6 +63,7 @@ class RespondentCasesAPITestCase(APITestCase):
         read_case = RespondentCase.objects.get(id=case.id)
         self.assertEqual(read_case.state, RespondentCaseState.ESCALATED)
         self.assertEqual(read_case.comments.first().text, 'because')
+        self.assertEqual(read_case.comments.first().author, self.authentication.user)
 
     def test_analyse(self):
         case = RespondentCaseFactory(state=RespondentCaseState.ANALYSIS)
