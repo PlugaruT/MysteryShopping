@@ -93,7 +93,7 @@ class RespondentCaseViewSet(viewsets.ModelViewSet):
         follow_up = request.data.get('follow_up')
         tags = request.data.get('follow_up_tags')
 
-        case.follow_up(follow_up=follow_up, follow_up_tags=tags)
+        case.do_follow_up(follow_up=follow_up, follow_up_tags=tags)
         case.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
