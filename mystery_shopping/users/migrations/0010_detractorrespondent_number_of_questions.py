@@ -4,8 +4,6 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 
-from mystery_shopping.users.models import DetractorRespondent
-
 
 class SetNumberOfQuestionsToDetractor:
     def __init__(self, detractor):
@@ -19,8 +17,11 @@ class SetNumberOfQuestionsToDetractor:
             self.detractor.save()
 
 
-def set_number_of_questions_to_detractors(*args):
-    for detractor in DetractorRespondent.objects.all():
+def set_number_of_questions_to_detractors(apps, schema_editor):
+    db_alias = schema_editor.connection.alias
+    DetractorRespondent = apps.get_model('users', 'DetractorRespondent')
+
+    for detractor in DetractorRespondent.objects.using(db_alias).all():
         SetNumberOfQuestionsToDetractor(detractor)
 
 

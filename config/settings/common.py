@@ -8,10 +8,13 @@ https://docs.djangoproject.com/en/dev/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/dev/ref/settings/
 """
+
 from __future__ import absolute_import, unicode_literals
 
+import os
 import environ
 import datetime
+from django.conf import global_settings
 
 ROOT_DIR = environ.Path(__file__) - 3  # (/a/b/myfile.py - 3 = /)
 APPS_DIR = ROOT_DIR.path('mystery_shopping')
@@ -46,6 +49,7 @@ THIRD_PARTY_APPS = (
     'rest_framework',
     'mptt',
     'corsheaders',
+    'django_fsm_log',
 )
 
 # Apps specific for this project go here.
@@ -61,6 +65,7 @@ LOCAL_APPS = (
     'mystery_shopping.cxi',
     'mystery_shopping.dashboard',
     'mystery_shopping.mail_service',
+    'mystery_shopping.respondents',
 )
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -115,11 +120,15 @@ MANAGERS = ADMINS
 # ------------------------------------------------------------------------------
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#databases
 DATABASES = {
-    # Raises ImproperlyConfigured exception if DATABASE_URL not in os.environ
-    'default': env.db("DATABASE_URL", default="postgres:///mystery_shopping"),
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'mystery_shopping',
+        # you can set the env variables in the postactivate script of your virtualenv
+        'USER': os.environ.get('DB_USERNAME', 'admin'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', 'admin')
+    }
 }
 DATABASES['default']['ATOMIC_REQUESTS'] = True
-
 
 # GENERAL CONFIGURATION
 # ------------------------------------------------------------------------------
@@ -174,7 +183,6 @@ TEMPLATES = [
                 'django.template.context_processors.static',
                 'django.template.context_processors.tz',
                 'django.contrib.messages.context_processors.messages',
-                # Your stuff: custom template context processors go here
             ],
         },
     },
@@ -258,7 +266,6 @@ CORS_ORIGIN_REGEX_WHITELIST = ('^(https?://)?(\w+\.)?dapi\.solutions', '^(https?
 
 CORS_ALLOW_CREDENTIALS = True
 
-
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
@@ -268,22 +275,14 @@ REST_FRAMEWORK = {
     ]
 }
 
-
 JWT_AUTH = {
-    'JWT_ENCODE_HANDLER':
-    'rest_framework_jwt.utils.jwt_encode_handler',
+    'JWT_ENCODE_HANDLER': 'rest_framework_jwt.utils.jwt_encode_handler',
+    'JWT_DECODE_HANDLER': 'rest_framework_jwt.utils.jwt_decode_handler',
 
-    'JWT_DECODE_HANDLER':
-    'rest_framework_jwt.utils.jwt_decode_handler',
+    'JWT_PAYLOAD_HANDLER': 'rest_framework_jwt.utils.jwt_payload_handler',
+    'JWT_PAYLOAD_GET_USER_ID_HANDLER': 'rest_framework_jwt.utils.jwt_get_user_id_from_payload_handler',
 
-    'JWT_PAYLOAD_HANDLER':
-    'rest_framework_jwt.utils.jwt_payload_handler',
-
-    'JWT_PAYLOAD_GET_USER_ID_HANDLER':
-    'rest_framework_jwt.utils.jwt_get_user_id_from_payload_handler',
-
-    'JWT_RESPONSE_PAYLOAD_HANDLER':
-    'mystery_shopping.mystery_shopping_utils.jwt.jwt_response_payload_handler',
+    'JWT_RESPONSE_PAYLOAD_HANDLER': 'mystery_shopping.mystery_shopping_utils.jwt.jwt_response_payload_handler',
 
     'JWT_SECRET_KEY': env("DJANGO_SECRET_KEY", default='&xc!toi_e027v29qxjw8medhv-fz!%36en=w=1@e9ug@9b_)*4'),
     'JWT_ALGORITHM': 'HS256',

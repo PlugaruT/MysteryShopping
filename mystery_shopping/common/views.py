@@ -1,43 +1,46 @@
-from rest_framework import viewsets
-from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import status, viewsets
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework.views import APIView
 
-from .models import Country
-from .models import CountryRegion
-from .models import County
-from .models import City
-from .models import Sector
-from .serializer import CountrySerializer
-from .serializer import CountryRegionSerializer
-from .serializer import CountySerializer
-from .serializer import CitySerializer
-from .serializer import SectorSerializer
-from mystery_shopping.common.uploads import handle_csv_with_uploaded_localities, handle_csv_with_uploaded_countries
+from mystery_shopping.common.filters import TagFilter
+from mystery_shopping.common.models import City, Country, CountryRegion, County, Sector, Tag
+from mystery_shopping.common.serializer import CitySerializer, CountryRegionSerializer, CountrySerializer, \
+    CountySerializer, SectorSerializer, TagSerializer
+from mystery_shopping.common.uploads import handle_csv_with_uploaded_countries, handle_csv_with_uploaded_localities
+
+
+class TagsViewSet(viewsets.ModelViewSet):
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filter_class = TagFilter
+    permission_classes = (IsAuthenticated,)
 
 
 class CountryViewSet(viewsets.ModelViewSet):
     queryset = Country.objects.all()
     serializer_class = CountrySerializer
-    # todo: add permissions
+    permission_classes = (IsAuthenticated,)
 
 
 class CountryRegionViewSet(viewsets.ModelViewSet):
     queryset = CountryRegion.objects.all()
     serializer_class = CountryRegionSerializer
-    # todo: add permissions
+    permission_classes = (IsAuthenticated,)
 
 
 class CountyViewSet(viewsets.ModelViewSet):
     queryset = County.objects.all()
     serializer_class = CountySerializer
-    # todo: add permissions
+    permission_classes = (IsAuthenticated,)
 
 
 class CityViewSet(viewsets.ModelViewSet):
     queryset = City.objects.all()
     serializer_class = CitySerializer
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         queryset = super(CityViewSet, self).get_queryset()
@@ -48,13 +51,12 @@ class CityViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(name__icontains=query_variable)
 
         return queryset
-    # todo: add permissions
 
 
 class SectorViewSet(viewsets.ModelViewSet):
     queryset = Sector.objects.all()
     serializer_class = SectorSerializer
-    # todo: add permissions
+    permission_classes = (IsAuthenticated,)
 
 
 class LocalityCsvUploadView(APIView):

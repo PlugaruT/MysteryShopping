@@ -3,22 +3,21 @@ from rest_framework import serializers
 
 from mystery_shopping.cxi.serializers import WhyCauseSerializer
 from mystery_shopping.questionnaires.constants import QuestionType
-from mystery_shopping.users.models import DetractorRespondent
-from mystery_shopping.users.serializers import ShopperSerializer, UserSerializerGET
-
 from mystery_shopping.questionnaires.models import CrossIndexQuestion, QuestionnaireTemplateStatus, CustomWeight
-from .models import QuestionnaireScript
-from .models import Questionnaire
-from .models import QuestionnaireTemplate
-from .models import QuestionnaireBlock
-from .models import QuestionnaireTemplateBlock
-from .models import QuestionnaireQuestion
-from .models import QuestionnaireTemplateQuestion
-from .models import QuestionnaireTemplateQuestionChoice
-from .models import QuestionnaireQuestionChoice
-from .models import CrossIndexTemplate
+from mystery_shopping.respondents.models import Respondent
+from mystery_shopping.users.serializers import UserSerializerGET
 from .models import CrossIndex
 from .models import CrossIndexQuestionTemplate
+from .models import CrossIndexTemplate
+from .models import Questionnaire
+from .models import QuestionnaireBlock
+from .models import QuestionnaireQuestion
+from .models import QuestionnaireQuestionChoice
+from .models import QuestionnaireScript
+from .models import QuestionnaireTemplate
+from .models import QuestionnaireTemplateBlock
+from .models import QuestionnaireTemplateQuestion
+from .models import QuestionnaireTemplateQuestionChoice
 from .utils import update_attributes
 
 
@@ -568,58 +567,4 @@ class QuestionnaireSimpleSerializer(serializers.ModelSerializer):
     @staticmethod
     def setup_eager_loading(queryset):
         queryset = queryset.prefetch_related('blocks__questions')
-        return queryset
-
-
-class DetractorRespondentForTenantSerializer(serializers.ModelSerializer):
-    """
-    Serializer for Detractors for tenant (that included all the fields)
-    """
-    saved_by = UserSerializerGET(source='evaluation.saved_by_user', read_only=True)
-    shopper = UserSerializerGET(source='evaluation.shopper', read_only=True)
-    questionnaire_title = serializers.CharField(source='evaluation.questionnaire.title', read_only=True)
-    time_accomplished = serializers.DateTimeField(source='evaluation.time_accomplished', read_only=True)
-    questions = QuestionnaireQuestionSerializer(source='get_detractor_questions', many=True, read_only=True)
-    visited_place = serializers.CharField(source='get_visited_place.element_name', read_only=True)
-
-    class Meta:
-        model = DetractorRespondent
-        fields = '__all__'
-        extra_kwargs = {
-            'email': {
-                'required': False
-            },
-            'phone': {
-                'required': False
-            }
-        }
-
-    @staticmethod
-    def setup_eager_loading(queryset):
-        queryset = queryset.select_related('evaluation', 'evaluation__questionnaire')
-        queryset = queryset.prefetch_related('evaluation__saved_by_user',
-                                             'evaluation__shopper',
-                                             'evaluation__questionnaire__blocks__questions__question_choices')
-        return queryset
-
-
-class DetractorRespondentForClientSerializer(serializers.ModelSerializer):
-    """
-    Serializer for Detractors for clients (that exclued the saved_by field)
-    """
-    questionnaire_title = serializers.CharField(source='evaluation.questionnaire.title', read_only=True)
-    time_accomplished = serializers.DateTimeField(source='evaluation.time_accomplished', read_only=True)
-    questions = QuestionnaireQuestionSerializer(source='get_detractor_questions', many=True, read_only=True)
-    visited_place = serializers.CharField(source='get_visited_place.element_name', read_only=True)
-
-    class Meta:
-        model = DetractorRespondent
-        fields = '__all__'
-
-    @staticmethod
-    def setup_eager_loading(queryset):
-        queryset = queryset.select_related('evaluation', 'evaluation__questionnaire')
-        queryset = queryset.prefetch_related('evaluation__saved_by_user',
-                                             'evaluation__shopper',
-                                             'evaluation__questionnaire__blocks__questions__question_choices')
         return queryset

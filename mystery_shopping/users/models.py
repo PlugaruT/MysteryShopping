@@ -6,7 +6,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.db import models
 from guardian.shortcuts import get_objects_for_user
-from model_utils import Choices
 
 from mystery_shopping.companies.models import CompanyElement
 from mystery_shopping.mystery_shopping_utils.models import OptionalTenantModel
@@ -141,31 +140,3 @@ class Collector(models.Model):
 
     def __str__(self):
         return u'{}'.format(self.user.username)
-
-
-class DetractorRespondent(models.Model):
-    """
-        Model for storing information about detractors of an evaluation.
-    """
-    name = models.CharField(max_length=200, blank=True)
-    surname = models.CharField(max_length=200, blank=True)
-    email = models.EmailField(blank=True)
-    comment = models.CharField(max_length=400, blank=True)
-    additional_comment = models.CharField(max_length=400, blank=True)
-    phone = models.CharField(blank=True, max_length=15)
-    status_choices = Choices(('TO_CONTACT', 'To Contact'),
-                             ('CALL_BACK', 'Call Back'),
-                             ('CONTACTED', 'Contacted'))
-    status = models.CharField(max_length=11, choices=status_choices, default='TO_CONTACT')
-
-    evaluation = models.ForeignKey(Evaluation, related_name='detractors', null=True)
-    number_of_questions = models.IntegerField(default=0)
-
-    def __str__(self):
-        return u'{} {}'.format(self.name, self.surname)
-
-    def get_detractor_questions(self):
-        return self.evaluation.questionnaire.get_indicator_questions()
-
-    def get_visited_place(self):
-        return self.evaluation.company_element

@@ -9,7 +9,7 @@ from mystery_shopping.factories.tenants import TenantFactory
 from mystery_shopping.factories.users import UserFactory
 from mystery_shopping.projects.models import Evaluation
 from mystery_shopping.projects.serializers import EvaluationSerializer
-from mystery_shopping.users.models import DetractorRespondent
+from mystery_shopping.respondents.models import Respondent
 
 
 class TestEvaluationWithDetractor(TestCase):
@@ -30,12 +30,12 @@ class TestEvaluationWithDetractor(TestCase):
     def test_set_detractor_to_evaluation(self):
         self._add_detractor_to_evaluation()
 
-        detractor = DetractorRespondent.objects.get(**self.detractor_info)
+        detractor = Respondent.objects.get(**self.detractor_info)
 
         self.assertEqual(self.evaluation.id, detractor.evaluation.id)
 
     @patch('mystery_shopping.projects.models.Evaluation.number_of_detractor_questions')
-    def test_send_email_if_respondent_is_detractor(self, number_of_detractor_questions):
+    def _test_send_email_if_respondent_is_detractor(self, number_of_detractor_questions):
         number_of_detractor_questions.return_value = 1
 
         self._add_detractor_to_evaluation()

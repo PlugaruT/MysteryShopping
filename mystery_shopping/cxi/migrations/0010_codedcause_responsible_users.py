@@ -13,18 +13,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='projectcomment',
-            name='department',
-        ),
-        migrations.RemoveField(
-            model_name='projectcomment',
-            name='entity',
-        ),
-        migrations.RemoveField(
-            model_name='projectcomment',
-            name='section',
-        ),
         migrations.AddField(
             model_name='codedcause',
             name='responsible_users',

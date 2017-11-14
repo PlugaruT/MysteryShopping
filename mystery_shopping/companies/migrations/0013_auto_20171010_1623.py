@@ -9,20 +9,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('users', '0013_auto_20171010_1623'),
-        ('cxi', '0010_codedcause_responsible_users'),
         ('companies', '0012_auto_20170118_1605'),
     ]
-    operations = [
-        migrations.DeleteModel(
-            name='Company',
-        ),
-        migrations.DeleteModel(
-            name='Department',
-        ),
-        migrations.DeleteModel(
-            name='Entity',
-        ),
-        migrations.DeleteModel(
-            name='Section',
-        ),
-    ]
+    operations = []

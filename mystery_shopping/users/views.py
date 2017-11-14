@@ -16,16 +16,11 @@ from mystery_shopping.companies.models import CompanyElement
 from mystery_shopping.companies.serializers import CompanyElementSerializer
 from mystery_shopping.companies.utils import FilterCompanyStructure
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
-from mystery_shopping.mystery_shopping_utils.paginators import DetractorRespondentPaginator
-from mystery_shopping.mystery_shopping_utils.permissions import DetractorFilterPerCompanyElement
 from mystery_shopping.mystery_shopping_utils.views import GetSerializerClassMixin
-from mystery_shopping.questionnaires.serializers import DetractorRespondentForClientSerializer, \
-    DetractorRespondentForTenantSerializer
-from mystery_shopping.users.filters import ClientFilter, DetractorFilter, ShopperFilter, UserFilter
+from mystery_shopping.users.filters import ClientFilter, ShopperFilter, UserFilter
 from mystery_shopping.users.mixins import CreateUserMixin, DestroyOneToOneUserMixin
-from mystery_shopping.users.models import ClientUser, Collector, DetractorRespondent, Shopper, User
-from mystery_shopping.users.permissions import HasReadOnlyAccessToProjectsOrEvaluations, IsTenantConsultant, \
-    IsTenantProductManager, IsTenantProjectManager
+from mystery_shopping.users.models import ClientUser, Collector, Shopper, User
+from mystery_shopping.users.permissions import IsTenantConsultant, IsTenantProductManager, IsTenantProjectManager
 from mystery_shopping.users.roles import UserRole
 from mystery_shopping.users.serializers import ClientUserSerializer, ClientUserSerializerGET, CollectorSerializer, \
     GroupSerializer, PermissionSerializer, ShopperSerializer, ShopperSerializerGET, UserSerializer, UserSerializerGET
@@ -215,31 +210,3 @@ class CollectorViewSet(viewsets.ModelViewSet):
     queryset = Collector.objects.all()
     serializer_class = CollectorSerializer
     permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
-
-
-class DetractorRespondentForTenantViewSet(viewsets.ModelViewSet):
-    queryset = DetractorRespondent.objects.all()
-    filter_backends = (DjangoFilterBackend,)
-    filter_class = DetractorFilter
-    pagination_class = DetractorRespondentPaginator
-    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
-    serializer_class = DetractorRespondentForTenantSerializer
-
-    def get_queryset(self):
-        project = self.request.query_params.get('project')
-        queryset = DetractorRespondent.objects.filter(evaluation__project=project)
-        return self.serializer_class.setup_eager_loading(queryset)
-
-
-class DetractorRespondentForClientViewSet(viewsets.ModelViewSet):
-    serializer_class = DetractorRespondentForClientSerializer
-    queryset = DetractorRespondent.objects.all()
-    permission_classes = (IsAuthenticated, HasReadOnlyAccessToProjectsOrEvaluations)
-    pagination_class = DetractorRespondentPaginator
-    filter_backends = (DetractorFilterPerCompanyElement, DjangoFilterBackend,)
-    filter_class = DetractorFilter
-
-    def get_queryset(self):
-        queryset = self.serializer_class.setup_eager_loading(self.queryset)
-        project = self.request.query_params.get('project')
-        return queryset.filter(evaluation__project=project)

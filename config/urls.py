@@ -10,6 +10,7 @@ from django.views import defaults as default_views
 from rest_framework_jwt.views import obtain_jwt_token
 from rest_framework_jwt.views import refresh_jwt_token
 
+from mystery_shopping.respondents.urls import router as respondents_router
 from mystery_shopping.common.urls import router as common_router
 from mystery_shopping.companies.urls import router as company_router
 from mystery_shopping.companies.urls import company_router_for_projects
@@ -54,6 +55,7 @@ urlpatterns = [
     url(r'^api/v1/', include(user_permissions.urls)),
     url(r'^api/v1/', include(shopper_evaluation.urls)),
     url(r'^api/v1/', include(nps_router.urls)),
+    url(r'^api/v1/', include(respondents_router.urls)),
     url(r'^api/v1/dashboard/', include(dashboard_router.urls)),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

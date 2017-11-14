@@ -1,43 +1,29 @@
 from django.shortcuts import get_object_or_404
 from guardian.shortcuts import get_objects_for_user
 from rest_condition import Or
-from rest_framework import status
-from rest_framework import views
-from rest_framework import viewsets
-from rest_framework.decorators import list_route, detail_route
+from rest_framework import status, views, viewsets
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.filters import SearchFilter
 from rest_framework.mixins import ListModelMixin
 from rest_framework.response import Response
 
 from mystery_shopping.companies.models import CompanyElement
-from mystery_shopping.cxi.algorithms import GetPerDayQuestionnaireData
-from mystery_shopping.cxi.serializers import SimpleWhyCauseSerializer
+from mystery_shopping.cxi.algorithms import CodedCausesPercentageTable, CollectDataForIndicatorDashboard, \
+    GetPerDayQuestionnaireData, collect_data_for_overview_dashboard
+from mystery_shopping.cxi.models import CodedCause, CodedCauseLabel, ProjectComment, WhyCause
+from mystery_shopping.cxi.serializers import CodedCauseLabelSerializer, CodedCauseSerializer, ProjectCommentSerializer, \
+    SimpleWhyCauseSerializer, WhyCauseSerializer
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
-from mystery_shopping.mystery_shopping_utils.paginators import FrustrationWhyCausesPagination, \
-    AppreciationWhyCausesPagination, WhyCausesPagination
+from mystery_shopping.mystery_shopping_utils.paginators import AppreciationWhyCausesPagination, \
+    FrustrationWhyCausesPagination, WhyCausesPagination
 from mystery_shopping.mystery_shopping_utils.utils import aggregate_questions_for_nps_indicator, \
     aggregate_questions_for_other_indicators, calculate_percentage
 from mystery_shopping.projects.models import Project
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from mystery_shopping.questionnaires.utils import check_interval_date
-from mystery_shopping.users.permissions import IsCompanyManager, IsCompanyEmployee
-from mystery_shopping.users.permissions import IsCompanyProjectManager
-from mystery_shopping.users.permissions import IsTenantConsultant
-from mystery_shopping.users.permissions import IsTenantProductManager
-from mystery_shopping.users.permissions import IsTenantProjectManager
-from .algorithms import CodedCausesPercentageTable
-from .algorithms import CollectDataForIndicatorDashboard
-from .algorithms import collect_data_for_overview_dashboard
-from .algorithms import get_company_indicator_questions_list
-from .algorithms import get_project_indicator_questions_list
-from .models import CodedCause
-from .models import CodedCauseLabel
-from .models import ProjectComment
-from .models import WhyCause
-from .serializers import CodedCauseLabelSerializer
-from .serializers import CodedCauseSerializer
-from .serializers import ProjectCommentSerializer
-from .serializers import WhyCauseSerializer
+from mystery_shopping.respondents.models import RespondentCase
+from mystery_shopping.users.permissions import IsCompanyEmployee, IsCompanyManager, IsCompanyProjectManager, \
+    IsTenantConsultant, IsTenantProductManager, IsTenantProjectManager
 
 
 class ClearCodedCauseMixin:
@@ -91,6 +77,12 @@ class CodedCauseViewSet(ClearCodedCauseMixin, viewsets.ModelViewSet):
         why_causes = why_causes.exclude(question__in=all_questions)
         self.clear_coded_cause(why_causes)
         coded_cause.raw_causes.add(*list(why_causes))
+
+        for why_cause in why_causes:
+            user = coded_cause.get_user_with_few_cases()
+            if why_cause.is_detractor_question() and not why_cause.evaluation_has_case():
+                self.create_case_for_respondent(why_cause.get_evaluation(), user)
+
         return Response(status=status.HTTP_202_ACCEPTED)
 
     @staticmethod
@@ -113,6 +105,12 @@ class CodedCauseViewSet(ClearCodedCauseMixin, viewsets.ModelViewSet):
         for coded_cause in coded_causes:
             result.setdefault(coded_cause['sentiment'], []).append(coded_cause)
         return result
+
+    @staticmethod
+    def create_case_for_respondent(evaluation, responsible_user):
+        case = RespondentCase.objects.create(respondent=evaluation.detractors.first())
+        case.assign(to=responsible_user)
+        case.save()
 
 
 class ProjectCommentViewSet(viewsets.ModelViewSet):
@@ -455,43 +453,6 @@ class IndicatorDashboard(views.APIView):
     @staticmethod
     def parameter_is_valid(parameter):
         return parameter is not None and not parameter.isdigit()
-
-
-class IndicatorDashboardList(views.APIView):
-    """
-
-    """
-
-    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsCompanyProjectManager,
-                             IsCompanyManager),)
-
-    def get(self, request, *args, **kwargs):
-        project_id = request.query_params.get('project', None)
-        company_id = request.query_params.get('company', None)
-
-        # Since the company parameter "incapsulates" the project one
-        # it would be better to check for it first
-        if company_id:
-            try:
-                company = Company.objects.get(pk=company_id)
-            except (Company.DoesNotExist, ValueError):
-                return Response({'detail': 'No Company with this id exists or invalid company parameter'},
-                                status.HTTP_404_NOT_FOUND)
-            response = get_company_indicator_questions_list(company)
-            return Response(response, status.HTTP_200_OK)
-
-        elif project_id:
-            try:
-                project = Project.objects.get(pk=project_id)
-            except (Project.DoesNotExist, ValueError):
-                return Response({'detail': 'No Project with this id exists or invalid project parameter'},
-                                status.HTTP_404_NOT_FOUND)
-
-            response = get_project_indicator_questions_list(project)
-            return Response(response, status.HTTP_200_OK)
-
-        else:
-            return Response({'detail': 'No query parameters were provided'}, status.HTTP_400_BAD_REQUEST)
 
 
 class CodedCausePercentage(views.APIView):

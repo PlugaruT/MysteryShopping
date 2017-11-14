@@ -6,7 +6,6 @@ from factory.django import DjangoModelFactory
 
 from mystery_shopping.factories.companies import CompanyElementFactory
 from mystery_shopping.factories.tenants import TenantFactory
-from mystery_shopping.users.admin import DetractorRespondent
 from mystery_shopping.users.models import ClientUser, Shopper, User
 from mystery_shopping.users.roles import UserRole
 
@@ -90,8 +89,3 @@ class UserThatIsTenantProductManagerFactory(DjangoModelFactory):
         if extracted:
             for group in extracted:
                 self.groups.add(group)
-
-
-class DetractorRespondentFactory(DjangoModelFactory):
-    class Meta:
-        model = DetractorRespondent

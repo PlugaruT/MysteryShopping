@@ -1,4 +1,14 @@
+from enum import Enum
+
 from django.db import models
+
+from mystery_shopping.common.managers import TagQuerySet
+
+
+class ModelEnum(Enum):
+
+    def __str__(self):
+        return self.value
 
 
 class Country(models.Model):
@@ -90,3 +100,16 @@ class Sector(models.Model):
 
     def __str__(self):
         return 'Name: %s, City: %s' % (self.name, self.city.name)
+
+
+class Tag(models.Model):
+    """
+    A simple generic Tag grouped by type
+    """
+    type = models.CharField(max_length=30, db_index=True)
+    name = models.CharField(max_length=50, db_index=True)
+
+    objects = TagQuerySet.as_manager()
+
+    def __str__(self):
+        return '{}: {}'.format(self.type, self.name)
