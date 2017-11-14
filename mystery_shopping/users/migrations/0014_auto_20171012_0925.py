@@ -15,9 +15,83 @@ class Migration(migrations.Migration):
     ]
 
     state_operations = [
+        migrations.RemoveField(
+            model_name='clientemployee',
+            name='entity',
+        ),
+        migrations.RemoveField(
+            model_name='clientemployee',
+            name='section',
+        ),
+        migrations.RemoveField(
+            model_name='clientemployee',
+            name='user',
+        ),
+        migrations.RemoveField(
+            model_name='clientmanager',
+            name='place_type',
+        ),
+        migrations.RemoveField(
+            model_name='clientmanager',
+            name='user',
+        ),
+        migrations.RemoveField(
+            model_name='clientprojectmanager',
+            name='user',
+        ),
+        migrations.RemoveField(
+            model_name='tenantconsultant',
+            name='tenant',
+        ),
+        migrations.RemoveField(
+            model_name='tenantconsultant',
+            name='user',
+        ),
+        migrations.RemoveField(
+            model_name='tenantproductmanager',
+            name='tenant',
+        ),
+        migrations.RemoveField(
+            model_name='tenantproductmanager',
+            name='user',
+        ),
+        migrations.RemoveField(
+            model_name='tenantprojectmanager',
+            name='tenant',
+        ),
+        migrations.RemoveField(
+            model_name='tenantprojectmanager',
+            name='user',
+        ),
         migrations.DeleteModel(name='DetractorRespondent'),
+        migrations.DeleteModel(
+            name='ClientEmployee',
+        ),
+        migrations.DeleteModel(
+            name='ClientManager',
+        ),
+        migrations.DeleteModel(
+            name='ClientProjectManager',
+        ),
+        migrations.DeleteModel(
+            name='TenantConsultant',
+        ),
+        migrations.DeleteModel(
+            name='TenantProductManager',
+        ),
+        migrations.DeleteModel(
+            name='TenantProjectManager',
+        ),
     ]
 
     operations = [
+        migrations.DeleteModel(
+            name='PersonToAssess',
+        ),
+        migrations.AlterModelManagers(
+            name='user',
+            managers=[
+            ],
+        ),
         migrations.SeparateDatabaseAndState(database_operations=db_operations, state_operations=state_operations)
     ]

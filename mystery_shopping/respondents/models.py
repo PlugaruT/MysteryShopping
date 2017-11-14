@@ -124,8 +124,10 @@ class RespondentCase(TimeStampedModel):
     @transition(field=state,
                 source=(RespondentCaseState.ASSIGNED, RespondentCaseState.ANALYSIS, RespondentCaseState.IMPLEMENTATION),
                 target=RespondentCaseState.ESCALATED)
-    def escalate(self, reason):
-        self._add_comment(reason, self.responsible_user, RespondentCaseState.ESCALATED)
+    def escalate(self, reason,  user=None):
+        if user is None:
+            user = self.responsible_user
+        self._add_comment(reason, user, RespondentCaseState.ESCALATED)
 
     @transition(field=state, source=(RespondentCaseState.INIT, RespondentCaseState.ESCALATED),
                 target=RespondentCaseState.ASSIGNED)

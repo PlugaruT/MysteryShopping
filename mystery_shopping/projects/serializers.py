@@ -278,7 +278,8 @@ class EvaluationSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def setup_eager_loading(queryset):
-        queryset = queryset.select_related('questionnaire', 'questionnaire_template')
+        queryset = queryset.select_related('questionnaire', 'questionnaire_template', 'project', 'company_element',
+                                           'saved_by_user', 'shopper')
         queryset = queryset.prefetch_related('questionnaire__blocks__questions__question_choices')
         return queryset
 

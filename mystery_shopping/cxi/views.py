@@ -16,8 +16,6 @@ from mystery_shopping.cxi.serializers import CodedCauseLabelSerializer, CodedCau
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from mystery_shopping.mystery_shopping_utils.paginators import AppreciationWhyCausesPagination, \
     FrustrationWhyCausesPagination, WhyCausesPagination
-from mystery_shopping.mystery_shopping_utils.utils import aggregate_questions_for_nps_indicator, \
-    aggregate_questions_for_other_indicators, calculate_percentage
 from mystery_shopping.projects.models import Project
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from mystery_shopping.questionnaires.utils import check_interval_date
@@ -250,87 +248,6 @@ class BarChartGraph(views.APIView):
             for indicator_name, indicators_scores in overview_data['score']['indicators'].items():
                 response[project_name].append((indicator_name, indicators_scores['indicator']))
         return response
-
-
-class RespondentsDistribution(views.APIView):
-    """
-
-    View that will return the distribution of respondents for an indicator.
-
-     Query params:
-
-     * `project`: **required**, id of the project to aggregate data for
-     * `indicator`: **required**, indicator name for which to get questions
-     * `company_element`: **required**, id of the company element for which to aggregate data
-
-    The list of dicts has the form:
-    ```
-    [
-        {
-            key: 'CHART.DETRACTOR',
-            value: 5,
-        },
-        {
-            key: 'CHART.PASSIVE',
-            value: 2,
-        },
-        {
-            key: 'CHART.PROMOTERS',
-            value: 9,
-        }
-    ]
-    ```
-    """
-
-    def get(self, request, *args, **kwargs):
-        indicator_name = request.query_params.get('indicator', None)
-        project_id = request.query_params.get('project', None)
-        company_element_id = request.query_params.getlist('company_element', [])
-        questions_list = QuestionnaireQuestion.objects.get_indicator_questions_for_company_elements(
-            project=project_id, indicator=indicator_name, company_elements=company_element_id)
-        if indicator_name == 'NPS':
-            response = self.build_data_for_nps_indicator(questions_list)
-        else:
-            response = self.build_data_for_other_indicators(questions_list)
-
-        return Response(response, status.HTTP_200_OK)
-
-    def build_data_for_nps_indicator(self, questions_list):
-        number_of_questions = questions_list.count()
-        respondents_data = aggregate_questions_for_nps_indicator(questions_list)
-        return self.build_data_points_list(respondents_data, number_of_questions)
-
-    def build_data_for_other_indicators(self, questions_list):
-        number_of_questions = questions_list.count()
-        respondents_data = aggregate_questions_for_other_indicators(questions_list)
-        return self.build_data_points_list(respondents_data, number_of_questions)
-
-    def build_data_points_list(self, data_dict, number_of_questions):
-        """
-        Method for building the final result
-        :param data_dict: Contains number of respondents of each type, example:
-            {
-                'POSITIVE': 47,
-                'NEUTRAL': 51,
-                'NEGATIVE': 2
-            }
-        :param number_of_questions: Number of total questions, used for computing % for each type if respondent
-        :return: list of dicts
-        """
-        response = []
-        for key, value in data_dict.items():
-            value = value if value else 0
-            percentage = calculate_percentage(value, number_of_questions)
-            response.append(self.build_data_point(key.upper(), percentage, value))
-        return response
-
-    @staticmethod
-    def build_data_point(key, value, additional):
-        return {
-            "key": key,
-            "value": value,
-            "additional": additional
-        }
 
 
 class OverviewDashboard(views.APIView):

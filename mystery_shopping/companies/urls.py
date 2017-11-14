@@ -23,6 +23,8 @@ company_router_for_projects.register(r'company-elements', CompanyElementViewSet,
 company_project_router = NestedSimpleRouter(company_router_for_projects, r'company-elements', lookup='company_element')
 company_project_router.register(r'projects', ProjectPerCompanyViewSet, base_name='company-element-projects')
 
+app_name = 'companies'
+
 urlpatterns = [
     url(r'^upload/industries/$', IndustryCsvUploadView.as_view(), name='upload-industries')
 ]

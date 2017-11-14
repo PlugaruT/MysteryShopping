@@ -16,7 +16,7 @@ def calculate_percentage(nominator, denominator, round_to=2):
     return round(nominator / denominator * 100, round_to)
 
 
-def aggregate_questions_for_nps_indicator(questions_list):
+def aggregate_respondents_distribution(questions_list):
     """
     :param questions_list: list of QuestionnaireQuestions to count number of respondents for NPS indicator
     :return: dict of the form
@@ -49,37 +49,20 @@ def aggregate_questions_for_nps_indicator(questions_list):
     )
 
 
-def aggregate_questions_for_other_indicators(questions_list):
+def build_data_point(key, value, additional=0):
     """
-    :param questions_list: list of QuestionnaireQuestions to count number of respondents for other indicators
-    :return: dict of the form
-        {
-            'NEGATIVE': 1224,
-            'NEUTRAL': 125,
-            'POSITIVE': 644
-        }
+    This method is going to be used when aggregating data for charts
+    This represents a data point on the bar/pie/waterfall chart
+    :param key: the name for what this data point represents
+    :param value: value of the data point
+    :param additional: additional info than can be used for different purposes
+    :return: dict
     """
-    return questions_list.aggregate(
-        NEGATIVE=Sum(
-            Case(
-                When(score__lte=6, then=1),
-                output_field=IntegerField()
-            )
-        ),
-        NEUTRAL=Sum(
-            Case(
-                When(score=7, then=1),
-                When(score=8, then=1),
-                output_field=IntegerField()
-            )
-        ),
-        POSITIVE=Sum(
-            Case(
-                When(score__gte=9, then=1),
-                output_field=IntegerField()
-            )
-        )
-    )
+    return {
+        'key': key,
+        'value': value,
+        'additional': additional
+    }
 
 
 def modify_questions_body(questionnaire):

@@ -10,6 +10,11 @@ from guardian.shortcuts import get_objects_for_user
 from mystery_shopping.companies.models import CompanyElement
 from mystery_shopping.mystery_shopping_utils.models import OptionalTenantModel
 from mystery_shopping.projects.models import Evaluation, ResearchMethodology
+from mystery_shopping.projects.models import Project, Evaluation
+from mystery_shopping.projects.models import ResearchMethodology
+from mystery_shopping.tenants.models import Tenant
+# @python_2_unicode_compatible
+from mystery_shopping.users.managers import UserQuerySet
 from mystery_shopping.users.roles import UserRole
 
 
@@ -19,6 +24,8 @@ class User(OptionalTenantModel, AbstractUser):
     phone_number = models.CharField(max_length=20, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
     gender = models.CharField(max_length=1, null=True, blank=True)
+
+    objects = UserQuerySet.as_manager()
 
     def __str__(self):
         return u"{} {}".format(self.first_name, self.last_name)

@@ -8,7 +8,7 @@ from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 from django.utils.translation import ugettext_lazy as _
 from guardian.admin import GuardedModelAdmin
 
-from mystery_shopping.users.models import (ClientUser, Shopper, User)
+from mystery_shopping.users.models import ClientUser, Shopper, User
 
 
 class MyUserChangeForm(UserChangeForm):
