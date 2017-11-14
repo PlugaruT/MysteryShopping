@@ -261,7 +261,7 @@ class UserSerializerGET(UserSerializer):
 class SimpleUserSerializerGET(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'date_of_birth')
+        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'date_of_birth')
 
 
 class ShopperSerializer(UsersCreateMixin, UsersUpdateMixin, serializers.ModelSerializer):

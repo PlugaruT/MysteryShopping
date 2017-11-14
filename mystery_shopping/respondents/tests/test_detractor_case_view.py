@@ -128,7 +128,7 @@ class RespondentCasesAPITestCase(APITestCase):
         case.save()
 
         response = self.client.post(path=reverse('respondentcases-close', args=(case.id,)),
-                                    data={'reason': 'because', 'user': user.id})
+                                    data={'reason': 'because'})
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
@@ -136,4 +136,4 @@ class RespondentCasesAPITestCase(APITestCase):
 
         self.assertEqual(read_case.state, RespondentCaseState.CLOSED)
         self.assertEqual(read_case.comments.first().text, 'because')
-        self.assertEqual(read_case.comments.first().author, user)
+        self.assertEqual(read_case.comments.first().author, self.authentication.user)

@@ -113,9 +113,7 @@ class RespondentCaseViewSet(viewsets.ModelViewSet):
     def close(self, request, pk=None):
         case = get_object_or_404(RespondentCase, pk=pk)
         reason = request.data.get('reason')
-        user_id = request.data.get('user')
-
-        user = User.objects.get(pk=int(user_id))
+        user = request.user
 
         case.close(reason=reason, user=user)
         case.save()
