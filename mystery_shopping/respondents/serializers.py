@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from mystery_shopping.questionnaires.serializers import QuestionnaireQuestionSerializer
 from mystery_shopping.respondents.models import Respondent, RespondentCaseComment, RespondentCase
-from mystery_shopping.users.serializers import UserSerializerGET, SimpleUserSerializerGET
+from mystery_shopping.users.serializers import SimpleUserSerializerGET
 
 
 class RespondentCaseCommentSerializer(serializers.ModelSerializer):
