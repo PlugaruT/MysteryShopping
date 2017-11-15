@@ -77,9 +77,9 @@ class CodedCauseViewSet(ClearCodedCauseMixin, viewsets.ModelViewSet):
         coded_cause.raw_causes.add(*list(why_causes))
 
         for why_cause in why_causes:
-            user = coded_cause.get_user_with_few_cases()
+            client_user = coded_cause.get_user_with_few_cases()
             if why_cause.is_detractor_question() and not why_cause.evaluation_has_case():
-                self.create_case_for_respondent(why_cause.get_evaluation(), user)
+                self.create_case_for_respondent(why_cause.get_evaluation(), client_user.user)
 
         return Response(status=status.HTTP_202_ACCEPTED)
 
