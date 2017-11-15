@@ -1,5 +1,4 @@
 from django.db import models
-from django_extensions.db.models import TimeStampedModel
 from django_fsm import FSMField, transition, RETURN_VALUE
 from model_utils import Choices
 from model_utils.models import TimeStampedModel

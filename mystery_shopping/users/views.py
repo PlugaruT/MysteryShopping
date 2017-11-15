@@ -20,7 +20,8 @@ from mystery_shopping.mystery_shopping_utils.views import GetSerializerClassMixi
 from mystery_shopping.users.filters import ClientFilter, ShopperFilter, UserFilter
 from mystery_shopping.users.mixins import CreateUserMixin, DestroyOneToOneUserMixin
 from mystery_shopping.users.models import ClientUser, Collector, Shopper, User
-from mystery_shopping.users.permissions import IsTenantConsultant, IsTenantProductManager, IsTenantProjectManager
+from mystery_shopping.users.permissions import IsTenantConsultant, IsTenantProductManager, IsTenantProjectManager, \
+    IsCompanyProjectManager
 from mystery_shopping.users.roles import UserRole
 from mystery_shopping.users.serializers import ClientUserSerializer, ClientUserSerializerGET, CollectorSerializer, \
     GroupSerializer, PermissionSerializer, ShopperSerializer, ShopperSerializerGET, UserSerializer, UserSerializerGET
@@ -185,7 +186,7 @@ class ClientUserViewSet(DestroyOneToOneUserMixin, GetSerializerClassMixin, Creat
     filter_backends = (DjangoFilterBackend,)
     filter_class = ClientFilter
     filter_fields = ('company',)
-    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant, IsCompanyProjectManager),)
 
     def get_queryset(self):
         return self.queryset.filter(user__tenant=self.request.user.tenant)
