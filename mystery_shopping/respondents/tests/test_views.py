@@ -1,4 +1,8 @@
+from datetime import timedelta
+from django.utils import timezone
+from django.contrib.contenttypes.models import ContentType
 from django.http import QueryDict
+from django_fsm_log.models import StateLog
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
@@ -81,30 +85,81 @@ class AverageProcessingTimePerStateAPITestCase(APITestCase):
         ]
 
         query_params = QueryDict('project={}'.format(self.project.id))
-
         response = self.client.get('{}?{}'.format(reverse('respondents:time-per-state'), query_params.urlencode()))
 
         self.assertEqual(status.HTTP_200_OK, response.status_code)
-        self.assertCountEqual(expected_result, response.data)
+        self.assertListEqual(expected_result, response.data)
 
-    # Todo : will reactivate it when the avg calculation is in place
-    def _test_view_with_data(self):
+    def test_view_with_data(self):
+        states = ['ASSIGNED', 'ESCALATED', 'ASSIGNED', 'ANAL', 'IMPLEMENTATION', 'FOLLOW_UP', 'SOLVED']
+        self._generate_cases(states)
         expected_result = [
-            {'key': 'ASSIGNED', 'value': 0, 'additional': 0},
-            {'key': 'ESCALATED', 'value': 0, 'additional': 0},
-            {'key': 'ANAL', 'value': 0, 'additional': 0},
-            {'key': 'IMPLEMENTATION', 'value': 0, 'additional': 0},
-            {'key': 'FOLLOW_UP', 'value': 0, 'additional': 0},
-            {'key': 'SOLVED', 'value': 0, 'additional': 0},
-            {'key': 'CLOSED', 'value': 0, 'additional': 0},
+            {'key': 'ASSIGNED', 'value': 5400, 'additional': 0},
+            {'key': 'ESCALATED', 'value': 5400, 'additional': 0},
+            {'key': 'ANAL', 'value': 5400, 'additional': 0},
+            {'key': 'IMPLEMENTATION', 'value': 5400, 'additional': 0},
+            {'key': 'FOLLOW_UP', 'value': 5400, 'additional': 0},
         ]
 
         query_params = QueryDict('project={}'.format(self.project.id))
-
         response = self.client.get('{}?{}'.format(reverse('respondents:time-per-state'), query_params.urlencode()))
 
         self.assertEqual(status.HTTP_200_OK, response.status_code)
-        self.assertCountEqual(expected_result, response.data)
+        self.assertListEqual(expected_result, response.data)
+
+    def test_view_with_incomplete_data(self):
+        states = ['ASSIGNED', 'ANAL', 'IMPLEMENTATION', 'SOLVED']
+        self._generate_cases(states)
+        expected_result = [
+            {'key': 'ASSIGNED', 'value': 5400, 'additional': 0},
+            {'key': 'ESCALATED', 'value': 0, 'additional': 0},
+            {'key': 'ANAL', 'value': 5400, 'additional': 0},
+            {'key': 'IMPLEMENTATION', 'value': 5400, 'additional': 0},
+            {'key': 'FOLLOW_UP', 'value': 0, 'additional': 0},
+        ]
+
+        query_params = QueryDict('project={}'.format(self.project.id))
+        response = self.client.get('{}?{}'.format(reverse('respondents:time-per-state'), query_params.urlencode()))
+
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        self.assertListEqual(expected_result, response.data)
+
+    def test_view_with_active_cases(self):
+        states = ['ASSIGNED', 'ANAL', 'IMPLEMENTATION']
+        self._generate_cases(states)
+        expected_result = [
+            {'key': 'ASSIGNED', 'value': 5400, 'additional': 0},
+            {'key': 'ESCALATED', 'value': 0, 'additional': 0},
+            {'key': 'ANAL', 'value': 5400, 'additional': 0},
+            {'key': 'IMPLEMENTATION', 'value': 5400, 'additional': 0},
+            {'key': 'FOLLOW_UP', 'value': 0, 'additional': 0},
+        ]
+
+        query_params = QueryDict('project={}'.format(self.project.id))
+        response = self.client.get('{}?{}'.format(reverse('respondents:time-per-state'), query_params.urlencode()))
+
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        self.assertListEqual(expected_result, response.data)
+
+    def _generate_cases(self, states):
+        evaluation = EvaluationFactory(project=self.project)
+        respondent_1 = RespondentFactory(evaluation=evaluation)
+        respondent_2 = RespondentFactory(evaluation=evaluation)
+        case1 = RespondentCaseFactory(respondent=respondent_1)
+        case2 = RespondentCaseFactory(respondent=respondent_2)
+
+        self._generate_logs(case1, states, delta_hours=1)
+        self._generate_logs(case2, states, delta_hours=2)
+
+    @staticmethod
+    def _generate_logs(respondent_case, states, delta_hours):
+        ct = ContentType.objects.get_for_model(respondent_case)
+        time = timezone.now() - timedelta(hours=delta_hours * len(states))
+
+        for state in states:
+            StateLog.objects.create(content_type=ct, object_id=respondent_case.id,
+                                    transition='tr', state=state, timestamp=time)
+            time += timedelta(hours=delta_hours)
 
 
 class RespondentCasesPerSolutionTagAPITestCase(APITestCase):
