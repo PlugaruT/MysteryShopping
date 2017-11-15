@@ -195,11 +195,12 @@ class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
         return self.evaluation.company_element
 
     def get_respondent(self):
-        if self.evaluation.respondents.exists():
-            return self.evaluation.respondents.first()
+        if self.evaluation.detractors.exists():
+            return self.evaluation.detractors.first()
 
     def get_evaluation(self):
         return self.evaluation
+
 
 class QuestionnaireBlockAbstract(models.Model):
     """
