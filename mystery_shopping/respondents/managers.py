@@ -5,6 +5,7 @@ from django.db.models.aggregates import Count
 from django_fsm_log.models import StateLog
 
 from mystery_shopping.common.iterators import pairs
+from mystery_shopping.respondents.constants import RespondentCaseState
 
 
 class RespondentCaseQuerySet(QuerySet):
@@ -38,10 +39,9 @@ class RespondentCaseQuerySet(QuerySet):
                       .order_by('object_id', 'timestamp')
                       .values('timestamp', 'state', 'object_id'))
 
-        transition_states = ['ASSIGNED', 'ESCALATED', 'ANAL', 'IMPLEMENTATION', 'FOLLOW_UP']
         response = []
 
-        for state, avg_time in self._avg_time_per_state(state_logs, transition_states):
+        for state, avg_time in self._avg_time_per_state(state_logs, RespondentCaseState.ACTIVE_STATES):
             item = {'state': state, 'avg_time': avg_time}
             response.append(item)
 
@@ -53,15 +53,7 @@ class RespondentCaseQuerySet(QuerySet):
         It will return that the state has 0
         :return: list of dicts
         """
-        default_response = [
-            {'state': 'ASSIGNED', 'count': 0},
-            {'state': 'ESCALATED', 'count': 0},
-            {'state': 'ANAL', 'count': 0},
-            {'state': 'IMPLEMENTATION', 'count': 0},
-            {'state': 'FOLLOW_UP', 'count': 0},
-            {'state': 'SOLVED', 'count': 0},
-            {'state': 'CLOSED', 'count': 0},
-        ]
+        default_response = [{'state': state, 'count': 0} for state in RespondentCaseState.ALL_STATES]
         result = list(
             self.filter(respondent__evaluation__project_id=project_id).values('state').annotate(count=Count('id'))
         )

@@ -11,6 +11,7 @@ from mystery_shopping.factories.common import TagFactory
 from mystery_shopping.factories.projects import EvaluationFactory, ProjectFactory
 from mystery_shopping.factories.respondents import RespondentCaseFactory, RespondentFactory
 from mystery_shopping.factories.users import UserFactory
+from mystery_shopping.respondents.constants import RespondentCaseState
 from mystery_shopping.users.tests.user_authentication import AuthenticateUser
 
 
@@ -22,13 +23,13 @@ class RespondentCasesPerStateAPITestCase(APITestCase):
 
     def test_view_with_no_data(self):
         expected_result = [
-            {'key': 'ASSIGNED', 'value': 0, 'additional': 0},
-            {'key': 'ESCALATED', 'value': 0, 'additional': 0},
-            {'key': 'ANAL', 'value': 0, 'additional': 0},
-            {'key': 'IMPLEMENTATION', 'value': 0, 'additional': 0},
-            {'key': 'FOLLOW_UP', 'value': 0, 'additional': 0},
-            {'key': 'SOLVED', 'value': 0, 'additional': 0},
-            {'key': 'CLOSED', 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.ASSIGNED, 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.ESCALATED, 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.ANALYSIS, 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.IMPLEMENTATION, 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.FOLLOW_UP, 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.SOLVED, 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.CLOSED, 'value': 0, 'additional': 0},
         ]
         query_params = QueryDict('project={}'.format(self.project.id))
 
@@ -40,13 +41,13 @@ class RespondentCasesPerStateAPITestCase(APITestCase):
     def test_view_with_data(self):
         self._create_cases()
         expected_result = [
-            {'key': 'ASSIGNED', 'value': 1, 'additional': 0},
-            {'key': 'ESCALATED', 'value': 0, 'additional': 0},
-            {'key': 'ANAL', 'value': 2, 'additional': 0},
-            {'key': 'IMPLEMENTATION', 'value': 0, 'additional': 0},
-            {'key': 'FOLLOW_UP', 'value': 0, 'additional': 0},
-            {'key': 'SOLVED', 'value': 0, 'additional': 0},
-            {'key': 'CLOSED', 'value': 1, 'additional': 0},
+            {'key': RespondentCaseState.ASSIGNED, 'value': 1, 'additional': 0},
+            {'key': RespondentCaseState.ESCALATED, 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.ANALYSIS, 'value': 2, 'additional': 0},
+            {'key': RespondentCaseState.IMPLEMENTATION, 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.FOLLOW_UP, 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.SOLVED, 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.CLOSED, 'value': 1, 'additional': 0},
         ]
 
         query_params = QueryDict('project={}'.format(self.project.id))
@@ -62,10 +63,10 @@ class RespondentCasesPerStateAPITestCase(APITestCase):
         respondent_2 = RespondentFactory(evaluation=evaluation)
         respondent_3 = RespondentFactory(evaluation=evaluation)
         respondent_4 = RespondentFactory(evaluation=evaluation)
-        RespondentCaseFactory(state='ANAL', respondent=respondent_1)
-        RespondentCaseFactory(state='ASSIGNED', respondent=respondent_2)
-        RespondentCaseFactory(state='CLOSED', respondent=respondent_3)
-        RespondentCaseFactory(state='ANAL', respondent=respondent_4)
+        RespondentCaseFactory(state=RespondentCaseState.ANALYSIS, respondent=respondent_1)
+        RespondentCaseFactory(state=RespondentCaseState.ASSIGNED, respondent=respondent_2)
+        RespondentCaseFactory(state=RespondentCaseState.CLOSED, respondent=respondent_3)
+        RespondentCaseFactory(state=RespondentCaseState.ANALYSIS, respondent=respondent_4)
 
 
 class AverageProcessingTimePerStateAPITestCase(APITestCase):
@@ -77,11 +78,11 @@ class AverageProcessingTimePerStateAPITestCase(APITestCase):
 
     def test_view_with_no_data(self):
         expected_result = [
-            {'key': 'ASSIGNED', 'value': 0, 'additional': 0},
-            {'key': 'ESCALATED', 'value': 0, 'additional': 0},
-            {'key': 'ANAL', 'value': 0, 'additional': 0},
-            {'key': 'IMPLEMENTATION', 'value': 0, 'additional': 0},
-            {'key': 'FOLLOW_UP', 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.ASSIGNED, 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.ESCALATED, 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.ANALYSIS, 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.IMPLEMENTATION, 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.FOLLOW_UP, 'value': 0, 'additional': 0},
         ]
 
         query_params = QueryDict('project={}'.format(self.project.id))
@@ -94,11 +95,11 @@ class AverageProcessingTimePerStateAPITestCase(APITestCase):
         states = ['ASSIGNED', 'ESCALATED', 'ASSIGNED', 'ANAL', 'IMPLEMENTATION', 'FOLLOW_UP', 'SOLVED']
         self._generate_cases(states)
         expected_result = [
-            {'key': 'ASSIGNED', 'value': 5400, 'additional': 0},
-            {'key': 'ESCALATED', 'value': 5400, 'additional': 0},
-            {'key': 'ANAL', 'value': 5400, 'additional': 0},
-            {'key': 'IMPLEMENTATION', 'value': 5400, 'additional': 0},
-            {'key': 'FOLLOW_UP', 'value': 5400, 'additional': 0},
+            {'key': RespondentCaseState.ASSIGNED, 'value': 5400, 'additional': 0},
+            {'key': RespondentCaseState.ESCALATED, 'value': 5400, 'additional': 0},
+            {'key': RespondentCaseState.ANALYSIS, 'value': 5400, 'additional': 0},
+            {'key': RespondentCaseState.IMPLEMENTATION, 'value': 5400, 'additional': 0},
+            {'key': RespondentCaseState.FOLLOW_UP, 'value': 5400, 'additional': 0},
         ]
 
         query_params = QueryDict('project={}'.format(self.project.id))
@@ -111,11 +112,11 @@ class AverageProcessingTimePerStateAPITestCase(APITestCase):
         states = ['ASSIGNED', 'ANAL', 'IMPLEMENTATION', 'SOLVED']
         self._generate_cases(states)
         expected_result = [
-            {'key': 'ASSIGNED', 'value': 5400, 'additional': 0},
-            {'key': 'ESCALATED', 'value': 0, 'additional': 0},
-            {'key': 'ANAL', 'value': 5400, 'additional': 0},
-            {'key': 'IMPLEMENTATION', 'value': 5400, 'additional': 0},
-            {'key': 'FOLLOW_UP', 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.ASSIGNED, 'value': 5400, 'additional': 0},
+            {'key': RespondentCaseState.ESCALATED, 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.ANALYSIS, 'value': 5400, 'additional': 0},
+            {'key': RespondentCaseState.IMPLEMENTATION, 'value': 5400, 'additional': 0},
+            {'key': RespondentCaseState.FOLLOW_UP, 'value': 0, 'additional': 0},
         ]
 
         query_params = QueryDict('project={}'.format(self.project.id))
@@ -128,11 +129,11 @@ class AverageProcessingTimePerStateAPITestCase(APITestCase):
         states = ['ASSIGNED', 'ANAL', 'IMPLEMENTATION']
         self._generate_cases(states)
         expected_result = [
-            {'key': 'ASSIGNED', 'value': 5400, 'additional': 0},
-            {'key': 'ESCALATED', 'value': 0, 'additional': 0},
-            {'key': 'ANAL', 'value': 5400, 'additional': 0},
-            {'key': 'IMPLEMENTATION', 'value': 5400, 'additional': 0},
-            {'key': 'FOLLOW_UP', 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.ASSIGNED, 'value': 5400, 'additional': 0},
+            {'key': RespondentCaseState.ESCALATED, 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.ANALYSIS, 'value': 5400, 'additional': 0},
+            {'key': RespondentCaseState.IMPLEMENTATION, 'value': 5400, 'additional': 0},
+            {'key': RespondentCaseState.FOLLOW_UP, 'value': 0, 'additional': 0},
         ]
 
         query_params = QueryDict('project={}'.format(self.project.id))

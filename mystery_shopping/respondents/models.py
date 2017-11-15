@@ -4,8 +4,9 @@ from django_fsm import FSMField, transition, RETURN_VALUE
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
 
-from mystery_shopping.common.models import Tag, ModelEnum
+from mystery_shopping.common.models import Tag
 from mystery_shopping.projects.models import Evaluation
+from mystery_shopping.respondents.constants import RespondentCaseState
 from mystery_shopping.respondents.managers import RespondentCaseQuerySet, RespondentQuerySet
 from mystery_shopping.users.models import ClientUser, User
 
@@ -45,17 +46,6 @@ class Respondent(models.Model):
         return None
 
 
-class RespondentCaseState:
-    INIT = 'INIT'
-    ASSIGNED = 'ASSIGNED'
-    ESCALATED = 'ESCALATED'
-    ANALYSIS = 'ANAL'  # just because we can
-    IMPLEMENTATION = 'IMPLEMENTATION'
-    FOLLOW_UP = 'FOLLOW_UP'
-    SOLVED = 'SOLVED'
-    CLOSED = 'CLOSED'
-
-
 class RespondentCase(TimeStampedModel):
     """
     A solvable case that is opened for a respondent
@@ -64,17 +54,6 @@ class RespondentCase(TimeStampedModel):
     ISSUE_TAG_TYPE = 'RESPONDENT_CASE_ISSUE'
     SOLUTION_TAG_TYPE = 'RESPONDENT_CASE_SOLUTION'
     FOLLOW_UP_TAG_TYPE = 'RESPONDENT_CASE_FOLLOW_UP'
-
-    STATE_CHOICES = Choices(
-        (RespondentCaseState.INIT, 'Init'),
-        (RespondentCaseState.ASSIGNED, 'Assigned'),
-        (RespondentCaseState.ESCALATED, 'Escalated'),
-        (RespondentCaseState.ANALYSIS, 'Analysis'),
-        (RespondentCaseState.IMPLEMENTATION, 'Implementation'),
-        (RespondentCaseState.FOLLOW_UP, 'Follow up'),
-        (RespondentCaseState.SOLVED, 'Solved'),
-        (RespondentCaseState.CLOSED, 'Closed'),
-    )
 
     respondent = models.ForeignKey(Respondent, related_name='respondent_cases', related_query_name='respondent_cases')
     responsible_user = models.ForeignKey(User, null=True, blank=True,
@@ -100,7 +79,7 @@ class RespondentCase(TimeStampedModel):
                                             related_name='follow_up_respondent_cases',
                                             related_query_name='follow_up_respondent_cases')
 
-    state = FSMField(choices=STATE_CHOICES, default=RespondentCaseState.INIT)
+    state = FSMField(choices=RespondentCaseState.STATE_CHOICES, default=RespondentCaseState.INIT)
 
     objects = RespondentCaseQuerySet.as_manager()
 

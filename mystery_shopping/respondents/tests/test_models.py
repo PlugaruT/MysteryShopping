@@ -4,7 +4,7 @@ from datetime import date, timedelta
 
 from mystery_shopping.factories.respondents import RespondentCaseFactory
 from mystery_shopping.factories.users import UserFactory
-from mystery_shopping.respondents.models import RespondentCase, RespondentCaseState
+from mystery_shopping.respondents.constants import RespondentCaseState
 
 
 class DetractorCaseTestCase(TestCase):
