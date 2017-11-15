@@ -91,8 +91,8 @@ class EvaluationFactory(DjangoModelFactory):
     # TODO: define evaluation choices in a separate file
     evaluation_type = FuzzyChoice(('call', 'visit'))
     is_draft = True
-    suggested_start_date = FuzzyDate(date(1990, 12, 12))
-    suggested_end_date = FuzzyDate(date(2000, 11, 2))
+    suggested_start_date = date(2010, 6, 1)
+    suggested_end_date = date(2011, 11, 2)
     status = EvaluationStatus.PLANNED
     time_accomplished = None
 

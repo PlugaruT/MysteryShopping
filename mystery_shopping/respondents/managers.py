@@ -1,20 +1,47 @@
+from collections import defaultdict
+from django.utils.timezone import now
 from django.db.models import QuerySet
 from django.db.models.aggregates import Count
 from django_fsm_log.models import StateLog
 
+from mystery_shopping.common.iterators import pairs
+from mystery_shopping.respondents.constants import RespondentCaseState
+
 
 class RespondentCaseQuerySet(QuerySet):
+
+    @staticmethod
+    def _time_delta(current_log, next_log):
+        if next_log is None or next_log['object_id'] != current_log['object_id']:
+            next_time = now()
+        else:
+            next_time = next_log['timestamp']
+
+        return (next_time - current_log['timestamp']).seconds
+
+    @classmethod
+    def _avg_time_per_state(cls, state_logs, transition_states):
+        states_sum = defaultdict(lambda: 0)
+        states_count = defaultdict(lambda: 0)
+        for curr, nxt in pairs(state_logs):
+            if curr['state'] in transition_states:
+                state = curr['state']
+                states_sum[state] += cls._time_delta(curr, nxt)
+                states_count[state] += 1
+
+        for state in transition_states:
+            avg_time = int(states_sum[state] / states_count[state]) if states_count[state] > 0 else 0
+            yield (state, avg_time)
+
     def get_average_time_per_state(self, project_id):
         project_cases = self.filter(respondent__evaluation__project_id=project_id).order_by('id').values('id')
         state_logs = (StateLog.objects.filter(object_id__in=project_cases)
                       .order_by('object_id', 'timestamp')
                       .values('timestamp', 'state', 'object_id'))
 
-        transition_states = ['ASSIGNED', 'ESCALATED', 'ANAL', 'IMPLEMENTATION', 'FOLLOW_UP']
         response = []
 
-        for state in transition_states:
-            avg_time = 0  # todo implement the avg calculation here
+        for state, avg_time in self._avg_time_per_state(state_logs, RespondentCaseState.ACTIVE_STATES):
             item = {'state': state, 'avg_time': avg_time}
             response.append(item)
 
@@ -26,15 +53,7 @@ class RespondentCaseQuerySet(QuerySet):
         It will return that the state has 0
         :return: list of dicts
         """
-        default_response = [
-            {'state': 'ASSIGNED', 'count': 0},
-            {'state': 'ESCALATED', 'count': 0},
-            {'state': 'ANAL', 'count': 0},
-            {'state': 'IMPLEMENTATION', 'count': 0},
-            {'state': 'FOLLOW_UP', 'count': 0},
-            {'state': 'SOLVED', 'count': 0},
-            {'state': 'CLOSED', 'count': 0},
-        ]
+        default_response = [{'state': state, 'count': 0} for state in RespondentCaseState.ALL_STATES]
         result = list(
             self.filter(respondent__evaluation__project_id=project_id).values('state').annotate(count=Count('id'))
         )

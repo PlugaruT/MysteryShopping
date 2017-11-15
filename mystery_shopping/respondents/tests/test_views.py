@@ -1,4 +1,8 @@
+from datetime import timedelta
+from django.utils import timezone
+from django.contrib.contenttypes.models import ContentType
 from django.http import QueryDict
+from django_fsm_log.models import StateLog
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
@@ -7,6 +11,7 @@ from mystery_shopping.factories.common import TagFactory
 from mystery_shopping.factories.projects import EvaluationFactory, ProjectFactory
 from mystery_shopping.factories.respondents import RespondentCaseFactory, RespondentFactory
 from mystery_shopping.factories.users import UserFactory
+from mystery_shopping.respondents.constants import RespondentCaseState
 from mystery_shopping.users.tests.user_authentication import AuthenticateUser
 
 
@@ -18,13 +23,13 @@ class RespondentCasesPerStateAPITestCase(APITestCase):
 
     def test_view_with_no_data(self):
         expected_result = [
-            {'key': 'ASSIGNED', 'value': 0, 'additional': 0},
-            {'key': 'ESCALATED', 'value': 0, 'additional': 0},
-            {'key': 'ANAL', 'value': 0, 'additional': 0},
-            {'key': 'IMPLEMENTATION', 'value': 0, 'additional': 0},
-            {'key': 'FOLLOW_UP', 'value': 0, 'additional': 0},
-            {'key': 'SOLVED', 'value': 0, 'additional': 0},
-            {'key': 'CLOSED', 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.ASSIGNED, 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.ESCALATED, 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.ANALYSIS, 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.IMPLEMENTATION, 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.FOLLOW_UP, 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.SOLVED, 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.CLOSED, 'value': 0, 'additional': 0},
         ]
         query_params = QueryDict('project={}'.format(self.project.id))
 
@@ -36,13 +41,13 @@ class RespondentCasesPerStateAPITestCase(APITestCase):
     def test_view_with_data(self):
         self._create_cases()
         expected_result = [
-            {'key': 'ASSIGNED', 'value': 1, 'additional': 0},
-            {'key': 'ESCALATED', 'value': 0, 'additional': 0},
-            {'key': 'ANAL', 'value': 2, 'additional': 0},
-            {'key': 'IMPLEMENTATION', 'value': 0, 'additional': 0},
-            {'key': 'FOLLOW_UP', 'value': 0, 'additional': 0},
-            {'key': 'SOLVED', 'value': 0, 'additional': 0},
-            {'key': 'CLOSED', 'value': 1, 'additional': 0},
+            {'key': RespondentCaseState.ASSIGNED, 'value': 1, 'additional': 0},
+            {'key': RespondentCaseState.ESCALATED, 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.ANALYSIS, 'value': 2, 'additional': 0},
+            {'key': RespondentCaseState.IMPLEMENTATION, 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.FOLLOW_UP, 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.SOLVED, 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.CLOSED, 'value': 1, 'additional': 0},
         ]
 
         query_params = QueryDict('project={}'.format(self.project.id))
@@ -58,10 +63,10 @@ class RespondentCasesPerStateAPITestCase(APITestCase):
         respondent_2 = RespondentFactory(evaluation=evaluation)
         respondent_3 = RespondentFactory(evaluation=evaluation)
         respondent_4 = RespondentFactory(evaluation=evaluation)
-        RespondentCaseFactory(state='ANAL', respondent=respondent_1)
-        RespondentCaseFactory(state='ASSIGNED', respondent=respondent_2)
-        RespondentCaseFactory(state='CLOSED', respondent=respondent_3)
-        RespondentCaseFactory(state='ANAL', respondent=respondent_4)
+        RespondentCaseFactory(state=RespondentCaseState.ANALYSIS, respondent=respondent_1)
+        RespondentCaseFactory(state=RespondentCaseState.ASSIGNED, respondent=respondent_2)
+        RespondentCaseFactory(state=RespondentCaseState.CLOSED, respondent=respondent_3)
+        RespondentCaseFactory(state=RespondentCaseState.ANALYSIS, respondent=respondent_4)
 
 
 class AverageProcessingTimePerStateAPITestCase(APITestCase):
@@ -73,38 +78,89 @@ class AverageProcessingTimePerStateAPITestCase(APITestCase):
 
     def test_view_with_no_data(self):
         expected_result = [
-            {'key': 'ASSIGNED', 'value': 0, 'additional': 0},
-            {'key': 'ESCALATED', 'value': 0, 'additional': 0},
-            {'key': 'ANAL', 'value': 0, 'additional': 0},
-            {'key': 'IMPLEMENTATION', 'value': 0, 'additional': 0},
-            {'key': 'FOLLOW_UP', 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.ASSIGNED, 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.ESCALATED, 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.ANALYSIS, 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.IMPLEMENTATION, 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.FOLLOW_UP, 'value': 0, 'additional': 0},
         ]
 
         query_params = QueryDict('project={}'.format(self.project.id))
-
         response = self.client.get('{}?{}'.format(reverse('respondents:time-per-state'), query_params.urlencode()))
 
         self.assertEqual(status.HTTP_200_OK, response.status_code)
-        self.assertCountEqual(expected_result, response.data)
+        self.assertListEqual(expected_result, response.data)
 
-    # Todo : will reactivate it when the avg calculation is in place
-    def _test_view_with_data(self):
+    def test_view_with_data(self):
+        states = ['ASSIGNED', 'ESCALATED', 'ASSIGNED', 'ANAL', 'IMPLEMENTATION', 'FOLLOW_UP', 'SOLVED']
+        self._generate_cases(states)
         expected_result = [
-            {'key': 'ASSIGNED', 'value': 0, 'additional': 0},
-            {'key': 'ESCALATED', 'value': 0, 'additional': 0},
-            {'key': 'ANAL', 'value': 0, 'additional': 0},
-            {'key': 'IMPLEMENTATION', 'value': 0, 'additional': 0},
-            {'key': 'FOLLOW_UP', 'value': 0, 'additional': 0},
-            {'key': 'SOLVED', 'value': 0, 'additional': 0},
-            {'key': 'CLOSED', 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.ASSIGNED, 'value': 5400, 'additional': 0},
+            {'key': RespondentCaseState.ESCALATED, 'value': 5400, 'additional': 0},
+            {'key': RespondentCaseState.ANALYSIS, 'value': 5400, 'additional': 0},
+            {'key': RespondentCaseState.IMPLEMENTATION, 'value': 5400, 'additional': 0},
+            {'key': RespondentCaseState.FOLLOW_UP, 'value': 5400, 'additional': 0},
         ]
 
         query_params = QueryDict('project={}'.format(self.project.id))
-
         response = self.client.get('{}?{}'.format(reverse('respondents:time-per-state'), query_params.urlencode()))
 
         self.assertEqual(status.HTTP_200_OK, response.status_code)
-        self.assertCountEqual(expected_result, response.data)
+        self.assertListEqual(expected_result, response.data)
+
+    def test_view_with_incomplete_data(self):
+        states = ['ASSIGNED', 'ANAL', 'IMPLEMENTATION', 'SOLVED']
+        self._generate_cases(states)
+        expected_result = [
+            {'key': RespondentCaseState.ASSIGNED, 'value': 5400, 'additional': 0},
+            {'key': RespondentCaseState.ESCALATED, 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.ANALYSIS, 'value': 5400, 'additional': 0},
+            {'key': RespondentCaseState.IMPLEMENTATION, 'value': 5400, 'additional': 0},
+            {'key': RespondentCaseState.FOLLOW_UP, 'value': 0, 'additional': 0},
+        ]
+
+        query_params = QueryDict('project={}'.format(self.project.id))
+        response = self.client.get('{}?{}'.format(reverse('respondents:time-per-state'), query_params.urlencode()))
+
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        self.assertListEqual(expected_result, response.data)
+
+    def test_view_with_active_cases(self):
+        states = ['ASSIGNED', 'ANAL', 'IMPLEMENTATION']
+        self._generate_cases(states)
+        expected_result = [
+            {'key': RespondentCaseState.ASSIGNED, 'value': 5400, 'additional': 0},
+            {'key': RespondentCaseState.ESCALATED, 'value': 0, 'additional': 0},
+            {'key': RespondentCaseState.ANALYSIS, 'value': 5400, 'additional': 0},
+            {'key': RespondentCaseState.IMPLEMENTATION, 'value': 5400, 'additional': 0},
+            {'key': RespondentCaseState.FOLLOW_UP, 'value': 0, 'additional': 0},
+        ]
+
+        query_params = QueryDict('project={}'.format(self.project.id))
+        response = self.client.get('{}?{}'.format(reverse('respondents:time-per-state'), query_params.urlencode()))
+
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        self.assertListEqual(expected_result, response.data)
+
+    def _generate_cases(self, states):
+        evaluation = EvaluationFactory(project=self.project)
+        respondent_1 = RespondentFactory(evaluation=evaluation)
+        respondent_2 = RespondentFactory(evaluation=evaluation)
+        case1 = RespondentCaseFactory(respondent=respondent_1)
+        case2 = RespondentCaseFactory(respondent=respondent_2)
+
+        self._generate_logs(case1, states, delta_hours=1)
+        self._generate_logs(case2, states, delta_hours=2)
+
+    @staticmethod
+    def _generate_logs(respondent_case, states, delta_hours):
+        ct = ContentType.objects.get_for_model(respondent_case)
+        time = timezone.now() - timedelta(hours=delta_hours * len(states))
+
+        for state in states:
+            StateLog.objects.create(content_type=ct, object_id=respondent_case.id,
+                                    transition='tr', state=state, timestamp=time)
+            time += timedelta(hours=delta_hours)
 
 
 class RespondentCasesPerSolutionTagAPITestCase(APITestCase):
