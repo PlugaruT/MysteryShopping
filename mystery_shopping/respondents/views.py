@@ -20,7 +20,7 @@ from mystery_shopping.respondents.models import Respondent, RespondentCase
 from mystery_shopping.respondents.serializers import RespondentSerializer
 from mystery_shopping.users.models import User
 from mystery_shopping.users.permissions import IsDetractorManager, IsTenantConsultant, IsTenantProductManager, \
-    IsTenantProjectManager
+    IsTenantProjectManager, IsCompanyProjectManager
 
 
 class RespondentViewSet(viewsets.ModelViewSet):
@@ -28,7 +28,7 @@ class RespondentViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filter_class = RespondentFilter
     pagination_class = RespondentPaginator
-    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant),)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant, IsCompanyProjectManager),)
     serializer_class = RespondentSerializer
 
     def get_queryset(self):
