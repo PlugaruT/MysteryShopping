@@ -75,7 +75,10 @@ class WhyCause(models.Model):
         return is_detractor(self.question.score)
 
     def evaluation_has_case(self):
-        return self.get_respondent().respondent_cases.exists()
+        try:
+            return self.get_respondent().respondent_cases.exists()
+        except AttributeError:
+            return True
 
 
 class CodedCause(TenantModel):
