@@ -22,7 +22,7 @@ def send_email_when_new_detractor_case(recipients, place):
         'random': 'random'
     }
 
-    text_content, html_content = get_text_and_html_content('detractors/new_detractor_case.txt', context)
+    text_content, html_content = get_text_and_html_content('detractors/new_detractor_case', context)
 
     service = EmailDispatcher(recipients=recipients, text_content=text_content, html_content=html_content,
                               subject=subject_line)
