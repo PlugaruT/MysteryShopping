@@ -13,6 +13,7 @@ from mystery_shopping.cxi.algorithms import CodedCausesPercentageTable, CollectD
 from mystery_shopping.cxi.models import CodedCause, CodedCauseLabel, ProjectComment, WhyCause
 from mystery_shopping.cxi.serializers import CodedCauseLabelSerializer, CodedCauseSerializer, ProjectCommentSerializer, \
     SimpleWhyCauseSerializer, WhyCauseSerializer
+from mystery_shopping.mail_service.detractors_mail import send_email_when_new_detractor_case
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from mystery_shopping.mystery_shopping_utils.paginators import AppreciationWhyCausesPagination, \
     FrustrationWhyCausesPagination, WhyCausesPagination
@@ -109,6 +110,8 @@ class CodedCauseViewSet(ClearCodedCauseMixin, viewsets.ModelViewSet):
         case = RespondentCase.objects.create(respondent=evaluation.detractors.first())
         case.assign(to=responsible_user)
         case.save()
+        detractor_manager = evaluation.get_detractors_manager()
+        send_email_when_new_detractor_case(detractor_manager.email, evaluation.company_element.element_name)
 
 
 class ProjectCommentViewSet(viewsets.ModelViewSet):
