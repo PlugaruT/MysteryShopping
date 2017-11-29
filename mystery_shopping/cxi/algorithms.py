@@ -605,6 +605,7 @@ def group_questionnaires_per_company_element(questionnaire_list):
 def get_project_indicator_questions_list(project):
     indicators = dict()
     indicators['indicator_list'] = set()
+    indicators['indicators_with_why_causes'] = set()
     try:
         # get the template questionnaire for this project
         template_questionnaire = project.research_methodology.questionnaires.first()
@@ -613,6 +614,7 @@ def get_project_indicator_questions_list(project):
         indicators['detail'] = 'No Research Methodology or template questionnaire defined for this project'
         return indicators
     indicators['indicator_list'] = get_indicator_order(template_questionnaire)
+    indicators['indicators_with_why_causes'] = get_indicators_with_why_causes(template_questionnaire)
     return indicators
 
 
@@ -620,6 +622,13 @@ def get_indicator_order(template_questionnaire):
     questions = template_questionnaire.template_questions.filter(type=QuestionType.INDICATOR_QUESTION).order_by(
         'order').values_list('additional_info', flat=True)
     return questions
+
+
+def get_indicators_with_why_causes(template_questionnaire):
+    indicators = template_questionnaire.template_questions.filter(type=QuestionType.INDICATOR_QUESTION,
+                                                                  allow_why_causes=True).order_by(
+        'order').values_list('additional_info', flat=True)
+    return indicators
 
 
 def get_company_indicator_questions_list(company):
