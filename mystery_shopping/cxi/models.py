@@ -7,9 +7,8 @@ from model_utils import Choices
 from mystery_shopping.companies.models import CompanyElement
 from mystery_shopping.mystery_shopping_utils.models import TenantModel
 from mystery_shopping.mystery_shopping_utils.utils import is_detractor
-from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from mystery_shopping.projects.models import Project
-from mystery_shopping.questionnaires.models import QuestionnaireQuestion
+from mystery_shopping.questionnaires.models import QuestionnaireQuestion, QuestionnaireQuestion
 from mystery_shopping.users.models import ClientUser
 
 

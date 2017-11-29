@@ -1,20 +1,10 @@
 from rest_framework.routers import DefaultRouter
 
-from .views import QuestionnaireScriptViewSet
-from .views import QuestionnaireTemplateViewSet
-from .views import QuestionnaireViewSet
-from .views import QuestionnaireTemplateBlockViewSet
-from .views import QuestionnaireBlockViewSet
-from .views import QuestionnaireTemplateQuestionViewSet
-from .views import QuestionnaireQuestionViewSet
-from .views import QuestionnaireTemplateQuestionChoiceViewSet
-from .views import QuestionnaireQuestionChoiceViewSet
-from .views import CrossIndexTemplateViewSet
-from .views import CrossIndexViewSet
-from .views import QuestionnaireSimpleViewSet
-from .views import QuestionSimpleViewSet
-from .views import BlockSimpleViewSet
-
+from mystery_shopping.questionnaires.views import BlockSimpleViewSet, CrossIndexTemplateViewSet, CrossIndexViewSet, \
+    QuestionSimpleViewSet, QuestionnaireBlockViewSet, QuestionnaireQuestionChoiceViewSet, QuestionnaireQuestionViewSet, \
+    QuestionnaireScriptViewSet, QuestionnaireSimpleViewSet, QuestionnaireTemplateBlockViewSet, \
+    QuestionnaireTemplateQuestionChoiceViewSet, QuestionnaireTemplateQuestionViewSet, QuestionnaireTemplateViewSet, \
+    QuestionnaireViewSet
 
 router = DefaultRouter()
 router.register(r'scripts', QuestionnaireScriptViewSet)

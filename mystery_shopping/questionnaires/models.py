@@ -1,21 +1,18 @@
+from datetime import datetime
 from decimal import Decimal
 
-from django.db import models
 from django.contrib.postgres.fields import ArrayField
+from django.db import models
 from django.shortcuts import get_object_or_404
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
-
 from mptt.models import MPTTModel, TreeForeignKey
-from datetime import datetime
 
-from mystery_shopping.questionnaires.managers import QuestionnaireTemplateQuestionQuerySet, CustomWeightQuerySet
-from mystery_shopping.questionnaires.utils import first_or_none, update_attributes
 from mystery_shopping.mystery_shopping_utils.models import TenantModel
-from .constants import QuestionType
-from .managers import QuestionnaireQuerySet
-from .managers import QuestionnaireQuestionQuerySet
-
+from mystery_shopping.questionnaires.constants import QuestionType
+from mystery_shopping.questionnaires.managers import CustomWeightQuerySet, QuestionnaireQuerySet, \
+    QuestionnaireQuestionQuerySet, QuestionnaireTemplateQuestionQuerySet
+from mystery_shopping.questionnaires.utils import first_or_none, update_attributes
 from mystery_shopping.tenants.models import Tenant
 
 

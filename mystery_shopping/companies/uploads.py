@@ -1,5 +1,4 @@
-from mystery_shopping.companies.models import Industry
-from mystery_shopping.companies.models import SubIndustry
+from mystery_shopping.companies.models import Industry, SubIndustry
 
 
 def handle_csv_with_uploaded_sub_industries(csv_file, has_header=False):

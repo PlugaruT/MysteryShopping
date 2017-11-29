@@ -8,7 +8,7 @@ from mystery_shopping.cxi.models import CodedCause, ProjectComment, WhyCause
 from mystery_shopping.cxi.serializers import CodedCauseSerializer, ProjectCommentSerializer
 from mystery_shopping.mystery_shopping_utils.constants import ROUND_TO_DIGITS
 from mystery_shopping.mystery_shopping_utils.utils import calculate_percentage, count_detractors, count_passives, \
-    count_promoters, remove_none_from_list, flatten_list_of_lists
+    count_promoters, flatten_list_of_lists, remove_none_from_list
 from mystery_shopping.questionnaires.constants import QuestionType
 from mystery_shopping.questionnaires.models import CustomWeight, Questionnaire, QuestionnaireQuestion, \
     QuestionnaireTemplateQuestion

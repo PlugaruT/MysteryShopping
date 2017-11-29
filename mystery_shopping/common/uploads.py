@@ -1,7 +1,4 @@
-from mystery_shopping.common.models import Country
-from mystery_shopping.common.models import CountryRegion
-from mystery_shopping.common.models import County
-from mystery_shopping.common.models import City
+from mystery_shopping.common.models import City, Country, CountryRegion, County
 
 
 def handle_csv_with_uploaded_localities(csv_file, has_header=True):
