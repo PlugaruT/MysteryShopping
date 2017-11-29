@@ -78,7 +78,7 @@ class WhyCause(models.Model):
         try:
             return self.get_respondent().respondent_cases.exists()
         except AttributeError:
-            return True
+            return False
 
 
 class CodedCause(TenantModel):

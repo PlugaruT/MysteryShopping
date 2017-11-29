@@ -197,6 +197,7 @@ class Questionnaire(TimeStampedModel, QuestionnaireAbstract):
     def get_respondent(self):
         if self.evaluation.detractors.exists():
             return self.evaluation.detractors.first()
+        return None
 
     def get_evaluation(self):
         return self.evaluation
