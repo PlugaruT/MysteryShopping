@@ -9,7 +9,7 @@ from mystery_shopping.mystery_shopping_utils.models import TenantModel
 from mystery_shopping.mystery_shopping_utils.utils import is_detractor
 from mystery_shopping.projects.models import Project
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion, QuestionnaireQuestion
-from mystery_shopping.users.models import ClientUser
+from mystery_shopping.users.models import ClientUser, User
 
 
 class CodedCauseLabel(TenantModel):
@@ -109,8 +109,9 @@ class CodedCause(TenantModel):
         return self.raw_causes.count()
 
     def get_user_with_few_cases(self):
-        return self.responsible_users.annotate(number_of_cases=Count('coded_causes')) \
-            .order_by('-number_of_cases').first()
+        responsible_users = self.responsible_users.all().values_list('user__id', flat=True)
+        return User.objects.filter(id__in=responsible_users).annotate(
+            number_of_cases=Count('respondent_cases_responsible_for')).order_by('number_of_cases').first()
 
 
 class ProjectComment(models.Model):

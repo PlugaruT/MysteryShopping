@@ -78,9 +78,9 @@ class CodedCauseViewSet(ClearCodedCauseMixin, viewsets.ModelViewSet):
         coded_cause.raw_causes.add(*list(why_causes))
 
         for why_cause in why_causes:
-            client_user = coded_cause.get_user_with_few_cases()
+            user = coded_cause.get_user_with_few_cases()
             if why_cause.is_detractor_question() and not why_cause.evaluation_has_case():
-                self.create_case_for_respondent(why_cause.get_evaluation(), client_user.user)
+                self.create_case_for_respondent(why_cause.get_evaluation(), user)
 
         return Response(status=status.HTTP_202_ACCEPTED)
 
@@ -107,11 +107,11 @@ class CodedCauseViewSet(ClearCodedCauseMixin, viewsets.ModelViewSet):
 
     @staticmethod
     def create_case_for_respondent(evaluation, responsible_user):
-        case = RespondentCase.objects.create(respondent=evaluation.detractors.first())
-        case.assign(to=responsible_user)
-        case.save()
-        detractor_manager = evaluation.get_detractors_manager()
-        send_email_when_new_detractor_case(detractor_manager.email, evaluation.company_element.element_name)
+        if evaluation.detractors.exists():
+            case = RespondentCase.objects.create(respondent=evaluation.detractors.first())
+            case.assign(to=responsible_user)
+            case.save()
+            send_email_when_new_detractor_case(responsible_user.email, evaluation.company_element.element_name)
 
 
 class ProjectCommentViewSet(viewsets.ModelViewSet):
