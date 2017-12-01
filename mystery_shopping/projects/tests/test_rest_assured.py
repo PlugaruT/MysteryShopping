@@ -1,7 +1,7 @@
 import json
 from decimal import Decimal
 from datetime import datetime
-
+from django.utils import timezone
 from rest_assured.testcases import CreateAPITestCaseMixin
 from rest_assured.testcases import BaseRESTAPITestCase
 
@@ -30,8 +30,8 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
         self.data = {
             'evaluation_type': 'visit',
             'is_draft': False,
-            'suggested_start_date': datetime(2008, 1, 1),
-            'suggested_end_date': datetime(2016, 1, 1),
+            'suggested_start_date': timezone.make_aware(datetime(2008, 1, 1)),
+            'suggested_end_date': timezone.make_aware(datetime(2016, 1, 1)),
             'status': EvaluationStatus.PLANNED,
             'time_accomplished': None,
             'project': self.object.project.id,
@@ -68,8 +68,8 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
         evaluation_data = {
             'evaluation_type': 'visit',
             'is_draft': False,
-            'suggested_start_date': datetime(2008, 1, 1),
-            'suggested_end_date': datetime(2016, 1, 1),
+            'suggested_start_date': timezone.make_aware(datetime(2008, 1, 1)),
+            'suggested_end_date': timezone.make_aware(datetime(2016, 1, 1)),
             'status': EvaluationStatus.PLANNED,
             'time_accomplished': None,
             'project': self.object.project.id,
@@ -126,8 +126,8 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
         evaluation_data = {
             'evaluation_type': 'visit',
             'is_draft': False,
-            'suggested_start_date': datetime(2008, 1, 1),
-            'suggested_end_date': datetime(2016, 1, 1),
+            'suggested_start_date': timezone.make_aware(datetime(2008, 1, 1)),
+            'suggested_end_date': timezone.make_aware(datetime(2016, 1, 1)),
             'status': EvaluationStatus.PLANNED,
             'time_accomplished': None,
             'project': self.object.project.id,
@@ -183,8 +183,8 @@ class EvaluationAPITestCase(CreateAPITestCaseMixin, BaseRESTAPITestCase):
         evaluation_data = {
             'evaluation_type': 'visit',
             'is_draft': False,
-            'suggested_start_date': datetime(2008, 1, 1),
-            'suggested_end_date': datetime(2016, 1, 1),
+            'suggested_start_date': timezone.make_aware(datetime(2008, 1, 1)),
+            'suggested_end_date': timezone.make_aware(datetime(2016, 1, 1)),
             'status': EvaluationStatus.PLANNED,
             'time_accomplished': None,
             'project': self.object.project.id,

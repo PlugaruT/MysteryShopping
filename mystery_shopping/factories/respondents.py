@@ -6,6 +6,7 @@ from mystery_shopping.factories.projects import EvaluationFactory
 from mystery_shopping.factories.users import UserFactory
 from mystery_shopping.respondents.models import Respondent, RespondentCase
 
+
 class RespondentFactory(DjangoModelFactory):
     class Meta:
         model = Respondent

@@ -1,24 +1,14 @@
+from django.utils import timezone
+from factory import SubFactory, fuzzy
 from factory.django import DjangoModelFactory
-from factory import fuzzy
-
-from mystery_shopping.questionnaires.constants import QuestionType
-from mystery_shopping.questionnaires.models import Questionnaire, CustomWeight
-from mystery_shopping.questionnaires.models import QuestionnaireQuestion
-from mystery_shopping.questionnaires.models import QuestionnaireBlock
-from mystery_shopping.questionnaires.models import QuestionnaireQuestionChoice
-from factory import SubFactory
-from datetime import date
-
-from factory.fuzzy import FuzzyDate
-
-from mystery_shopping.factories.users import UserFactory
-from mystery_shopping.questionnaires.models import QuestionnaireScript, QuestionnaireTemplateQuestionChoice, \
-    QuestionnaireTemplateStatus
-from mystery_shopping.questionnaires.models import QuestionnaireTemplate
-from mystery_shopping.questionnaires.models import QuestionnaireTemplateBlock
-from mystery_shopping.questionnaires.models import QuestionnaireTemplateQuestion
 
 from mystery_shopping.factories.tenants import TenantFactory
+from mystery_shopping.factories.users import UserFactory
+from mystery_shopping.questionnaires.constants import QuestionType
+from mystery_shopping.questionnaires.models import CustomWeight, Questionnaire, QuestionnaireBlock, \
+    QuestionnaireQuestion, QuestionnaireQuestionChoice, QuestionnaireScript, QuestionnaireTemplate, \
+    QuestionnaireTemplateBlock, QuestionnaireTemplateQuestion, QuestionnaireTemplateQuestionChoice, \
+    QuestionnaireTemplateStatus
 
 
 class QuestionnaireScriptFactory(DjangoModelFactory):
@@ -33,7 +23,7 @@ class QuestionnaireTemplateStatusFactory(DjangoModelFactory):
     class Meta:
         model = QuestionnaireTemplateStatus
 
-    archived_date = FuzzyDate(date(1990, 12, 12))
+    archived_date = timezone.now()
     archived_by = SubFactory(UserFactory)
 
 

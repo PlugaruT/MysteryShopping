@@ -1,24 +1,17 @@
-from datetime import date, timedelta
+from datetime import timedelta
+
 from django.utils import timezone
+from factory import SubFactory, post_generation
 from factory.django import DjangoModelFactory
-from factory import SubFactory
-from factory.fuzzy import FuzzyDate, FuzzyDateTime
 from factory.fuzzy import FuzzyChoice
-from factory import post_generation
 
 from mystery_shopping.factories.companies import CompanyElementFactory
-from mystery_shopping.factories.questionnaires import QuestionnaireFactory
+from mystery_shopping.factories.questionnaires import QuestionnaireFactory, QuestionnaireScriptFactory, \
+    QuestionnaireTemplateFactory
+from mystery_shopping.factories.tenants import TenantFactory
 from mystery_shopping.factories.users import UserFactory
-from .tenants import TenantFactory
-
-from .questionnaires import QuestionnaireScriptFactory
-from .questionnaires import QuestionnaireTemplateFactory
-
-from mystery_shopping.projects.models import ResearchMethodology
-from mystery_shopping.projects.models import Project
 from mystery_shopping.projects.constants import EvaluationStatus
-from mystery_shopping.projects.models import Evaluation
-from mystery_shopping.projects.models import EvaluationAssessmentLevel
+from mystery_shopping.projects.models import Evaluation, EvaluationAssessmentLevel, Project, ResearchMethodology
 
 
 class ResearchMethodologyFactory(DjangoModelFactory):
@@ -56,8 +49,8 @@ class ProjectFactory(DjangoModelFactory):
     research_methodology = SubFactory(ResearchMethodologyFactory)
     detractors_manager = SubFactory(UserFactory)
 
-    period_start = FuzzyDateTime(start_dt=timezone.now() - timedelta(days=100), end_dt=timezone.now())
-    period_end = FuzzyDateTime(start_dt=timezone.now() - timedelta(days=100), end_dt=timezone.now())
+    period_start = timezone.now().date() - timedelta(days=100)
+    period_end = timezone.now().date()
 
     @post_generation
     def consultants(self, create, consultants, **kwargs):
@@ -91,8 +84,8 @@ class EvaluationFactory(DjangoModelFactory):
     # TODO: define evaluation choices in a separate file
     evaluation_type = FuzzyChoice(('call', 'visit'))
     is_draft = True
-    suggested_start_date = date(2010, 6, 1)
-    suggested_end_date = date(2011, 11, 2)
+    suggested_start_date = timezone.now().date() - timedelta(days=100)
+    suggested_end_date = timezone.now().date()
     status = EvaluationStatus.PLANNED
     time_accomplished = None
 

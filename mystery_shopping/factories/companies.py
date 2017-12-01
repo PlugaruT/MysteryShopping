@@ -1,9 +1,8 @@
+from factory import SubFactory, fuzzy
 from factory.django import DjangoModelFactory
-from factory import fuzzy, Sequence, SubFactory, PostGenerationMethodCall
 
-from .common import CountryFactory, CityFactory, SectorFactory
-from .tenants import TenantFactory
-from mystery_shopping.companies.models import Industry, CompanyElement
+from mystery_shopping.companies.models import CompanyElement, Industry
+from mystery_shopping.factories.tenants import TenantFactory
 
 
 class IndustryFactory(DjangoModelFactory):

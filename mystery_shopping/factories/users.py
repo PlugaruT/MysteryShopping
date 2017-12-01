@@ -1,7 +1,8 @@
-from datetime import date
+from datetime import timedelta
 
 import factory
 from django.contrib.auth.models import Group
+from django.utils import timezone
 from factory import LazyAttribute, PostGenerationMethodCall, SubFactory, fuzzy
 from factory.django import DjangoModelFactory
 from factory.helpers import post_generation
@@ -28,7 +29,7 @@ class UserFactory(DjangoModelFactory):
     first_name = factory.Faker('first_name')
     last_name = factory.Faker('last_name')
     tenant = SubFactory(TenantFactory)
-    date_of_birth = fuzzy.FuzzyDate(date(1990, 1, 12))
+    date_of_birth = timezone.now().date() - timedelta(days=100)
     gender = 'f'
     username = fuzzy.FuzzyText(length=10)
     email = LazyAttribute(lambda o: '%s@example.org' % o.username)
@@ -78,7 +79,7 @@ class UserThatIsTenantProductManagerFactory(DjangoModelFactory):
         exclude = ('r_password',)
 
     tenant = SubFactory(TenantFactory)
-    date_of_birth = fuzzy.FuzzyDate(date(1990, 1, 12))
+    date_of_birth = timezone.now().date() - timedelta(days=100)
     gender = 'f'
     username = fuzzy.FuzzyText(length=10)
     r_password = '1234'
