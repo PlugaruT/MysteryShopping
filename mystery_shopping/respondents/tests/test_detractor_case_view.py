@@ -149,7 +149,7 @@ class RespondentCasesAPITestCase(APITestCase):
         assign_user = UserFactory()
         case = RespondentCaseFactory(state=RespondentCaseState.CLOSED)
 
-        response = self.client.post(path=reverse('respondentcases-re-assign', args=(case.id,)),
+        response = self.client.post(path=reverse('respondentcases-reassign', args=(case.id,)),
                                     data={'comment': 'because', 'user': assign_user.id})
 
         self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
@@ -159,7 +159,7 @@ class RespondentCasesAPITestCase(APITestCase):
         assign_user = UserFactory()
         case = RespondentCaseFactory(state=RespondentCaseState.CLOSED)
 
-        response = self.client.post(path=reverse('respondentcases-re-assign', args=(case.id,)),
+        response = self.client.post(path=reverse('respondentcases-reassign', args=(case.id,)),
                                     data={'comment': 'because', 'user': assign_user.id})
 
         self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
