@@ -28,7 +28,8 @@ class RespondentViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filter_class = RespondentFilter
     pagination_class = RespondentPaginator
-    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant, IsCompanyProjectManager),)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant,
+                             IsCompanyProjectManager),)
     serializer_class = RespondentSerializer
 
     def get_queryset(self):
@@ -45,7 +46,7 @@ class RespondentWithCasesViewSet(RespondentViewSet):
 class RespondentCaseViewSet(viewsets.ModelViewSet):
     serializer_class = RespondentCase
     queryset = RespondentCase.objects.all()
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated,)
     pagination_class = RespondentPaginator
 
     @detail_route(methods=['post'])
@@ -115,6 +116,12 @@ class RespondentCaseViewSet(viewsets.ModelViewSet):
 
         case.assign(to=to_user, comment=comment, user=comment_user)
         case.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @detail_route(methods=['post'], url_path='re-assign', permission_classes=[IsCompanyProjectManager])
+    def re_assign(self, request, pk=None):
+        self.assign(request, pk)
+
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @detail_route(methods=['post'])
