@@ -7,7 +7,7 @@ from model_utils import Choices
 from model_utils.models import TimeStampedModel
 
 from mptt.models import MPTTModel, TreeForeignKey
-from datetime import datetime
+from django.utils import timezone
 
 from mystery_shopping.questionnaires.managers import QuestionnaireTemplateQuestionQuerySet, CustomWeightQuerySet
 from mystery_shopping.questionnaires.utils import first_or_none, update_attributes
@@ -86,13 +86,13 @@ class QuestionnaireTemplate(TenantModel, TimeStampedModel, QuestionnaireAbstract
 
     def archive(self, user):
         self.is_archived = True
-        self.status.archived_date = datetime.now()
+        self.status.archived_date = timezone.now()
         self.status.archived_by = user
         self.status.save()
 
     def unarchive(self, user):
         self.is_archived = False
-        self.status.archived_date = datetime.now()
+        self.status.archived_date = timezone.now()
         self.status.archived_by = user
         self.status.save()
 

@@ -1,8 +1,8 @@
-from datetime import date
-
+from datetime import date, timedelta
+from django.utils import timezone
 from factory.django import DjangoModelFactory
 from factory import SubFactory
-from factory.fuzzy import FuzzyDate
+from factory.fuzzy import FuzzyDate, FuzzyDateTime
 from factory.fuzzy import FuzzyChoice
 from factory import post_generation
 
@@ -56,8 +56,8 @@ class ProjectFactory(DjangoModelFactory):
     research_methodology = SubFactory(ResearchMethodologyFactory)
     detractors_manager = SubFactory(UserFactory)
 
-    period_start = FuzzyDate(date(1990, 12, 12))
-    period_end = FuzzyDate(date(2000, 11, 2))
+    period_start = FuzzyDateTime(start_dt=timezone.now() - timedelta(days=100), end_dt=timezone.now())
+    period_end = FuzzyDateTime(start_dt=timezone.now() - timedelta(days=100), end_dt=timezone.now())
 
     @post_generation
     def consultants(self, create, consultants, **kwargs):
