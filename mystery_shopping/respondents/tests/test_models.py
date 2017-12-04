@@ -9,27 +9,27 @@ from mystery_shopping.respondents.constants import RespondentCaseState
 
 class DetractorCaseTestCase(TestCase):
     def _assert_comment_equal(self, case, comment_text, comment_user):
-        self.assertEqual(case.comments.count(), 1)
+        self.assertEqual(1, case.comments.count())
         comment = case.comments.all()[0]
-        self.assertEqual(comment.text, comment_text)
-        self.assertEqual(comment.author, comment_user)
+        self.assertEqual(comment_text, comment.text)
+        self.assertEqual(comment_user, comment.author)
 
     def _assert_state_log_equal(self, case, state):
         logs = StateLog.objects.for_(case).all()
-        self.assertEqual(len(logs), 1)
-        self.assertEqual(logs[0].state, state)
+        self.assertEqual(1, len(logs))
+        self.assertEqual(state, logs[0].state)
 
     def test_that_case_is_created_init(self):
         case = RespondentCaseFactory()
 
-        self.assertEqual(case.state, RespondentCaseState.INIT)
+        self.assertEqual(RespondentCaseState.INIT, case.state)
 
     def test_case_escalation(self):
         case = RespondentCaseFactory(state=RespondentCaseState.ASSIGNED)
 
         case.escalate('reason')
 
-        self.assertEqual(case.state, RespondentCaseState.ESCALATED)
+        self.assertEqual(RespondentCaseState.ESCALATED, case.state)
         self._assert_comment_equal(case, 'reason', case.responsible_user)
         self._assert_state_log_equal(case, RespondentCaseState.ESCALATED)
 
@@ -39,7 +39,7 @@ class DetractorCaseTestCase(TestCase):
 
         case.assign(to=to_user)
 
-        self.assertEqual(case.state, RespondentCaseState.ASSIGNED)
+        self.assertEqual(RespondentCaseState.ASSIGNED, case.state)
         self._assert_state_log_equal(case, RespondentCaseState.ASSIGNED)
 
     def test_case_assignment_from_escalation(self):
@@ -49,7 +49,7 @@ class DetractorCaseTestCase(TestCase):
 
         case.assign(to=to_user, comment='reason', user=manager)
 
-        self.assertEqual(case.state, RespondentCaseState.ASSIGNED)
+        self.assertEqual(RespondentCaseState.ASSIGNED, case.state)
         self._assert_comment_equal(case, 'reason', manager)
         self._assert_state_log_equal(case, RespondentCaseState.ASSIGNED)
 
@@ -58,7 +58,7 @@ class DetractorCaseTestCase(TestCase):
 
         case.start_analysis()
 
-        self.assertEqual(case.state, RespondentCaseState.ANALYSIS)
+        self.assertEqual(RespondentCaseState.ANALYSIS, case.state)
         self._assert_state_log_equal(case, RespondentCaseState.ANALYSIS)
 
     def test_case_analyse(self):
@@ -66,9 +66,9 @@ class DetractorCaseTestCase(TestCase):
 
         case.analyse(issue='the issue', issue_tags=('tag1', 'tag2'))
 
-        self.assertEqual(case.state, RespondentCaseState.IMPLEMENTATION)
-        self.assertEqual(case.issue, 'the issue')
-        self.assertEqual(case.issue_tags.count(), 2)
+        self.assertEqual(RespondentCaseState.IMPLEMENTATION, case.state)
+        self.assertEqual('the issue', case.issue)
+        self.assertEqual(2, case.issue_tags.count())
         self._assert_state_log_equal(case, RespondentCaseState.IMPLEMENTATION)
 
     def test_case_analyse_no_tags(self):
@@ -76,9 +76,9 @@ class DetractorCaseTestCase(TestCase):
 
         case.analyse(issue='the issue')
 
-        self.assertEqual(case.state, RespondentCaseState.IMPLEMENTATION)
-        self.assertEqual(case.issue, 'the issue')
-        self.assertEqual(case.issue_tags.count(), 0)
+        self.assertEqual(RespondentCaseState.IMPLEMENTATION, case.state)
+        self.assertEqual('the issue', case.issue)
+        self.assertEqual(0, case.issue_tags.count())
         self._assert_state_log_equal(case, RespondentCaseState.IMPLEMENTATION)
 
     def test_case_implement_no_followup(self):
@@ -86,9 +86,9 @@ class DetractorCaseTestCase(TestCase):
 
         case.implement(solution='the solution', solution_tags=('tag1', 'tag2'))
 
-        self.assertEqual(case.state, RespondentCaseState.SOLVED)
-        self.assertEqual(case.solution, 'the solution')
-        self.assertEqual(case.solution_tags.count(), 2)
+        self.assertEqual(RespondentCaseState.SOLVED, case.state)
+        self.assertEqual('the solution', case.solution)
+        self.assertEqual(2, case.solution_tags.count())
         self._assert_state_log_equal(case, RespondentCaseState.SOLVED)
 
     def test_case_implement_no_followup_no_tags(self):
@@ -96,9 +96,9 @@ class DetractorCaseTestCase(TestCase):
 
         case.implement(solution='the solution')
 
-        self.assertEqual(case.state, RespondentCaseState.SOLVED)
-        self.assertEqual(case.solution, 'the solution')
-        self.assertEqual(case.solution_tags.count(), 0)
+        self.assertEqual(RespondentCaseState.SOLVED, case.state)
+        self.assertEqual('the solution', case.solution)
+        self.assertEqual(0, case.solution_tags.count())
         self._assert_state_log_equal(case, RespondentCaseState.SOLVED)
 
     def test_case_implement_with_followup(self):
@@ -109,11 +109,11 @@ class DetractorCaseTestCase(TestCase):
         case.implement(solution='the solution', solution_tags=('tag1', 'tag2'),
                        follow_up_date=follow_up_date, follow_up_user=follow_up_user)
 
-        self.assertEqual(case.state, RespondentCaseState.PLANNED_FOR_FOLLOW_UP)
-        self.assertEqual(case.solution, 'the solution')
-        self.assertEqual(case.solution_tags.count(), 2)
-        self.assertEqual(case.follow_up_date, follow_up_date)
-        self.assertEqual(case.follow_up_user, follow_up_user)
+        self.assertEqual(RespondentCaseState.PLANNED_FOR_FOLLOW_UP, case.state)
+        self.assertEqual('the solution', case.solution)
+        self.assertEqual(2, case.solution_tags.count())
+        self.assertEqual(follow_up_date, case.follow_up_date)
+        self.assertEqual(follow_up_user, case.follow_up_user)
         self._assert_state_log_equal(case, RespondentCaseState.PLANNED_FOR_FOLLOW_UP)
 
     def test_case_start_follow_up(self):
@@ -121,7 +121,7 @@ class DetractorCaseTestCase(TestCase):
 
         case.start_follow_up()
 
-        self.assertEqual(case.state, RespondentCaseState.FOLLOW_UP)
+        self.assertEqual(RespondentCaseState.FOLLOW_UP, case.state)
         self._assert_state_log_equal(case, RespondentCaseState.FOLLOW_UP)
 
     def test_case_follow_up(self):
@@ -129,9 +129,9 @@ class DetractorCaseTestCase(TestCase):
 
         case.do_follow_up(follow_up='the follow up', follow_up_tags=('tag1', 'tag2'))
 
-        self.assertEqual(case.state, RespondentCaseState.SOLVED)
-        self.assertEqual(case.follow_up, 'the follow up')
-        self.assertEqual(case.follow_up_tags.count(), 2)
+        self.assertEqual(RespondentCaseState.SOLVED, case.state)
+        self.assertEqual('the follow up', case.follow_up)
+        self.assertEqual(2, case.follow_up_tags.count())
         self._assert_state_log_equal(case, RespondentCaseState.SOLVED)
 
     def test_case_follow_up_no_tags(self):
@@ -139,9 +139,9 @@ class DetractorCaseTestCase(TestCase):
 
         case.do_follow_up(follow_up='the follow up')
 
-        self.assertEqual(case.state, RespondentCaseState.SOLVED)
-        self.assertEqual(case.follow_up, 'the follow up')
-        self.assertEqual(case.follow_up_tags.count(), 0)
+        self.assertEqual(RespondentCaseState.SOLVED, case.state)
+        self.assertEqual('the follow up', case.follow_up)
+        self.assertEqual(0, case.follow_up_tags.count())
         self._assert_state_log_equal(case, RespondentCaseState.SOLVED)
 
     def test_case_close_no_user(self):
@@ -149,7 +149,7 @@ class DetractorCaseTestCase(TestCase):
 
         case.close(reason='because')
 
-        self.assertEqual(case.state, RespondentCaseState.CLOSED)
+        self.assertEqual(RespondentCaseState.CLOSED, case.state)
         self._assert_comment_equal(case, 'because', case.responsible_user)
         self._assert_state_log_equal(case, RespondentCaseState.CLOSED)
 
@@ -159,6 +159,6 @@ class DetractorCaseTestCase(TestCase):
 
         case.close(reason='because', user=user)
 
-        self.assertEqual(case.state, RespondentCaseState.CLOSED)
+        self.assertEqual(RespondentCaseState.CLOSED, case.state)
         self._assert_comment_equal(case, 'because', user)
         self._assert_state_log_equal(case, RespondentCaseState.CLOSED)
