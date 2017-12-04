@@ -1,10 +1,7 @@
 from django.contrib import admin
 
-from .models import Project
-from .models import ResearchMethodology
-from .models import Evaluation
-from .models import EvaluationAssessmentLevel
-from .models import EvaluationAssessmentComment
+from mystery_shopping.projects.models import Evaluation, EvaluationAssessmentComment, EvaluationAssessmentLevel, \
+    Project, ResearchMethodology
 
 
 @admin.register(Evaluation, ResearchMethodology, EvaluationAssessmentLevel, EvaluationAssessmentComment)

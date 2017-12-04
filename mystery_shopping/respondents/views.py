@@ -3,7 +3,7 @@ from datetime import datetime
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_condition import Or
 from rest_framework import status, viewsets
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -11,16 +11,17 @@ from rest_framework.views import APIView
 
 from mystery_shopping.common.models import Tag
 from mystery_shopping.mystery_shopping_utils.paginators import RespondentPaginator
-from mystery_shopping.mystery_shopping_utils.utils import aggregate_respondents_distribution, calculate_percentage, \
-    build_data_point
+from mystery_shopping.mystery_shopping_utils.utils import aggregate_respondents_distribution, build_data_point, \
+    calculate_percentage
+from mystery_shopping.projects.constants import RespondentType
 from mystery_shopping.questionnaires.models import QuestionnaireQuestion
 from mystery_shopping.respondents.constants import RESPONDENTS_MAPPING
 from mystery_shopping.respondents.filters import RespondentFilter
 from mystery_shopping.respondents.models import Respondent, RespondentCase
 from mystery_shopping.respondents.serializers import RespondentSerializer
 from mystery_shopping.users.models import User
-from mystery_shopping.users.permissions import IsDetractorManager, IsTenantConsultant, IsTenantProductManager, \
-    IsTenantProjectManager, IsCompanyProjectManager
+from mystery_shopping.users.permissions import IsCompanyProjectManager, IsDetractorManager, IsTenantConsultant, \
+    IsTenantProductManager, IsTenantProjectManager
 
 
 class RespondentViewSet(viewsets.ModelViewSet):
@@ -28,14 +29,29 @@ class RespondentViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filter_class = RespondentFilter
     pagination_class = RespondentPaginator
-    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant,
-                             IsCompanyProjectManager),)
+    permission_classes = (
+        Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant, IsCompanyProjectManager),)
     serializer_class = RespondentSerializer
 
     def get_queryset(self):
         project = self.request.query_params.get('project')
         queryset = self.queryset.filter(evaluation__project_id=project)
         return self.serializer_class.setup_eager_loading(queryset)
+
+    @list_route(methods=['get'])
+    def neutral(self, request):
+        queryset = self.filter_queryset(self.get_queryset()).filter(
+            evaluation__questionnaire__questions__score__in=[RespondentType.PASSIVE_LOW.value,
+                                                             RespondentType.PASSIVE_HIGH.value])
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        response = self.serializer_class(queryset, many=True)
+
+        return Response(data=response.data, status=status.HTTP_200_OK)
 
 
 class RespondentWithCasesViewSet(RespondentViewSet):

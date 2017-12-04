@@ -4,8 +4,6 @@ from django.db.models.query import QuerySet
 
 from mystery_shopping.projects.constants import EvaluationStatus
 
-from mystery_shopping.projects.constants import ProjectType
-
 
 class ProjectQuerySet(QuerySet):
     def current_projects_for_a_shopper(self, shopper):

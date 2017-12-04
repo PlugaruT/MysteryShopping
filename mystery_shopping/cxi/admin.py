@@ -1,9 +1,6 @@
 from django.contrib import admin
 
-from .models import CodedCauseLabel
-from .models import CodedCause
-from .models import ProjectComment
-from .models import WhyCause
+from mystery_shopping.cxi.models import CodedCause, CodedCauseLabel, ProjectComment, WhyCause
 
 
 @admin.register(CodedCauseLabel, ProjectComment)

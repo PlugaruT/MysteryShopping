@@ -1,20 +1,9 @@
 from django.contrib import admin
 
-from .models import QuestionnaireScript
-from .models import QuestionnaireTemplateStatus
-from .models import QuestionnaireTemplate
-from .models import Questionnaire
-from .models import QuestionnaireTemplateBlock
-from .models import QuestionnaireBlock
-from .models import QuestionnaireTemplateQuestion
-from .models import QuestionnaireQuestion
-from .models import QuestionnaireTemplateQuestionChoice
-from .models import QuestionnaireQuestionChoice
-from .models import CrossIndexTemplate
-from .models import CrossIndex
-from .models import CrossIndexQuestionTemplate
-from .models import CrossIndexQuestion
-from .models import CustomWeight
+from mystery_shopping.questionnaires.models import CrossIndex, CrossIndexQuestion, CrossIndexQuestionTemplate, \
+    CrossIndexTemplate, CustomWeight, Questionnaire, QuestionnaireBlock, QuestionnaireQuestion, \
+    QuestionnaireQuestionChoice, QuestionnaireScript, QuestionnaireTemplate, QuestionnaireTemplateBlock, \
+    QuestionnaireTemplateQuestion, QuestionnaireTemplateQuestionChoice, QuestionnaireTemplateStatus
 
 
 @admin.register(QuestionnaireScript, QuestionnaireTemplateBlock, QuestionnaireBlock, QuestionnaireTemplateQuestion, QuestionnaireTemplateQuestionChoice, QuestionnaireQuestionChoice, CrossIndexTemplate, CrossIndex, CrossIndexQuestionTemplate, CrossIndexQuestion, QuestionnaireTemplateStatus, CustomWeight)
