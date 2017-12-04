@@ -112,6 +112,14 @@ class RespondentCaseViewSet(viewsets.ModelViewSet):
         case.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    @detail_route(methods=['post'],  url_path='start-follow-up')
+    def start_follow_up(self, request, pk=None):
+        case = get_object_or_404(RespondentCase, pk=pk)
+
+        case.start_follow_up()
+        case.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
     @detail_route(methods=['post'], url_path='follow-up')
     def follow_up(self, request, pk=None):
         case = get_object_or_404(RespondentCase, pk=pk)

@@ -112,10 +112,19 @@ class RespondentCasesAPITestCase(APITestCase):
 
         read_case = RespondentCase.objects.get(id=case.id)
 
-        self.assertEqual(read_case.state, RespondentCaseState.FOLLOW_UP)
+        self.assertEqual(read_case.state, RespondentCaseState.PLANNED_FOR_FOLLOW_UP)
         self.assertEqual(read_case.solution, 'because')
         self.assertEqual(read_case.solution_tags.first().name, 'tag1')
         self.assertEqual(read_case.follow_up_date, datetime.strptime('10-10-2017', '%d-%m-%Y').date())
+
+    def test_start_follow_up(self):
+        case = RespondentCaseFactory(state=RespondentCaseState.PLANNED_FOR_FOLLOW_UP)
+
+        response = self.client.post(path=reverse('respondentcases-start-follow-up', args=(case.id,)))
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        read_case = RespondentCase.objects.get(id=case.id)
+        self.assertEqual(read_case.state, RespondentCaseState.FOLLOW_UP)
 
     def test_follow_up(self):
         case = RespondentCaseFactory(state=RespondentCaseState.FOLLOW_UP)

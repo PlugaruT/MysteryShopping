@@ -12,7 +12,7 @@ class DetractorCaseTestCase(TestCase):
         self.assertEqual(case.comments.count(), 1)
         comment = case.comments.all()[0]
         self.assertEqual(comment.text, comment_text)
-        self.assertEqual(comment.author,  comment_user)
+        self.assertEqual(comment.author, comment_user)
 
     def _assert_state_log_equal(self, case, state):
         logs = StateLog.objects.for_(case).all()
@@ -109,11 +109,19 @@ class DetractorCaseTestCase(TestCase):
         case.implement(solution='the solution', solution_tags=('tag1', 'tag2'),
                        follow_up_date=follow_up_date, follow_up_user=follow_up_user)
 
-        self.assertEqual(case.state, RespondentCaseState.FOLLOW_UP)
+        self.assertEqual(case.state, RespondentCaseState.PLANNED_FOR_FOLLOW_UP)
         self.assertEqual(case.solution, 'the solution')
         self.assertEqual(case.solution_tags.count(), 2)
         self.assertEqual(case.follow_up_date, follow_up_date)
         self.assertEqual(case.follow_up_user, follow_up_user)
+        self._assert_state_log_equal(case, RespondentCaseState.PLANNED_FOR_FOLLOW_UP)
+
+    def test_case_start_follow_up(self):
+        case = RespondentCaseFactory(state=RespondentCaseState.PLANNED_FOR_FOLLOW_UP)
+
+        case.start_follow_up()
+
+        self.assertEqual(case.state, RespondentCaseState.FOLLOW_UP)
         self._assert_state_log_equal(case, RespondentCaseState.FOLLOW_UP)
 
     def test_case_follow_up(self):

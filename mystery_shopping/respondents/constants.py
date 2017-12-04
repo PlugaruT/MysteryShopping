@@ -16,6 +16,7 @@ class RespondentCaseState:
     ESCALATED = 'ESCALATED'
     ANALYSIS = 'ANAL'  # just because we can
     IMPLEMENTATION = 'IMPLEMENTATION'
+    PLANNED_FOR_FOLLOW_UP = 'PLANNED_FOR_FOLLOW_UP'
     FOLLOW_UP = 'FOLLOW_UP'
     SOLVED = 'SOLVED'
     CLOSED = 'CLOSED'
@@ -27,6 +28,7 @@ class RespondentCaseState:
         (ANALYSIS, 'Analysis'),
         (IMPLEMENTATION, 'Implementation'),
         (FOLLOW_UP, 'Follow up'),
+        (PLANNED_FOR_FOLLOW_UP, 'Planned for follow up'),
         (SOLVED, 'Solved'),
         (CLOSED, 'Closed'),
     )
