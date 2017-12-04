@@ -44,6 +44,12 @@ class Respondent(models.Model):
             return self.respondent_cases[0]
         return None
 
+    def get_company(self):
+        return self.evaluation.get_company()
+
+    def get_project(self):
+        return self.evaluation.project
+
 
 class RespondentCase(TimeStampedModel):
     """
@@ -98,6 +104,12 @@ class RespondentCase(TimeStampedModel):
 
     def _add_comment(self, message, user, state):
         RespondentCaseComment.objects.create(author=user, text=message, case_state=state, respondent_case=self)
+
+    def get_company(self):
+        return self.respondent.get_company()
+
+    def get_project(self):
+        return self.respondent.get_project()
 
     @transition(field=state,
                 source=(RespondentCaseState.ASSIGNED, RespondentCaseState.ANALYSIS, RespondentCaseState.IMPLEMENTATION),

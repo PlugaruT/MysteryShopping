@@ -202,6 +202,9 @@ class Evaluation(TimeStampedModel, models.Model):
     def get_detractors_manager(self):
         return self.project.detractors_manager
 
+    def get_company(self):
+        return self.project.company
+
 
 class EvaluationAssessmentLevel(models.Model):
     """
