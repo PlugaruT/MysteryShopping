@@ -1,7 +1,6 @@
 from django.contrib import admin
 
-from mystery_shopping.common.models import Tag
-from .models import Country, CountryRegion, County, City, Sector
+from mystery_shopping.common.models import City, Country, CountryRegion, County, Sector, Tag
 
 
 @admin.register(Country, CountryRegion, County, City, Sector)

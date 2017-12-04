@@ -3,22 +3,12 @@ from rest_framework import serializers
 
 from mystery_shopping.cxi.serializers import WhyCauseSerializer
 from mystery_shopping.questionnaires.constants import QuestionType
-from mystery_shopping.questionnaires.models import CrossIndexQuestion, QuestionnaireTemplateStatus, CustomWeight
-from mystery_shopping.respondents.models import Respondent
+from mystery_shopping.questionnaires.models import CrossIndex, CrossIndexQuestion, CrossIndexQuestionTemplate, \
+    CrossIndexTemplate, CustomWeight, Questionnaire, QuestionnaireBlock, QuestionnaireQuestion, \
+    QuestionnaireQuestionChoice, QuestionnaireScript, QuestionnaireTemplate, QuestionnaireTemplateBlock, \
+    QuestionnaireTemplateQuestion, QuestionnaireTemplateQuestionChoice, QuestionnaireTemplateStatus
+from mystery_shopping.questionnaires.utils import update_attributes
 from mystery_shopping.users.serializers import UserSerializerGET
-from .models import CrossIndex
-from .models import CrossIndexQuestionTemplate
-from .models import CrossIndexTemplate
-from .models import Questionnaire
-from .models import QuestionnaireBlock
-from .models import QuestionnaireQuestion
-from .models import QuestionnaireQuestionChoice
-from .models import QuestionnaireScript
-from .models import QuestionnaireTemplate
-from .models import QuestionnaireTemplateBlock
-from .models import QuestionnaireTemplateQuestion
-from .models import QuestionnaireTemplateQuestionChoice
-from .utils import update_attributes
 
 
 class QuestionnaireTemplateQuestionChoiceSerializer(serializers.ModelSerializer):

@@ -1,16 +1,10 @@
 from rest_framework.routers import DefaultRouter
 from rest_framework_nested.routers import NestedSimpleRouter
 
-from .views import ProjectStatisticsForCompanyViewSet
-from .views import ProjectStatisticsForTenantViewSet
-from .views import ProjectViewSet
-from .views import ResearchMethodologyViewSet
-from .views import EvaluationViewSet
-from .views import EvaluationPerProjectViewSet
-from .views import EvaluationAssessmentLevelViewSet
-from .views import EvaluationAssessmentCommentViewSet
 from mystery_shopping.companies.urls import company_project_router
-
+from mystery_shopping.projects.views import EvaluationAssessmentCommentViewSet, EvaluationAssessmentLevelViewSet, \
+    EvaluationPerProjectViewSet, EvaluationViewSet, ProjectStatisticsForCompanyViewSet, \
+    ProjectStatisticsForTenantViewSet, ProjectViewSet, ResearchMethodologyViewSet
 
 router = DefaultRouter()
 router.register(r'projects', ProjectViewSet)
