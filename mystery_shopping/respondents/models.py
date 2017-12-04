@@ -126,7 +126,7 @@ class RespondentCase(TimeStampedModel):
         self.issue_tags.add(*Tag.objects.get_or_create_all(self.ISSUE_TAG_TYPE, issue_tags))
 
     @transition(field=state, source=RespondentCaseState.IMPLEMENTATION,
-                target=RETURN_VALUE(RespondentCaseState.FOLLOW_UP, RespondentCaseState.SOLVED))
+                target=RETURN_VALUE(RespondentCaseState.PLANNED_FOR_FOLLOW_UP, RespondentCaseState.SOLVED))
     def implement(self, solution, solution_tags=None, follow_up_date=None, follow_up_user=None):
         self.solution = solution
         self.solution_tags.clear()
@@ -135,9 +135,13 @@ class RespondentCase(TimeStampedModel):
         if follow_up_date:
             self.follow_up_date = follow_up_date
             self.follow_up_user = follow_up_user if follow_up_user else self.responsible_user
-            return RespondentCaseState.FOLLOW_UP
+            return RespondentCaseState.PLANNED_FOR_FOLLOW_UP
         else:
             return RespondentCaseState.SOLVED
+
+    @transition(field=state, source=RespondentCaseState.PLANNED_FOR_FOLLOW_UP, target=RespondentCaseState.FOLLOW_UP)
+    def start_follow_up(self):
+        pass
 
     @transition(field=state, source=RespondentCaseState.FOLLOW_UP, target=RespondentCaseState.SOLVED)
     def do_follow_up(self, follow_up, follow_up_tags=None):
