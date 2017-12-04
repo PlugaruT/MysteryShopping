@@ -1,5 +1,4 @@
-from datetime import datetime
-
+from django.utils import timezone
 from django.db import models
 
 from mystery_shopping.companies.models import CompanyElement
@@ -18,7 +17,7 @@ class DashboardTemplate(TenantModel):
 
     # Attributes
     is_published = models.BooleanField(default=False)
-    modified_date = models.DateTimeField(default=datetime.now)
+    modified_date = models.DateTimeField(default=timezone.now)
     title = models.CharField(max_length=120)
     widgets = models.TextField()
 

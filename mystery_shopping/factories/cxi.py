@@ -1,11 +1,8 @@
+from factory import SubFactory, post_generation
 from factory.django import DjangoModelFactory
-from factory import SubFactory
-from factory import post_generation
-from factory.fuzzy import FuzzyText
-from factory.fuzzy import FuzzyChoice
+from factory.fuzzy import FuzzyChoice, FuzzyText
 
-from mystery_shopping.cxi.models import CodedCause, WhyCause
-from mystery_shopping.cxi.models import CodedCauseLabel
+from mystery_shopping.cxi.models import CodedCause, CodedCauseLabel, WhyCause
 from mystery_shopping.factories.projects import ProjectFactory
 from mystery_shopping.factories.questionnaires import QuestionFactory
 from mystery_shopping.factories.tenants import TenantFactory

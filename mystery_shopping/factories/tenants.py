@@ -1,5 +1,5 @@
-from factory.django import DjangoModelFactory
 from factory import Sequence
+from factory.django import DjangoModelFactory
 
 from mystery_shopping.tenants.models import Tenant
 

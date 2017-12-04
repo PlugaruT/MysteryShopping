@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_condition import Or
 
-from datetime import datetime
+from django.utils import timezone
 
 from mystery_shopping.dashboard.serializers import DashboardTemplateSerializerGET
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
@@ -37,7 +37,7 @@ class DashboardTemplateView(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         request.data['modified_by'] = request.user.id
-        request.data['modified_date'] = datetime.now()
+        request.data['modified_date'] = timezone.now()
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
@@ -47,7 +47,7 @@ class DashboardTemplateView(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
         instance.modified_by = request.user
-        instance.modified_date = datetime.now()
+        instance.modified_date = timezone.now()
         serializer = self.serializer_class(instance, data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)

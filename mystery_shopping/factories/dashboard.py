@@ -1,7 +1,6 @@
-from factory.django import DjangoModelFactory
+from django.utils import timezone
 from factory import SubFactory
-from datetime import datetime
-
+from factory.django import DjangoModelFactory
 from factory.helpers import post_generation
 
 from mystery_shopping.dashboard.models import DashboardTemplate
@@ -23,7 +22,7 @@ class DashboardTemplateFactory(DjangoModelFactory):
     title = "Dashboard from Factory"
     widgets = "Widget random"
     is_published = True
-    modified_date = datetime.now()
+    modified_date = timezone.now()
 
     @post_generation
     def users(self, create, users, **kwargs):
@@ -32,4 +31,3 @@ class DashboardTemplateFactory(DjangoModelFactory):
         if users:
             for user in users:
                 self.users.add(user)
-

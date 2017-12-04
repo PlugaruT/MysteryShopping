@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
 from mptt.models import MPTTModel, TreeForeignKey
+from django.utils import timezone
 
 from mystery_shopping.mystery_shopping_utils.models import TenantModel
 from mystery_shopping.questionnaires.constants import QuestionType
@@ -83,13 +84,13 @@ class QuestionnaireTemplate(TenantModel, TimeStampedModel, QuestionnaireAbstract
 
     def archive(self, user):
         self.is_archived = True
-        self.status.archived_date = datetime.now()
+        self.status.archived_date = timezone.now()
         self.status.archived_by = user
         self.status.save()
 
     def unarchive(self, user):
         self.is_archived = False
-        self.status.archived_date = datetime.now()
+        self.status.archived_date = timezone.now()
         self.status.archived_by = user
         self.status.save()
 
