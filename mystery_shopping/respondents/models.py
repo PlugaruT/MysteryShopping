@@ -1,5 +1,5 @@
 from django.db import models
-from django_fsm import FSMField, transition, RETURN_VALUE
+from django_fsm import FSMField, RETURN_VALUE, transition
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
 
@@ -102,12 +102,13 @@ class RespondentCase(TimeStampedModel):
     @transition(field=state,
                 source=(RespondentCaseState.ASSIGNED, RespondentCaseState.ANALYSIS, RespondentCaseState.IMPLEMENTATION),
                 target=RespondentCaseState.ESCALATED)
-    def escalate(self, reason,  user=None):
+    def escalate(self, reason, user=None):
         if user is None:
             user = self.responsible_user
         self._add_comment(reason, user, RespondentCaseState.ESCALATED)
 
-    @transition(field=state, source=(RespondentCaseState.INIT, RespondentCaseState.ESCALATED),
+    @transition(field=state,
+                source=(RespondentCaseState.INIT, RespondentCaseState.ESCALATED, RespondentCaseState.CLOSED),
                 target=RespondentCaseState.ASSIGNED)
     def assign(self, to, comment=None, user=None):
         if comment:

@@ -134,6 +134,12 @@ class RespondentCaseViewSet(viewsets.ModelViewSet):
         case.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    @detail_route(methods=['post'], permission_classes=[IsCompanyProjectManager])
+    def reassign(self, request, pk=None):
+        self.assign(request, pk)
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
     @detail_route(methods=['post'])
     def close(self, request, pk=None):
         case = get_object_or_404(RespondentCase, pk=pk)
