@@ -2,4 +2,4 @@
 -PATH=/sbin:/bin:/usr/sbin:/usr/bin
 -MAILTO="plugaru.tudor@gmail.com"
 -HOME=/
--* 7 * * * root source /opt/python/current/env && django-admin.py checkfollowup
+-* 5 * * * root source /opt/python/current/env && django-admin.py checkfollowup

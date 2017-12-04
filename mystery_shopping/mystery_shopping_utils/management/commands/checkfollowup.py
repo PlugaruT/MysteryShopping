@@ -8,7 +8,7 @@ from mystery_shopping.respondents.models import RespondentCase
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        today = timezone.now()
-        cases = RespondentCase.objects.filter(follow_up_date=today)
+        now = timezone.now()
+        cases = RespondentCase.objects.filter(follow_up_date=now)
         for case in cases:
             send_notification_email_for_follow_up(case)
