@@ -115,7 +115,7 @@ class RespondentCasesAPITestCase(APITestCase):
         self.assertEqual(RespondentCaseState.PLANNED_FOR_FOLLOW_UP, read_case.state)
         self.assertEqual('because', read_case.solution)
         self.assertEqual('tag1', read_case.solution_tags.first().name)
-        self.assertEqual('%d-%m-%Y').date(), read_case.follow_up_date, datetime.strptime('10-10-2017')
+        self.assertEqual(read_case.follow_up_date, datetime.strptime('10-10-2017', '%d-%m-%Y').date())
 
     def test_start_follow_up(self):
         case = RespondentCaseFactory(state=RespondentCaseState.PLANNED_FOR_FOLLOW_UP)
