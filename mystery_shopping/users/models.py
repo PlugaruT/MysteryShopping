@@ -9,9 +9,7 @@ from guardian.shortcuts import get_objects_for_user
 
 from mystery_shopping.companies.models import CompanyElement
 from mystery_shopping.mystery_shopping_utils.models import OptionalTenantModel
-from mystery_shopping.projects.models import Evaluation, ResearchMethodology
-from mystery_shopping.projects.models import Project, Evaluation
-from mystery_shopping.projects.models import ResearchMethodology
+from mystery_shopping.projects.models import Evaluation, Evaluation, Project, ResearchMethodology, ResearchMethodology
 from mystery_shopping.tenants.models import Tenant
 # @python_2_unicode_compatible
 from mystery_shopping.users.managers import UserQuerySet

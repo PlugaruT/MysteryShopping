@@ -1,45 +1,23 @@
-from django.db.models.expressions import F
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.decorators import list_route, detail_route
 from rest_condition import Or
+from rest_framework import status, viewsets
+from rest_framework.decorators import detail_route, list_route
+from rest_framework.response import Response
 
 from mystery_shopping.mystery_shopping_utils.models import TenantFilter
 from mystery_shopping.mystery_shopping_utils.views import GetSerializerClassMixin
-from mystery_shopping.questionnaires.models import QuestionnaireTemplateStatus, CustomWeight
-from mystery_shopping.questionnaires.serializers import QuestionnaireTemplateSerializerGET
+from mystery_shopping.questionnaires.models import CrossIndex, CrossIndexTemplate, CustomWeight, Questionnaire, \
+    QuestionnaireBlock, QuestionnaireQuestion, QuestionnaireQuestionChoice, QuestionnaireScript, QuestionnaireTemplate, \
+    QuestionnaireTemplateBlock, QuestionnaireTemplateQuestion, QuestionnaireTemplateQuestionChoice, \
+    QuestionnaireTemplateStatus
+from mystery_shopping.questionnaires.serializers import BlockSimpleSerializer, CrossIndexSerializer, \
+    CrossIndexTemplateSerializer, QuestionSimpleSerializer, QuestionnaireBlockSerializer, \
+    QuestionnaireQuestionChoiceSerializer, QuestionnaireQuestionSerializer, QuestionnaireScriptSerializer, \
+    QuestionnaireSerializer, QuestionnaireSimpleSerializer, QuestionnaireTemplateBlockSerializer, \
+    QuestionnaireTemplateQuestionChoiceSerializer, QuestionnaireTemplateQuestionSerializer, \
+    QuestionnaireTemplateSerializer, QuestionnaireTemplateSerializerGET
 from mystery_shopping.questionnaires.utils import update_attributes
-from .models import QuestionnaireScript
-from .models import Questionnaire
-from .models import QuestionnaireTemplate
-from .models import QuestionnaireBlock
-from .models import QuestionnaireTemplateBlock
-from .models import QuestionnaireQuestion
-from .models import QuestionnaireTemplateQuestion
-from .models import QuestionnaireQuestionChoice
-from .models import QuestionnaireTemplateQuestionChoice
-from .models import CrossIndexTemplate
-from .models import CrossIndex
-from .serializers import QuestionnaireScriptSerializer
-from .serializers import QuestionnaireSerializer
-from .serializers import QuestionnaireTemplateSerializer
-from .serializers import QuestionnaireBlockSerializer
-from .serializers import QuestionnaireTemplateBlockSerializer
-from .serializers import QuestionnaireQuestionSerializer
-from .serializers import QuestionnaireTemplateQuestionSerializer
-from .serializers import QuestionnaireQuestionChoiceSerializer
-from .serializers import QuestionnaireTemplateQuestionChoiceSerializer
-from .serializers import CrossIndexTemplateSerializer
-from .serializers import CrossIndexSerializer
-from .serializers import QuestionnaireSimpleSerializer
-from .serializers import QuestionSimpleSerializer
-from .serializers import BlockSimpleSerializer
-
-from mystery_shopping.users.permissions import IsTenantProductManager
-from mystery_shopping.users.permissions import IsTenantProjectManager
-from mystery_shopping.users.permissions import IsTenantConsultant
+from mystery_shopping.users.permissions import IsTenantConsultant, IsTenantProductManager, IsTenantProjectManager
 
 
 class QuestionnaireScriptViewSet(viewsets.ModelViewSet):
