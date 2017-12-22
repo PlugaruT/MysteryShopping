@@ -5,7 +5,6 @@ from rest_condition import Or
 from rest_framework import status, viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.generics import get_object_or_404
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -29,8 +28,8 @@ class RespondentViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filter_class = RespondentFilter
     pagination_class = RespondentPaginator
-    permission_classes = (
-        Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant, IsCompanyProjectManager),)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant,
+                             IsCompanyProjectManager, IsDetractorManager),)
     serializer_class = RespondentSerializer
 
     def get_queryset(self):
@@ -56,13 +55,15 @@ class RespondentViewSet(viewsets.ModelViewSet):
 
 class RespondentWithCasesViewSet(RespondentViewSet):
     queryset = Respondent.objects.with_cases()
-    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant, IsDetractorManager),)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant, IsDetractorManager,
+                             IsCompanyProjectManager),)
 
 
 class RespondentCaseViewSet(viewsets.ModelViewSet):
     serializer_class = RespondentCase
     queryset = RespondentCase.objects.all()
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (Or(IsTenantProductManager, IsTenantProjectManager, IsTenantConsultant, IsDetractorManager,
+                             IsCompanyProjectManager),)
     pagination_class = RespondentPaginator
 
     @detail_route(methods=['post'])
@@ -112,7 +113,7 @@ class RespondentCaseViewSet(viewsets.ModelViewSet):
         case.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @detail_route(methods=['post'],  url_path='start-follow-up')
+    @detail_route(methods=['post'], url_path='start-follow-up')
     def start_follow_up(self, request, pk=None):
         case = get_object_or_404(RespondentCase, pk=pk)
 
