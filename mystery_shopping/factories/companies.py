@@ -4,7 +4,7 @@ from factory.django import DjangoModelFactory
 from mystery_shopping.companies.models import CompanyElement, Industry
 from mystery_shopping.factories.tenants import TenantFactory
 
-
+#test
 class IndustryFactory(DjangoModelFactory):
     class Meta:
         model = Industry
